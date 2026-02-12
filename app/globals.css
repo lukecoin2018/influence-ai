@@ -1,26 +1,148 @@
+@import url("https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap");
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* =====================
+   BASE
+   ===================== */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #FAFAFA;
+  color: #111827;
+  font-family: "Satoshi", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
+
+* {
+  box-sizing: border-box;
+  transition-property: color, background-color, border-color, box-shadow, transform, opacity;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* =====================
+   BACKGROUND COLORS
+   ===================== */
+.bg-purple { background-color: #7C3AED !important; }
+.bg-purple-light { background-color: #EDE9FE !important; }
+.bg-base { background-color: #FAFAFA !important; }
+.bg-card { background-color: #FFFFFF !important; }
+.bg-subtle { background-color: #F9FAFB !important; }
+.bg-green-soft { background-color: #ECFDF5 !important; }
+.bg-amber-soft { background-color: #FFFBEB !important; }
+.bg-red-soft { background-color: #FEF2F2 !important; }
+
+/* =====================
+   TEXT COLORS
+   ===================== */
+.text-purple { color: #7C3AED !important; }
+.text-primary { color: #111827 !important; }
+.text-secondary { color: #6B7280 !important; }
+.text-muted { color: #9CA3AF !important; }
+.text-green { color: #059669 !important; }
+.text-amber { color: #D97706 !important; }
+.text-red { color: #DC2626 !important; }
+.text-white { color: #FFFFFF !important; }
+
+/* =====================
+   BORDER COLORS
+   ===================== */
+.border-base { border-color: #E5E7EB !important; }
+.border-subtle { border-color: #F3F4F6 !important; }
+.border-purple { border-color: #7C3AED !important; }
+
+/* =====================
+   HOVER STATES
+   ===================== */
+.hover\:bg-purple:hover { background-color: #6D28D9 !important; }
+.hover\:bg-purple-light:hover { background-color: #EDE9FE !important; }
+.hover\:bg-subtle:hover { background-color: #F9FAFB !important; }
+.hover\:bg-card:hover { background-color: #FFFFFF !important; }
+.hover\:text-primary:hover { color: #111827 !important; }
+.hover\:text-purple:hover { color: #7C3AED !important; }
+.hover\:border-purple:hover { border-color: #7C3AED !important; }
+
+/* =====================
+   CARD STYLES
+   ===================== */
+.card {
+  background-color: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px 0 rgb(0 0 0 / 0.10), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+  transform: translateY(-1px);
+}
+
+/* =====================
+   BADGE / PILL
+   ===================== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* =====================
+   ENGAGEMENT INDICATORS
+   ===================== */
+.engagement-high {
+  color: #059669;
+  background-color: #ECFDF5;
+}
+
+.engagement-medium {
+  color: #D97706;
+  background-color: #FFFBEB;
+}
+
+.engagement-low {
+  color: #DC2626;
+  background-color: #FEF2F2;
+}
+
+.engagement-unknown {
+  color: #9CA3AF;
+  background-color: #F3F4F6;
+}
+
+/* =====================
+   FOCUS STATES
+   ===================== */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid transparent;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px #FAFAFA, 0 0 0 4px #7C3AED;
+}
+
+/* =====================
+   SKELETON LOADING
+   ===================== */
+.skeleton {
+  background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 6px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* =====================
+   SCROLLBAR
+   ===================== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background-color: #F9FAFB; }
+::-webkit-scrollbar-thumb { background-color: #D1D5DB; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background-color: #9CA3AF; }
