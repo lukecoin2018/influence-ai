@@ -107,6 +107,29 @@ function MetricCard({ label, value }: { label: string; value: string | React.Rea
 
 function PlatformMetrics({ profile }: { profile: SocialProfile }) {
   const isPlatformInstagram = profile.platform === 'instagram';
+
+  // Build the fourth metric card conditionally
+  const fourthMetric = (() => {
+    if (profile.platform === 'tiktok') {
+      const likes = profile.platform_data?.likes_count;
+      if (!likes || likes === 0) return null;
+      return { label: 'Total Likes', value: formatCount(likes) };
+    } else {
+      let category = profile.platform_data?.category_name;
+      if (!category || category === 'None') return null;
+      if (category.startsWith('None,')) category = category.slice(5).trim();
+      return { label: 'Category', value: category };
+    }
+  })();
+
+  const baseMetrics = [
+    { label: 'Followers', value: formatCount(profile.follower_count) },
+    { label: 'Following', value: formatCount(profile.following_count) },
+    { label: 'Posts', value: formatCount(profile.posts_count) },
+  ];
+
+  const metrics = fourthMetric ? [...baseMetrics, fourthMetric] : baseMetrics;
+
   return (
     <div className="card" style={{ padding: '24px', flex: 1 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
@@ -124,12 +147,7 @@ function PlatformMetrics({ profile }: { profile: SocialProfile }) {
         )}
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-        {[
-          { label: 'Followers', value: formatCount(profile.follower_count) },
-          { label: 'Following', value: formatCount(profile.following_count) },
-          { label: 'Posts', value: formatCount(profile.posts_count) },
-          { label: 'Ratio', value: formatFollowerRatio(profile.follower_count, profile.following_count) },
-        ].map(({ label, value }) => (
+        {metrics.map(({ label, value }) => (
           <div key={label} style={{ backgroundColor: '#F9FAFB', borderRadius: '8px', padding: '12px' }}>
             <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px 0' }}>{label}</p>
             <p style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: 0 }}>{value}</p>
@@ -153,7 +171,7 @@ function SimilarCreatorCard({ creator }: { creator: any }) {
       <div className="card" style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <span style={{ fontSize: '11px', fontWeight: 600, color: '#7C3AED' }}>
-            {creator.name.slice(0, 2).toUpperCase()}
+          {(creator.name ?? '??').slice(0, 2).toUpperCase()}
           </span>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
