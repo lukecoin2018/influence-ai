@@ -15,7 +15,7 @@ interface CreatorCardProps {
 }
 
 function AvatarFallback({ name }: { name: string }) {
-  const initials = name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
+  const initials = (name ?? '??').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
   return (
     <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
       <span style={{ fontSize: '14px', fontWeight: 600, color: '#7C3AED' }}>{initials}</span>
