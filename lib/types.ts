@@ -1,53 +1,75 @@
 export interface Creator {
-    id: string;
-    instagram_handle: string;
-    full_name: string | null;
-    bio: string | null;
-    follower_count: number | null;
-    following_count: number | null;
-    posts_count: number | null;
-    engagement_rate: number | null;
-    is_verified: boolean;
-    is_business_account: boolean;
-    category_name: string | null;
-    profile_pic_url: string | null;
-    profile_url: string | null;
-    website: string | null;
-    discovered_via_hashtags: string[] | null;
-    discovery_count: number | null;
-    status: string;
-    is_featured: boolean;
-    display_order: number | null;
-    content_tags: string[] | null;
-    first_discovered_at: string | null;
-    last_updated_at: string | null;
-    notes: string | null;
-  }
-  
-  export interface CreatorListResponse {
-    creators: Creator[];
-    total: number;
-    page: number;
-    limit: number;
-    totalPages: number;
-  }
-  
-  export interface StatsResponse {
-    totalCreators: number;
-    avgEngagementRate: number;
-    categoryCount: number;
-    newestCreatorDate: string | null;
-  }
-  
-  export interface CreatorFilters {
-    search?: string;
-    minFollowers?: number;
-    maxFollowers?: number;
-    minEngagement?: number;
-    category?: string;
-    verified?: boolean;
-    sortBy?: 'follower_count' | 'engagement_rate' | 'last_updated_at';
-    sortDir?: 'asc' | 'desc';
-    page?: number;
-    limit?: number;
-  }
+  creator_id: string;
+  name: string;
+  status: string;
+  is_featured: boolean;
+  total_followers: number;
+  primary_platform: 'instagram' | 'tiktok';
+  // Instagram
+  instagram_handle: string | null;
+  instagram_followers: number | null;
+  instagram_engagement: number | null;
+  instagram_verified: boolean | null;
+  instagram_pic: string | null;
+  // TikTok
+  tiktok_handle: string | null;
+  tiktok_followers: number | null;
+  tiktok_engagement: number | null;
+  tiktok_verified: boolean | null;
+  tiktok_pic: string | null;
+}
+
+export interface SocialProfile {
+  id: string;
+  creator_id: string;
+  platform: 'instagram' | 'tiktok';
+  handle: string;
+  follower_count: number | null;
+  following_count: number | null;
+  posts_count: number | null;
+  engagement_rate: number | null;
+  is_verified: boolean;
+  profile_pic_url: string | null;
+  profile_url: string | null;
+  bio: string | null;
+  website: string | null;
+  platform_data: Record<string, any>;
+  discovered_via_hashtags: string[] | null;
+}
+
+export interface CreatorDetail extends Creator {
+  social_profiles: SocialProfile[];
+}
+
+export interface CreatorListResponse {
+  creators: Creator[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
+export interface StatsResponse {
+  totalCreators: number;
+  avgEngagementRate: number;
+  categoryCount: number;
+  platformBreakdown: {
+    instagram: number;
+    tiktok: number;
+    both: number;
+  };
+}
+
+export interface CreatorFilters {
+  search?: string;
+  minFollowers?: number;
+  maxFollowers?: number;
+  minEngagement?: number;
+  category?: string;
+  platform?: 'instagram' | 'tiktok' | 'both';
+  verified?: boolean;
+  sortBy?: string;
+  sortDir?: 'asc' | 'desc';
+  page?: number;
+  limit?: number;
+}

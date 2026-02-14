@@ -265,10 +265,10 @@ function CreatorsContent() {
           }}>
             {creators.map((creator) => (
               <CreatorCard
-                key={creator.id}
+              key={creator.creator_id}
                 creator={creator}
                 onCompareToggle={toggleCompare}
-                isSelectedForCompare={compareHandles.includes(creator.instagram_handle)}
+                isSelectedForCompare={compareHandles.includes(creator.instagram_handle ?? creator.tiktok_handle ?? '')}
               />
             ))}
           </div>

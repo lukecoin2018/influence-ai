@@ -7,15 +7,31 @@ export async function GET(
 ) {
   const { handle } = await params;
 
-  const { data, error } = await supabase
-    .from('creators')
-    .select('*')
-    .eq('instagram_handle', handle)
+  const { data: profile, error: profileError } = await supabase
+    .from('social_profiles')
+    .select('creator_id')
+    .eq('handle', handle)
+    .limit(1)
     .single();
 
-  if (error || !data) {
+  if (profileError || !profile) {
     return NextResponse.json({ error: 'Creator not found' }, { status: 404 });
   }
 
-  return NextResponse.json({ creator: data });
+  const { data: creator, error: creatorError } = await supabase
+    .from('creators')
+    .select('*')
+    .eq('id', profile.creator_id)
+    .single();
+
+  if (creatorError || !creator) {
+    return NextResponse.json({ error: 'Creator not found' }, { status: 404 });
+  }
+
+  const { data: profiles } = await supabase
+    .from('social_profiles')
+    .select('*')
+    .eq('creator_id', profile.creator_id);
+
+  return NextResponse.json({ creator: { ...creator, social_profiles: profiles ?? [] } });
 }

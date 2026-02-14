@@ -12,16 +12,17 @@ export async function GET(request: Request) {
   const handles = handlesParam.split(',').map((h) => h.trim()).filter(Boolean);
 
   if (handles.length < 2 || handles.length > 4) {
-    return NextResponse.json(
-      { error: 'Provide between 2 and 4 handles' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Provide between 2 and 4 handles' }, { status: 400 });
   }
 
+  const orFilter = handles
+    .map((h) => `instagram_handle.eq.${h},tiktok_handle.eq.${h}`)
+    .join(',');
+
   const { data, error } = await supabase
-    .from('creators')
+    .from('v_creator_summary')
     .select('*')
-    .in('instagram_handle', handles);
+    .or(orFilter);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

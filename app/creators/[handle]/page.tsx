@@ -1,210 +1,286 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
-import { ExternalLink, Instagram, ArrowLeft } from 'lucide-react';
-import { CategoryBadge } from '@/components/CategoryBadge';
+import { ArrowLeft, ExternalLink } from 'lucide-react';
 import { EngagementIndicator } from '@/components/EngagementIndicator';
+import { CategoryBadge } from '@/components/CategoryBadge';
 import { formatCount, formatFollowerRatio, formatDate, cleanDiscoveryTags } from '@/lib/formatters';
 import { supabase } from '@/lib/supabase';
-import type { Creator } from '@/lib/types';
+import type { CreatorDetail, SocialProfile } from '@/lib/types';
 
-async function getCreator(handle: string): Promise<Creator | null> {
-  const { data, error } = await supabase
-    .from('creators')
-    .select('*')
-    .eq('instagram_handle', handle)
+async function getCreator(handle: string): Promise<CreatorDetail | null> {
+  const { data: profile } = await supabase
+    .from('social_profiles')
+    .select('creator_id')
+    .eq('handle', handle)
+    .limit(1)
     .single();
-  if (error || !data) return null;
-  return data as Creator;
-}
 
-async function getSimilarCreators(creator: Creator): Promise<Creator[]> {
-  if (!creator.category_name) return [];
-  const { data } = await supabase
+  if (!profile) return null;
+
+  const { data: creator } = await supabase
     .from('creators')
     .select('*')
-    .eq('category_name', creator.category_name)
-    .neq('instagram_handle', creator.instagram_handle)
-    .limit(6);
-  return (data ?? []) as Creator[];
+    .eq('id', profile.creator_id)
+    .single();
+
+  if (!creator) return null;
+
+  const { data: profiles } = await supabase
+    .from('social_profiles')
+    .select('*')
+    .eq('creator_id', profile.creator_id);
+
+  const { data: summary } = await supabase
+    .from('v_creator_summary')
+    .select('*')
+    .eq('creator_id', profile.creator_id)
+    .single();
+
+  return { ...creator, ...summary, social_profiles: profiles ?? [] } as CreatorDetail;
 }
 
-function AvatarFallback({ name, handle }: { name: string | null; handle: string }) {
-  const initials = name
-    ? name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
-    : handle.slice(0, 2).toUpperCase();
+async function getSimilarCreators(creatorId: string, category: string | null, totalFollowers: number): Promise<any[]> {
+  if (!category) {
+    const { data } = await supabase
+      .from('v_creator_summary')
+      .select('*')
+      .neq('creator_id', creatorId)
+      .gte('total_followers', totalFollowers * 0.5)
+      .lte('total_followers', totalFollowers * 1.5)
+      .limit(6);
+    return data ?? [];
+  }
+
+  const { data: catProfiles } = await supabase
+    .from('social_profiles')
+    .select('creator_id')
+    .eq('platform_data->>category_name', category)
+    .neq('creator_id', creatorId);
+
+  const ids = (catProfiles ?? []).map((p) => p.creator_id).slice(0, 20);
+  if (ids.length === 0) return [];
+
+  const { data } = await supabase
+    .from('v_creator_summary')
+    .select('*')
+    .in('creator_id', ids)
+    .limit(6);
+
+  return data ?? [];
+}
+
+function AvatarFallback({ name }: { name: string }) {
+  const initials = name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
   return (
-    <div style={{
-      width: '96px', height: '96px', borderRadius: '50%',
-      backgroundColor: '#EDE9FE', display: 'flex',
-      alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-    }}>
+    <div style={{ width: '96px', height: '96px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
       <span style={{ fontSize: '28px', fontWeight: 700, color: '#7C3AED' }}>{initials}</span>
     </div>
   );
 }
 
+function InstagramIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+      <circle cx="12" cy="12" r="4"/>
+      <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+    </svg>
+  );
+}
+
+function TikTokIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V9.05a8.16 8.16 0 004.77 1.52V7.12a4.85 4.85 0 01-1-.43z"/>
+    </svg>
+  );
+}
+
 function MetricCard({ label, value }: { label: string; value: string | React.ReactNode }) {
   return (
-    <div className="card" style={{ padding: '20px 24px', textAlign: 'center', flex: '1 1 140px' }}>
-      <p style={{ fontSize: '12px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 8px 0' }}>
-        {label}
-      </p>
-      <div style={{ fontSize: '22px', fontWeight: 700, color: '#111827' }}>
-        {value}
+    <div className="card" style={{ padding: '20px 24px', textAlign: 'center', flex: '1 1 120px' }}>
+      <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 8px 0' }}>{label}</p>
+      <div style={{ fontSize: '20px', fontWeight: 700, color: '#111827' }}>{value}</div>
+    </div>
+  );
+}
+
+function PlatformMetrics({ profile }: { profile: SocialProfile }) {
+  const isPlatformInstagram = profile.platform === 'instagram';
+  return (
+    <div className="card" style={{ padding: '24px', flex: 1 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
+        <div style={{ color: isPlatformInstagram ? '#E1306C' : '#010101' }}>
+          {isPlatformInstagram ? <InstagramIcon size={18} /> : <TikTokIcon size={18} />}
+        </div>
+        <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#111827', margin: 0 }}>
+          {isPlatformInstagram ? 'Instagram' : 'TikTok'}
+        </h3>
+        <span style={{ fontSize: '13px', color: '#6B7280' }}>@{profile.handle}</span>
+        {profile.profile_url && (
+          <a href={profile.profile_url} target="_blank" rel="noopener noreferrer" style={{ marginLeft: 'auto', color: '#7C3AED', display: 'flex', alignItems: 'center' }}>
+            <ExternalLink size={14} />
+          </a>
+        )}
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
+        {[
+          { label: 'Followers', value: formatCount(profile.follower_count) },
+          { label: 'Following', value: formatCount(profile.following_count) },
+          { label: 'Posts', value: formatCount(profile.posts_count) },
+          { label: 'Ratio', value: formatFollowerRatio(profile.follower_count, profile.following_count) },
+        ].map(({ label, value }) => (
+          <div key={label} style={{ backgroundColor: '#F9FAFB', borderRadius: '8px', padding: '12px' }}>
+            <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px 0' }}>{label}</p>
+            <p style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: 0 }}>{value}</p>
+          </div>
+        ))}
+      </div>
+      <div style={{ marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <span style={{ fontSize: '12px', color: '#6B7280' }}>Engagement:</span>
+        <EngagementIndicator rate={profile.engagement_rate} showLabel={false} size="sm" />
       </div>
     </div>
   );
 }
 
-function SimilarCreatorCard({ creator }: { creator: Creator }) {
+function SimilarCreatorCard({ creator }: { creator: any }) {
+  const handle = creator.instagram_handle ?? creator.tiktok_handle;
+  const engagement = creator.instagram_engagement ?? creator.tiktok_engagement;
+  if (!handle) return null;
   return (
-    <Link href={`/creators/${creator.instagram_handle}`} style={{ textDecoration: 'none' }}>
-      <div className="card" style={{ padding: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <div style={{
-          width: '40px', height: '40px', borderRadius: '50%',
-          backgroundColor: '#EDE9FE', display: 'flex',
-          alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-        }}>
-          <span style={{ fontSize: '12px', fontWeight: 600, color: '#7C3AED' }}>
-            {(creator.full_name ?? creator.instagram_handle).slice(0, 2).toUpperCase()}
+    <Link href={`/creators/${handle}`} style={{ textDecoration: 'none' }}>
+      <div className="card" style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: '#7C3AED' }}>
+            {creator.name.slice(0, 2).toUpperCase()}
           </span>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 2px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-            @{creator.instagram_handle}
-          </p>
-          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
-            {formatCount(creator.follower_count)} followers
-          </p>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 2px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{creator.name}</p>
+          <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{formatCount(creator.total_followers)} followers</p>
         </div>
-        <EngagementIndicator rate={creator.engagement_rate} showLabel={false} size="sm" />
+        <EngagementIndicator rate={engagement} showLabel={false} size="sm" />
       </div>
     </Link>
   );
 }
 
 export default async function CreatorProfilePage({
-    params,
-  }: {
-    params: Promise<{ handle: string }>;
-  }) {
-    const { handle } = await params;
-    const creator = await getCreator(handle);
-  
-    if (!creator) notFound();
-  
-    const similarCreators = await getSimilarCreators(creator);
-    const discoveryTags = cleanDiscoveryTags(creator.discovered_via_hashtags);
-  
-    const {
-      instagram_handle, full_name, bio, follower_count,
-      following_count, posts_count, engagement_rate,
-      is_verified, category_name, profile_pic_url,
-      website, profile_url, last_updated_at,
-    } = creator;
-  
-    return (
-        <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh' }}>
-          <div className="max-w-7xl mx-auto px-6" style={{ paddingTop: '32px', paddingBottom: '80px' }}>
-            <Link href="/creators" style={{ textDecoration: 'none', fontSize: '14px', fontWeight: 500, marginBottom: '24px', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#6B7280' }}>
-              <ArrowLeft size={16} />
-              Back to Creators
-            </Link>
-    
-            <div className="card" style={{ padding: '32px', marginBottom: '24px', marginTop: '16px' }}>
-              <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                {profile_pic_url ? (
-                  <div style={{ width: '96px', height: '96px', borderRadius: '50%', overflow: 'hidden', flexShrink: 0, position: 'relative' }}>
-                    <Image src={profile_pic_url} alt={instagram_handle} fill style={{ objectFit: 'cover' }} unoptimized />
-                  </div>
-                ) : (
-                  <AvatarFallback name={full_name} handle={instagram_handle} />
+  params,
+}: {
+  params: Promise<{ handle: string }>;
+}) {
+  const { handle } = await params;
+  const creator = await getCreator(handle);
+  if (!creator) notFound();
+
+  const socialProfiles = creator.social_profiles ?? [];
+  const instagramProfile = socialProfiles.find((p) => p.platform === 'instagram');
+  const tiktokProfile = socialProfiles.find((p) => p.platform === 'tiktok');
+  const primaryProfile = instagramProfile ?? tiktokProfile;
+  const category = primaryProfile?.platform_data?.category_name ?? null;
+  const cleanCategory = category && category !== 'None' ? category : null;
+  const bio = primaryProfile?.bio ?? null;
+  const website = primaryProfile?.website ?? null;
+  const discoveryTags = cleanDiscoveryTags(primaryProfile?.discovered_via_hashtags);
+  const similarCreators = await getSimilarCreators(creator.creator_id, cleanCategory, creator.total_followers);
+
+  return (
+    <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh' }}>
+      <div className="max-w-7xl mx-auto px-6" style={{ paddingTop: '32px', paddingBottom: '80px' }}>
+
+        <Link href="/creators" style={{ textDecoration: 'none', fontSize: '14px', fontWeight: 500, marginBottom: '24px', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#6B7280' }}>
+          <ArrowLeft size={16} />
+          Back to Creators
+        </Link>
+
+        <div className="card" style={{ padding: '32px', marginBottom: '24px', marginTop: '16px' }}>
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <AvatarFallback name={creator.name} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0, letterSpacing: '-0.02em' }}>{creator.name}</h1>
+                {(instagramProfile?.is_verified || tiktokProfile?.is_verified) && (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
                 )}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '4px' }}>
-                    <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0, letterSpacing: '-0.02em' }}>
-                      @{instagram_handle}
-                    </h1>
-                    {is_verified && (
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
-                    )}
-                    <CategoryBadge category={category_name} />
-                  </div>
-                  {full_name && (
-                    <p style={{ fontSize: '16px', color: '#6B7280', margin: '0 0 12px 0' }}>{full_name}</p>
-                  )}
-                  {bio && (
-                    <p style={{ fontSize: '15px', color: '#374151', lineHeight: '1.6', margin: '0 0 16px 0', maxWidth: '640px' }}>{bio}</p>
-                  )}
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    {profile_url && (
-                      <a href={profile_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', backgroundColor: '#7C3AED', color: 'white', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
-                        <Instagram size={14} />
-                        View on Instagram
-                      </a>
-                    )}
-                    {website && (
-                      <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px', borderRadius: '8px', border: '1px solid #E5E7EB', color: '#6B7280', fontSize: '13px', fontWeight: 500, textDecoration: 'none' }}>
-                        <ExternalLink size={14} />
-                        {website.replace(/^https?:\/\//, '').split('/')[0]}
-                      </a>
-                    )}
-                  </div>
-                </div>
-                {last_updated_at && (
-                  <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>Updated {formatDate(last_updated_at)}</p>
-                )}
+                {cleanCategory && <CategoryBadge category={cleanCategory} />}
               </div>
-            </div>
-    
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '24px' }}>
-              <MetricCard label="Followers" value={formatCount(follower_count)} />
-              <MetricCard label="Following" value={formatCount(following_count)} />
-              <MetricCard label="Posts" value={formatCount(posts_count)} />
-              <MetricCard label="Engagement Rate" value={<EngagementIndicator rate={engagement_rate} showLabel={false} size="lg" />} />
-              <MetricCard label="Follower Ratio" value={formatFollowerRatio(follower_count, following_count)} />
-            </div>
-    
-            <div style={{ display: 'grid', gridTemplateColumns: similarCreators.length > 0 ? '1fr 320px' : '1fr', gap: '24px', alignItems: 'start' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                {discoveryTags.length > 0 && (
-                  <div className="card" style={{ padding: '24px' }}>
-                    <h2 style={{ fontSize: '14px', fontWeight: 600, color: '#111827', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Discovered Via</h2>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                      {discoveryTags.map((tag) => (
-                        <span key={tag} className="badge bg-subtle text-secondary" style={{ fontSize: '13px', padding: '4px 12px' }}>{tag}</span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div className="card" style={{ padding: '28px', background: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)', border: '1px solid #DDD6FE' }}>
-                  <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: '0 0 8px 0' }}>
-                    Interested in working with {full_name?.split(' ')[0] ?? instagram_handle}?
-                  </h2>
-                  <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 20px 0', lineHeight: '1.6' }}>
-                    Reach out to discuss a potential partnership and get access to full analytics.
-                  </p>
-                  <a href={`mailto:hello@influenceai.com?subject=Partnership Inquiry: @${instagram_handle}&body=Hi, I'm interested in working with @${instagram_handle}.`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '8px', backgroundColor: '#7C3AED', color: 'white', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
-                    Get in Touch
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                {instagramProfile && (
+                  <a href={instagramProfile.profile_url ?? '#'} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', backgroundColor: '#FFF0F5', color: '#E1306C', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+                    <InstagramIcon size={14} />
+                    @{instagramProfile.handle}
                   </a>
-                </div>
+                )}
+                {tiktokProfile && (
+                  <a href={tiktokProfile.profile_url ?? '#'} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', backgroundColor: '#F0F0F0', color: '#010101', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+                    <TikTokIcon size={14} />
+                    @{tiktokProfile.handle}
+                  </a>
+                )}
+                {website && (
+                  <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', color: '#6B7280', fontSize: '13px', fontWeight: 500, textDecoration: 'none' }}>
+                    <ExternalLink size={13} />
+                    {website.replace(/^https?:\/\//, '').split('/')[0]}
+                  </a>
+                )}
               </div>
-    
-              {similarCreators.length > 0 && (
-                <div className="card" style={{ padding: '24px' }}>
-                  <h2 style={{ fontSize: '14px', fontWeight: 600, color: '#111827', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Similar Creators</h2>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    {similarCreators.map((c) => (
-                      <SimilarCreatorCard key={c.id} creator={c} />
-                    ))}
-                  </div>
-                </div>
+              {bio && (
+                <p style={{ fontSize: '15px', color: '#374151', lineHeight: '1.6', margin: 0, maxWidth: '640px' }}>{bio}</p>
               )}
             </div>
+            {primaryProfile?.platform_data?.last_updated_at && (
+              <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0, flexShrink: 0 }}>Updated {formatDate(primaryProfile.platform_data.last_updated_at)}</p>
+            )}
           </div>
         </div>
-      );
-    }
+
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '24px' }}>
+          {instagramProfile && <PlatformMetrics profile={instagramProfile} />}
+          {tiktokProfile && <PlatformMetrics profile={tiktokProfile} />}
+        </div>
+
+        {instagramProfile && tiktokProfile && (
+          <div className="card" style={{ padding: '20px 24px', marginBottom: '24px' }}>
+            <p style={{ fontSize: '12px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px 0' }}>Total Cross-Platform Followers</p>
+            <p style={{ fontSize: '28px', fontWeight: 800, color: '#7C3AED', margin: 0, letterSpacing: '-0.02em' }}>{formatCount(creator.total_followers)}</p>
+          </div>
+        )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: similarCreators.length > 0 ? '1fr 300px' : '1fr', gap: '24px', alignItems: 'start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {discoveryTags.length > 0 && (
+              <div className="card" style={{ padding: '24px' }}>
+                <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Discovered Via</h2>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {discoveryTags.map((tag) => (
+                    <span key={tag} className="badge bg-subtle text-secondary" style={{ fontSize: '13px', padding: '4px 12px' }}>{tag}</span>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div className="card" style={{ padding: '28px', background: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)', border: '1px solid #DDD6FE' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: '0 0 8px 0' }}>Interested in working with {creator.name.split(' ')[0]}?</h2>
+              <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 20px 0', lineHeight: '1.6' }}>Reach out to discuss a potential partnership and get access to full analytics.</p>
+              <a href={`mailto:hello@influenceai.com?subject=Partnership Inquiry: ${creator.name}&body=Hi, I'm interested in working with ${creator.name}.`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '8px', backgroundColor: '#7C3AED', color: 'white', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
+                Get in Touch
+              </a>
+            </div>
+          </div>
+
+          {similarCreators.length > 0 && (
+            <div className="card" style={{ padding: '24px' }}>
+              <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Similar Creators</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {similarCreators.map((c) => <SimilarCreatorCard key={c.creator_id} creator={c} />)}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
