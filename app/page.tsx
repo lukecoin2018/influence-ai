@@ -115,7 +115,7 @@ export default async function HomePage() {
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px' }}>
               {featuredCreators.slice(0, 6).map((creator) => (
-                <CreatorCard key={creator.id} creator={creator} />
+                <CreatorCard key={creator.creator_id} creator={creator} />
               ))}
             </div>
           </div>
