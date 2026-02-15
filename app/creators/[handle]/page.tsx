@@ -402,7 +402,6 @@ export default async function CreatorProfilePage({
   const cleanCategory = category && category !== 'None' ? category : null;
   const bio = primaryProfile?.bio ?? null;
   const website = primaryProfile?.website ?? null;
-  const discoveryTags = cleanDiscoveryTags(primaryProfile?.discovered_via_hashtags);
   const similarCreators = await getSimilarCreators(creator.creator_id, cleanCategory, creator.total_followers);
 
   return (
@@ -474,16 +473,7 @@ export default async function CreatorProfilePage({
           {hasEnrichment && (
           <ContentAnalytics enrichment={primaryEnrichment!} enrichedAt={enrichedAt} />
             )}
-            {discoveryTags.length > 0 && (
-              <div className="card" style={{ padding: '24px' }}>
-                <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Discovered Via</h2>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  {discoveryTags.map((tag) => (
-                    <span key={tag} className="badge bg-subtle text-secondary" style={{ fontSize: '13px', padding: '4px 12px' }}>{tag}</span>
-                  ))}
-                </div>
-              </div>
-            )}
+            
             <div className="card" style={{ padding: '28px', background: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)', border: '1px solid #DDD6FE' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: '0 0 8px 0' }}>Interested in working with {creator.name.split(' ')[0]}?</h2>
               <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 20px 0', lineHeight: '1.6' }}>Reach out to discuss a potential partnership and get access to full analytics.</p>
