@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart2 } from 'lucide-react';
+import { BarChart2, Sparkles } from 'lucide-react';
 
 const navLinks = [
   { href: '/creators', label: 'Creators' },
+  { href: '/match', label: 'Find Creators', highlight: true },
   { href: '/compare', label: 'Compare' },
   { href: '/about', label: 'About' },
 ];
@@ -35,18 +36,19 @@ export function Navigation() {
 
         {/* Nav */}
         <nav className="flex items-center gap-1">
-          {navLinks.map(({ href, label }) => {
+          {navLinks.map(({ href, label, highlight}) => {
             const isActive = pathname === href || pathname.startsWith(`${href}/`);
             return (
               <Link
                 key={href}
                 href={href}
-                className={`rounded-lg font-medium no-underline px-4 py-2 text-sm ${
+                className={`rounded-lg font-medium no-underline px-4 py-2 text-sm flex items-center gap-1.5 ${
                   isActive
                     ? 'bg-purple-light text-purple'
                     : 'text-secondary hover:text-primary hover:bg-subtle'
                 }`}
               >
+                {highlight && <Sparkles size={12} color={isActive ? '#7C3AED' : '#9CA3AF'} />}
                 {label}
               </Link>
             );
