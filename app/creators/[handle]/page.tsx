@@ -40,6 +40,38 @@ async function getCreator(handle: string): Promise<CreatorDetail | null> {
 }
 
 async function getSimilarCreators(creatorId: string, category: string | null, totalFollowers: number): Promise<any[]> {
+  // Try vector similarity first
+  const { data: creator } = await supabase
+    .from('creators')
+    .select('embedding')
+    .eq('id', creatorId)
+    .single();
+
+  if (creator?.embedding) {
+    const { data: matches } = await supabase.rpc('match_creators', {
+      query_embedding: creator.embedding,
+      match_count: 7,
+      similarity_threshold: 0.4,
+    });
+
+    if (matches && matches.length > 0) {
+      const ids = matches
+        .filter((m: any) => m.creator_id !== creatorId)
+        .map((m: any) => m.creator_id)
+        .slice(0, 6);
+
+      if (ids.length > 0) {
+        const { data: similar } = await supabase
+          .from('v_creator_summary')
+          .select('*')
+          .in('creator_id', ids);
+
+        if (similar && similar.length > 0) return similar;
+      }
+    }
+  }
+
+  // Fallback to category/follower matching
   if (!category) {
     const { data } = await supabase
       .from('v_creator_summary')
@@ -68,6 +100,7 @@ async function getSimilarCreators(creatorId: string, category: string | null, to
 
   return data ?? [];
 }
+
 function ActivityBadge({ days }: { days: number | null }) {
   if (days === null) return null;
   const config = days < 7
