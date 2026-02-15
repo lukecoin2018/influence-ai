@@ -35,6 +35,8 @@ export interface SocialProfile {
   website: string | null;
   platform_data: Record<string, any>;
   discovered_via_hashtags: string[] | null;
+  enrichment_data: EnrichmentData | null;
+  enriched_at: string | null;
 }
 
 export interface CreatorDetail extends Creator {
@@ -72,4 +74,19 @@ export interface CreatorFilters {
   sortDir?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+}
+
+export interface EnrichmentData {
+  avg_likes: number | null;
+  avg_views: number | null;
+  avg_comments: number | null;
+  content_mix: Record<string, number> | null;
+  top_hashtags: string[] | null;
+  last_post_date: string | null;
+  days_since_last_post: number | null;
+  sponsored_posts_count: number | null;
+  detected_brands: string[] | null;
+  brand_partnership_count: number | null;
+  calculated_engagement_rate: number | null;
+  posting_frequency_per_week: number | null;
 }

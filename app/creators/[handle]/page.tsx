@@ -5,7 +5,7 @@ import { EngagementIndicator } from '@/components/EngagementIndicator';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { formatCount, formatFollowerRatio, formatDate, cleanDiscoveryTags } from '@/lib/formatters';
 import { supabase } from '@/lib/supabase';
-import type { CreatorDetail, SocialProfile } from '@/lib/types';
+import type { CreatorDetail, SocialProfile, EnrichmentData } from '@/lib/types';
 
 async function getCreator(handle: string): Promise<CreatorDetail | null> {
   const { data: profile } = await supabase
@@ -67,6 +67,169 @@ async function getSimilarCreators(creatorId: string, category: string | null, to
     .limit(6);
 
   return data ?? [];
+}
+function ActivityBadge({ days }: { days: number | null }) {
+  if (days === null) return null;
+  const config = days < 7
+    ? { color: '#059669', bg: '#ECFDF5', label: 'Active' }
+    : days <= 30
+    ? { color: '#D97706', bg: '#FFFBEB', label: 'Moderately active' }
+    : { color: '#DC2626', bg: '#FEF2F2', label: 'Inactive' };
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: '999px', backgroundColor: config.bg }}>
+      <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: config.color, flexShrink: 0 }} />
+      <span style={{ fontSize: '12px', fontWeight: 600, color: config.color }}>{config.label}</span>
+    </div>
+  );
+}
+
+function ContentMixBar({ mix }: { mix: Record<string, number> }) {
+  const colors: Record<string, string> = {
+    Video: '#7C3AED',
+    Reel: '#7C3AED',
+    Sidecar: '#A78BFA',
+    Carousel: '#A78BFA',
+    Image: '#C4B5FD',
+    Photo: '#C4B5FD',
+  }; 
+
+  const displayNames: Record<string, string> = {
+    Sidecar: 'Carousel',
+  };
+
+  const defaultColor = '#DDD6FE';
+  const entries = Object.entries(mix).filter(([, v]) => v > 0);
+  if (entries.length === 0) return null;
+  return (
+    <div>
+      <div style={{ display: 'flex', borderRadius: '8px', overflow: 'hidden', height: '32px', gap: '2px' }}>
+        {entries.map(([type, pct]) => (
+          <div key={type} style={{ flex: pct, backgroundColor: colors[type] ?? defaultColor, display: 'flex', alignItems: 'center', justifyContent: 'center', minWidth: pct > 10 ? 'auto' : '0' }}>
+            {pct > 10 && <span style={{ fontSize: '11px', fontWeight: 600, color: 'white' }}>{displayNames[type] ?? type} {pct}%</span>}
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginTop: '10px' }}>
+        {entries.map(([type, pct]) => (
+          <div key={type} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: colors[type] ?? defaultColor, flexShrink: 0 }} />
+          <span style={{ fontSize: '12px', color: '#6B7280' }}>{displayNames[type] ?? type} <strong style={{ color: '#111827' }}>{pct}%</strong></span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function EngagementColor(rate: number | null): string {
+  if (rate === null) return '#9CA3AF';
+  if (rate >= 4) return '#059669';
+  if (rate >= 2) return '#D97706';
+  return '#DC2626';
+}
+
+function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentData; enrichedAt: string | null }) {
+  const {
+    calculated_engagement_rate, posting_frequency_per_week,
+    avg_likes, avg_views, avg_comments, content_mix,
+    top_hashtags, days_since_last_post,
+    sponsored_posts_count, detected_brands, brand_partnership_count,
+  } = enrichment;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>Content Analytics</h2>
+          <ActivityBadge days={days_since_last_post} />
+        </div>
+        {enrichedAt && (
+          <span style={{ fontSize: '12px', color: '#9CA3AF' }}>
+            Data calculated {formatDate(enrichedAt)}
+          </span>
+        )}
+      </div>
+
+      {/* Key metrics */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
+        {calculated_engagement_rate != null && (
+          <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px' }}>
+            <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px 0' }}>Engagement Rate</p>
+            <p style={{ fontSize: '22px', fontWeight: 700, color: EngagementColor(calculated_engagement_rate), margin: '0 0 2px 0' }}>{calculated_engagement_rate.toFixed(1)}%</p>
+            <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>Calculated from recent posts</p>
+          </div>
+        )}
+        {posting_frequency_per_week != null && (
+          <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px' }}>
+            <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px 0' }}>Posting Frequency</p>
+            <p style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 }}>{posting_frequency_per_week.toFixed(1)}<span style={{ fontSize: '13px', fontWeight: 500, color: '#6B7280' }}> /week</span></p>
+          </div>
+        )}
+        {avg_likes != null && (
+          <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px' }}>
+            <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px 0' }}>Avg Likes</p>
+            <p style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 }}>{formatCount(avg_likes)}</p>
+          </div>
+        )}
+        {avg_views != null && avg_views > 0 && (
+          <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px' }}>
+            <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px 0' }}>Avg Views</p>
+            <p style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 }}>{formatCount(avg_views)}</p>
+          </div>
+        )}
+        {avg_comments != null && (
+          <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px' }}>
+            <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px 0' }}>Avg Comments</p>
+            <p style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 }}>{formatCount(avg_comments)}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Content mix */}
+      {content_mix && Object.keys(content_mix).length > 0 && (
+        <div className="card" style={{ padding: '20px' }}>
+          <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 16px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Content Mix</h3>
+          <ContentMixBar mix={content_mix} />
+        </div>
+      )}
+
+      {/* Top hashtags */}
+      {top_hashtags && top_hashtags.length > 0 && (
+        <div className="card" style={{ padding: '20px' }}>
+          <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Top Hashtags</h3>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {top_hashtags.slice(0, 10).map((tag) => (
+              <span key={tag} style={{ padding: '4px 12px', borderRadius: '999px', backgroundColor: '#EDE9FE', color: '#7C3AED', fontSize: '13px', fontWeight: 500 }}>
+                #{tag}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Brand partnerships */}
+      {sponsored_posts_count != null && sponsored_posts_count > 0 && (
+        <div className="card" style={{ padding: '20px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+            <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Brand Partnerships Detected</h3>
+            <span style={{ padding: '2px 8px', borderRadius: '999px', backgroundColor: '#EDE9FE', color: '#7C3AED', fontSize: '12px', fontWeight: 700 }}>{brand_partnership_count}</span>
+          </div>
+          {detected_brands && detected_brands.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+              {detected_brands.map((brand) => (
+                <span key={brand} style={{ padding: '4px 12px', borderRadius: '8px', backgroundColor: '#F3F4F6', color: '#374151', fontSize: '13px', fontWeight: 500, textTransform: 'capitalize' }}>
+                  {brand}
+                </span>
+              ))}
+            </div>
+          )}
+          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>Based on analysis of recent posts</p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 function AvatarFallback({ name }: { name: string }) {
@@ -193,6 +356,9 @@ export default async function CreatorProfilePage({
   const creator = await getCreator(handle);
   if (!creator) notFound();
 
+  const instagramEnrichment = (creator.social_profiles?.find((p) => p.platform === 'instagram')?.enrichment_data ?? null) as EnrichmentData | null;
+  const enrichedAt = creator.social_profiles?.find((p) => p.platform === 'instagram')?.enriched_at ?? null;
+  const hasEnrichment = !!instagramEnrichment && Object.keys(instagramEnrichment).length > 0 && !!enrichedAt;
   const socialProfiles = creator.social_profiles ?? [];
   const instagramProfile = socialProfiles.find((p) => p.platform === 'instagram');
   const tiktokProfile = socialProfiles.find((p) => p.platform === 'tiktok');
@@ -270,6 +436,9 @@ export default async function CreatorProfilePage({
 
         <div style={{ display: 'grid', gridTemplateColumns: similarCreators.length > 0 ? '1fr 300px' : '1fr', gap: '24px', alignItems: 'start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {hasEnrichment && (
+            <ContentAnalytics enrichment={instagramEnrichment!} enrichedAt={enrichedAt} />
+           )}
             {discoveryTags.length > 0 && (
               <div className="card" style={{ padding: '24px' }}>
                 <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Discovered Via</h2>
