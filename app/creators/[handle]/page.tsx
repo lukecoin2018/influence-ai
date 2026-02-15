@@ -357,8 +357,10 @@ export default async function CreatorProfilePage({
   if (!creator) notFound();
 
   const instagramEnrichment = (creator.social_profiles?.find((p) => p.platform === 'instagram')?.enrichment_data ?? null) as EnrichmentData | null;
-  const enrichedAt = creator.social_profiles?.find((p) => p.platform === 'instagram')?.enriched_at ?? null;
-  const hasEnrichment = !!instagramEnrichment && Object.keys(instagramEnrichment).length > 0 && !!enrichedAt;
+  const tiktokEnrichment = (creator.social_profiles?.find((p) => p.platform === 'tiktok')?.enrichment_data ?? null) as EnrichmentData | null;
+  const primaryEnrichment = instagramEnrichment ?? tiktokEnrichment;
+  const enrichedAt = creator.social_profiles?.find((p) => p.enriched_at !== null)?.enriched_at ?? null;
+  const hasEnrichment = !!primaryEnrichment && Object.keys(primaryEnrichment).length > 0 && !!enrichedAt; 
   const socialProfiles = creator.social_profiles ?? [];
   const instagramProfile = socialProfiles.find((p) => p.platform === 'instagram');
   const tiktokProfile = socialProfiles.find((p) => p.platform === 'tiktok');
@@ -437,8 +439,8 @@ export default async function CreatorProfilePage({
         <div style={{ display: 'grid', gridTemplateColumns: similarCreators.length > 0 ? '1fr 300px' : '1fr', gap: '24px', alignItems: 'start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {hasEnrichment && (
-            <ContentAnalytics enrichment={instagramEnrichment!} enrichedAt={enrichedAt} />
-           )}
+          <ContentAnalytics enrichment={primaryEnrichment!} enrichedAt={enrichedAt} />
+            )}
             {discoveryTags.length > 0 && (
               <div className="card" style={{ padding: '24px' }}>
                 <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Discovered Via</h2>
