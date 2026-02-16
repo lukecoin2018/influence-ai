@@ -174,7 +174,7 @@ async function findCandidates(briefText: string, filters: any): Promise<any[]> {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { briefText, platform, minFollowers, maxFollowers, minEngagement, contentTypePref, category } = body;
+    const { briefText, platform, minFollowers, maxFollowers, minEngagement, contentTypePref, category, brandId } = body;
 
     if (!briefText || briefText.trim().length < 20) {
       return NextResponse.json({ error: 'Brief must be at least 20 characters.' }, { status: 400 });
@@ -286,6 +286,7 @@ Return exactly 10 matches (or fewer if fewer candidates exist). creator_index is
       category: category || null,
       matched_creators: rankedResults,
       candidates_count: candidates.length,
+      brand_id: body.brandId || null,
     });
 
     return NextResponse.json({
