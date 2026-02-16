@@ -6,6 +6,7 @@ import { CategoryBadge } from '@/components/CategoryBadge';
 import { formatCount, formatFollowerRatio, formatDate, cleanDiscoveryTags } from '@/lib/formatters';
 import { supabase } from '@/lib/supabase';
 import type { CreatorDetail, SocialProfile, EnrichmentData } from '@/lib/types';
+import { SaveToShortlist } from '@/components/SaveToShortlist';
 
 async function getCreator(handle: string): Promise<CreatorDetail | null> {
   const { data: profile } = await supabase
@@ -446,6 +447,9 @@ export default async function CreatorProfilePage({
                   </a>
                 )}
               </div>
+              <div style={{ marginBottom: '12px' }}>
+  <SaveToShortlist creatorId={creator.creator_id} />
+</div>
               {bio && (
                 <p style={{ fontSize: '15px', color: '#374151', lineHeight: '1.6', margin: 0, maxWidth: '640px' }}>{bio}</p>
               )}

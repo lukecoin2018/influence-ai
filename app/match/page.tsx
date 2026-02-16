@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Sparkles, ArrowRight, RotateCcw } from 'lucide-react';
 import { formatCount } from '@/lib/formatters';
 import { EngagementIndicator } from '@/components/EngagementIndicator';
+import { SaveToShortlist } from '@/components/SaveToShortlist';
 
 interface MatchResult {
   creator_id: string;
@@ -142,9 +143,16 @@ function MatchCard({ result, rank }: { result: MatchResult; rank: number }) {
           </div>
         )}
 
-        <Link href={`/creators/${result.handle}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#7C3AED', color: 'white', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
-          View Full Profile <ArrowRight size={13} />
-        </Link>
+<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+  <Link href={`/creators/${result.handle}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#7C3AED', color: 'white', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+    View Full Profile <ArrowRight size={13} />
+  </Link>
+  <SaveToShortlist
+    creatorId={result.creator_id}
+    matchScore={result.score}
+    matchExplanation={result.explanation}
+  />
+</div>
       </div>
     </div>
   );
