@@ -6,6 +6,7 @@ import { Sparkles, ArrowRight, RotateCcw } from 'lucide-react';
 import { formatCount } from '@/lib/formatters';
 import { EngagementIndicator } from '@/components/EngagementIndicator';
 import { SaveToShortlist } from '@/components/SaveToShortlist';
+import { useAuth } from '@/context/AuthContext';
 
 interface MatchResult {
   creator_id: string;
@@ -181,6 +182,7 @@ const EXAMPLE_BRIEFS = [
 ];
 
 export default function MatchPage() {
+  const { user } = useAuth();
   const [briefText, setBriefText] = useState('');
   const [platform, setPlatform] = useState('');
   const [minFollowers, setMinFollowers] = useState('');
