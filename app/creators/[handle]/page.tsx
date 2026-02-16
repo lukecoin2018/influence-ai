@@ -7,6 +7,7 @@ import { formatCount, formatFollowerRatio, formatDate, cleanDiscoveryTags } from
 import { supabase } from '@/lib/supabase';
 import type { CreatorDetail, SocialProfile, EnrichmentData } from '@/lib/types';
 import { SaveToShortlist } from '@/components/SaveToShortlist';
+import { GetInTouchButton } from '@/components/GetInTouchButton';
 
 async function getCreator(handle: string): Promise<CreatorDetail | null> {
   const { data: profile } = await supabase
@@ -481,9 +482,7 @@ export default async function CreatorProfilePage({
             <div className="card" style={{ padding: '28px', background: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)', border: '1px solid #DDD6FE' }}>
               <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: '0 0 8px 0' }}>Interested in working with {creator.name.split(' ')[0]}?</h2>
               <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 20px 0', lineHeight: '1.6' }}>Reach out to discuss a potential partnership and get access to full analytics.</p>
-              <a href={`mailto:hello@influenceai.com?subject=Partnership Inquiry: ${creator.name}&body=Hi, I'm interested in working with ${creator.name}.`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '10px 20px', borderRadius: '8px', backgroundColor: '#7C3AED', color: 'white', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
-                Get in Touch
-              </a>
+              <GetInTouchButton creatorId={creator.creator_id} creatorName={creator.name} />
             </div>
           </div>
 

@@ -8,6 +8,7 @@ import { CompareBar } from '@/components/CompareBar';
 import { CreatorGridSkeleton } from '@/components/LoadingSkeleton';
 import type { Creator, CreatorListResponse } from '@/lib/types';
 
+
 function CreatorsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
