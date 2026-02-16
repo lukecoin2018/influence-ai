@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { BarChart2, Sparkles } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { BarChart2, Sparkles, User, LogOut } from 'lucide-react';
+import { useAuth } from '@/context/AuthContext';
 
 const navLinks = [
   { href: '/creators', label: 'Creators' },
@@ -13,7 +14,9 @@ const navLinks = [
 
 export function Navigation() {
   const pathname = usePathname();
-
+  const { user, brandProfile, signOut } = useAuth();
+  const router = useRouter();
+  
   return (
     <header
       className="sticky top-0 z-50 border-b border-base"
@@ -36,7 +39,7 @@ export function Navigation() {
 
         {/* Nav */}
         <nav className="flex items-center gap-1">
-          {navLinks.map(({ href, label, highlight}) => {
+          {navLinks.map(({ href, label, highlight }) => {
             const isActive = pathname === href || pathname.startsWith(`${href}/`);
             return (
               <Link
@@ -48,20 +51,51 @@ export function Navigation() {
                     : 'text-secondary hover:text-primary hover:bg-subtle'
                 }`}
               >
-                {highlight && <Sparkles size={12} color={isActive ? '#7C3AED' : '#9CA3AF'} />}
+                {highlight && <Sparkles size={11} color={isActive ? '#7C3AED' : '#9CA3AF'} style={{ marginBottom: '1px' }} />}
                 {label}
               </Link>
             );
           })}
         </nav>
 
-        {/* CTA */}
-        <Link
-          href="/creators"
-          className="bg-purple text-white rounded-lg font-medium no-underline px-4 py-2 text-sm hover:bg-purple"
-        >
-          Explore Creators
-        </Link>
+        {/* Auth section */}
+        {user ? (
+          <div className="flex items-center gap-2">
+            <Link
+              href="/dashboard"
+              className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline ${
+                pathname.startsWith('/dashboard')
+                  ? 'bg-purple-light text-purple'
+                  : 'text-secondary hover:text-primary hover:bg-subtle'
+              }`}
+            >
+              <User size={14} />
+              {brandProfile?.company_name ?? 'Dashboard'}
+            </Link>
+            <button
+              onClick={signOut}
+              className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-secondary hover:text-primary hover:bg-subtle"
+              style={{ border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
+            >
+              <LogOut size={14} />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Link
+              href="/login"
+              className="rounded-lg font-medium no-underline px-4 py-2 text-sm text-secondary hover:text-primary hover:bg-subtle"
+            >
+              Log in
+            </Link>
+            <Link
+              href="/signup"
+              className="bg-purple text-white rounded-lg font-medium no-underline px-4 py-2 text-sm"
+            >
+              Sign up
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );

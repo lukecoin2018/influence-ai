@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Navigation } from '@/components/Navigation';
 import { Footer } from '@/components/Footer';
+import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata: Metadata = {
   title: {
@@ -19,9 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="flex flex-col" style={{ minHeight: '100vh' }}>
-        <Navigation />
-        <main style={{ flex: 1 }}>{children}</main>
-        <Footer />
+        <AuthProvider>
+          <Navigation />
+          <main style={{ flex: 1 }}>{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   );
