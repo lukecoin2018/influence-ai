@@ -4,7 +4,7 @@
 // Updated signup with role selector: Brand or Creator
 // Replaces your existing signup page entirely.
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase';
 type Role = 'brand' | 'creator' | null;
 type Step = 'role' | 'form';
 
-export default function SignUpPage() {
+function SignUpContent() {
   const router = useRouter();
   const [role, setRole] = useState<Role>(null);
   const [step, setStep] = useState<Step>('role');
@@ -384,5 +384,12 @@ function RoleCard({
       <div style={{ fontSize: '15px', fontWeight: 700, color: '#111827', marginBottom: '4px' }}>{title}</div>
       <div style={{ fontSize: '12px', color: '#6B7280' }}>{description}</div>
     </button>
+  );
+}
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '80px', textAlign: 'center', color: '#9CA3AF' }}>Loading...</div>}>
+      <SignUpContent />
+    </Suspense>
   );
 }
