@@ -17,6 +17,13 @@ export interface Creator {
   tiktok_engagement: number | null;
   tiktok_verified: boolean | null;
   tiktok_pic: string | null;
+  
+  // Intelligence fields
+  city: string | null;
+  country: string | null;
+  primary_language: string | null;
+  contact_email: string | null;
+  ai_summary: string | null;
 }
 
 export interface SocialProfile {
@@ -41,6 +48,7 @@ export interface SocialProfile {
 
 export interface CreatorDetail extends Creator {
   social_profiles: SocialProfile[];
+  claimed_profile?: any | null;
 }
 
 export interface CreatorListResponse {
@@ -74,6 +82,9 @@ export interface CreatorFilters {
   sortDir?: 'asc' | 'desc';
   page?: number;
   limit?: number;
+  language?: string;
+  country?: string;
+  hasEmail?: boolean;
 }
 
 export interface EnrichmentData {

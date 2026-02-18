@@ -1,0 +1,297 @@
+'use client';
+
+// app/creator-dashboard/edit/page.tsx
+// Creator edit profile — bio, rates, availability, preferences
+
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
+
+const INDUSTRIES = ['Fashion', 'Beauty', 'Travel', 'Food & Beverage', 'Tech', 'Fitness', 'Lifestyle', 'Gaming', 'Music', 'Sports'];
+
+const CURRENCIES = ['USD', 'EUR', 'GBP', 'AUD', 'CAD'];
+
+export default function EditProfilePage() {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
+
+  // Form state
+  const [displayName, setDisplayName] = useState('');
+  const [customBio, setCustomBio] = useState('');
+  const [website, setWebsite] = useState('');
+  const [ratePost, setRatePost] = useState('');
+  const [rateReel, setRateReel] = useState('');
+  const [rateStory, setRateStory] = useState('');
+  const [ratePackage, setRatePackage] = useState('');
+  const [rateCurrency, setRateCurrency] = useState('USD');
+  const [rateNotes, setRateNotes] = useState('');
+  const [availabilityStatus, setAvailabilityStatus] = useState('open');
+  const [availabilityNote, setAvailabilityNote] = useState('');
+  const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
+  const [minBudget, setMinBudget] = useState('');
+
+  useEffect(() => {
+    async function loadProfile() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { router.push('/auth/login'); return; }
+
+      const { data } = await supabase
+        .from('creator_profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (data) {
+        setDisplayName(data.display_name ?? '');
+        setCustomBio(data.custom_bio ?? '');
+        setWebsite(data.website ?? '');
+        setRatePost(data.rate_post ? String(data.rate_post) : '');
+        setRateReel(data.rate_reel ? String(data.rate_reel) : '');
+        setRateStory(data.rate_story ? String(data.rate_story) : '');
+        setRatePackage(data.rate_package ? String(data.rate_package) : '');
+        setRateCurrency(data.rate_currency ?? 'USD');
+        setRateNotes(data.rate_notes ?? '');
+        setAvailabilityStatus(data.availability_status ?? 'open');
+        setAvailabilityNote(data.availability_note ?? '');
+        setPreferredCategories(data.preferred_categories ?? []);
+        setMinBudget(data.min_budget ? String(data.min_budget) : '');
+      }
+      setLoading(false);
+    }
+    loadProfile();
+  }, [router]);
+
+  async function handleSave(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+
+    const updates = {
+      display_name: displayName || null,
+      custom_bio: customBio || null,
+      website: website || null,
+      rate_post: ratePost ? parseFloat(ratePost) : null,
+      rate_reel: rateReel ? parseFloat(rateReel) : null,
+      rate_story: rateStory ? parseFloat(rateStory) : null,
+      rate_package: ratePackage ? parseFloat(ratePackage) : null,
+      rate_currency: rateCurrency,
+      rate_notes: rateNotes || null,
+      availability_status: availabilityStatus,
+      availability_note: availabilityNote || null,
+      preferred_categories: preferredCategories.length > 0 ? preferredCategories : null,
+      min_budget: minBudget ? parseFloat(minBudget) : null,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error: updateError } = await supabase
+      .from('creator_profiles')
+      .update(updates)
+      .eq('id', session.user.id);
+
+    if (updateError) {
+      setError(updateError.message);
+    } else {
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    }
+    setSaving(false);
+  }
+
+  const toggleCategory = (cat: string) => {
+    setPreferredCategories((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+    );
+  };
+
+  const inputStyle: React.CSSProperties = {
+    width: '100%', padding: '9px 12px',
+    border: '1px solid #E5E7EB', borderRadius: '8px',
+    fontSize: '14px', color: '#111827', backgroundColor: 'white', outline: 'none',
+  };
+
+  const labelStyle: React.CSSProperties = {
+    display: 'block', fontSize: '13px', fontWeight: 600,
+    color: '#374151', marginBottom: '6px',
+  };
+
+  const sectionTitle = (title: string) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '24px 0 16px 0' }}>
+      <div style={{ height: '1px', flex: 1, backgroundColor: '#E5E7EB' }} />
+      <p style={{ fontSize: '11px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.08em', margin: 0, whiteSpace: 'nowrap' }}>{title}</p>
+      <div style={{ height: '1px', flex: 1, backgroundColor: '#E5E7EB' }} />
+    </div>
+  );
+
+  if (loading) {
+    return <div style={{ padding: '80px', textAlign: 'center', color: '#9CA3AF' }}>Loading...</div>;
+  }
+
+  return (
+    <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh' }}>
+      <div className="max-w-2xl mx-auto px-6" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+
+        <Link href="/creator-dashboard" style={{ textDecoration: 'none', fontSize: '14px', fontWeight: 500, marginBottom: '24px', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#6B7280' }}>
+          ← Back to Dashboard
+        </Link>
+
+        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: '16px 0 24px 0', letterSpacing: '-0.02em' }}>
+          Edit Your Profile
+        </h1>
+
+        <form onSubmit={handleSave}>
+          <div className="card" style={{ padding: '28px' }}>
+
+            {/* ── Basic Info ─────────────────────────────────────────── */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={labelStyle}>Display Name</label>
+                <input style={inputStyle} value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Your name or brand name" />
+              </div>
+              <div>
+                <label style={labelStyle}>Bio <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(replaces AI summary on your public profile)</span></label>
+                <textarea
+                  value={customBio}
+                  onChange={(e) => setCustomBio(e.target.value)}
+                  rows={4}
+                  placeholder="Tell brands about yourself, your audience, and what makes you unique..."
+                  style={{ ...inputStyle, resize: 'vertical', lineHeight: '1.6' }}
+                />
+              </div>
+              <div>
+                <label style={labelStyle}>Website</label>
+                <input style={inputStyle} value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://yourwebsite.com" type="url" />
+              </div>
+            </div>
+
+            {/* ── Rates ─────────────────────────────────────────────── */}
+            {sectionTitle('Rates')}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div>
+                <label style={labelStyle}>Per Post</label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: '14px' }}>$</span>
+                  <input style={{ ...inputStyle, paddingLeft: '24px' }} type="number" value={ratePost} onChange={(e) => setRatePost(e.target.value)} placeholder="500" min="0" />
+                </div>
+              </div>
+              <div>
+                <label style={labelStyle}>Per Reel</label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: '14px' }}>$</span>
+                  <input style={{ ...inputStyle, paddingLeft: '24px' }} type="number" value={rateReel} onChange={(e) => setRateReel(e.target.value)} placeholder="800" min="0" />
+                </div>
+              </div>
+              <div>
+                <label style={labelStyle}>Per Story</label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AE', fontSize: '14px' }}>$</span>
+                  <input style={{ ...inputStyle, paddingLeft: '24px' }} type="number" value={rateStory} onChange={(e) => setRateStory(e.target.value)} placeholder="200" min="0" />
+                </div>
+              </div>
+              <div>
+                <label style={labelStyle}>Package Deal</label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: '14px' }}>$</span>
+                  <input style={{ ...inputStyle, paddingLeft: '24px' }} type="number" value={ratePackage} onChange={(e) => setRatePackage(e.target.value)} placeholder="1500" min="0" />
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '14px', marginTop: '14px' }}>
+              <div>
+                <label style={labelStyle}>Currency</label>
+                <select style={inputStyle} value={rateCurrency} onChange={(e) => setRateCurrency(e.target.value)}>
+                  {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={labelStyle}>Rate Notes</label>
+                <input style={inputStyle} value={rateNotes} onChange={(e) => setRateNotes(e.target.value)} placeholder="e.g. Rates are negotiable, DM for bundles" />
+              </div>
+            </div>
+
+            {/* ── Availability ──────────────────────────────────────── */}
+            {sectionTitle('Availability')}
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '14px' }}>
+              {[
+                { value: 'open', label: '🟢 Open', desc: 'Open to collaborations' },
+                { value: 'limited', label: '🟡 Limited', desc: 'Limited availability' },
+                { value: 'booked', label: '🔴 Booked', desc: 'Currently booked' },
+                { value: 'not_available', label: '⚫ Closed', desc: 'Not available' },
+              ].map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setAvailabilityStatus(opt.value)}
+                  style={{
+                    padding: '8px 16px', borderRadius: '8px',
+                    border: availabilityStatus === opt.value ? '2px solid #7C3AED' : '2px solid #E5E7EB',
+                    backgroundColor: availabilityStatus === opt.value ? '#F5F3FF' : 'white',
+                    fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                    color: '#111827',
+                  }}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+            <div>
+              <label style={labelStyle}>Availability Note</label>
+              <input style={inputStyle} value={availabilityNote} onChange={(e) => setAvailabilityNote(e.target.value)} placeholder="e.g. Available from March, Booked until April" />
+            </div>
+
+            {/* ── Preferences ──────────────────────────────────────── */}
+            {sectionTitle('Preferences')}
+            <div>
+              <label style={{ ...labelStyle, marginBottom: '10px' }}>Industries I work with</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '16px' }}>
+                {INDUSTRIES.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => toggleCategory(cat)}
+                    style={{
+                      padding: '6px 14px', borderRadius: '999px',
+                      border: preferredCategories.includes(cat) ? '2px solid #7C3AED' : '2px solid #E5E7EB',
+                      backgroundColor: preferredCategories.includes(cat) ? '#EDE9FE' : 'white',
+                      color: preferredCategories.includes(cat) ? '#7C3AED' : '#374151',
+                      fontSize: '13px', fontWeight: 500, cursor: 'pointer',
+                    }}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label style={labelStyle}>Minimum Budget</label>
+              <div style={{ position: 'relative', maxWidth: '200px' }}>
+                <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: '14px' }}>$</span>
+                <input style={{ ...inputStyle, paddingLeft: '24px' }} type="number" value={minBudget} onChange={(e) => setMinBudget(e.target.value)} placeholder="500" min="0" />
+              </div>
+            </div>
+
+            {/* ── Save ─────────────────────────────────────────────── */}
+            <div style={{ marginTop: '28px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <button
+                type="submit"
+                disabled={saving}
+                style={{ padding: '11px 28px', borderRadius: '8px', border: 'none', backgroundColor: '#7C3AED', color: 'white', fontSize: '15px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}
+              >
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
+              {saved && <span style={{ fontSize: '14px', color: '#059669', fontWeight: 500 }}>✓ Saved successfully</span>}
+              {error && <span style={{ fontSize: '14px', color: '#DC2626' }}>{error}</span>}
+            </div>
+
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

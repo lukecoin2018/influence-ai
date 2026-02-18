@@ -16,6 +16,9 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get('page') ?? '1', 10);
   const limit = parseInt(searchParams.get('limit') ?? '24', 10);
   const offset = (page - 1) * limit;
+  const language = searchParams.get('language') || ''
+  const country  = searchParams.get('country') || ''
+  const hasEmail = searchParams.get('hasEmail') === 'true'
 
   let query = supabase.from('v_creator_summary').select('*', { count: 'exact' });
 
@@ -33,6 +36,7 @@ export async function GET(request: Request) {
     );
   }
 
+
   if (platform === 'instagram') query = query.not('instagram_handle', 'is', null);
   if (platform === 'tiktok') query = query.not('tiktok_handle', 'is', null);
   if (platform === 'both') {
@@ -42,6 +46,10 @@ export async function GET(request: Request) {
   if (verified === 'true') {
     query = query.or('instagram_verified.eq.true,tiktok_verified.eq.true');
   }
+
+  if (language) query = query.eq('primary_language', language);
+  if (country)  query = query.eq('country', country);
+  if (hasEmail) query = query.not('contact_email', 'is', null);
 
   if (category) {
     const { data: profileMatches } = await supabase

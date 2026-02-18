@@ -9,6 +9,7 @@ import { EngagementIndicator } from '@/components/EngagementIndicator';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { formatCount, formatFollowerRatio } from '@/lib/formatters';
 import type { Creator } from '@/lib/types';
+import { getLanguageName } from '@/lib/language-utils';
 
 function AvatarFallback({ name }: { name: string }) {
   const initials = (name ?? '??').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
@@ -190,6 +191,50 @@ function CompareContent() {
     <span style={{ fontSize: '14px', fontWeight: 600, color: (c.instagram_verified || c.tiktok_verified) ? '#059669' : '#9CA3AF' }}>
       {(c.instagram_verified || c.tiktok_verified) ? 'Yes' : 'No'}
     </span>,
+    false
+  ))}
+</tr>
+
+{/* Language */}
+<tr>
+  <td style={{ padding: '14px 16px', backgroundColor: '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+    <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>🌐 Language</p>
+  </td>
+  {creators.map((c) => cell(c.creator_id,
+    <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>
+      {getLanguageName(c.primary_language) ?? <span style={{ color: '#9CA3AF' }}>—</span>}
+    </span>,
+    false
+  ))}
+</tr>
+
+{/* Location */}
+<tr>
+  <td style={{ padding: '14px 16px', backgroundColor: '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+    <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>📍 Location</p>
+  </td>
+  {creators.map((c) => {
+    const loc = [c.city, c.country].filter(Boolean).join(', ');
+    return cell(c.creator_id,
+      <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>
+        {loc || <span style={{ color: '#9CA3AF' }}>—</span>}
+      </span>,
+      false
+    );
+  })}
+</tr>
+
+{/* Business Email */}
+<tr>
+  <td style={{ padding: '14px 16px', backgroundColor: '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
+    <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>📧 Business Email</p>
+  </td>
+  {creators.map((c) => cell(c.creator_id,
+    c.contact_email ? (
+      <span style={{ fontSize: '14px', fontWeight: 600, color: '#059669' }}>✓</span>
+    ) : (
+      <span style={{ fontSize: '14px', fontWeight: 600, color: '#D1D5DB' }}>✗</span>
+    ),
     false
   ))}
 </tr>

@@ -5,9 +5,13 @@ import { EngagementIndicator } from '@/components/EngagementIndicator';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { formatCount, formatFollowerRatio, formatDate, cleanDiscoveryTags } from '@/lib/formatters';
 import { supabase } from '@/lib/supabase';
+import type { Metadata } from 'next';
 import type { CreatorDetail, SocialProfile, EnrichmentData } from '@/lib/types';
 import { SaveToShortlist } from '@/components/SaveToShortlist';
 import { GetInTouchButton } from '@/components/GetInTouchButton';
+import { AiSummaryCard } from '@/components/creator/AiSummaryCard';
+import { LocationBadge, LanguageBadge } from '@/components/creator/IntelligenceBadges';
+import { ContactEmail } from '@/components/creator/ContactEmail';
 
 async function getCreator(handle: string): Promise<CreatorDetail | null> {
   const { data: profile } = await supabase
@@ -38,7 +42,17 @@ async function getCreator(handle: string): Promise<CreatorDetail | null> {
     .eq('creator_id', profile.creator_id)
     .single();
 
-  return { ...creator, ...summary, social_profiles: profiles ?? [] } as CreatorDetail;
+    const { data: claimedProfile } = await supabase
+    .from('creator_profiles')
+    .select('display_name, custom_bio, rate_post, rate_reel, rate_story, rate_package, rate_currency, rate_notes, availability_status, availability_note, claim_status')
+    .eq('creator_id', profile.creator_id)
+    .eq('claim_status', 'verified')
+    .maybeSingle();
+
+  const aiSummaryFromProfile = 
+  (profiles ?? []).find((p: any) => p.ai_summary)?.ai_summary ?? null;
+
+return { ...creator, ...summary, ai_summary: aiSummaryFromProfile, city: creator.city ?? null, country: creator.country ?? null, primary_language: creator.primary_language ?? null, contact_email: creator.contact_email ?? null, claimed_profile: claimedProfile ?? null, social_profiles: profiles ?? [] } as CreatorDetail;return { ...creator, ...summary, ai_summary: aiSummaryFromProfile, city: creator.city ?? null, country: creator.country ?? null, primary_language: creator.primary_language ?? null, contact_email: creator.contact_email ?? null, social_profiles: profiles ?? [] } as CreatorDetail;
 }
 
 async function getSimilarCreators(creatorId: string, category: string | null, totalFollowers: number): Promise<any[]> {
@@ -382,6 +396,98 @@ function SimilarCreatorCard({ creator }: { creator: any }) {
   );
 }
 
+function ClaimedBadge() {
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', padding: '4px 10px', borderRadius: '999px', backgroundColor: '#ECFDF5', border: '1px solid #A7F3D0', fontSize: '12px', fontWeight: 600, color: '#065F46' }}>
+      ✅ Claimed Profile
+    </span>
+  );
+}
+
+function PublicAvailabilityBadge({ status }: { status: string }) {
+  const config: Record<string, { color: string; bg: string; label: string }> = {
+    open:          { color: '#065F46', bg: '#ECFDF5', label: '🟢 Open to collaborations' },
+    limited:       { color: '#92400E', bg: '#FFFBEB', label: '🟡 Limited availability' },
+    booked:        { color: '#991B1B', bg: '#FEF2F2', label: '🔴 Currently booked' },
+    not_available: { color: '#6B7280', bg: '#F3F4F6', label: '⚫ Not available' },
+  };
+  const c = config[status] ?? config.open;
+  return (
+    <span style={{ display: 'inline-flex', padding: '4px 10px', borderRadius: '999px', backgroundColor: c.bg, fontSize: '12px', fontWeight: 600, color: c.color }}>
+      {c.label}
+    </span>
+  );
+}
+
+function CreatorStructuredData({ creator, aiSummary }: { creator: any; aiSummary: string | null }) {
+  const canonicalHandle = creator.instagram_handle || creator.tiktok_handle;
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: creator.name || canonicalHandle,
+    alternateName: `@${canonicalHandle}`,
+    url: `https://influenceai.com/creators/${canonicalHandle}`,
+    ...(aiSummary && { description: aiSummary }),
+    jobTitle: 'Content Creator',
+    sameAs: [
+      creator.instagram_handle ? `https://instagram.com/${creator.instagram_handle}` : null,
+      creator.tiktok_handle ? `https://tiktok.com/@${creator.tiktok_handle}` : null,
+    ].filter(Boolean),
+    ...(creator.country && {
+      address: {
+        '@type': 'PostalAddress',
+        addressCountry: creator.country,
+        ...(creator.city && { addressLocality: creator.city }),
+      },
+    }),
+  };
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+    />
+  );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ handle: string }>;
+}): Promise<Metadata> {
+  const { handle } = await params;
+  const creator = await getCreator(handle);
+  if (!creator) return { title: 'Creator Not Found | InfluenceAI' };
+
+  const name = creator.name || handle;
+  const followers = creator.total_followers >= 1_000_000
+    ? `${(creator.total_followers / 1_000_000).toFixed(1)}M`
+    : `${(creator.total_followers / 1_000).toFixed(0)}K`;
+  const platform = creator.primary_platform === 'tiktok' ? 'TikTok' : 'Instagram';
+  const canonicalHandle = creator.instagram_handle || creator.tiktok_handle || handle;
+  const desc = creator.ai_summary
+    ? creator.ai_summary.slice(0, 160)
+    : `${name} - ${platform} creator with ${followers} followers. View engagement analytics, content insights, and brand partnership history on InfluenceAI.`;
+
+  return {
+    title: `${name} (@${handle}) - ${platform} Creator | InfluenceAI`,
+    description: desc,
+    openGraph: {
+      title: `${name} (@${handle}) - ${platform} Creator`,
+      description: desc,
+      type: 'profile',
+      url: `https://influenceai.com/creators/${canonicalHandle}`,
+    },
+    twitter: {
+      card: 'summary',
+      title: `${name} (@${handle}) - ${platform} Creator`,
+      description: desc,
+    },
+    alternates: {
+      canonical: `https://influenceai.com/creators/${canonicalHandle}`,
+    },
+  };
+}
+
 export default async function CreatorProfilePage({
   params,
 }: {
@@ -390,6 +496,18 @@ export default async function CreatorProfilePage({
   const { handle } = await params;
   const creator = await getCreator(handle);
   if (!creator) notFound();
+
+  // Check if user is logged in (for gated contact email)
+  const { data: { session } } = await supabase.auth.getSession();
+  const isLoggedIn = !!session;
+
+  // Pull intelligence fields (all nullable — safe if missing)
+  const aiSummary = creator.ai_summary ?? null;
+  const city = creator.city ?? null;
+  const country = creator.country ?? null;
+  const primaryLanguage = creator.primary_language ?? null;
+  const contactEmail = creator.contact_email ?? null;
+
 
   const instagramEnrichment = (creator.social_profiles?.find((p) => p.platform === 'instagram')?.enrichment_data ?? null) as EnrichmentData | null;
   const tiktokEnrichment = (creator.social_profiles?.find((p) => p.platform === 'tiktok')?.enrichment_data ?? null) as EnrichmentData | null;
@@ -403,11 +521,16 @@ export default async function CreatorProfilePage({
   const category = primaryProfile?.platform_data?.category_name ?? null;
   const cleanCategory = category && category !== 'None' ? category : null;
   const bio = primaryProfile?.bio ?? null;
+  const description = creator.ai_summary ?? bio ?? null;
   const website = primaryProfile?.website ?? null;
   const similarCreators = await getSimilarCreators(creator.creator_id, cleanCategory, creator.total_followers);
+  const claimedProfile = (creator as any).claimed_profile ?? null;
+  const isClaimed = claimedProfile?.claim_status === 'verified';
 
   return (
-    <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh' }}>
+    <>
+      <CreatorStructuredData creator={creator} aiSummary={creator.ai_summary ?? null} />
+      <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh' }}>
       <div className="max-w-7xl mx-auto px-6" style={{ paddingTop: '32px', paddingBottom: '80px' }}>
 
         <Link href="/creators" style={{ textDecoration: 'none', fontSize: '14px', fontWeight: 500, marginBottom: '24px', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#6B7280' }}>
@@ -427,6 +550,7 @@ export default async function CreatorProfilePage({
                   </svg>
                 )}
                 {cleanCategory && <CategoryBadge category={cleanCategory} />}
+                {isClaimed && <ClaimedBadge />}
               </div>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
                 {instagramProfile && (
@@ -447,12 +571,45 @@ export default async function CreatorProfilePage({
                     {website.replace(/^https?:\/\//, '').split('/')[0]}
                   </a>
                 )}
+                {/* Intelligence badges */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                <LocationBadge city={city} country={country} />
+                <LanguageBadge languageCode={primaryLanguage} />
+                {isClaimed && claimedProfile?.availability_status && (
+                  <PublicAvailabilityBadge status={claimedProfile.availability_status} />
+                )}
               </div>
-              <div style={{ marginBottom: '12px' }}>
-  <SaveToShortlist creatorId={creator.creator_id} />
-</div>
-              {bio && (
-                <p style={{ fontSize: '15px', color: '#374151', lineHeight: '1.6', margin: 0, maxWidth: '640px' }}>{bio}</p>
+
+              </div>
+            <div style={{ marginBottom: '12px' }}>
+             <SaveToShortlist creatorId={creator.creator_id} />
+            </div>
+            
+            {!isLoggedIn && (
+                <div style={{ marginBottom: '12px' }}>
+                  <Link
+                    href={`/auth/signup?handle=${instagramProfile?.handle ?? tiktokProfile?.handle ?? ''}&role=creator`}
+                    style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: '6px', 
+                      padding: '8px 16px', 
+                      borderRadius: '8px', 
+                      backgroundColor: '#F5F3FF', 
+                      border: '1px solid #DDD6FE', 
+                      color: '#7C3AED', 
+                      fontSize: '13px', 
+                      fontWeight: 600, 
+                      textDecoration: 'none' 
+                    }}
+                  >
+                    ✨ Is this you? Claim this profile
+                  </Link>
+                </div>
+              )}   
+
+          {description && (
+                <p style={{ fontSize: '15px', color: '#374151', lineHeight: '1.6', margin: 0, maxWidth: '640px' }}>{description}</p>
               )}
             </div>
             {primaryProfile?.platform_data?.last_updated_at && (
@@ -475,6 +632,30 @@ export default async function CreatorProfilePage({
 
         <div style={{ display: 'grid', gridTemplateColumns: similarCreators.length > 0 ? '1fr 300px' : '1fr', gap: '24px', alignItems: 'start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* AI Summary — most impactful addition, shown above Content Analytics */}
+          <AiSummaryCard summary={aiSummary} />
+          
+          {isClaimed && claimedProfile && isLoggedIn && (
+            <div className="card" style={{ padding: '20px' }}>
+              <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 14px 0' }}>Rates</h3>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {claimedProfile.rate_post && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Post</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>${Number(claimedProfile.rate_post).toLocaleString()}</p></div>}
+                {claimedProfile.rate_reel && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Reel</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>${Number(claimedProfile.rate_reel).toLocaleString()}</p></div>}
+                {claimedProfile.rate_story && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Story</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>${Number(claimedProfile.rate_story).toLocaleString()}</p></div>}
+                {claimedProfile.rate_package && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Package</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>${Number(claimedProfile.rate_package).toLocaleString()}</p></div>}
+              </div>
+              {claimedProfile.rate_notes && <p style={{ fontSize: '13px', color: '#6B7280', margin: '10px 0 0 0', fontStyle: 'italic' }}>"{claimedProfile.rate_notes}"</p>}
+            </div>
+          )}
+          {isClaimed && claimedProfile && !isLoggedIn && (
+            <div className="card" style={{ padding: '20px', textAlign: 'center', backgroundColor: '#F5F3FF' }}>
+              <p style={{ fontSize: '14px', fontWeight: 600, color: '#7C3AED', margin: '0 0 4px 0' }}>Rates available</p>
+              <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
+                <a href="/auth/login" style={{ color: '#7C3AED', fontWeight: 600 }}>Log in</a> as a brand to view rates
+              </p>
+            </div>
+          )}
+
           {hasEnrichment && (
           <ContentAnalytics enrichment={primaryEnrichment!} enrichedAt={enrichedAt} />
             )}
@@ -496,6 +677,7 @@ export default async function CreatorProfilePage({
           )}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

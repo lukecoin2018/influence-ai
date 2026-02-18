@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Search, SlidersHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CreatorCard } from '@/components/CreatorCard';
 import { CompareBar } from '@/components/CompareBar';
+import { IntelligenceFilters } from '@/components/discovery/IntelligenceFilters';
 import { CreatorGridSkeleton } from '@/components/LoadingSkeleton';
 import type { Creator, CreatorListResponse } from '@/lib/types';
 
@@ -20,6 +21,9 @@ function CreatorsContent() {
   const [minEngagement, setMinEngagement] = useState(searchParams.get('minEngagement') ?? '');
   const [category, setCategory] = useState(searchParams.get('category') ?? '');
   const [verified, setVerified] = useState(searchParams.get('verified') === 'true');
+  const [language, setLanguage] = useState(searchParams.get('language') ?? '');
+  const [country, setCountry] = useState(searchParams.get('country') ?? '');
+  const [hasEmail, setHasEmail] = useState(searchParams.get('hasEmail') === 'true');
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') ?? 'follower_count');
   const [page, setPage] = useState(parseInt(searchParams.get('page') ?? '1', 10));
 
@@ -47,10 +51,13 @@ function CreatorsContent() {
     if (minEngagement) params.set('minEngagement', minEngagement);
     if (category) params.set('category', category);
     if (verified) params.set('verified', 'true');
+    if (language) params.set('language', language);
+    if (country)  params.set('country', country);
+    if (hasEmail) params.set('hasEmail', 'true');
     if (sortBy !== 'follower_count') params.set('sortBy', sortBy);
     if (page > 1) params.set('page', String(page));
     return params.toString();
-  }, [search, minFollowers, maxFollowers, minEngagement, category, verified, sortBy, page]);
+  }, [search, minFollowers, maxFollowers, minEngagement, category, verified, sortBy, page, language, country, hasEmail]);
 
   // Fetch creators
   const fetchCreators = useCallback(async () => {
@@ -240,6 +247,20 @@ function CreatorsContent() {
             </div>
           </div>
         </div>
+        
+      {/* Intelligence Filters */}
+        <div className="card" style={{ padding: '16px 20px', marginBottom: '24px' }}>
+          <IntelligenceFilters
+            language={language}
+            country={country}
+            hasEmail={hasEmail}
+            onChange={(updates) => {
+              if (updates.language !== undefined) { setLanguage(updates.language); handleFilterChange(); }
+              if (updates.country !== undefined)  { setCountry(updates.country);  handleFilterChange(); }
+              if (updates.hasEmail !== undefined) { setHasEmail(updates.hasEmail); handleFilterChange(); }
+            }}
+          />
+        </div> 
 
         {/* Grid */}
         {loading ? (

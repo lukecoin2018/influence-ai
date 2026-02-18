@@ -7,6 +7,7 @@ import { formatCount, truncate } from '@/lib/formatters';
 import { CategoryBadge } from './CategoryBadge';
 import { EngagementIndicator } from './EngagementIndicator';
 import type { Creator } from '@/lib/types';
+import { IntelligenceBadgeRow } from '@/components/creator/IntelligenceBadges';
 
 interface CreatorCardProps {
   creator: Creator;
@@ -54,6 +55,10 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare }: 
     tiktok_engagement,
     total_followers,
     primary_platform,
+    city,
+    country,
+    primary_language,
+    contact_email,
   } = creator;
 
   const primaryHandle = primary_platform === 'tiktok' ? tiktok_handle : (instagram_handle ?? tiktok_handle);
@@ -110,6 +115,13 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare }: 
               </div>
             )}
           </div>
+          {/* Intelligence: location + language */}
+          <IntelligenceBadgeRow
+            city={city}
+            country={country}
+            primaryLanguage={primary_language}
+            size="compact"
+          />
         </div>
       </div>
 
@@ -137,6 +149,12 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare }: 
       {/* Engagement + category */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
         <EngagementIndicator rate={primaryEngagement} showLabel={false} size="sm" />
+        {contact_email && (
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#059669' }} />
+            <span style={{ fontSize: '11px', color: '#059669', fontWeight: 500 }}>Email</span>
+          </div>
+        )}
       </div>
 
       {/* View profile */}

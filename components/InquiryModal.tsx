@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { supabase } from '@/lib/supabase';
+
 
 interface Props {
   creatorId: string;
@@ -37,19 +37,23 @@ export function InquiryModal({ creatorId, creatorName, onClose }: Props) {
     if (!message.trim()) { setError('Please write a message.'); return; }
     setLoading(true);
     setError('');
-
-    const { error: err } = await supabase.from('inquiries').insert({
-      brand_id: user!.id,
-      creator_id: creatorId,
-      message: message.trim(),
-      campaign_type: campaignType || null,
-      budget_range: budgetRange || null,
-      timeline: timeline || null,
-      status: 'pending',
+  
+    const res = await fetch('/api/inquiries', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        creatorId,
+        message: message.trim(),
+        campaignType: campaignType || null,
+        budgetRange: budgetRange || null,
+        timeline: timeline || null,
+        brandId: user!.id,
+      }),
     });
-
-    if (err) {
-      setError('Failed to send inquiry. Please try again.');
+  
+    const data = await res.json();
+    if (!res.ok) {
+      setError(data.error || 'Failed to send inquiry. Please try again.');
       setLoading(false);
     } else {
       setSuccess(true);
