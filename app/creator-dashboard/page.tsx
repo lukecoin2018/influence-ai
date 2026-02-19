@@ -6,11 +6,7 @@
 
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { createClient } from '@supabase/supabase-js';
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { supabase } from '@/lib/supabase';
 import { formatCount } from '@/lib/formatters';
 
 export default async function CreatorDashboardPage() {
@@ -20,26 +16,27 @@ export default async function CreatorDashboardPage() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) redirect('/auth/login');
 
-  // Role check
+// Role check - simplified and more explicit
 const { data: roleData, error: roleError } = await supabase
-.from('user_roles')
-.select('role')
-.eq('user_id', session.user.id)
-.single();
+  .from('user_roles')
+  .select('role')
+  .eq('user_id', session.user.id)
+  .maybeSingle();
+
+// Only redirect if explicitly NOT a creator
+if (roleData?.role === 'brand') {
+  redirect('/dashboard');
 
 console.log('Creator Dashboard - roleData:', roleData);
 console.log('Creator Dashboard - roleError:', roleError);
-console.log('Creator Dashboard - user_id:', session.user.id);
+console.log('Creator Dashboard - user_id:', session!.user.id);
 
-if (!roleData || roleData.role !== 'creator') redirect('/dashboard');
-
-  if (!roleData || roleData.role !== 'creator') redirect('/dashboard');
 
   // Creator profile
   const { data: creatorProfile } = await supabase
     .from('creator_profiles')
     .select('*')
-    .eq('id', session.user.id)
+    .eq('id', session!.user.id)
     .single();
 
   // Creator data from main creators table
@@ -267,4 +264,5 @@ function AvailabilityBadge({ status }: { status: string }) {
       {c.label}
     </span>
   );
+}
 }
