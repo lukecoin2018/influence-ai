@@ -17,13 +17,18 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
 
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    if (authError) {
+    const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (authError || !data.user) {
       setError('Invalid email or password.');
       setLoading(false);
-    } else {
-      router.push('/dashboard');
+      return;
     }
+
+    const { data: roleData } = await supabase
+      .from('user_roles').select('role').eq('user_id', data.user.id).single();
+
+    router.push(roleData?.role === 'creator' ? '/creator-dashboard' : '/dashboard');
   }
 
   const inputStyle = {
