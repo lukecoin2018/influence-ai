@@ -1,26 +1,35 @@
-
-
 // app/creator-dashboard/page.tsx
 // Creator dashboard — shown after creator login
 // Shows: profile preview, stats, rates, brand interest
 
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { cookies } from 'next/headers';
+import { createServerClient } from '@supabase/ssr';
 import { formatCount } from '@/lib/formatters';
 
 export default async function CreatorDashboardPage() {
-  
 
-  // Auth check
+  // Auth check — uses cookie-based client so session is available server-side
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+      },
+    }
+  );
+
   const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect('/auth/login');
+  if (!session) redirect('/login');
 
   // Creator profile
   const { data: creatorProfile } = await supabase
     .from('creator_profiles')
     .select('*')
-    .eq('id', session!.user.id)
+    .eq('id', session.user.id)
     .single();
 
   // Creator data from main creators table
