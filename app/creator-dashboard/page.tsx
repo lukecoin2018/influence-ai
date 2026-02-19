@@ -1,69 +1,65 @@
-// app/creator-dashboard/page.tsx
-// Creator dashboard — shown after creator login
-// Shows: profile preview, stats, rates, brand interest
+'use client';
 
-import { redirect } from 'next/navigation';
+// app/creator-dashboard/page.tsx
+
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { cookies } from 'next/headers';
-import { createServerClient } from '@supabase/ssr';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/lib/supabase';
 import { formatCount } from '@/lib/formatters';
 
-export default async function CreatorDashboardPage() {
+export default function CreatorDashboardPage() {
+  const { user, creatorProfile, userRole, loading } = useAuth();
 
-  // Auth check — uses cookie-based client so session is available server-side
-  const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() { return cookieStore.getAll(); },
-      },
+  const [creatorData, setCreatorData] = useState<any>(null);
+  const [socialProfiles, setSocialProfiles] = useState<any[]>([]);
+  const [inquiries, setInquiries] = useState<any[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
+
+  // Auth guard — synchronous checks to prevent race condition redirect loop
+  if (loading) return <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: '#9CA3AF' }}>Loading...</p></div>;
+  if (!user) { window.location.href = '/login'; return null; }
+  if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; }
+
+  // Load data once we have the creator profile
+  useEffect(() => {
+    if (!creatorProfile || !creatorProfile.creator_id) return;
+    const creatorId = creatorProfile.creator_id;
+  
+    async function loadData() {
+      setDataLoading(true);
+      const [creatorRes, socialRes, inquiryRes] = await Promise.all([
+        supabase.from('v_creator_summary').select('*').eq('creator_id', creatorId).single(),
+        supabase.from('social_profiles').select('*').eq('creator_id', creatorId),
+        supabase.from('inquiries')
+          .select('id, campaign_type, budget_range, created_at, brand_profiles(company_name)')
+          .eq('creator_id', creatorId)
+          .order('created_at', { ascending: false })
+          .limit(10),
+      ]);
+      setCreatorData(creatorRes.data ?? null);
+      setSocialProfiles(socialRes.data ?? []);
+      setInquiries(inquiryRes.data ?? []);
+      setDataLoading(false);
     }
-  );
+  
+    loadData();
+  }, [creatorProfile?.creator_id]);
 
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) redirect('/login');
+  // Show nothing while data is loading
+  if (dataLoading || !creatorProfile) {
+    return <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA' }} />;
+  }
 
-  // Creator profile
-  const { data: creatorProfile } = await supabase
-    .from('creator_profiles')
-    .select('*')
-    .eq('id', session.user.id)
-    .single();
-
-  // Creator data from main creators table
-  const { data: creatorData } = await supabase
-    .from('v_creator_summary')
-    .select('*')
-    .eq('creator_id', creatorProfile?.creator_id)
-    .single();
-
-  // Social profiles for enrichment data
-  const { data: socialProfiles } = await supabase
-    .from('social_profiles')
-    .select('*')
-    .eq('creator_id', creatorProfile?.creator_id);
-
-  // Brand inquiries
-  const { data: inquiries } = await supabase
-    .from('inquiries')
-    .select('id, campaign_type, budget_range, created_at, brand_profiles(company_name)')
-    .eq('creator_id', creatorProfile?.creator_id)
-    .order('created_at', { ascending: false })
-    .limit(10);
-
-  const primaryProfile = (socialProfiles ?? []).find((p: any) => p.platform === 'instagram')
-    ?? (socialProfiles ?? [])[0];
+  const primaryProfile = socialProfiles.find((p) => p.platform === 'instagram') ?? socialProfiles[0];
   const enrichment = primaryProfile?.enrichment_data as any;
-  const aiSummary = (socialProfiles ?? []).find((p: any) => p.ai_summary)?.ai_summary ?? null;
+  const aiSummary = socialProfiles.find((p) => p.ai_summary)?.ai_summary ?? null;
 
-  // What to display as bio/description
-  const displayBio = creatorProfile?.custom_bio ?? aiSummary ?? primaryProfile?.bio ?? null;
+  const displayBio = creatorProfile.custom_bio ?? aiSummary ?? primaryProfile?.bio ?? null;
   const handle = creatorData?.instagram_handle ?? creatorData?.tiktok_handle ?? '';
 
-  const isVerified = creatorProfile?.claim_status === 'verified';
-  const isPending = creatorProfile?.claim_status === 'pending';
+  const isVerified = creatorProfile.claim_status === 'verified';
+  const isPending = creatorProfile.claim_status === 'pending';
 
   const statCard = (label: string, value: string) => (
     <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px', textAlign: 'center' }}>
@@ -103,7 +99,6 @@ export default async function CreatorDashboardPage() {
             Profile Preview
           </p>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-            {/* Avatar */}
             <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <span style={{ fontSize: '18px', fontWeight: 700, color: '#7C3AED' }}>
                 {(creatorData?.name ?? handle ?? '?').slice(0, 2).toUpperCase()}
@@ -111,7 +106,7 @@ export default async function CreatorDashboardPage() {
             </div>
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: '0 0 2px 0' }}>
-                {creatorProfile?.display_name ?? creatorData?.name ?? `@${handle}`}
+                {creatorProfile.display_name ?? creatorData?.name ?? `@${handle}`}
               </p>
               <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 8px 0' }}>@{handle}</p>
               {creatorData?.city && creatorData?.country && (
@@ -163,7 +158,7 @@ export default async function CreatorDashboardPage() {
             </Link>
           </div>
 
-          {creatorProfile?.rate_post || creatorProfile?.rate_reel || creatorProfile?.rate_story ? (
+          {creatorProfile.rate_post || creatorProfile.rate_reel || creatorProfile.rate_story ? (
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
               {creatorProfile.rate_post && <RatePill label="Post" amount={creatorProfile.rate_post} currency={creatorProfile.rate_currency ?? 'USD'} />}
               {creatorProfile.rate_reel && <RatePill label="Reel" amount={creatorProfile.rate_reel} currency={creatorProfile.rate_currency ?? 'USD'} />}
@@ -174,11 +169,11 @@ export default async function CreatorDashboardPage() {
             <p style={{ fontSize: '14px', color: '#9CA3AF', margin: '0 0 12px 0' }}>No rates set yet.</p>
           )}
 
-          <AvailabilityBadge status={creatorProfile?.availability_status ?? 'open'} />
-          {creatorProfile?.availability_note && (
+          <AvailabilityBadge status={creatorProfile.availability_status ?? 'open'} />
+          {creatorProfile.availability_note && (
             <p style={{ fontSize: '13px', color: '#6B7280', margin: '8px 0 0 0' }}>{creatorProfile.availability_note}</p>
           )}
-          {creatorProfile?.rate_notes && (
+          {creatorProfile.rate_notes && (
             <p style={{ fontSize: '13px', color: '#6B7280', margin: '6px 0 0 0', fontStyle: 'italic' }}>"{creatorProfile.rate_notes}"</p>
           )}
         </div>
@@ -192,8 +187,8 @@ export default async function CreatorDashboardPage() {
           {!isVerified ? (
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
               <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: '0 0 6px 0' }}>
-                {(inquiries ?? []).length > 0
-                  ? `${inquiries!.length} brand${inquiries!.length !== 1 ? 's have' : ' has'} expressed interest in your profile`
+                {inquiries.length > 0
+                  ? `${inquiries.length} brand${inquiries.length !== 1 ? 's have' : ' has'} expressed interest in your profile`
                   : 'Brands can find you here'}
               </p>
               <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
@@ -202,11 +197,11 @@ export default async function CreatorDashboardPage() {
                   : 'Claim your profile to see full details.'}
               </p>
             </div>
-          ) : (inquiries ?? []).length === 0 ? (
+          ) : inquiries.length === 0 ? (
             <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>No brand inquiries yet. Make sure your profile is complete to attract brands.</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {inquiries!.map((inq: any) => (
+              {inquiries.map((inq: any) => (
                 <div key={inq.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: '#F9FAFB', borderRadius: '10px' }}>
                   <span style={{ fontSize: '20px' }}>🏢</span>
                   <div style={{ flex: 1, minWidth: 0 }}>

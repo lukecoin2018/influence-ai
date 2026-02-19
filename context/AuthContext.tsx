@@ -3,7 +3,6 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@supabase/supabase-js';
-import { useRouter } from 'next/navigation';
 
 interface BrandProfile {
   id: string;
@@ -20,6 +19,15 @@ interface CreatorProfile {
   creator_id: string;
   display_name: string | null;
   claim_status: string;
+  custom_bio: string | null;
+  rate_post: number | null;
+  rate_reel: number | null;
+  rate_story: number | null;
+  rate_package: number | null;
+  rate_currency: string | null;
+  rate_notes: string | null;
+  availability_status: string | null;
+  availability_note: string | null;
 }
 
 interface AuthContextType {
@@ -64,7 +72,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .single();
     setCreatorProfile(data);
   }
-  
+
   async function loadUserRole(userId: string) {
     const { data } = await supabase
       .from('user_roles')
@@ -92,7 +100,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setLoading(false);
     });
-  
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) {
@@ -115,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUserRole(null);
       }
     });
-  
+
     return () => subscription.unsubscribe();
   }, []);
 
