@@ -35,7 +35,7 @@ export default function EditProfilePage() {
     setAvailabilityStatus(creatorProfile.availability_status ?? 'open');
     setAvailabilityNote(creatorProfile.availability_note ?? '');
     setPreferredCategories(creatorProfile.preferred_categories ?? []);
-    setAvailabilityNote(creatorProfile.availability_note ?? '');
+    setMinBudget(creatorProfile.min_budget ? String(creatorProfile.min_budget) : '');
   }, [creatorProfile]);
 
   // Auth guard — after all hooks
