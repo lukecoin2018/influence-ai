@@ -16,13 +16,11 @@ export default function CreatorDashboardPage() {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
-  
-
   // Load data once we have the creator profile
   useEffect(() => {
     if (!creatorProfile || !creatorProfile.creator_id) return;
     const creatorId = creatorProfile.creator_id;
-  
+
     async function loadData() {
       setDataLoading(true);
       const [creatorRes, socialRes, inquiryRes] = await Promise.all([
@@ -39,13 +37,14 @@ export default function CreatorDashboardPage() {
       setInquiries(inquiryRes.data ?? []);
       setDataLoading(false);
     }
-  
+
     loadData();
   }, [creatorProfile?.creator_id]);
-// Auth guard — synchronous checks to prevent race condition redirect loop
-if (loading) return <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: '#9CA3AF' }}>Loading...</p></div>;
-if (!user) { window.location.href = '/login'; return null; }
-if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; }
+
+  // Auth guard — synchronous checks to prevent race condition redirect loop
+  if (loading) return <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: '#9CA3AF' }}>Loading...</p></div>;
+  if (!user) { window.location.href = '/login'; return null; }
+  if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; }
 
   // Show nothing while data is loading
   if (dataLoading || !creatorProfile) {
@@ -148,37 +147,6 @@ if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; 
           </div>
         )}
 
-        {/* ── Rates & Availability ────────────────────────────────────── */}
-        <div className="card" style={{ padding: '24px', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-            <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-              Rates & Availability
-            </p>
-            <Link href="/creator-dashboard/edit" style={{ fontSize: '12px', fontWeight: 600, color: '#7C3AED', textDecoration: 'none' }}>
-              Edit Rates
-            </Link>
-          </div>
-
-          {creatorProfile.rate_post || creatorProfile.rate_reel || creatorProfile.rate_story ? (
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
-              {creatorProfile.rate_post && <RatePill label="Post" amount={creatorProfile.rate_post} currency={creatorProfile.rate_currency ?? 'USD'} />}
-              {creatorProfile.rate_reel && <RatePill label="Reel" amount={creatorProfile.rate_reel} currency={creatorProfile.rate_currency ?? 'USD'} />}
-              {creatorProfile.rate_story && <RatePill label="Story" amount={creatorProfile.rate_story} currency={creatorProfile.rate_currency ?? 'USD'} />}
-              {creatorProfile.rate_package && <RatePill label="Package" amount={creatorProfile.rate_package} currency={creatorProfile.rate_currency ?? 'USD'} />}
-            </div>
-          ) : (
-            <p style={{ fontSize: '14px', color: '#9CA3AF', margin: '0 0 12px 0' }}>No rates set yet.</p>
-          )}
-
-          <AvailabilityBadge status={creatorProfile.availability_status ?? 'open'} />
-          {creatorProfile.availability_note && (
-            <p style={{ fontSize: '13px', color: '#6B7280', margin: '8px 0 0 0' }}>{creatorProfile.availability_note}</p>
-          )}
-          {creatorProfile.rate_notes && (
-            <p style={{ fontSize: '13px', color: '#6B7280', margin: '6px 0 0 0', fontStyle: 'italic' }}>"{creatorProfile.rate_notes}"</p>
-          )}
-        </div>
-
         {/* ── Brand Interest ──────────────────────────────────────────── */}
         <div className="card" style={{ padding: '24px' }}>
           <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 16px 0' }}>
@@ -224,33 +192,5 @@ if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; 
 
       </div>
     </div>
-  );
-}
-
-// ── Helper components ─────────────────────────────────────────────────────────
-
-function RatePill({ label, amount, currency }: { label: string; amount: number; currency: string }) {
-  return (
-    <div style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#F3F4F6', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-      <span style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{label}</span>
-      <span style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>
-        {currency === 'USD' ? '$' : currency}{Number(amount).toLocaleString()}
-      </span>
-    </div>
-  );
-}
-
-function AvailabilityBadge({ status }: { status: string }) {
-  const config: Record<string, { color: string; bg: string; label: string }> = {
-    open:          { color: '#065F46', bg: '#ECFDF5', label: '🟢 Open to collaborations' },
-    limited:       { color: '#92400E', bg: '#FFFBEB', label: '🟡 Limited availability' },
-    booked:        { color: '#991B1B', bg: '#FEF2F2', label: '🔴 Currently booked' },
-    not_available: { color: '#6B7280', bg: '#F3F4F6', label: '⚫ Not available' },
-  };
-  const c = config[status] ?? config.open;
-  return (
-    <span style={{ display: 'inline-flex', padding: '4px 10px', borderRadius: '999px', backgroundColor: c.bg, fontSize: '12px', fontWeight: 600, color: c.color }}>
-      {c.label}
-    </span>
   );
 }
