@@ -16,22 +16,6 @@ export default async function CreatorDashboardPage() {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) redirect('/auth/login');
 
-// Role check - simplified and more explicit
-const { data: roleData, error: roleError } = await supabase
-  .from('user_roles')
-  .select('role')
-  .eq('user_id', session.user.id)
-  .maybeSingle();
-
-// Only redirect if explicitly NOT a creator
-if (roleData?.role === 'brand') {
-  redirect('/dashboard');
-
-console.log('Creator Dashboard - roleData:', roleData);
-console.log('Creator Dashboard - roleError:', roleError);
-console.log('Creator Dashboard - user_id:', session!.user.id);
-
-
   // Creator profile
   const { data: creatorProfile } = await supabase
     .from('creator_profiles')
@@ -264,5 +248,4 @@ function AvailabilityBadge({ status }: { status: string }) {
       {c.label}
     </span>
   );
-}
 }
