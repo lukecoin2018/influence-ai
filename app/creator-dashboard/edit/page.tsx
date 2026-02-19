@@ -1,7 +1,7 @@
 'use client';
 
 // app/creator-dashboard/edit/page.tsx
-// Creator edit profile — bio, rates, availability, preferences
+// Creator edit profile — bio, availability, preferences
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -9,7 +9,6 @@ import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 
 const INDUSTRIES = ['Fashion', 'Beauty', 'Travel', 'Food & Beverage', 'Tech', 'Fitness', 'Lifestyle', 'Gaming', 'Music', 'Sports'];
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'AUD', 'CAD'];
 
 export default function EditProfilePage() {
   const { user, userRole, creatorProfile, loading } = useAuth();
@@ -22,12 +21,6 @@ export default function EditProfilePage() {
   const [displayName, setDisplayName] = useState('');
   const [customBio, setCustomBio] = useState('');
   const [website, setWebsite] = useState('');
-  const [ratePost, setRatePost] = useState('');
-  const [rateReel, setRateReel] = useState('');
-  const [rateStory, setRateStory] = useState('');
-  const [ratePackage, setRatePackage] = useState('');
-  const [rateCurrency, setRateCurrency] = useState('USD');
-  const [rateNotes, setRateNotes] = useState('');
   const [availabilityStatus, setAvailabilityStatus] = useState('open');
   const [availabilityNote, setAvailabilityNote] = useState('');
   const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
@@ -38,12 +31,6 @@ export default function EditProfilePage() {
     if (!creatorProfile) return;
     setDisplayName(creatorProfile.display_name ?? '');
     setCustomBio(creatorProfile.custom_bio ?? '');
-    setRatePost(creatorProfile.rate_post ? String(creatorProfile.rate_post) : '');
-    setRateReel(creatorProfile.rate_reel ? String(creatorProfile.rate_reel) : '');
-    setRateStory(creatorProfile.rate_story ? String(creatorProfile.rate_story) : '');
-    setRatePackage(creatorProfile.rate_package ? String(creatorProfile.rate_package) : '');
-    setRateCurrency(creatorProfile.rate_currency ?? 'USD');
-    setRateNotes(creatorProfile.rate_notes ?? '');
     setAvailabilityStatus(creatorProfile.availability_status ?? 'open');
     setAvailabilityNote(creatorProfile.availability_note ?? '');
   }, [creatorProfile]);
@@ -61,12 +48,6 @@ export default function EditProfilePage() {
       display_name: displayName || null,
       custom_bio: customBio || null,
       website: website || null,
-      rate_post: ratePost ? parseFloat(ratePost) : null,
-      rate_reel: rateReel ? parseFloat(rateReel) : null,
-      rate_story: rateStory ? parseFloat(rateStory) : null,
-      rate_package: ratePackage ? parseFloat(ratePackage) : null,
-      rate_currency: rateCurrency,
-      rate_notes: rateNotes || null,
       availability_status: availabilityStatus,
       availability_note: availabilityNote || null,
       preferred_categories: preferredCategories.length > 0 ? preferredCategories : null,
@@ -147,51 +128,6 @@ export default function EditProfilePage() {
               <div>
                 <label style={labelStyle}>Website</label>
                 <input style={inputStyle} value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://yourwebsite.com" type="url" />
-              </div>
-            </div>
-
-            {/* ── Rates ─────────────────────────────────────────────── */}
-            {sectionTitle('Rates')}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-              <div>
-                <label style={labelStyle}>Per Post</label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: '14px' }}>$</span>
-                  <input style={{ ...inputStyle, paddingLeft: '24px' }} type="number" value={ratePost} onChange={(e) => setRatePost(e.target.value)} placeholder="500" min="0" />
-                </div>
-              </div>
-              <div>
-                <label style={labelStyle}>Per Reel</label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: '14px' }}>$</span>
-                  <input style={{ ...inputStyle, paddingLeft: '24px' }} type="number" value={rateReel} onChange={(e) => setRateReel(e.target.value)} placeholder="800" min="0" />
-                </div>
-              </div>
-              <div>
-                <label style={labelStyle}>Per Story</label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AE', fontSize: '14px' }}>$</span>
-                  <input style={{ ...inputStyle, paddingLeft: '24px' }} type="number" value={rateStory} onChange={(e) => setRateStory(e.target.value)} placeholder="200" min="0" />
-                </div>
-              </div>
-              <div>
-                <label style={labelStyle}>Package Deal</label>
-                <div style={{ position: 'relative' }}>
-                  <span style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#9CA3AF', fontSize: '14px' }}>$</span>
-                  <input style={{ ...inputStyle, paddingLeft: '24px' }} type="number" value={ratePackage} onChange={(e) => setRatePackage(e.target.value)} placeholder="1500" min="0" />
-                </div>
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '14px', marginTop: '14px' }}>
-              <div>
-                <label style={labelStyle}>Currency</label>
-                <select style={inputStyle} value={rateCurrency} onChange={(e) => setRateCurrency(e.target.value)}>
-                  {CURRENCIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <div>
-                <label style={labelStyle}>Rate Notes</label>
-                <input style={inputStyle} value={rateNotes} onChange={(e) => setRateNotes(e.target.value)} placeholder="e.g. Rates are negotiable, DM for bundles" />
               </div>
             </div>
 
