@@ -31,7 +31,9 @@ export default function EditProfilePage() {
     if (!creatorProfile) return;
     setDisplayName(creatorProfile.display_name ?? '');
     setCustomBio(creatorProfile.custom_bio ?? '');
+    setWebsite(creatorProfile.website ?? '');    
     setAvailabilityStatus(creatorProfile.availability_status ?? 'open');
+    setPreferredCategories(creatorProfile.preferred_categories ?? []);
     setAvailabilityNote(creatorProfile.availability_note ?? '');
   }, [creatorProfile]);
 

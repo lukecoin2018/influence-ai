@@ -28,6 +28,9 @@ interface CreatorProfile {
   rate_notes: string | null;
   availability_status: string | null;
   availability_note: string | null;
+  website: string | null;
+  preferred_categories: string[] | null;
+  min_budget: number | null;
 }
 
 interface AuthContextType {
