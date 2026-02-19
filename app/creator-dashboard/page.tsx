@@ -17,11 +17,17 @@ export default async function CreatorDashboardPage() {
   if (!session) redirect('/auth/login');
 
   // Role check
-  const { data: roleData } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', session.user.id)
-    .single();
+const { data: roleData, error: roleError } = await supabase
+.from('user_roles')
+.select('role')
+.eq('user_id', session.user.id)
+.single();
+
+console.log('Creator Dashboard - roleData:', roleData);
+console.log('Creator Dashboard - roleError:', roleError);
+console.log('Creator Dashboard - user_id:', session.user.id);
+
+if (!roleData || roleData.role !== 'creator') redirect('/dashboard');
 
   if (!roleData || roleData.role !== 'creator') redirect('/dashboard');
 
