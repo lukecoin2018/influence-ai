@@ -58,73 +58,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [userRole, setUserRole] = useState<'brand' | 'creator' | null>(null);
   const [loading, setLoading] = useState(true);
 
-  async function loadBrandProfile(userId: string) {
-    const { data } = await supabase
-      .from('brand_profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    setBrandProfile(data);
-  }
-
-  async function loadCreatorProfile(userId: string) {
-    const { data } = await supabase
-      .from('creator_profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    setCreatorProfile(data);
-  }
-
-  async function loadUserRole(userId: string) {
-    const { data } = await supabase
+  async function loadProfileForUser(userId: string) {
+    // Get role first
+    const { data: roleData } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', userId)
       .single();
-    setUserRole(data?.role ?? null);
+
+    const role = roleData?.role ?? null;
+    setUserRole(role);
+
+    // Load the correct profile based on role
+    if (role === 'creator') {
+      const { data } = await supabase
+        .from('creator_profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      setCreatorProfile(data ?? null);
+      setBrandProfile(null);
+    } else {
+      const { data } = await supabase
+        .from('brand_profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      setBrandProfile(data ?? null);
+      setCreatorProfile(null);
+    }
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await loadUserRole(session.user.id);
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .single();
-        if (roleData?.role === 'creator') {
-          await loadCreatorProfile(session.user.id);
-        } else {
-          await loadBrandProfile(session.user.id);
-        }
-      }
-      setLoading(false);
-    });
-
+    // onAuthStateChange fires immediately with the current session,
+    // so we use it as the single source of truth instead of also calling getSession
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
+
       if (session?.user) {
-        await loadUserRole(session.user.id);
-        const { data: roleData } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', session.user.id)
-          .single();
-        if (roleData?.role === 'creator') {
-          await loadCreatorProfile(session.user.id);
-          setBrandProfile(null);
-        } else {
-          await loadBrandProfile(session.user.id);
-          setCreatorProfile(null);
-        }
+        await loadProfileForUser(session.user.id);
       } else {
         setBrandProfile(null);
         setCreatorProfile(null);
         setUserRole(null);
       }
+
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
