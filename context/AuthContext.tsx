@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@supabase/supabase-js';
+import { useRouter } from 'next/navigation';
 
 interface BrandProfile {
   id: string;
@@ -124,6 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setBrandProfile(null);
     setCreatorProfile(null);
     setUserRole(null);
+    window.location.href = '/login';
   }
 
   return (
