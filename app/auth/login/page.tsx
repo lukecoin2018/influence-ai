@@ -37,11 +37,17 @@ export default function LoginPage() {
       .eq('user_id', data.user.id)
       .single();
 
-      if (roleData?.role === 'creator') {
-        window.location.href = '/creator-dashboard';  // Creators go here
-      } else {
-        window.location.href = '/dashboard';          // Brands go here (default)
-      }
+    console.log('Login - user_id:', data.user.id);
+    console.log('Login - roleData:', roleData);
+    console.log('Login - role value:', roleData?.role);
+
+    if (roleData?.role === 'creator') {
+      console.log('Redirecting to creator-dashboard');
+      window.location.href = '/creator-dashboard';
+    } else {
+      console.log('Redirecting to dashboard');
+      window.location.href = '/dashboard';
+    }
   }
 
   const inputStyle: React.CSSProperties = {
