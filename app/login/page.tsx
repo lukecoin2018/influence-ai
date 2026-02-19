@@ -28,7 +28,7 @@ export default function LoginPage() {
     const { data: roleData } = await supabase
       .from('user_roles').select('role').eq('user_id', data.user.id).single();
 
-    router.push(roleData?.role === 'creator' ? '/creator-dashboard' : '/dashboard');
+      window.location.href = roleData?.role === 'creator' ? '/creator-dashboard' : '/dashboard';
   }
 
   const inputStyle = {
