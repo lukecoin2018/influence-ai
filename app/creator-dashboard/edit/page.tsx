@@ -33,6 +33,7 @@ export default function EditProfilePage() {
     setCustomBio(creatorProfile.custom_bio ?? '');
     setWebsite(creatorProfile.website ?? '');    
     setAvailabilityStatus(creatorProfile.availability_status ?? 'open');
+    setAvailabilityNote(creatorProfile.availability_note ?? '');
     setPreferredCategories(creatorProfile.preferred_categories ?? []);
     setAvailabilityNote(creatorProfile.availability_note ?? '');
   }, [creatorProfile]);
@@ -40,6 +41,8 @@ export default function EditProfilePage() {
   // Auth guard — after all hooks
   if (loading) return <div style={{ padding: '80px', textAlign: 'center', color: '#9CA3AF' }}>Loading...</div>;
   if (!user || userRole !== 'creator') { window.location.href = '/login'; return null; }
+
+  console.log('creatorProfile:', creatorProfile);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
