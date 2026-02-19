@@ -4,17 +4,16 @@
 // Creator edit profile — bio, rates, availability, preferences
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/context/AuthContext';
 
 const INDUSTRIES = ['Fashion', 'Beauty', 'Travel', 'Food & Beverage', 'Tech', 'Fitness', 'Lifestyle', 'Gaming', 'Music', 'Sports'];
-
 const CURRENCIES = ['USD', 'EUR', 'GBP', 'AUD', 'CAD'];
 
 export default function EditProfilePage() {
-  const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const { user, userRole, creatorProfile, loading } = useAuth();
+
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
@@ -34,44 +33,29 @@ export default function EditProfilePage() {
   const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
   const [minBudget, setMinBudget] = useState('');
 
+  // Populate form from creatorProfile once loaded
   useEffect(() => {
-    async function loadProfile() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { router.push('/auth/login'); return; }
+    if (!creatorProfile) return;
+    setDisplayName(creatorProfile.display_name ?? '');
+    setCustomBio(creatorProfile.custom_bio ?? '');
+    setRatePost(creatorProfile.rate_post ? String(creatorProfile.rate_post) : '');
+    setRateReel(creatorProfile.rate_reel ? String(creatorProfile.rate_reel) : '');
+    setRateStory(creatorProfile.rate_story ? String(creatorProfile.rate_story) : '');
+    setRatePackage(creatorProfile.rate_package ? String(creatorProfile.rate_package) : '');
+    setRateCurrency(creatorProfile.rate_currency ?? 'USD');
+    setRateNotes(creatorProfile.rate_notes ?? '');
+    setAvailabilityStatus(creatorProfile.availability_status ?? 'open');
+    setAvailabilityNote(creatorProfile.availability_note ?? '');
+  }, [creatorProfile]);
 
-      const { data } = await supabase
-        .from('creator_profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single();
-
-      if (data) {
-        setDisplayName(data.display_name ?? '');
-        setCustomBio(data.custom_bio ?? '');
-        setWebsite(data.website ?? '');
-        setRatePost(data.rate_post ? String(data.rate_post) : '');
-        setRateReel(data.rate_reel ? String(data.rate_reel) : '');
-        setRateStory(data.rate_story ? String(data.rate_story) : '');
-        setRatePackage(data.rate_package ? String(data.rate_package) : '');
-        setRateCurrency(data.rate_currency ?? 'USD');
-        setRateNotes(data.rate_notes ?? '');
-        setAvailabilityStatus(data.availability_status ?? 'open');
-        setAvailabilityNote(data.availability_note ?? '');
-        setPreferredCategories(data.preferred_categories ?? []);
-        setMinBudget(data.min_budget ? String(data.min_budget) : '');
-      }
-      setLoading(false);
-    }
-    loadProfile();
-  }, [router]);
+  // Auth guard — after all hooks
+  if (loading) return <div style={{ padding: '80px', textAlign: 'center', color: '#9CA3AF' }}>Loading...</div>;
+  if (!user || userRole !== 'creator') { window.location.href = '/login'; return null; }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
     setError('');
-
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
 
     const updates = {
       display_name: displayName || null,
@@ -93,7 +77,7 @@ export default function EditProfilePage() {
     const { error: updateError } = await supabase
       .from('creator_profiles')
       .update(updates)
-      .eq('id', session.user.id);
+      .eq('id', user!.id);
 
     if (updateError) {
       setError(updateError.message);
@@ -128,10 +112,6 @@ export default function EditProfilePage() {
       <div style={{ height: '1px', flex: 1, backgroundColor: '#E5E7EB' }} />
     </div>
   );
-
-  if (loading) {
-    return <div style={{ padding: '80px', textAlign: 'center', color: '#9CA3AF' }}>Loading...</div>;
-  }
 
   return (
     <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh' }}>
