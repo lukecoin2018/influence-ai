@@ -16,10 +16,7 @@ export default function CreatorDashboardPage() {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
 
-  // Auth guard — synchronous checks to prevent race condition redirect loop
-  if (loading) return <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: '#9CA3AF' }}>Loading...</p></div>;
-  if (!user) { window.location.href = '/login'; return null; }
-  if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; }
+  
 
   // Load data once we have the creator profile
   useEffect(() => {
@@ -45,6 +42,10 @@ export default function CreatorDashboardPage() {
   
     loadData();
   }, [creatorProfile?.creator_id]);
+// Auth guard — synchronous checks to prevent race condition redirect loop
+if (loading) return <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: '#9CA3AF' }}>Loading...</p></div>;
+if (!user) { window.location.href = '/login'; return null; }
+if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; }
 
   // Show nothing while data is loading
   if (dataLoading || !creatorProfile) {
