@@ -60,11 +60,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function loadProfileForUser(userId: string) {
-    const { data: roleData } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .single();
+    let roleData = null;
+    for (let i = 0; i < 3; i++) {
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
+      if (data?.role) { roleData = data; break; }
+      await new Promise((r) => setTimeout(r, 300));
+    }
+
 
     const role = roleData?.role ?? null;
     setUserRole(role);
