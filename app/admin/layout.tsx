@@ -23,8 +23,22 @@ function AdminAuthCheck({ children }: { children: React.ReactNode }) {
     </div>
   );
 
-  if (!user || userRole !== 'admin') {
-    if (typeof window !== 'undefined') window.location.href = '/';
+  if (!user) {
+    window.location.href = '/login';
+    return null;
+  }
+
+  if (userRole === null) {
+    // Still resolving — keep waiting instead of redirecting
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F9FAFB' }}>
+        <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
+      </div>
+    );
+  }
+
+  if (userRole !== 'admin') {
+    window.location.href = '/';
     return null;
   }
 
