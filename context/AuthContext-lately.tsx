@@ -12,7 +12,6 @@ interface BrandProfile {
   website: string | null;
   industry: string | null;
   brand_description: string | null;
-  approval_status: string | null;
 }
 
 interface CreatorProfile {
@@ -38,7 +37,7 @@ interface AuthContextType {
   user: User | null;
   brandProfile: BrandProfile | null;
   creatorProfile: CreatorProfile | null;
-  userRole: 'brand' | 'creator' | 'admin' | null;
+  userRole: 'brand' | 'creator' | null;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -56,10 +55,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null);
   const [creatorProfile, setCreatorProfile] = useState<CreatorProfile | null>(null);
-  const [userRole, setUserRole] = useState<'brand' | 'creator' | 'admin' | null>(null);
+  const [userRole, setUserRole] = useState<'brand' | 'creator' | null>(null);
   const [loading, setLoading] = useState(true);
 
   async function loadProfileForUser(userId: string) {
+    // Get role first
     const { data: roleData } = await supabase
       .from('user_roles')
       .select('role')
@@ -69,11 +69,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const role = roleData?.role ?? null;
     setUserRole(role);
 
-    if (role === 'admin') {
-      // Admin doesn't need brand or creator profile
-      setBrandProfile(null);
-      setCreatorProfile(null);
-    } else if (role === 'creator') {
+    // Load the correct profile based on role
+    if (role === 'creator') {
       const { data } = await supabase
         .from('creator_profiles')
         .select('*')
@@ -93,6 +90,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    // onAuthStateChange fires immediately with the current session,
+    // so we use it as the single source of truth instead of also calling getSession
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
 

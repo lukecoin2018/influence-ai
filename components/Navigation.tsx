@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { BarChart2, Sparkles, User, LogOut } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 
@@ -14,9 +14,8 @@ const navLinks = [
 
 export function Navigation() {
   const pathname = usePathname();
-  const { user, brandProfile, creatorProfile, userRole, signOut } = useAuth();
-  const router = useRouter();
-  
+  const { user, brandProfile, userRole, signOut } = useAuth();
+
   return (
     <header
       className="sticky top-0 z-50 border-b border-base"
@@ -26,10 +25,7 @@ export function Navigation() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 no-underline">
-          <div
-            className="bg-purple flex items-center justify-center rounded-lg flex-shrink-0"
-            style={{ width: '32px', height: '32px' }}
-          >
+          <div className="bg-purple flex items-center justify-center rounded-lg flex-shrink-0" style={{ width: '32px', height: '32px' }}>
             <BarChart2 size={16} color="white" strokeWidth={2.5} />
           </div>
           <span className="font-semibold text-primary" style={{ fontSize: '15px', letterSpacing: '-0.01em' }}>
@@ -46,9 +42,7 @@ export function Navigation() {
                 key={href}
                 href={href}
                 className={`rounded-lg font-medium no-underline px-4 py-2 text-sm flex items-center gap-1.5 ${
-                  isActive
-                    ? 'bg-purple-light text-purple'
-                    : 'text-secondary hover:text-primary hover:bg-subtle'
+                  isActive ? 'bg-purple-light text-purple' : 'text-secondary hover:text-primary hover:bg-subtle'
                 }`}
               >
                 {highlight && <Sparkles size={11} color={isActive ? '#7C3AED' : '#9CA3AF'} style={{ marginBottom: '1px' }} />}
@@ -60,56 +54,46 @@ export function Navigation() {
 
         {/* Auth section */}
         {user ? (
-  <div className="flex items-center gap-2">
-    {userRole === 'creator' ? (
-      <Link
-        href="/creator-dashboard"
-        className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline ${
-          pathname.startsWith('/creator-dashboard')
-            ? 'bg-purple-light text-purple'
-            : 'text-secondary hover:text-primary hover:bg-subtle'
-        }`}
-      >
-        <User size={14} />
-        My Profile
-      </Link>
-    ) : (
-      <Link
-        href="/dashboard"
-        className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline ${
-          pathname.startsWith('/dashboard')
-            ? 'bg-purple-light text-purple'
-            : 'text-secondary hover:text-primary hover:bg-subtle'
-        }`}
-      >
-        <User size={14} />
-        {brandProfile?.company_name ?? 'Dashboard'}
-      </Link>
-    )}
-    <button
-      onClick={signOut}
-      className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-secondary hover:text-primary hover:bg-subtle"
-      style={{ border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
-    >
-      <LogOut size={14} />
-    </button>
-  </div>
-) : (
-  <div className="flex items-center gap-2">
-    <Link
-      href="/login"
-      className="rounded-lg font-medium no-underline px-4 py-2 text-sm text-secondary hover:text-primary hover:bg-subtle"
-    >
-      Log in
-    </Link>
-    <Link
-      href="/signup"
-      className="bg-purple text-white rounded-lg font-medium no-underline px-4 py-2 text-sm"
-    >
-      Sign up
-    </Link>
-  </div>
-)}
+          <div className="flex items-center gap-2">
+            {userRole === 'creator' ? (
+              <Link
+                href="/creator-dashboard"
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline ${
+                  pathname.startsWith('/creator-dashboard') ? 'bg-purple-light text-purple' : 'text-secondary hover:text-primary hover:bg-subtle'
+                }`}
+              >
+                <User size={14} />
+                My Profile
+              </Link>
+            ) : userRole === 'brand' ? (
+              <Link
+                href="/dashboard"
+                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline ${
+                  pathname.startsWith('/dashboard') ? 'bg-purple-light text-purple' : 'text-secondary hover:text-primary hover:bg-subtle'
+                }`}
+              >
+                <User size={14} />
+                {brandProfile?.company_name ?? 'Dashboard'}
+              </Link>
+            ) : null /* admin — no nav link shown */}
+            <button
+              onClick={signOut}
+              className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-secondary hover:text-primary hover:bg-subtle"
+              style={{ border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
+            >
+              <LogOut size={14} />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Link href="/login" className="rounded-lg font-medium no-underline px-4 py-2 text-sm text-secondary hover:text-primary hover:bg-subtle">
+              Log in
+            </Link>
+            <Link href="/signup" className="bg-purple text-white rounded-lg font-medium no-underline px-4 py-2 text-sm">
+              Sign up
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );
