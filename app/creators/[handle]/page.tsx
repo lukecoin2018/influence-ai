@@ -633,7 +633,7 @@ export default async function CreatorProfilePage({
         <div style={{ display: 'grid', gridTemplateColumns: similarCreators.length > 0 ? '1fr 300px' : '1fr', gap: '24px', alignItems: 'start' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* AI Summary — most impactful addition, shown above Content Analytics */}
-          <AiSummaryCard summary={aiSummary} />
+         
           
           {isClaimed && claimedProfile && isLoggedIn && (
             <div className="card" style={{ padding: '20px' }}>
