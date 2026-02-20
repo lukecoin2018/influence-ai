@@ -1,8 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { Navigation } from '@/components/Navigation';
-import { Footer } from '@/components/Footer';
 import { AuthProvider } from '@/context/AuthContext';
+import { SiteShell } from '@/components/SiteShell';
 
 export const metadata: Metadata = {
   title: {
@@ -21,9 +20,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="flex flex-col" style={{ minHeight: '100vh' }}>
         <AuthProvider>
-          <Navigation />
-          <main style={{ flex: 1 }}>{children}</main>
-          <Footer />
+          <SiteShell>{children}</SiteShell>
         </AuthProvider>
       </body>
     </html>
