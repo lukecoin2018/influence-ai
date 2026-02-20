@@ -18,7 +18,10 @@ export default function CreatorDashboardPage() {
 
   // Load data once we have the creator profile
   useEffect(() => {
-    if (!creatorProfile || !creatorProfile.creator_id) return;
+    if (!creatorProfile || !creatorProfile.creator_id) {
+      setDataLoading(false); // ← this line belongs here
+      return;
+    }
     const creatorId = creatorProfile.creator_id;
 
     async function loadData() {
