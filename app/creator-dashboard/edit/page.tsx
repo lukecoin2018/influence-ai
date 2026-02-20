@@ -16,6 +16,7 @@ export default function EditProfilePage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState('');
+  const [dataLoading, setDataLoading] = useState(true);
 
   // Form state
   const [displayName, setDisplayName] = useState('');
@@ -26,23 +27,41 @@ export default function EditProfilePage() {
   const [preferredCategories, setPreferredCategories] = useState<string[]>([]);
   const [minBudget, setMinBudget] = useState('');
 
-  // Populate form from creatorProfile once loaded
+  // Populate form — use creatorProfile fields, fall back to v_creator_summary / social_profiles
   useEffect(() => {
     if (!creatorProfile) return;
-    setDisplayName(creatorProfile.display_name ?? '');
-    setCustomBio(creatorProfile.custom_bio ?? '');
-    setWebsite(creatorProfile.website ?? '');    
-    setAvailabilityStatus(creatorProfile.availability_status ?? 'open');
-    setAvailabilityNote(creatorProfile.availability_note ?? '');
-    setPreferredCategories(creatorProfile.preferred_categories ?? []);
-    setMinBudget(creatorProfile.min_budget ? String(creatorProfile.min_budget) : '');
+
+    async function loadFallbackData() {
+      const creatorId = creatorProfile!.creator_id;
+
+      // Fetch summary and social profiles for fallback values
+      const [summaryRes, socialRes] = await Promise.all([
+        supabase.from('v_creator_summary').select('*').eq('creator_id', creatorId).single(),
+        supabase.from('social_profiles').select('ai_summary, bio').eq('creator_id', creatorId),
+      ]);
+
+      const summary = summaryRes.data;
+      const socialProfiles = socialRes.data ?? [];
+      const aiSummary = socialProfiles.find((p: any) => p.ai_summary)?.ai_summary ?? null;
+      const socialBio = socialProfiles[0]?.bio ?? null;
+
+      // Use saved value if set, otherwise fall back to scraped/AI data
+      setDisplayName(creatorProfile!.display_name ?? summary?.name ?? '');
+      setCustomBio(creatorProfile!.custom_bio ?? aiSummary ?? socialBio ?? '');
+      setWebsite(creatorProfile!.website ?? '');
+      setAvailabilityStatus(creatorProfile!.availability_status ?? 'open');
+      setAvailabilityNote(creatorProfile!.availability_note ?? '');
+      setPreferredCategories(creatorProfile!.preferred_categories ?? []);
+      setMinBudget(creatorProfile!.min_budget ? String(creatorProfile!.min_budget) : '');
+      setDataLoading(false);
+    }
+
+    loadFallbackData();
   }, [creatorProfile]);
 
   // Auth guard — after all hooks
-  if (loading) return <div style={{ padding: '80px', textAlign: 'center', color: '#9CA3AF' }}>Loading...</div>;
+  if (loading || dataLoading) return <div style={{ padding: '80px', textAlign: 'center', color: '#9CA3AF' }}>Loading...</div>;
   if (!user || userRole !== 'creator') { window.location.href = '/login'; return null; }
-
-  console.log('creatorProfile:', creatorProfile);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -125,7 +144,7 @@ export default function EditProfilePage() {
                 <textarea
                   value={customBio}
                   onChange={(e) => setCustomBio(e.target.value)}
-                  rows={4}
+                  rows={6}
                   placeholder="Tell brands about yourself, your audience, and what makes you unique..."
                   style={{ ...inputStyle, resize: 'vertical', lineHeight: '1.6' }}
                 />
@@ -140,10 +159,10 @@ export default function EditProfilePage() {
             {sectionTitle('Availability')}
             <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '14px' }}>
               {[
-                { value: 'open', label: '🟢 Open', desc: 'Open to collaborations' },
-                { value: 'limited', label: '🟡 Limited', desc: 'Limited availability' },
-                { value: 'booked', label: '🔴 Booked', desc: 'Currently booked' },
-                { value: 'not_available', label: '⚫ Closed', desc: 'Not available' },
+                { value: 'open', label: '🟢 Open' },
+                { value: 'limited', label: '🟡 Limited' },
+                { value: 'booked', label: '🔴 Booked' },
+                { value: 'not_available', label: '⚫ Closed' },
               ].map((opt) => (
                 <button
                   key={opt.value}
