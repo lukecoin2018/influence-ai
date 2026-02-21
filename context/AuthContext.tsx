@@ -60,16 +60,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function loadProfileForUser(userId: string) {
-    let roleData = null;
-    for (let i = 0; i < 3; i++) {
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', userId)
-        .single();
-      if (data?.role) { roleData = data; break; }
-      await new Promise((r) => setTimeout(r, 300));
-    }
+    const { data: roleData } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId)
+      .single();
 
 
     const role = roleData?.role ?? null;
@@ -99,6 +94,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
+    // Resolve auth immediately from existing session on mount
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        await loadProfileForUser(session.user.id);
+      }
+      setLoading(false);
+    });
+    
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
 
