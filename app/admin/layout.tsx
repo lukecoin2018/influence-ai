@@ -1,93 +1,85 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { BarChart2, Building2, Users, MessageSquare, Mail, Activity, ArrowLeft, LogOut } from 'lucide-react';
 
-export default function AdminActivityPage() {
-  const [activity, setActivity] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState(0);
-  const PAGE_SIZE = 30;
+const sidebarLinks = [
+  { href: '/admin', label: 'Overview', icon: BarChart2, exact: true },
+  { href: '/admin/brands', label: 'Brands', icon: Building2 },
+  { href: '/admin/creators', label: 'Creators', icon: Users },
+  { href: '/admin/inquiries', label: 'Inquiries', icon: MessageSquare },
+  { href: '/admin/contact', label: 'Contact', icon: Mail },
+  { href: '/admin/activity', label: 'Activity', icon: Activity },
+];
 
-  async function load(pageNum: number) {
-    setLoading(true);
-    const { data } = await supabase
-      .from('activity_log')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
-    if (pageNum === 0) {
-      setActivity(data ?? []);
-    } else {
-      setActivity((prev) => [...prev, ...(data ?? [])]);
-    }
-    setLoading(false);
-  }
-
-  useEffect(() => { load(0); }, []);
-
-  function activityLabel(event: any) {
-    switch (event.event_type) {
-      case 'brand_signup': return `Brand "${event.details?.company_name ?? 'Unknown'}" signed up (pending approval)`;
-      case 'brand_approved': return `Brand approved by admin`;
-      case 'brand_rejected': return `Brand rejected by admin`;
-      case 'brand_suspended': return `Brand suspended by admin`;
-      case 'creator_signup': return `Creator @${event.details?.handle ?? 'unknown'} signed up`;
-      case 'creator_verified': return `Creator verified by admin`;
-      case 'creator_rejected': return `Creator claim rejected by admin`;
-      case 'inquiry_sent': return `Inquiry: ${event.details?.brand_name ?? 'Brand'} → creator`;
-      case 'contact_form': return `Contact form: ${event.details?.name ?? ''} (${event.details?.email ?? ''}) — ${event.details?.type ?? 'General'}`;
-      default: return event.event_type;
-    }
-  }
-
-  function eventColor(type: string) {
-    if (type.includes('approved') || type.includes('verified')) return '#059669';
-    if (type.includes('rejected') || type.includes('suspended')) return '#DC2626';
-    if (type.includes('signup')) return '#7C3AED';
-    if (type.includes('inquiry')) return '#D97706';
-    return '#6B7280';
-  }
-
-  // Group by date
-  const grouped = activity.reduce((acc: Record<string, any[]>, event) => {
-    const date = new Date(event.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-    if (!acc[date]) acc[date] = [];
-    acc[date].push(event);
-    return acc;
-  }, {});
+function AdminSidebar() {
+  const pathname = usePathname();
+  const { signOut } = useAuth();
 
   return (
-    <div>
-      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Activity Log</h1>
-
-      {Object.entries(grouped).map(([date, events]) => (
-        <div key={date} style={{ marginBottom: '28px' }}>
-          <p style={{ fontSize: '12px', fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 12px 0' }}>{date}</p>
-          <div style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
-            {events.map((event, i) => (
-              <div key={event.id} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 20px', borderBottom: i < events.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
-                <div style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: eventColor(event.event_type), flexShrink: 0 }} />
-                <p style={{ flex: 1, fontSize: '14px', color: '#374151', margin: 0 }}>{activityLabel(event)}</p>
-                <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0, flexShrink: 0 }}>
-                  {new Date(event.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
-                </p>
-              </div>
-            ))}
+    <div style={{ width: '220px', minHeight: '100vh', backgroundColor: '#1F2937', display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'sticky', top: 0, height: '100vh' }}>
+      <div style={{ padding: '20px 16px', borderBottom: '1px solid #374151' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <BarChart2 size={14} color="white" />
           </div>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'white', letterSpacing: '-0.01em' }}>InfluenceAI Admin</span>
         </div>
-      ))}
+      </div>
 
-      {!loading && activity.length > 0 && activity.length % PAGE_SIZE === 0 && (
-        <button
-          onClick={() => { const next = page + 1; setPage(next); load(next); }}
-          style={{ padding: '10px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', border: '1px solid #E5E7EB', backgroundColor: 'white', color: '#374151' }}
-        >
-          Load More
+      <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        {sidebarLinks.map(({ href, label, icon: Icon, exact }) => {
+          const isActive = exact ? pathname === href : pathname.startsWith(href);
+          return (
+            <Link key={href} href={href} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 500, backgroundColor: isActive ? '#374151' : 'transparent', color: isActive ? 'white' : '#9CA3AF' }}>
+              <Icon size={15} />
+              {label}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div style={{ padding: '12px 8px', borderTop: '1px solid #374151', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 500, color: '#9CA3AF' }}>
+          <ArrowLeft size={15} />
+          Back to Site
+        </Link>
+        <button onClick={() => signOut()} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}>
+          <LogOut size={15} />
+          Sign Out
         </button>
-      )}
+      </div>
+    </div>
+  );
+}
 
-      {loading && <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>}
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { user, userRole, loading } = useAuth();
+
+  // While loading, show a minimal shell with sidebar so it doesn't flash
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <AdminSidebar />
+        <main style={{ flex: 1, padding: '32px', backgroundColor: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
+        </main>
+      </div>
+    );
+  }
+
+  // Auth resolved — redirect if not admin
+  if (!user) { window.location.href = '/login'; return null; }
+  if (userRole !== 'admin') { window.location.href = '/'; return null; }
+
+  return (
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <AdminSidebar />
+      <main style={{ flex: 1, padding: '32px', backgroundColor: '#F9FAFB', overflowY: 'auto' }}>
+        {children}
+      </main>
     </div>
   );
 }
