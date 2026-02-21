@@ -11,13 +11,15 @@ export default function ContactPage() {
   const [type, setType] = useState('General Inquiry');
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
+  const [honeypot, setHoneypot] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name || !email || !message) { setError('Please fill in all required fields.'); return; }
+    if (honeypot) { setSubmitted(true); return; } // silently reject bots
+    if (!name || !email || !subject || !message) { setError('Please fill in all required fields.'); return; }
     setSubmitting(true);
     setError('');
 
@@ -94,7 +96,7 @@ export default function ContactPage() {
                 </select>
               </div>
               <div>
-                <label style={labelStyle}>Subject</label>
+              <label style={labelStyle}>Subject *</label>
                 <input style={inputStyle} value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="What's this about?" />
               </div>
             </div>
@@ -109,6 +111,17 @@ export default function ContactPage() {
                 style={{ ...inputStyle, resize: 'vertical', lineHeight: '1.6' }}
               />
             </div>
+
+            {/* Honeypot — hidden from humans, bots will fill it */}
+            <input
+              type="text"
+              value={honeypot}
+              onChange={(e) => setHoneypot(e.target.value)}
+              style={{ display: 'none' }}
+              tabIndex={-1}
+              autoComplete="off"
+              aria-hidden="true"
+            />
 
             {error && (
               <div style={{ padding: '10px 14px', borderRadius: '8px', backgroundColor: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', fontSize: '13px' }}>
