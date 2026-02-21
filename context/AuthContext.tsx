@@ -94,27 +94,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   useEffect(() => {
-    // Resolve auth immediately from existing session on mount
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       setUser(session?.user ?? null);
-      if (session?.user) {
-        await loadProfileForUser(session.user.id);
+      try {
+        if (session?.user) await loadProfileForUser(session.user.id);
+      } catch (e) {
+        console.error('getSession loadProfile error:', e);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
-    
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
-
-      if (session?.user) {
-        await loadProfileForUser(session.user.id);
-      } else {
-        setBrandProfile(null);
-        setCreatorProfile(null);
-        setUserRole(null);
+      try {
+        if (session?.user) {
+          await loadProfileForUser(session.user.id);
+        } else {
+          setBrandProfile(null);
+          setCreatorProfile(null);
+          setUserRole(null);
+        }
+      } catch (e) {
+        console.error('onAuthStateChange loadProfile error:', e);
+      } finally {
+        setLoading(false);
       }
-
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();
