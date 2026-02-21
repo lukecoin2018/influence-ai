@@ -1,39 +1,29 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 
 export default function AdminInquiriesPage() {
-  const { user, userRole, loading } = useAuth();
-  const router = useRouter();
   const [inquiries, setInquiries] = useState<any[]>([]);
-  const [dataLoading, setDataLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (loading) return;
-    if (!user || userRole !== 'admin') { router.push('/login'); return; }
+    async function load() {
+      const { data } = await supabase
+        .from('inquiries')
+        .select('*, brand_profiles(company_name, email), creators!creator_id(name, instagram_handle, tiktok_handle, contact_email)')
+        .order('created_at', { ascending: false });
+      setInquiries(data ?? []);
+      setLoading(false);
+    }
     load();
-  }, [loading, user, userRole]);
-
-  async function load() {
-    setDataLoading(true);
-    const { data } = await supabase
-      .from('inquiries')
-      .select('*, brand_profiles(company_name, email), creators!creator_id(name, instagram_handle, tiktok_handle, contact_email)')
-      .order('created_at', { ascending: false });
-    setInquiries(data ?? []);
-    setDataLoading(false);
-  }
-
-  if (loading) return null;
-  if (!user || userRole !== 'admin') return null;
+  }, []);
 
   return (
     <div>
       <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Inquiries</h1>
-      {dataLoading ? (
+
+      {loading ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
       ) : inquiries.length === 0 ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>No inquiries yet.</p>
@@ -56,11 +46,17 @@ export default function AdminInquiriesPage() {
                       {inq.campaign_type && <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>📋 {inq.campaign_type}</p>}
                       {inq.budget_range && <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>💰 {inq.budget_range}</p>}
                       {brand?.email && <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>✉️ {brand.email}</p>}
-                      {creator?.contact_email && <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>📧 {creator.contact_email}</p>}
+                      {creator?.contact_email && <p style={{ fontSize: '13px', color: '#7C3AED', margin: 0 }}>📧 {creator.contact_email}</p>}
                     </div>
-                    {inq.message && <p style={{ fontSize: '13px', color: '#374151', margin: '8px 0 0 0', maxWidth: '500px', fontStyle: 'italic' }}>"{inq.message.slice(0, 150)}{inq.message.length > 150 ? '...' : ''}"</p>}
+                    {inq.message && (
+                      <p style={{ fontSize: '13px', color: '#374151', margin: '8px 0 0 0', maxWidth: '500px', fontStyle: 'italic' }}>
+                        "{inq.message.slice(0, 150)}{inq.message.length > 150 ? '...' : ''}"
+                      </p>
+                    )}
                   </div>
-                  <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0, flexShrink: 0 }}>{new Date(inq.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                  <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0, flexShrink: 0 }}>
+                    {new Date(inq.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  </p>
                 </div>
               </div>
             );

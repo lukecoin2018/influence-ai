@@ -46,7 +46,7 @@ function AdminSidebar() {
           <ArrowLeft size={15} />
           Back to Site
         </Link>
-        <button onClick={() => signOut()} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}>
+        <button onClick={() => { signOut(); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}>
           <LogOut size={15} />
           Sign Out
         </button>
