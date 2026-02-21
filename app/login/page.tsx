@@ -26,6 +26,9 @@ export default function LoginPage() {
     const { data: roleData } = await supabase
       .from('user_roles').select('role').eq('user_id', data.user.id).single();
 
+      // Small delay to ensure Supabase writes session to localStorage before redirect
+    await new Promise((r) => setTimeout(r, 300));
+    
     if (roleData?.role === 'admin') {
       window.location.href = '/admin';
     } else if (roleData?.role === 'creator') {
