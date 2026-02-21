@@ -34,7 +34,7 @@ export default function AdminContactPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Contact Submissions</h1>
+      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Contact Submissions</h1>
       {dataLoading ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
       ) : submissions.length === 0 ? (
@@ -42,12 +42,12 @@ export default function AdminContactPage() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
           {submissions.map((sub) => (
-            <div key={sub.id} style={{ backgroundColor: 'white', borderRadius: '12px', border: `1px solid ${sub.status === 'read' ? '#E5E7EB' : '#DDD6FE'}`, padding: '20px 24px' }}>
+            <div key={sub.id} style={{ backgroundColor: 'white', borderRadius: '12px', border: `1px solid ${sub.status === 'read' ? '#E5E7EB' : '#FFE44D'}`, padding: '20px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{sub.name}</span>
-                    {sub.status !== 'read' && <span style={{ padding: '2px 8px', borderRadius: '999px', backgroundColor: '#EDE9FE', fontSize: '11px', fontWeight: 700, color: '#7C3AED' }}>NEW</span>}
+                    <span style={{ fontSize: '15px', fontWeight: 700, color: '#3A3A3A' }}>{sub.name}</span>
+                    {sub.status !== 'read' && <span style={{ padding: '2px 8px', borderRadius: '999px', backgroundColor: '#FFF9E0', fontSize: '11px', fontWeight: 700, color: '#FFD700' }}>NEW</span>}
                     {sub.type && <span style={{ padding: '2px 8px', borderRadius: '999px', backgroundColor: '#F3F4F6', fontSize: '11px', fontWeight: 600, color: '#6B7280' }}>{sub.type}</span>}
                   </div>
                   <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 4px 0' }}>{sub.email}</p>

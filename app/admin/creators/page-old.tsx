@@ -58,7 +58,7 @@ export default function AdminCreatorsPage() {
       onClick={() => setFilter(value)}
       style={{
         padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', border: 'none',
-        backgroundColor: filter === value ? '#7C3AED' : '#F3F4F6',
+        backgroundColor: filter === value ? '#FFD700' : '#F3F4F6',
         color: filter === value ? 'white' : '#374151',
       }}
     >
@@ -68,7 +68,7 @@ export default function AdminCreatorsPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Creator Verification</h1>
+      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Creator Verification</h1>
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
         {filterBtn('all', 'All')}
@@ -91,12 +91,12 @@ export default function AdminCreatorsPage() {
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#7C3AED' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#FFF9E0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#FFD700' }}>
                           {(creatorData.name ?? handle ?? '?').slice(0, 2).toUpperCase()}
                         </span>
                       </div>
-                      <span style={{ fontSize: '16px', fontWeight: 700, color: '#111827' }}>{cp.display_name ?? creatorData.name ?? `@${handle}`}</span>
+                      <span style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A' }}>{cp.display_name ?? creatorData.name ?? `@${handle}`}</span>
                       {statusBadge(cp.claim_status)}
                     </div>
                     <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 2px 0' }}>@{handle}</p>

@@ -22,7 +22,7 @@ export function CompareBar({ selectedHandles, onRemove, onClear }: CompareBarPro
     <div style={{
       position: 'fixed', bottom: '24px', left: '50%',
       transform: 'translateX(-50%)',
-      backgroundColor: '#111827', borderRadius: '12px',
+      backgroundColor: '#3A3A3A', borderRadius: '12px',
       padding: '12px 16px',
       display: 'flex', alignItems: 'center', gap: '12px',
       boxShadow: '0 8px 24px rgba(0,0,0,0.2)',
@@ -37,7 +37,7 @@ export function CompareBar({ selectedHandles, onRemove, onClear }: CompareBarPro
         {selectedHandles.map((handle) => (
           <span key={handle} style={{
             display: 'flex', alignItems: 'center', gap: '4px',
-            backgroundColor: '#1F2937', borderRadius: '6px',
+            backgroundColor: '#3A3A3A', borderRadius: '6px',
             padding: '4px 8px', fontSize: '13px', color: 'white',
           }}>
             @{handle}
@@ -55,7 +55,7 @@ export function CompareBar({ selectedHandles, onRemove, onClear }: CompareBarPro
         onClick={handleCompare}
         style={{
           display: 'flex', alignItems: 'center', gap: '6px',
-          backgroundColor: '#7C3AED', color: 'white',
+          backgroundColor: '#FFD700', color: '#3A3A3A',
           border: 'none', borderRadius: '8px',
           padding: '8px 14px', fontSize: '13px', fontWeight: 600,
           cursor: 'pointer',

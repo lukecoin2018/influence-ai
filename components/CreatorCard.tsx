@@ -18,8 +18,8 @@ interface CreatorCardProps {
 function AvatarFallback({ name }: { name: string }) {
   const initials = (name ?? '??').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
   return (
-    <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-      <span style={{ fontSize: '14px', fontWeight: 600, color: '#7C3AED' }}>{initials}</span>
+    <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#FFF0F5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <span style={{ fontSize: '14px', fontWeight: 600, color: '#FF4D94' }}>{initials}</span>
     </div>
   );
 }
@@ -73,11 +73,11 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare }: 
   const hasBoth = hasInstagram && hasTikTok;
 
   return (
-    <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', position: 'relative', outline: isSelectedForCompare ? '2px solid #7C3AED' : 'none' }}>
+    <div className="card" style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px', position: 'relative', outline: isSelectedForCompare ? '2px solid #FF4D94' : 'none' }}>
 
       {/* Compare checkbox */}
       {onCompareToggle && compareHandle && (
-        <button onClick={() => onCompareToggle(compareHandle)} style={{ position: 'absolute', top: '12px', right: '12px', background: 'none', border: 'none', cursor: 'pointer', padding: '2px', borderRadius: '4px', color: isSelectedForCompare ? '#7C3AED' : '#D1D5DB' }}>
+        <button onClick={() => onCompareToggle(compareHandle)} style={{ position: 'absolute', top: '12px', right: '12px', background: 'none', border: 'none', cursor: 'pointer', padding: '2px', borderRadius: '4px', color: isSelectedForCompare ? '#FF4D94' : '#D1D5DB' }}>
           <CheckCircle size={18} strokeWidth={2} />
         </button>
       )}
@@ -90,12 +90,12 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare }: 
 
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
-            <span style={{ fontWeight: 700, fontSize: '14px', color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <span style={{ fontWeight: 700, fontSize: '14px', color: '#3A3A3A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {name}
             </span>
             {isVerified && (
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0 }}>
-                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             )}
           </div>
@@ -103,13 +103,13 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare }: 
           {/* Platform handles */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
             {instagram_handle && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#E1306C' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#FF4D94' }}>
                 <InstagramIcon />
                 <span style={{ fontSize: '12px', color: '#6B7280' }}>@{instagram_handle}</span>
               </div>
             )}
             {tiktok_handle && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#010101' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#3AAFF4' }}>
                 <TikTokIcon />
                 <span style={{ fontSize: '12px', color: '#6B7280' }}>@{tiktok_handle}</span>
               </div>
@@ -128,20 +128,20 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare }: 
       {/* Platform follower counts */}
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         {instagram_handle && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#FFF0F5', borderRadius: '6px', padding: '4px 8px' }}>
-            <span style={{ color: '#E1306C' }}><InstagramIcon /></span>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#111827' }}>{formatCount(instagram_followers)}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#F3F4F6', borderRadius: '6px', padding: '4px 8px' }}>
+          <span style={{ color: '#FF4D94' }}><InstagramIcon /></span>
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280' }}>{formatCount(instagram_followers)}</span>
           </div>
         )}
         {tiktok_handle && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#F0F0F0', borderRadius: '6px', padding: '4px 8px' }}>
-            <span style={{ color: '#010101' }}><TikTokIcon /></span>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#111827' }}>{formatCount(tiktok_followers)}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#F3F4F6', borderRadius: '6px', padding: '4px 8px' }}>
+          <span style={{ color: '#3AAFF4' }}><TikTokIcon /></span>
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280' }}>{formatCount(tiktok_followers)}</span>
           </div>
         )}
         {hasBoth && (
-          <div style={{ borderRadius: '6px', padding: '4px 8px', backgroundColor: '#EDE9FE' }}>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#7C3AED' }}>{formatCount(total_followers)} total</span>
+          <div style={{ borderRadius: '6px', padding: '4px 8px', backgroundColor: '#FFF9E0' }}>
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#FFD700' }}>{formatCount(total_followers)} total</span>
           </div>
         )}
       </div>

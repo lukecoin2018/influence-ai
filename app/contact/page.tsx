@@ -47,7 +47,7 @@ export default function ContactPage() {
 
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '10px 14px', borderRadius: '8px',
-    border: '1px solid #E5E7EB', fontSize: '14px', color: '#111827',
+    border: '1px solid #E5E7EB', fontSize: '14px', color: '#3A3A3A',
     outline: 'none', boxSizing: 'border-box', backgroundColor: 'white',
   };
 
@@ -60,7 +60,7 @@ export default function ContactPage() {
       <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
         <div style={{ textAlign: 'center', maxWidth: '400px' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-          <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: '0 0 8px 0' }}>Message Sent!</h1>
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 8px 0' }}>Message Sent!</h1>
           <p style={{ fontSize: '15px', color: '#6B7280', margin: 0 }}>Thanks for reaching out. We'll get back to you shortly.</p>
         </div>
       </div>
@@ -71,7 +71,7 @@ export default function ContactPage() {
     <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA', padding: '60px 24px' }}>
       <div style={{ maxWidth: '560px', margin: '0 auto' }}>
         <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#111827', margin: '0 0 8px 0', letterSpacing: '-0.02em' }}>Get in Touch</h1>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#3A3A3A', margin: '0 0 8px 0', letterSpacing: '-0.02em' }}>Get in Touch</h1>
           <p style={{ fontSize: '15px', color: '#6B7280', margin: 0 }}>Have a question or want to work together? We'd love to hear from you.</p>
         </div>
 
@@ -132,7 +132,7 @@ export default function ContactPage() {
             <button
               type="submit"
               disabled={submitting}
-              style={{ padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg, #7C3AED, #6D28D9)', color: 'white', fontSize: '15px', fontWeight: 700, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1 }}
+              style={{ padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg, #FFD700, #E6C200)', color: 'white', fontSize: '15px', fontWeight: 700, border: 'none', cursor: submitting ? 'not-allowed' : 'pointer', opacity: submitting ? 0.7 : 1 }}
             >
               {submitting ? 'Sending...' : 'Send Message'}
             </button>

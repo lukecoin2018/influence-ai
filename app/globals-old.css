@@ -1,20 +1,6 @@
 @import url("https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700&display=swap");
 @import "tailwindcss";
 
-@theme {
-  --color-lmg-gold:           #FFD700;
-  --color-lmg-gold-dark:      #E6C200;
-  --color-lmg-gold-light:     #FFF9E0;
-  --color-lmg-gold-border:    #FFE44D;
-  --color-lmg-creator:        #FF4D94;
-  --color-lmg-creator-light:  #FFF0F5;
-  --color-lmg-creator-border: #FFB3D1;
-  --color-lmg-brand:          #3AAFF4;
-  --color-lmg-brand-light:    #EBF7FF;
-  --color-lmg-brand-border:   #A3D9FF;
-  --color-lmg-grey:           #3A3A3A;
-}
-
 /* =====================
    BASE
    ===================== */
@@ -103,28 +89,8 @@ body {
   white-space: nowrap;
 }
 
-/* LMG badge variants */
-.badge-creator {
-  background-color: #FFF0F5;
-  color: #FF4D94;
-  border: 1px solid #FFB3D1;
-}
-
-.badge-brand {
-  background-color: #EBF7FF;
-  color: #3AAFF4;
-  border: 1px solid #A3D9FF;
-}
-
-.badge-gold {
-  background-color: #FFF9E0;
-  color: #3A3A3A;
-  border: 1px solid #FFE44D;
-}
-
 /* =====================
    ENGAGEMENT INDICATORS
-   — DO NOT CHANGE THESE —
    ===================== */
 .engagement-high {
   color: #059669;

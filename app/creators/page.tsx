@@ -99,7 +99,7 @@ function CreatorsContent() {
 
         {/* Page header */}
         <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#111827', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
             Creator Discovery
           </h1>
           <p style={{ fontSize: '15px', color: '#6B7280', margin: 0 }}>
@@ -127,7 +127,7 @@ function CreatorsContent() {
                     width: '100%', paddingLeft: '32px', paddingRight: '12px',
                     paddingTop: '8px', paddingBottom: '8px',
                     border: '1px solid #E5E7EB', borderRadius: '8px',
-                    fontSize: '14px', color: '#111827', backgroundColor: 'white',
+                    fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white',
                     outline: 'none',
                   }}
                 />
@@ -145,7 +145,7 @@ function CreatorsContent() {
                 style={{
                   width: '100%', padding: '8px 12px',
                   border: '1px solid #E5E7EB', borderRadius: '8px',
-                  fontSize: '14px', color: '#111827', backgroundColor: 'white',
+                  fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white',
                   outline: 'none', cursor: 'pointer',
                 }}
               >
@@ -169,7 +169,7 @@ function CreatorsContent() {
                 style={{
                   width: '100%', padding: '8px 12px',
                   border: '1px solid #E5E7EB', borderRadius: '8px',
-                  fontSize: '14px', color: '#111827', backgroundColor: 'white', outline: 'none',
+                  fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white', outline: 'none',
                 }}
               />
             </div>
@@ -187,7 +187,7 @@ function CreatorsContent() {
                 style={{
                   width: '100%', padding: '8px 12px',
                   border: '1px solid #E5E7EB', borderRadius: '8px',
-                  fontSize: '14px', color: '#111827', backgroundColor: 'white', outline: 'none',
+                  fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white', outline: 'none',
                 }}
               />
             </div>
@@ -206,7 +206,7 @@ function CreatorsContent() {
                 style={{
                   width: '100%', padding: '8px 12px',
                   border: '1px solid #E5E7EB', borderRadius: '8px',
-                  fontSize: '14px', color: '#111827', backgroundColor: 'white', outline: 'none',
+                  fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white', outline: 'none',
                 }}
               />
             </div>
@@ -222,7 +222,7 @@ function CreatorsContent() {
                 style={{
                   width: '100%', padding: '8px 12px',
                   border: '1px solid #E5E7EB', borderRadius: '8px',
-                  fontSize: '14px', color: '#111827', backgroundColor: 'white',
+                  fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white',
                   outline: 'none', cursor: 'pointer',
                 }}
               >
@@ -239,9 +239,9 @@ function CreatorsContent() {
                 id="verified"
                 checked={verified}
                 onChange={(e) => { setVerified(e.target.checked); handleFilterChange(); }}
-                style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#7C3AED' }}
+                style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: '#3AAFF4' }}
               />
-              <label htmlFor="verified" style={{ fontSize: '14px', color: '#111827', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+              <label htmlFor="verified" style={{ fontSize: '14px', color: '#3A3A3A', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                 Verified only
               </label>
             </div>
@@ -272,7 +272,7 @@ function CreatorsContent() {
             backgroundColor: 'white',
           }}>
             <SlidersHorizontal size={32} color="#D1D5DB" style={{ margin: '0 auto 16px' }} />
-            <p style={{ fontSize: '16px', fontWeight: 600, color: '#111827', margin: '0 0 8px' }}>
+            <p style={{ fontSize: '16px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 8px' }}>
               No creators match your filters
             </p>
             <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>
@@ -306,7 +306,7 @@ function CreatorsContent() {
                 display: 'flex', alignItems: 'center', gap: '4px',
                 padding: '8px 14px', borderRadius: '8px',
                 border: '1px solid #E5E7EB', backgroundColor: 'white',
-                fontSize: '14px', fontWeight: 500, color: page === 1 ? '#D1D5DB' : '#111827',
+                fontSize: '14px', fontWeight: 500, color: page === 1 ? '#D1D5DB' : '#3A3A3A',
                 cursor: page === 1 ? 'not-allowed' : 'pointer',
               }}
             >
@@ -323,8 +323,8 @@ function CreatorsContent() {
                     style={{
                       width: '36px', height: '36px', borderRadius: '8px',
                       border: pageNum === page ? 'none' : '1px solid #E5E7EB',
-                      backgroundColor: pageNum === page ? '#7C3AED' : 'white',
-                      color: pageNum === page ? 'white' : '#111827',
+                      backgroundColor: pageNum === page ? '#3AAFF4' : 'white',
+                      color: pageNum === page ? 'white' : '#3A3A3A',
                       fontSize: '14px', fontWeight: 500, cursor: 'pointer',
                     }}
                   >
@@ -341,7 +341,7 @@ function CreatorsContent() {
                 display: 'flex', alignItems: 'center', gap: '4px',
                 padding: '8px 14px', borderRadius: '8px',
                 border: '1px solid #E5E7EB', backgroundColor: 'white',
-                fontSize: '14px', fontWeight: 500, color: page === totalPages ? '#D1D5DB' : '#111827',
+                fontSize: '14px', fontWeight: 500, color: page === totalPages ? '#D1D5DB' : '#3A3A3A',
                 cursor: page === totalPages ? 'not-allowed' : 'pointer',
               }}
             >

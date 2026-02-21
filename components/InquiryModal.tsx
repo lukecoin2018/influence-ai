@@ -63,7 +63,7 @@ export function InquiryModal({ creatorId, creatorName, onClose }: Props) {
 
   const inputStyle = {
     width: '100%', padding: '9px 12px', borderRadius: '8px',
-    border: '1px solid #E5E7EB', fontSize: '14px', color: '#111827',
+    border: '1px solid #E5E7EB', fontSize: '14px', color: '#3A3A3A',
     outline: 'none', boxSizing: 'border-box' as const, backgroundColor: 'white',
   };
 
@@ -86,7 +86,7 @@ export function InquiryModal({ creatorId, creatorName, onClose }: Props) {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
           <div>
-            <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#111827', margin: '0 0 4px 0' }}>
+            <h2 style={{ fontSize: '18px', fontWeight: 800, color: '#3A3A3A', margin: '0 0 4px 0' }}>
               Work with {creatorName.split(' ')[0]}
             </h2>
             <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>We'll review your inquiry and get back to you shortly.</p>
@@ -103,9 +103,9 @@ export function InquiryModal({ creatorId, creatorName, onClose }: Props) {
                 <polyline points="20 6 9 17 4 12"/>
               </svg>
             </div>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: '0 0 8px 0' }}>Inquiry Sent!</h3>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 8px 0' }}>Inquiry Sent!</h3>
             <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 20px 0' }}>We'll review and follow up with you soon.</p>
-            <button onClick={onClose} style={{ padding: '10px 24px', borderRadius: '8px', backgroundColor: '#7C3AED', color: 'white', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
+            <button onClick={onClose} style={{ padding: '10px 24px', borderRadius: '8px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
               Close
             </button>
           </div>
@@ -149,7 +149,7 @@ export function InquiryModal({ creatorId, creatorName, onClose }: Props) {
               </div>
             )}
 
-            <button onClick={handleSubmit} disabled={loading} style={{ padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg, #7C3AED, #6D28D9)', color: 'white', fontSize: '15px', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
+            <button onClick={handleSubmit} disabled={loading} style={{ padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg, #FFD700, #E6C200)', color: 'white', fontSize: '15px', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
               {loading ? 'Sending...' : 'Send Inquiry'}
             </button>
           </div>

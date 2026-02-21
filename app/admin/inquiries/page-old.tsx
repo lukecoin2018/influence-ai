@@ -21,7 +21,7 @@ export default function AdminInquiriesPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Inquiries</h1>
+      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Inquiries</h1>
 
       {loading ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
@@ -38,15 +38,15 @@ export default function AdminInquiriesPage() {
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>{brand?.company_name ?? 'Unknown Brand'}</span>
+                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#3A3A3A' }}>{brand?.company_name ?? 'Unknown Brand'}</span>
                       <span style={{ fontSize: '13px', color: '#9CA3AF' }}>→</span>
-                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>@{handle}</span>
+                      <span style={{ fontSize: '14px', fontWeight: 700, color: '#3A3A3A' }}>@{handle}</span>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                       {inq.campaign_type && <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>📋 {inq.campaign_type}</p>}
                       {inq.budget_range && <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>💰 {inq.budget_range}</p>}
                       {brand?.email && <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>✉️ {brand.email}</p>}
-                      {creator?.contact_email && <p style={{ fontSize: '13px', color: '#7C3AED', margin: 0 }}>📧 {creator.contact_email}</p>}
+                      {creator?.contact_email && <p style={{ fontSize: '13px', color: '#FFD700', margin: 0 }}>📧 {creator.contact_email}</p>}
                     </div>
                     {inq.message && (
                       <p style={{ fontSize: '13px', color: '#374151', margin: '8px 0 0 0', maxWidth: '500px', fontStyle: 'italic' }}>

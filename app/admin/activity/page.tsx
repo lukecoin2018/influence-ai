@@ -52,7 +52,7 @@ export default function AdminActivityPage() {
   function eventColor(type: string) {
     if (type.includes('approved') || type.includes('verified')) return '#059669';
     if (type.includes('rejected') || type.includes('suspended')) return '#DC2626';
-    if (type.includes('signup')) return '#7C3AED';
+    if (type.includes('signup')) return '#FFD700';
     if (type.includes('inquiry')) return '#D97706';
     return '#9CA3AF';
   }
@@ -69,7 +69,7 @@ export default function AdminActivityPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Activity Log</h1>
+      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Activity Log</h1>
 
       {dataLoading && activity.length === 0 ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>

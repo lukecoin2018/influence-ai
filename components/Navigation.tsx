@@ -25,8 +25,8 @@ export function Navigation() {
 
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 no-underline">
-          <div className="bg-purple flex items-center justify-center rounded-lg flex-shrink-0" style={{ width: '32px', height: '32px' }}>
-            <BarChart2 size={16} color="white" strokeWidth={2.5} />
+        <div className="flex items-center justify-center rounded-lg flex-shrink-0" style={{ width: '32px', height: '32px', backgroundColor: '#FFD700' }}>
+          <BarChart2 size={16} color="#3A3A3A" strokeWidth={2.5} />
           </div>
           <span className="font-semibold text-primary" style={{ fontSize: '15px', letterSpacing: '-0.01em' }}>
             InfluenceAI
@@ -45,7 +45,7 @@ export function Navigation() {
                   isActive ? 'bg-purple-light text-purple' : 'text-secondary hover:text-primary hover:bg-subtle'
                 }`}
               >
-                {highlight && <Sparkles size={11} color={isActive ? '#7C3AED' : '#9CA3AF'} style={{ marginBottom: '1px' }} />}
+                {highlight && <Sparkles size={11} color={isActive ? '#FFD700' : '#9CA3AF'} style={{ marginBottom: '1px' }} />}
                 {label}
               </Link>
             );
@@ -89,7 +89,7 @@ export function Navigation() {
             <Link href="/login" className="rounded-lg font-medium no-underline px-4 py-2 text-sm text-secondary hover:text-primary hover:bg-subtle">
               Log in
             </Link>
-            <Link href="/signup" className="bg-purple text-white rounded-lg font-medium no-underline px-4 py-2 text-sm">
+            <Link href="/signup" className="bg-purple rounded-lg font-medium no-underline px-4 py-2 text-sm" style={{ color: '#3A3A3A' }}>
               Sign up
             </Link>
           </div>

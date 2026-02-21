@@ -74,7 +74,7 @@ export default function AdminOverviewPage() {
   if (loading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
-        <div style={{ width: '32px', height: '32px', border: '3px solid #e5e7eb', borderTopColor: '#7C3AED', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: '32px', height: '32px', border: '3px solid #e5e7eb', borderTopColor: '#FFD700', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     )
@@ -85,7 +85,7 @@ export default function AdminOverviewPage() {
   if (dataLoading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
-        <div style={{ width: '32px', height: '32px', border: '3px solid #e5e7eb', borderTopColor: '#7C3AED', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: '32px', height: '32px', border: '3px solid #e5e7eb', borderTopColor: '#FFD700', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     )
@@ -115,7 +115,7 @@ export default function AdminOverviewPage() {
   return (
     <div style={{ padding: '8px 0' }}>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0 }}>Dashboard Overview</h1>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>Dashboard Overview</h1>
         <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '14px' }}>Welcome back. Here's what's happening.</p>
       </div>
 
@@ -133,7 +133,7 @@ export default function AdminOverviewPage() {
 
       {/* Recent Activity */}
       <div>
-        <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#111827', marginBottom: '16px' }}>Recent Activity</h2>
+        <h2 style={{ fontSize: '16px', fontWeight: 600, color: '#3A3A3A', marginBottom: '16px' }}>Recent Activity</h2>
         {activity.length === 0 ? (
           <p style={{ color: '#9ca3af', fontSize: '14px' }}>No recent activity.</p>
         ) : (

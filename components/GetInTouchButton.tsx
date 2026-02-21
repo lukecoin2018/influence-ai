@@ -19,8 +19,8 @@ export function GetInTouchButton({ creatorId, creatorName }: Props) {
     gap: '6px',
     padding: '10px 20px',
     borderRadius: '8px',
-    backgroundColor: '#7C3AED',
-    color: 'white',
+    backgroundColor: '#FFD700',
+    color: '#3A3A3A',
     fontSize: '14px',
     fontWeight: 600,
     textDecoration: 'none',
@@ -29,9 +29,8 @@ export function GetInTouchButton({ creatorId, creatorName }: Props) {
   } as const;
 
   if (!user) {
-    const mailtoHref = `mailto:hello@influenceai.com?subject=Partnership Inquiry: ${creatorName}&body=Hi, I'm interested in working with ${creatorName}.`;
     return (
-      <a href={mailtoHref} style={buttonStyle}>
+      <a href="/auth/signup" style={buttonStyle}>
         Get in Touch
       </a>
     );

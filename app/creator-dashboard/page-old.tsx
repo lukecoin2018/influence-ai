@@ -64,7 +64,7 @@ if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; 
 
   const statCard = (label: string, value: string) => (
     <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px', textAlign: 'center' }}>
-      <p style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: '0 0 4px 0' }}>{value}</p>
+      <p style={{ fontSize: '20px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 4px 0' }}>{value}</p>
       <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>{label}</p>
     </div>
   );
@@ -76,7 +76,7 @@ if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <h1 style={{ fontSize: '26px', fontWeight: 700, color: '#111827', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: '26px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>
               Your Profile
             </h1>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 12px', borderRadius: '999px', backgroundColor: isVerified ? '#ECFDF5' : '#FFFBEB', border: `1px solid ${isVerified ? '#A7F3D0' : '#FDE68A'}` }}>
@@ -88,7 +88,7 @@ if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; 
           </div>
           <Link
             href="/creator-dashboard/edit"
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '8px', backgroundColor: '#7C3AED', color: 'white', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '9px 18px', borderRadius: '8px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}
           >
             ✏️ Edit Profile
           </Link>
@@ -100,13 +100,13 @@ if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; 
             Profile Preview
           </p>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <span style={{ fontSize: '18px', fontWeight: 700, color: '#7C3AED' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#FFF9E0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: '18px', fontWeight: 700, color: '#FFD700' }}>
                 {(creatorData?.name ?? handle ?? '?').slice(0, 2).toUpperCase()}
               </span>
             </div>
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: '0 0 2px 0' }}>
+              <p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 2px 0' }}>
                 {creatorProfile.display_name ?? creatorData?.name ?? `@${handle}`}
               </p>
               <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 8px 0' }}>@{handle}</p>
@@ -121,7 +121,7 @@ if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; 
             </div>
           </div>
           <div style={{ display: 'flex', gap: '12px', marginTop: '16px', flexWrap: 'wrap' }}>
-            <Link href={`/creators/${handle}`} target="_blank" style={{ fontSize: '13px', fontWeight: 600, color: '#7C3AED', textDecoration: 'none', padding: '7px 14px', border: '1px solid #DDD6FE', borderRadius: '8px' }}>
+            <Link href={`/creators/${handle}`} target="_blank" style={{ fontSize: '13px', fontWeight: 600, color: '#FFD700', textDecoration: 'none', padding: '7px 14px', border: '1px solid #FFE44D', borderRadius: '8px' }}>
               View Public Profile ↗
             </Link>
             <Link href="/creator-dashboard/edit" style={{ fontSize: '13px', fontWeight: 600, color: '#6B7280', textDecoration: 'none', padding: '7px 14px', border: '1px solid #E5E7EB', borderRadius: '8px' }}>
@@ -154,7 +154,7 @@ if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; 
             <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
               Rates & Availability
             </p>
-            <Link href="/creator-dashboard/edit" style={{ fontSize: '12px', fontWeight: 600, color: '#7C3AED', textDecoration: 'none' }}>
+            <Link href="/creator-dashboard/edit" style={{ fontSize: '12px', fontWeight: 600, color: '#FFD700', textDecoration: 'none' }}>
               Edit Rates
             </Link>
           </div>
@@ -187,7 +187,7 @@ if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; 
 
           {!isVerified ? (
             <div style={{ textAlign: 'center', padding: '20px 0' }}>
-              <p style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: '0 0 6px 0' }}>
+              <p style={{ fontSize: '15px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 6px 0' }}>
                 {inquiries.length > 0
                   ? `${inquiries.length} brand${inquiries.length !== 1 ? 's have' : ' has'} expressed interest in your profile`
                   : 'Brands can find you here'}
@@ -206,7 +206,7 @@ if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; 
                 <div key={inq.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', backgroundColor: '#F9FAFB', borderRadius: '10px' }}>
                   <span style={{ fontSize: '20px' }}>🏢</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontSize: '14px', fontWeight: 600, color: '#111827', margin: '0 0 2px 0' }}>
+                    <p style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 2px 0' }}>
                       {inq.brand_profiles?.company_name ?? 'A brand'}
                     </p>
                     <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
@@ -233,7 +233,7 @@ function RatePill({ label, amount, currency }: { label: string; amount: number; 
   return (
     <div style={{ padding: '6px 12px', borderRadius: '8px', backgroundColor: '#F3F4F6', display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
       <span style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase' }}>{label}</span>
-      <span style={{ fontSize: '14px', fontWeight: 700, color: '#111827' }}>
+      <span style={{ fontSize: '14px', fontWeight: 700, color: '#3A3A3A' }}>
         {currency === 'USD' ? '$' : currency}{Number(amount).toLocaleString()}
       </span>
     </div>

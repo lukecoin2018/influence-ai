@@ -69,7 +69,7 @@ export default function AdminOverviewPage() {
   if (loading || dataLoading) {
     return (
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px' }}>
-        <div style={{ width: '28px', height: '28px', border: '3px solid #e5e7eb', borderTopColor: '#7C3AED', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+        <div style={{ width: '28px', height: '28px', border: '3px solid #e5e7eb', borderTopColor: '#FFD700', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
       </div>
     )
@@ -99,7 +99,7 @@ export default function AdminOverviewPage() {
   return (
     <div style={{ padding: '8px 0' }}>
       <div style={{ marginBottom: '32px' }}>
-        <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0, letterSpacing: '-0.02em' }}>Dashboard Overview</h1>
+        <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: 0, letterSpacing: '-0.02em' }}>Dashboard Overview</h1>
         <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '14px', margin: '4px 0 0' }}>Welcome back. Here's what's happening.</p>
       </div>
 
@@ -110,14 +110,14 @@ export default function AdminOverviewPage() {
             onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.06)')}
             onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}>
             <p style={{ fontSize: '13px', fontWeight: 500, color: '#6B7280', margin: 0 }}>{card.label}</p>
-            <p style={{ fontSize: '32px', fontWeight: 700, color: '#111827', margin: '4px 0 0' }}>{card.value}</p>
+            <p style={{ fontSize: '32px', fontWeight: 700, color: '#3A3A3A', margin: '4px 0 0' }}>{card.value}</p>
           </a>
         ))}
       </div>
 
       {/* Recent Activity */}
       <div>
-        <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', marginBottom: '12px' }}>Recent Activity</h2>
+        <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#3A3A3A', marginBottom: '12px' }}>Recent Activity</h2>
         {activity.length === 0 ? (
           <p style={{ color: '#9ca3af', fontSize: '14px' }}>No recent activity.</p>
         ) : (

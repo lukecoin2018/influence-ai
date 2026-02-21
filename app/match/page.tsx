@@ -52,8 +52,8 @@ function ScoreBadge({ score }: { score: number }) {
 function AvatarFallback({ name }: { name: string }) {
   const initials = (name ?? '??').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
   return (
-    <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-      <span style={{ fontSize: '14px', fontWeight: 700, color: '#7C3AED' }}>{initials}</span>
+    <div style={{ width: '48px', height: '48px', borderRadius: '50%', backgroundColor: '#FFF9E0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <span style={{ fontSize: '14px', fontWeight: 700, color: '#FFD700' }}>{initials}</span>
     </div>
   );
 }
@@ -91,7 +91,7 @@ function MatchCard({ result, rank }: { result: MatchResult; rank: number }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px', flexWrap: 'wrap' }}>
           <AvatarFallback name={result.name} />
           <div>
-            <p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: '0 0 4px 0' }}>{result.name}</p>
+            <p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 4px 0' }}>{result.name}</p>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               {result.instagram_handle && (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#E1306C', fontWeight: 500 }}>
@@ -110,7 +110,7 @@ function MatchCard({ result, rank }: { result: MatchResult; rank: number }) {
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginBottom: '14px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             <span style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Followers</span>
-            <span style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{formatCount(result.total_followers)}</span>
+            <span style={{ fontSize: '15px', fontWeight: 700, color: '#3A3A3A' }}>{formatCount(result.total_followers)}</span>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             <span style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Engagement</span>
@@ -119,25 +119,25 @@ function MatchCard({ result, rank }: { result: MatchResult; rank: number }) {
           {result.enrichment?.posting_frequency_per_week && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
               <span style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Posts/Week</span>
-              <span style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{result.enrichment.posting_frequency_per_week}</span>
+              <span style={{ fontSize: '15px', fontWeight: 700, color: '#3A3A3A' }}>{result.enrichment.posting_frequency_per_week}</span>
             </div>
           )}
           {result.enrichment?.days_since_last_post !== undefined && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
               <span style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Last Active</span>
-              <span style={{ fontSize: '15px', fontWeight: 700, color: '#111827' }}>{result.enrichment.days_since_last_post}d ago</span>
+              <span style={{ fontSize: '15px', fontWeight: 700, color: '#3A3A3A' }}>{result.enrichment.days_since_last_post}d ago</span>
             </div>
           )}
         </div>
 
-        <div style={{ backgroundColor: '#F5F3FF', borderRadius: '10px', padding: '14px', marginBottom: '14px', borderLeft: '3px solid #7C3AED' }}>
+        <div style={{ backgroundColor: '#FFF9E0', borderRadius: '10px', padding: '14px', marginBottom: '14px', borderLeft: '3px solid #FFD700' }}>
           <p style={{ fontSize: '14px', color: '#374151', lineHeight: '1.6', margin: 0 }}>{result.explanation}</p>
         </div>
 
         {result.enrichment?.top_hashtags?.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '14px' }}>
             {result.enrichment.top_hashtags.slice(0, 6).map((tag: string) => (
-              <span key={tag} style={{ padding: '2px 8px', borderRadius: '999px', backgroundColor: '#EDE9FE', color: '#7C3AED', fontSize: '11px', fontWeight: 500 }}>
+              <span key={tag} style={{ padding: '2px 8px', borderRadius: '999px', backgroundColor: '#FFF9E0', color: '#FFD700', fontSize: '11px', fontWeight: 500 }}>
                 #{tag}
               </span>
             ))}
@@ -145,7 +145,7 @@ function MatchCard({ result, rank }: { result: MatchResult; rank: number }) {
         )}
 
 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-  <Link href={`/creators/${result.handle}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#7C3AED', color: 'white', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+  <Link href={`/creators/${result.handle}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
     View Full Profile <ArrowRight size={13} />
   </Link>
   <SaveToShortlist
@@ -162,10 +162,10 @@ function MatchCard({ result, rank }: { result: MatchResult; rank: number }) {
 function LoadingState({ candidateCount }: { candidateCount: number }) {
   return (
     <div style={{ textAlign: 'center', padding: '80px 24px' }}>
-      <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg, #7C3AED, #A78BFA)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto', animation: 'pulse 2s infinite' }}>
+      <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg, #FFD700, #FFD700)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px auto', animation: 'pulse 2s infinite' }}>
         <Sparkles size={28} color="white" />
       </div>
-      <p style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: '0 0 8px 0' }}>
+      <p style={{ fontSize: '20px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 8px 0' }}>
         Analyzing {candidateCount > 0 ? candidateCount : '...'} creators against your brief
       </p>
       <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>
@@ -232,11 +232,11 @@ export default function MatchPage() {
 
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '999px', backgroundColor: '#EDE9FE', marginBottom: '16px' }}>
-            <Sparkles size={14} color="#7C3AED" />
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#7C3AED' }}>AI-Powered Matching</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', borderRadius: '999px', backgroundColor: '#FFF9E0', marginBottom: '16px' }}>
+            <Sparkles size={14} color="#FFD700" />
+            <span style={{ fontSize: '13px', fontWeight: 600, color: '#FFD700' }}>AI-Powered Matching</span>
           </div>
-          <h1 style={{ fontSize: '36px', fontWeight: 800, color: '#111827', margin: '0 0 12px 0', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '36px', fontWeight: 800, color: '#3A3A3A', margin: '0 0 12px 0', letterSpacing: '-0.02em' }}>
             Find Your Perfect Creators
           </h1>
           <p style={{ fontSize: '16px', color: '#6B7280', margin: 0, maxWidth: '540px', marginLeft: 'auto', marginRight: 'auto' }}>
@@ -249,7 +249,7 @@ export default function MatchPage() {
 
             {/* Brief */}
             <div className="card" style={{ padding: '28px' }}>
-              <label style={{ display: 'block', fontSize: '14px', fontWeight: 700, color: '#111827', marginBottom: '8px' }}>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 700, color: '#3A3A3A', marginBottom: '8px' }}>
                 Your Brief <span style={{ color: '#DC2626' }}>*</span>
               </label>
               <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 12px 0' }}>
@@ -260,12 +260,12 @@ export default function MatchPage() {
                 onChange={(e) => setBriefText(e.target.value)}
                 placeholder={EXAMPLE_BRIEFS[0]}
                 rows={6}
-                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', color: '#111827', lineHeight: '1.6', resize: 'vertical', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', backgroundColor: 'white' }}
+                style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '14px', color: '#3A3A3A', lineHeight: '1.6', resize: 'vertical', fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box', backgroundColor: 'white' }}
               />
               <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: '12px', color: '#9CA3AF' }}>Examples:</span>
                 {EXAMPLE_BRIEFS.map((brief, i) => (
-                  <button key={i} onClick={() => setBriefText(brief)} style={{ fontSize: '12px', color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
+                  <button key={i} onClick={() => setBriefText(brief)} style={{ fontSize: '12px', color: '#FFD700', background: 'none', border: 'none', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}>
                     Example {i + 1}
                   </button>
                 ))}
@@ -274,7 +274,7 @@ export default function MatchPage() {
 
             {/* Filters */}
             <div className="card" style={{ padding: '28px' }}>
-              <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#111827', margin: '0 0 20px 0' }}>Filters <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span></h2>
+              <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 20px 0' }}>Filters <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span></h2>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
                 {/* Platform */}
@@ -282,7 +282,7 @@ export default function MatchPage() {
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Platform</label>
                   <div style={{ display: 'flex', gap: '6px' }}>
                     {[['', 'All'], ['instagram', 'Instagram'], ['tiktok', 'TikTok']].map(([val, label]) => (
-                      <button key={val} onClick={() => setPlatform(val)} style={{ flex: 1, padding: '7px 4px', borderRadius: '6px', border: `1px solid ${platform === val ? '#7C3AED' : '#E5E7EB'}`, backgroundColor: platform === val ? '#EDE9FE' : 'white', color: platform === val ? '#7C3AED' : '#6B7280', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                      <button key={val} onClick={() => setPlatform(val)} style={{ flex: 1, padding: '7px 4px', borderRadius: '6px', border: `1px solid ${platform === val ? '#FF4D94' : '#E5E7EB'}`, backgroundColor: platform === val ? '#FFF0F5' : 'white', color: platform === val ? '#FF4D94' : '#6B7280', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
                         {label}
                       </button>
                     ))}
@@ -292,19 +292,19 @@ export default function MatchPage() {
                 {/* Min Followers */}
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Min Followers</label>
-                  <input type="number" value={minFollowers} onChange={(e) => setMinFollowers(e.target.value)} placeholder="10,000" style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', color: '#111827', outline: 'none', boxSizing: 'border-box' }} />
+                  <input type="number" value={minFollowers} onChange={(e) => setMinFollowers(e.target.value)} placeholder="10,000" style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', color: '#3A3A3A', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
 
                 {/* Max Followers */}
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Max Followers</label>
-                  <input type="number" value={maxFollowers} onChange={(e) => setMaxFollowers(e.target.value)} placeholder="1,000,000" style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', color: '#111827', outline: 'none', boxSizing: 'border-box' }} />
+                  <input type="number" value={maxFollowers} onChange={(e) => setMaxFollowers(e.target.value)} placeholder="1,000,000" style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', color: '#3A3A3A', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
 
                 {/* Min Engagement */}
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Min Engagement %</label>
-                  <input type="number" value={minEngagement} onChange={(e) => setMinEngagement(e.target.value)} placeholder="2.0" step="0.1" style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', color: '#111827', outline: 'none', boxSizing: 'border-box' }} />
+                  <input type="number" value={minEngagement} onChange={(e) => setMinEngagement(e.target.value)} placeholder="2.0" step="0.1" style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', color: '#3A3A3A', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
 
                 {/* Content Preference */}
@@ -312,7 +312,7 @@ export default function MatchPage() {
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Content Preference</label>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
                     {[['any', 'Any'], ['reels', 'Mostly Reels/Video'], ['photos', 'Mostly Photos'], ['mixed', 'Mixed']].map(([val, label]) => (
-                      <button key={val} onClick={() => setContentPref(val)} style={{ padding: '7px 12px', borderRadius: '6px', border: `1px solid ${contentPref === val ? '#7C3AED' : '#E5E7EB'}`, backgroundColor: contentPref === val ? '#EDE9FE' : 'white', color: contentPref === val ? '#7C3AED' : '#6B7280', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
+                      <button key={val} onClick={() => setContentPref(val)} style={{ padding: '7px 12px', borderRadius: '6px', border: `1px solid ${contentPref === val ? '#FF4D94' : '#E5E7EB'}`, backgroundColor: contentPref === val ? '#FFF0F5' : 'white', color: contentPref === val ? '#FF4D94' : '#6B7280', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}>
                         {label}
                       </button>
                     ))}
@@ -327,7 +327,7 @@ export default function MatchPage() {
               </div>
             )}
 
-            <button onClick={handleSubmit} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px 32px', borderRadius: '12px', background: 'linear-gradient(135deg, #7C3AED, #6D28D9)', color: 'white', fontSize: '16px', fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(124, 58, 237, 0.4)' }}>
+            <button onClick={handleSubmit} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px 32px', borderRadius: '12px', background: 'linear-gradient(135deg, #FFD700, #E6C200)', color: 'white', fontSize: '16px', fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(124, 58, 237, 0.4)' }}>
               <Sparkles size={18} />
               Find My Creators
             </button>
@@ -342,14 +342,14 @@ export default function MatchPage() {
             <div className="card" style={{ padding: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
                 <div>
-                  <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#111827', margin: '0 0 4px 0' }}>Your Matches</h2>
+                  <h2 style={{ fontSize: '22px', fontWeight: 800, color: '#3A3A3A', margin: '0 0 4px 0' }}>Your Matches</h2>
                   <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>We evaluated {results.candidatesEvaluated} creators against your brief</p>
                 </div>
                 <button onClick={() => { setResults(null); setError(''); }} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: 'white', color: '#6B7280', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}>
                   <RotateCcw size={13} /> Refine Search
                 </button>
               </div>
-              <div style={{ padding: '14px', borderRadius: '8px', backgroundColor: '#F5F3FF', borderLeft: '3px solid #7C3AED' }}>
+              <div style={{ padding: '14px', borderRadius: '8px', backgroundColor: '#FFF9E0', borderLeft: '3px solid #FFD700' }}>
                 <p style={{ fontSize: '14px', color: '#374151', lineHeight: '1.6', margin: 0 }}>{results.summary}</p>
               </div>
             </div>

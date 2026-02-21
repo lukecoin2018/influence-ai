@@ -98,9 +98,9 @@ export function SaveToShortlist({ creatorId, matchScore, matchExplanation, size 
           display: 'inline-flex', alignItems: 'center', gap: '5px',
           padding: size === 'sm' ? '5px 10px' : '7px 14px',
           borderRadius: '6px',
-          border: `1px solid ${isSavedAnywhere ? '#7C3AED' : '#E5E7EB'}`,
-          backgroundColor: isSavedAnywhere ? '#EDE9FE' : 'white',
-          color: isSavedAnywhere ? '#7C3AED' : '#6B7280',
+          border: `1px solid ${isSavedAnywhere ? '#FFD700' : '#E5E7EB'}`,
+          backgroundColor: isSavedAnywhere ? '#FFF9E0' : 'white',
+          color: isSavedAnywhere ? '#FFD700' : '#6B7280',
           fontSize: size === 'sm' ? '12px' : '13px', fontWeight: 600,
           cursor: 'pointer',
         }}
@@ -131,12 +131,12 @@ export function SaveToShortlist({ creatorId, matchScore, matchExplanation, size 
                   style={{
                     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                     width: '100%', padding: '10px 14px', border: 'none',
-                    backgroundColor: list.isSaved ? '#F5F3FF' : 'white',
+                    backgroundColor: list.isSaved ? '#FFF9E0' : 'white',
                     cursor: 'pointer', textAlign: 'left',
                   }}
                 >
-                  <span style={{ fontSize: '13px', fontWeight: 500, color: '#111827' }}>{list.name}</span>
-                  {list.isSaved && <Check size={13} color="#7C3AED" />}
+                  <span style={{ fontSize: '13px', fontWeight: 500, color: '#3A3A3A' }}>{list.name}</span>
+                  {list.isSaved && <Check size={13} color="#FFD700" />}
                 </button>
               ))
             )}

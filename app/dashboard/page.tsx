@@ -121,7 +121,7 @@ export default function DashboardPage() {
 
         {/* Header */}
         <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#111827', margin: '0 0 4px 0' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 800, color: '#3A3A3A', margin: '0 0 4px 0' }}>
             Welcome back, {brandProfile?.company_name ?? 'there'}
           </h1>
           <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>{brandProfile?.industry ?? 'Brand account'}</p>
@@ -131,10 +131,10 @@ export default function DashboardPage() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '32px' }}>
           <Link href="/match" style={{ textDecoration: 'none' }}>
             <div className="card" style={{ padding: '20px', display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-              <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Sparkles size={18} color="#7C3AED" />
+              <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#EBF7FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <Sparkles size={18} color="#3AAFF4" />
               </div>
-              <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>Find Creators</span>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A' }}>Find Creators</span>
             </div>
           </Link>
           <Link href="/creators" style={{ textDecoration: 'none' }}>
@@ -142,7 +142,7 @@ export default function DashboardPage() {
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#F0FDF4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <Search size={18} color="#16A34A" />
               </div>
-              <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>Browse Creators</span>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A' }}>Browse Creators</span>
             </div>
           </Link>
           <Link href="/dashboard/shortlists" style={{ textDecoration: 'none' }}>
@@ -150,7 +150,7 @@ export default function DashboardPage() {
               <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <BookMarked size={18} color="#2563EB" />
               </div>
-              <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>My Shortlists</span>
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A' }}>My Shortlists</span>
             </div>
           </Link>
         </div>
@@ -160,8 +160,8 @@ export default function DashboardPage() {
           {/* Shortlists */}
           <div className="card" style={{ padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-              <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#111827', margin: 0 }}>My Shortlists</h2>
-              <button onClick={() => setShowNewList(!showNewList)} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 600, color: '#7C3AED', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+              <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>My Shortlists</h2>
+              <button onClick={() => setShowNewList(!showNewList)} style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', fontWeight: 600, color: '#3AAFF4', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
                 <Plus size={13} /> New
               </button>
             </div>
@@ -175,7 +175,7 @@ export default function DashboardPage() {
                   onKeyDown={(e) => e.key === 'Enter' && createShortlist()}
                   style={{ flex: 1, padding: '7px 10px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', outline: 'none' }}
                 />
-                <button onClick={createShortlist} style={{ padding: '7px 12px', borderRadius: '6px', backgroundColor: '#7C3AED', color: 'white', fontSize: '12px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
+                <button onClick={createShortlist} style={{ padding: '7px 12px', borderRadius: '6px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '12px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>
                   Create
                 </button>
               </div>
@@ -190,7 +190,7 @@ export default function DashboardPage() {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: '8px', backgroundColor: '#F9FAFB', cursor: 'pointer' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <BookMarked size={14} color="#6B7280" />
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}>{list.name}</span>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A' }}>{list.name}</span>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ fontSize: '12px', color: '#6B7280' }}>{list.item_count} creators</span>
@@ -205,17 +205,17 @@ export default function DashboardPage() {
 
           {/* Recent Searches */}
           <div className="card" style={{ padding: '24px' }}>
-            <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#111827', margin: '0 0 16px 0' }}>Recent Searches</h2>
+            <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 16px 0' }}>Recent Searches</h2>
             {briefs.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '16px 0' }}>
                 <p style={{ fontSize: '13px', color: '#9CA3AF', marginBottom: '12px' }}>No searches yet</p>
-                <Link href="/match" style={{ fontSize: '13px', fontWeight: 600, color: '#7C3AED', textDecoration: 'none' }}>Start your first search →</Link>
+                <Link href="/match" style={{ fontSize: '13px', fontWeight: 600, color: '#3AAFF4', textDecoration: 'none' }}>Start your first search →</Link>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {briefs.map((brief) => (
                   <div key={brief.id} style={{ padding: '10px 12px', borderRadius: '8px', backgroundColor: '#F9FAFB' }}>
-                    <p style={{ fontSize: '13px', color: '#111827', margin: '0 0 4px 0', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <p style={{ fontSize: '13px', color: '#3A3A3A', margin: '0 0 4px 0', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       "{brief.brief_text.slice(0, 60)}..."
                     </p>
                     <p style={{ fontSize: '11px', color: '#9CA3AF', margin: 0 }}>
@@ -231,7 +231,7 @@ export default function DashboardPage() {
           <div className="card" style={{ padding: '24px', gridColumn: 'span 2' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
               <Mail size={15} color="#6B7280" />
-              <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#111827', margin: 0 }}>My Inquiries</h2>
+              <h2 style={{ fontSize: '15px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>My Inquiries</h2>
             </div>
             {inquiries.length === 0 ? (
               <p style={{ fontSize: '13px', color: '#9CA3AF', textAlign: 'center', padding: '16px 0' }}>No inquiries yet — browse creators and click "Get in Touch"</p>
@@ -239,7 +239,7 @@ export default function DashboardPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {inquiries.map((inq) => (
                   <div key={inq.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', borderRadius: '8px', backgroundColor: '#F9FAFB' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#111827' }}>Creator inquiry</span>
+                    <span style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A' }}>Creator inquiry</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span style={{ fontSize: '12px', padding: '2px 8px', borderRadius: '999px', backgroundColor: inq.status === 'pending' ? '#FFFBEB' : '#ECFDF5', color: inq.status === 'pending' ? '#D97706' : '#059669', fontWeight: 600 }}>
                         {inq.status.charAt(0).toUpperCase() + inq.status.slice(1)}

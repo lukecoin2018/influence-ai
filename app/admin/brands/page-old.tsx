@@ -55,7 +55,7 @@ export default function AdminBrandsPage() {
       onClick={() => setFilter(value)}
       style={{
         padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', border: 'none',
-        backgroundColor: filter === value ? '#7C3AED' : '#F3F4F6',
+        backgroundColor: filter === value ? '#FFD700' : '#F3F4F6',
         color: filter === value ? 'white' : '#374151',
       }}
     >
@@ -65,7 +65,7 @@ export default function AdminBrandsPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Brand Management</h1>
+      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Brand Management</h1>
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
         {filterBtn('all', 'All')}
@@ -87,7 +87,7 @@ export default function AdminBrandsPage() {
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
                     <span style={{ fontSize: '20px' }}>🏢</span>
-                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#111827' }}>{brand.company_name}</span>
+                    <span style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A' }}>{brand.company_name}</span>
                     {statusBadge(brand.approval_status ?? 'pending')}
                   </div>
                   <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 4px 0' }}>{brand.email} · {brand.industry ?? 'No industry'}</p>

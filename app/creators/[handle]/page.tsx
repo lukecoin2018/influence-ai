@@ -134,19 +134,19 @@ function ActivityBadge({ days }: { days: number | null }) {
 
 function ContentMixBar({ mix }: { mix: Record<string, number> }) {
   const colors: Record<string, string> = {
-    Video: '#7C3AED',
-    Reel: '#7C3AED',
-    Sidecar: '#A78BFA',
-    Carousel: '#A78BFA',
-    Image: '#C4B5FD',
-    Photo: '#C4B5FD',
-  }; 
+    Video:    '#FF4D94',
+    Reel:     '#FF4D94',
+    Sidecar:  '#3AAFF4',
+    Carousel: '#3AAFF4',
+    Image:    '#FFD700',
+    Photo:    '#FFD700',
+  };
 
   const displayNames: Record<string, string> = {
     Sidecar: 'Carousel',
   };
 
-  const defaultColor = '#DDD6FE';
+  const defaultColor = '#FFE44D';
   const entries = Object.entries(mix).filter(([, v]) => v > 0);
   if (entries.length === 0) return null;
   return (
@@ -162,7 +162,7 @@ function ContentMixBar({ mix }: { mix: Record<string, number> }) {
         {entries.map(([type, pct]) => (
           <div key={type} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: colors[type] ?? defaultColor, flexShrink: 0 }} />
-          <span style={{ fontSize: '12px', color: '#6B7280' }}>{displayNames[type] ?? type} <strong style={{ color: '#111827' }}>{pct}%</strong></span>
+          <span style={{ fontSize: '12px', color: '#6B7280' }}>{displayNames[type] ?? type} <strong style={{ color: '#3A3A3A' }}>{pct}%</strong></span>
           </div>
         ))}
       </div>
@@ -191,7 +191,7 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>Content Analytics</h2>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>Content Analytics</h2>
           <ActivityBadge days={days_since_last_post} />
         </div>
         {enrichedAt && (
@@ -213,25 +213,25 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
         {posting_frequency_per_week != null && (
           <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px' }}>
             <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px 0' }}>Posting Frequency</p>
-            <p style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 }}>{posting_frequency_per_week.toFixed(1)}<span style={{ fontSize: '13px', fontWeight: 500, color: '#6B7280' }}> /week</span></p>
+            <p style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>{posting_frequency_per_week.toFixed(1)}<span style={{ fontSize: '13px', fontWeight: 500, color: '#6B7280' }}> /week</span></p>
           </div>
         )}
         {avg_likes != null && (
           <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px' }}>
             <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px 0' }}>Avg Likes</p>
-            <p style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 }}>{formatCount(avg_likes)}</p>
+            <p style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>{formatCount(avg_likes)}</p>
           </div>
         )}
         {avg_views != null && avg_views > 0 && (
           <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px' }}>
             <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px 0' }}>Avg Views</p>
-            <p style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 }}>{formatCount(avg_views)}</p>
+            <p style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>{formatCount(avg_views)}</p>
           </div>
         )}
         {avg_comments != null && (
           <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px' }}>
             <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 6px 0' }}>Avg Comments</p>
-            <p style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: 0 }}>{formatCount(avg_comments)}</p>
+            <p style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>{formatCount(avg_comments)}</p>
           </div>
         )}
       </div>
@@ -239,7 +239,7 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
       {/* Content mix */}
       {content_mix && Object.keys(content_mix).length > 0 && (
         <div className="card" style={{ padding: '20px' }}>
-          <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 16px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Content Mix</h3>
+          <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 16px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Content Mix</h3>
           <ContentMixBar mix={content_mix} />
         </div>
       )}
@@ -247,10 +247,10 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
       {/* Top hashtags */}
       {top_hashtags && top_hashtags.length > 0 && (
         <div className="card" style={{ padding: '20px' }}>
-          <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Top Hashtags</h3>
+          <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Top Hashtags</h3>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {top_hashtags.slice(0, 10).map((tag) => (
-              <span key={tag} style={{ padding: '4px 12px', borderRadius: '999px', backgroundColor: '#EDE9FE', color: '#7C3AED', fontSize: '13px', fontWeight: 500 }}>
+              <span key={tag} style={{ padding: '4px 12px', borderRadius: '999px', backgroundColor: '#F3F4F6', color: '#3A3A3A', fontSize: '13px', fontWeight: 500 }}>
                 #{tag}
               </span>
             ))}
@@ -262,8 +262,8 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
       {sponsored_posts_count != null && sponsored_posts_count > 0 && (
         <div className="card" style={{ padding: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
-            <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Brand Partnerships Detected</h3>
-            <span style={{ padding: '2px 8px', borderRadius: '999px', backgroundColor: '#EDE9FE', color: '#7C3AED', fontSize: '12px', fontWeight: 700 }}>{brand_partnership_count}</span>
+            <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Brand Partnerships Detected</h3>
+            <span style={{ padding: '2px 8px', borderRadius: '999px', backgroundColor: '#FFF9E0', color: '#FFD700', fontSize: '12px', fontWeight: 700 }}>{brand_partnership_count}</span>
           </div>
           {detected_brands && detected_brands.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
@@ -284,8 +284,8 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
 function AvatarFallback({ name }: { name: string }) {
   const initials = name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
   return (
-    <div style={{ width: '96px', height: '96px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-      <span style={{ fontSize: '28px', fontWeight: 700, color: '#7C3AED' }}>{initials}</span>
+    <div style={{ width: '96px', height: '96px', borderRadius: '50%', backgroundColor: '#FFF0F5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <span style={{ fontSize: '28px', fontWeight: 700, color: '#FF4D94' }}>{initials}</span>
     </div>
   );
 }
@@ -312,7 +312,7 @@ function MetricCard({ label, value }: { label: string; value: string | React.Rea
   return (
     <div className="card" style={{ padding: '20px 24px', textAlign: 'center', flex: '1 1 120px' }}>
       <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 8px 0' }}>{label}</p>
-      <div style={{ fontSize: '20px', fontWeight: 700, color: '#111827' }}>{value}</div>
+      <div style={{ fontSize: '20px', fontWeight: 700, color: '#3A3A3A' }}>{value}</div>
     </div>
   );
 }
@@ -348,12 +348,12 @@ function PlatformMetrics({ profile }: { profile: SocialProfile }) {
         <div style={{ color: isPlatformInstagram ? '#E1306C' : '#010101' }}>
           {isPlatformInstagram ? <InstagramIcon size={18} /> : <TikTokIcon size={18} />}
         </div>
-        <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#111827', margin: 0 }}>
+        <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>
           {isPlatformInstagram ? 'Instagram' : 'TikTok'}
         </h3>
         <span style={{ fontSize: '13px', color: '#6B7280' }}>@{profile.handle}</span>
         {profile.profile_url && (
-          <a href={profile.profile_url} target="_blank" rel="noopener noreferrer" style={{ marginLeft: 'auto', color: '#7C3AED', display: 'flex', alignItems: 'center' }}>
+          <a href={profile.profile_url} target="_blank" rel="noopener noreferrer" style={{ marginLeft: 'auto', color: '#FFD700', display: 'flex', alignItems: 'center' }}>
             <ExternalLink size={14} />
           </a>
         )}
@@ -362,7 +362,7 @@ function PlatformMetrics({ profile }: { profile: SocialProfile }) {
         {metrics.map(({ label, value }) => (
           <div key={label} style={{ backgroundColor: '#F9FAFB', borderRadius: '8px', padding: '12px' }}>
             <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px 0' }}>{label}</p>
-            <p style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: 0 }}>{value}</p>
+            <p style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>{value}</p>
           </div>
         ))}
       </div>
@@ -381,13 +381,13 @@ function SimilarCreatorCard({ creator }: { creator: any }) {
   return (
     <Link href={`/creators/${handle}`} style={{ textDecoration: 'none' }}>
       <div className="card" style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: '#7C3AED' }}>
+        <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#FFF9E0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: '#FFD700' }}>
           {(creator.name ?? '??').slice(0, 2).toUpperCase()}
           </span>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 2px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{creator.name}</p>
+          <p style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 2px 0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{creator.name}</p>
           <p style={{ fontSize: '11px', color: '#6B7280', margin: 0 }}>{formatCount(creator.total_followers)} followers</p>
         </div>
         <EngagementIndicator rate={engagement} showLabel={false} size="sm" />
@@ -543,10 +543,10 @@ export default async function CreatorProfilePage({
             <AvatarFallback name={creator.name} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
-                <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: 0, letterSpacing: '-0.02em' }}>{creator.name}</h1>
+                <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#3A3A3A', margin: 0, letterSpacing: '-0.02em' }}>{creator.name}</h1>
                 {(instagramProfile?.is_verified || tiktokProfile?.is_verified) && (
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 )}
                 {cleanCategory && <CategoryBadge category={cleanCategory} />}
@@ -554,7 +554,7 @@ export default async function CreatorProfilePage({
               </div>
               <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
                 {instagramProfile && (
-                  <a href={instagramProfile.profile_url ?? '#'} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', backgroundColor: '#FFF0F5', color: '#E1306C', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+                  <a href={instagramProfile.profile_url ?? '#'} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', backgroundColor: '#F3F4F6', color: '#FF4D94', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
                     <InstagramIcon size={14} />
                     @{instagramProfile.handle}
                   </a>
@@ -595,15 +595,15 @@ export default async function CreatorProfilePage({
                       gap: '6px', 
                       padding: '8px 16px', 
                       borderRadius: '8px', 
-                      backgroundColor: '#F5F3FF', 
-                      border: '1px solid #DDD6FE', 
-                      color: '#7C3AED', 
+                      backgroundColor: '#FFF0F5', 
+                      border: '1px solid #FFB3D1', 
+                      color: '#FF4D94', 
                       fontSize: '13px', 
                       fontWeight: 600, 
                       textDecoration: 'none' 
                     }}
                   >
-                    ✨ Is this you? Claim this profile
+                    ✦ Is this you? Claim this profile
                   </Link>
                 </div>
               )}   
@@ -626,7 +626,7 @@ export default async function CreatorProfilePage({
         {instagramProfile && tiktokProfile && (
           <div className="card" style={{ padding: '20px 24px', marginBottom: '24px' }}>
             <p style={{ fontSize: '12px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px 0' }}>Total Cross-Platform Followers</p>
-            <p style={{ fontSize: '28px', fontWeight: 800, color: '#7C3AED', margin: 0, letterSpacing: '-0.02em' }}>{formatCount(creator.total_followers)}</p>
+            <p style={{ fontSize: '28px', fontWeight: 800, color: '#FFD700', margin: 0, letterSpacing: '-0.02em' }}>{formatCount(creator.total_followers)}</p>
           </div>
         )}
 
@@ -637,21 +637,21 @@ export default async function CreatorProfilePage({
           
           {isClaimed && claimedProfile && isLoggedIn && (
             <div className="card" style={{ padding: '20px' }}>
-              <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#111827', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 14px 0' }}>Rates</h3>
+              <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#3A3A3A', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 14px 0' }}>Rates</h3>
               <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                {claimedProfile.rate_post && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Post</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>${Number(claimedProfile.rate_post).toLocaleString()}</p></div>}
-                {claimedProfile.rate_reel && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Reel</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>${Number(claimedProfile.rate_reel).toLocaleString()}</p></div>}
-                {claimedProfile.rate_story && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Story</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>${Number(claimedProfile.rate_story).toLocaleString()}</p></div>}
-                {claimedProfile.rate_package && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Package</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#111827', margin: 0 }}>${Number(claimedProfile.rate_package).toLocaleString()}</p></div>}
+                {claimedProfile.rate_post && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Post</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_post).toLocaleString()}</p></div>}
+                {claimedProfile.rate_reel && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Reel</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_reel).toLocaleString()}</p></div>}
+                {claimedProfile.rate_story && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Story</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_story).toLocaleString()}</p></div>}
+                {claimedProfile.rate_package && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Package</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_package).toLocaleString()}</p></div>}
               </div>
               {claimedProfile.rate_notes && <p style={{ fontSize: '13px', color: '#6B7280', margin: '10px 0 0 0', fontStyle: 'italic' }}>"{claimedProfile.rate_notes}"</p>}
             </div>
           )}
           {isClaimed && claimedProfile && !isLoggedIn && (
-            <div className="card" style={{ padding: '20px', textAlign: 'center', backgroundColor: '#F5F3FF' }}>
-              <p style={{ fontSize: '14px', fontWeight: 600, color: '#7C3AED', margin: '0 0 4px 0' }}>Rates available</p>
+            <div className="card" style={{ padding: '20px', textAlign: 'center', backgroundColor: '#EBF7FF' }}>
+              <p style={{ fontSize: '14px', fontWeight: 600, color: '#3AAFF4', margin: '0 0 4px 0' }}>Rates available</p>
               <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
-                <a href="/auth/login" style={{ color: '#7C3AED', fontWeight: 600 }}>Log in</a> as a brand to view rates
+                <a href="/auth/login" style={{ color: '#3AAFF4', fontWeight: 600 }}>Log in</a> as a brand to view rates
               </p>
             </div>
           )}
@@ -660,8 +660,8 @@ export default async function CreatorProfilePage({
           <ContentAnalytics enrichment={primaryEnrichment!} enrichedAt={enrichedAt} />
             )}
             
-            <div className="card" style={{ padding: '28px', background: 'linear-gradient(135deg, #F5F3FF 0%, #EDE9FE 100%)', border: '1px solid #DDD6FE' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#111827', margin: '0 0 8px 0' }}>Interested in working with {creator.name.split(' ')[0]}?</h2>
+            <div className="card" style={{ padding: '28px', backgroundColor: 'white', border: '1px solid #E5E7EB' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#6B7280', margin: '0 0 8px 0' }}>Interested in working with {creator.name.split(' ')[0]}?</h2>
               <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 20px 0', lineHeight: '1.6' }}>Reach out to discuss a potential partnership and get access to full analytics.</p>
               <GetInTouchButton creatorId={creator.creator_id} creatorName={creator.name} />
             </div>
@@ -669,7 +669,7 @@ export default async function CreatorProfilePage({
 
           {similarCreators.length > 0 && (
             <div className="card" style={{ padding: '24px' }}>
-              <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Similar Creators</h2>
+              <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Similar Creators</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {similarCreators.map((c) => <SimilarCreatorCard key={c.creator_id} creator={c} />)}
               </div>

@@ -51,7 +51,7 @@ export function Navigation() {
                     : 'text-secondary hover:text-primary hover:bg-subtle'
                 }`}
               >
-                {highlight && <Sparkles size={11} color={isActive ? '#7C3AED' : '#9CA3AF'} style={{ marginBottom: '1px' }} />}
+                {highlight && <Sparkles size={11} color={isActive ? '#FFD700' : '#9CA3AF'} style={{ marginBottom: '1px' }} />}
                 {label}
               </Link>
             );

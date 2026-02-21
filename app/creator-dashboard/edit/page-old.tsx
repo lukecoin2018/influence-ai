@@ -97,7 +97,7 @@ export default function EditProfilePage() {
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '9px 12px',
     border: '1px solid #E5E7EB', borderRadius: '8px',
-    fontSize: '14px', color: '#111827', backgroundColor: 'white', outline: 'none',
+    fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white', outline: 'none',
   };
 
   const labelStyle: React.CSSProperties = {
@@ -121,7 +121,7 @@ export default function EditProfilePage() {
           ← Back to Dashboard
         </Link>
 
-        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827', margin: '16px 0 24px 0', letterSpacing: '-0.02em' }}>
+        <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#3A3A3A', margin: '16px 0 24px 0', letterSpacing: '-0.02em' }}>
           Edit Your Profile
         </h1>
 
@@ -210,10 +210,10 @@ export default function EditProfilePage() {
                   onClick={() => setAvailabilityStatus(opt.value)}
                   style={{
                     padding: '8px 16px', borderRadius: '8px',
-                    border: availabilityStatus === opt.value ? '2px solid #7C3AED' : '2px solid #E5E7EB',
-                    backgroundColor: availabilityStatus === opt.value ? '#F5F3FF' : 'white',
+                    border: availabilityStatus === opt.value ? '2px solid #FFD700' : '2px solid #E5E7EB',
+                    backgroundColor: availabilityStatus === opt.value ? '#FFF9E0' : 'white',
                     fontSize: '13px', fontWeight: 600, cursor: 'pointer',
-                    color: '#111827',
+                    color: '#3A3A3A',
                   }}
                 >
                   {opt.label}
@@ -237,9 +237,9 @@ export default function EditProfilePage() {
                     onClick={() => toggleCategory(cat)}
                     style={{
                       padding: '6px 14px', borderRadius: '999px',
-                      border: preferredCategories.includes(cat) ? '2px solid #7C3AED' : '2px solid #E5E7EB',
-                      backgroundColor: preferredCategories.includes(cat) ? '#EDE9FE' : 'white',
-                      color: preferredCategories.includes(cat) ? '#7C3AED' : '#374151',
+                      border: preferredCategories.includes(cat) ? '2px solid #FFD700' : '2px solid #E5E7EB',
+                      backgroundColor: preferredCategories.includes(cat) ? '#FFF9E0' : 'white',
+                      color: preferredCategories.includes(cat) ? '#FFD700' : '#374151',
                       fontSize: '13px', fontWeight: 500, cursor: 'pointer',
                     }}
                   >
@@ -261,7 +261,7 @@ export default function EditProfilePage() {
               <button
                 type="submit"
                 disabled={saving}
-                style={{ padding: '11px 28px', borderRadius: '8px', border: 'none', backgroundColor: '#7C3AED', color: 'white', fontSize: '15px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}
+                style={{ padding: '11px 28px', borderRadius: '8px', border: 'none', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '15px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', opacity: saving ? 0.7 : 1 }}
               >
                 {saving ? 'Saving...' : 'Save Changes'}
               </button>

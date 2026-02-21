@@ -53,7 +53,7 @@ export default function LoginPage() {
   const inputStyle: React.CSSProperties = {
     width: '100%', padding: '10px 14px',
     border: '1px solid #E5E7EB', borderRadius: '8px',
-    fontSize: '14px', color: '#111827', backgroundColor: 'white', outline: 'none',
+    fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white', outline: 'none',
   };
 
   return (
@@ -62,13 +62,13 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <Link href="/" style={{ textDecoration: 'none', fontSize: '22px', fontWeight: 800, color: '#7C3AED', letterSpacing: '-0.02em' }}>
+          <Link href="/" style={{ textDecoration: 'none', fontSize: '22px', fontWeight: 800, color: '#FFD700', letterSpacing: '-0.02em' }}>
             InfluenceAI
           </Link>
         </div>
 
         <div className="card" style={{ padding: '32px' }}>
-          <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: '0 0 24px 0', textAlign: 'center' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 24px 0', textAlign: 'center' }}>
             Welcome back
           </h1>
 
@@ -111,7 +111,7 @@ export default function LoginPage() {
               disabled={loading}
               style={{
                 width: '100%', padding: '12px', borderRadius: '8px', border: 'none',
-                backgroundColor: '#7C3AED', color: 'white',
+                backgroundColor: '#FFD700', color: '#3A3A3A',
                 fontSize: '15px', fontWeight: 600,
                 cursor: loading ? 'not-allowed' : 'pointer',
                 opacity: loading ? 0.7 : 1,
@@ -124,7 +124,7 @@ export default function LoginPage() {
 
           <p style={{ textAlign: 'center', fontSize: '13px', color: '#6B7280', margin: '20px 0 0 0' }}>
             Don't have an account?{' '}
-            <Link href="/auth/signup" style={{ color: '#7C3AED', fontWeight: 600, textDecoration: 'none' }}>
+            <Link href="/auth/signup" style={{ color: '#FFD700', fontWeight: 600, textDecoration: 'none' }}>
               Sign up
             </Link>
           </p>

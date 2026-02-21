@@ -63,23 +63,23 @@ export async function POST(req: NextRequest) {
         subject: `New Inquiry: ${brandProfile?.company_name} → @${creatorHandle}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: #7C3AED; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <div style="background: #FFD700; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
               <h1 style="margin: 0; font-size: 20px;">New Creator Inquiry</h1>
             </div>
             <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
-              <h2 style="color: #7C3AED; margin-top: 0;">Brand</h2>
+              <h2 style="color: #FFD700; margin-top: 0;">Brand</h2>
               <p><strong>Company:</strong> ${brandProfile?.company_name}</p>
               <p><strong>Contact:</strong> ${brandProfile?.contact_name || 'Not provided'}</p>
               <p><strong>Email:</strong> ${brandProfile?.email}</p>
               <p><strong>Industry:</strong> ${brandProfile?.industry || 'Not specified'}</p>
               <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;">
-              <h2 style="color: #7C3AED;">Creator</h2>
+              <h2 style="color: #FFD700;">Creator</h2>
               <p><strong>Handle:</strong> @${creatorHandle}</p>
               <p><strong>Name:</strong> ${creatorName}</p>
               <p><strong>Followers:</strong> ${creatorFollowers.toLocaleString()}</p>
               <p><strong>Platform:</strong> ${creatorPlatform}</p>
               <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;">
-              <h2 style="color: #7C3AED;">Inquiry Details</h2>
+              <h2 style="color: #FFD700;">Inquiry Details</h2>
               <p><strong>Campaign Type:</strong> ${campaignType || 'Not specified'}</p>
               <p><strong>Budget Range:</strong> ${budgetRange || 'Not specified'}</p>
               <p><strong>Timeline:</strong> ${timeline || 'Not specified'}</p>
@@ -105,7 +105,7 @@ export async function POST(req: NextRequest) {
         subject: `Inquiry Confirmed: @${creatorHandle}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: #7C3AED; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
+            <div style="background: #FFD700; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
               <h1 style="margin: 0; font-size: 20px;">Inquiry Received</h1>
             </div>
             <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; border-radius: 0 0 8px 8px;">
@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
               </p>
               <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
                 You can view your inquiries anytime in your 
-                <a href="https://influenceai.vercel.app/dashboard" style="color: #7C3AED;">dashboard</a>.
+                <a href="https://influenceai.vercel.app/dashboard" style="color: #FFD700;">dashboard</a>.
               </p>
             </div>
           </div>

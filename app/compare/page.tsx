@@ -14,8 +14,8 @@ import { getLanguageName } from '@/lib/language-utils';
 function AvatarFallback({ name }: { name: string }) {
   const initials = (name ?? '??').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
   return (
-    <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#EDE9FE', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
-      <span style={{ fontSize: '16px', fontWeight: 700, color: '#7C3AED' }}>{initials}</span>
+    <div style={{ width: '56px', height: '56px', borderRadius: '50%', backgroundColor: '#FFF9E0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
+      <span style={{ fontSize: '16px', fontWeight: 700, color: '#FFD700' }}>{initials}</span>
     </div>
   );
 }
@@ -57,9 +57,9 @@ function CompareContent() {
   if (handles.length < 2) {
     return (
       <div style={{ textAlign: 'center', padding: '80px' }}>
-        <p style={{ fontSize: '16px', fontWeight: 600, color: '#111827', margin: '0 0 8px 0' }}>No creators selected</p>
+        <p style={{ fontSize: '16px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 8px 0' }}>No creators selected</p>
         <p className="text-secondary" style={{ marginBottom: '24px' }}>Select 2-4 creators from the discovery page to compare them.</p>
-        <Link href="/creators" style={{ display: 'inline-flex', padding: '10px 20px', borderRadius: '8px', backgroundColor: '#7C3AED', color: 'white', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
+        <Link href="/creators" style={{ display: 'inline-flex', padding: '10px 20px', borderRadius: '8px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
           Browse Creators
         </Link>
       </div>
@@ -85,7 +85,7 @@ function CompareContent() {
   );
 
   const cell = (key: string, content: React.ReactNode, highlight = false) => (
-    <td key={key} style={{ width: colWidth, padding: '14px 16px', borderBottom: '1px solid #F3F4F6', backgroundColor: highlight ? '#F5F3FF' : 'white', textAlign: 'center', verticalAlign: 'middle' }}>
+    <td key={key} style={{ width: colWidth, padding: '14px 16px', borderBottom: '1px solid #F3F4F6', backgroundColor: highlight ? '#FFF9E0' : 'white', textAlign: 'center', verticalAlign: 'middle' }}>
       {content}
     </td>
   );
@@ -100,7 +100,7 @@ function CompareContent() {
         </Link>
 
         <div style={{ marginBottom: '32px', marginTop: '16px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#111827', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
+          <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
             Compare Creators
           </h1>
           <p className="text-secondary" style={{ fontSize: '15px', margin: 0 }}>
@@ -118,7 +118,7 @@ function CompareContent() {
                 {creators.map((creator) => (
   <th key={creator.creator_id} style={{ width: colWidth, padding: '20px 16px', backgroundColor: '#F9FAFB', borderBottom: '1px solid #E5E7EB', textAlign: 'center' }}>
                     <AvatarFallback name={creator.name} />
-                    <p style={{ fontSize: '14px', fontWeight: 700, color: '#111827', margin: '10px 0 2px 0' }}>{creator.name}</p>
+                    <p style={{ fontSize: '14px', fontWeight: 700, color: '#3A3A3A', margin: '10px 0 2px 0' }}>{creator.name}</p>
                     {creator.instagram_handle && <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 8px 0' }}>@{creator.instagram_handle}</p>}
                     {/* category removed - now in platform_data */}
                   </th>
@@ -133,7 +133,7 @@ function CompareContent() {
     <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Total Followers</p>
   </td>
   {creators.map((c) => cell(c.creator_id,
-    <span style={{ fontSize: '18px', fontWeight: 700, color: '#111827' }}>{formatCount(c.total_followers)}</span>,
+    <span style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A' }}>{formatCount(c.total_followers)}</span>,
     c.total_followers === maxFollowers
   ))}
 </tr>
@@ -144,7 +144,7 @@ function CompareContent() {
     <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>Instagram Followers</p>
   </td>
   {creators.map((c) => cell(c.creator_id,
-    <span style={{ fontSize: '18px', fontWeight: 700, color: '#111827' }}>{c.instagram_followers ? formatCount(c.instagram_followers) : '—'}</span>,
+    <span style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A' }}>{c.instagram_followers ? formatCount(c.instagram_followers) : '—'}</span>,
     false
   ))}
 </tr>
@@ -166,7 +166,7 @@ function CompareContent() {
     <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>TikTok Followers</p>
   </td>
   {creators.map((c) => cell(c.creator_id,
-    <span style={{ fontSize: '18px', fontWeight: 700, color: '#111827' }}>{c.tiktok_followers ? formatCount(c.tiktok_followers) : '—'}</span>,
+    <span style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A' }}>{c.tiktok_followers ? formatCount(c.tiktok_followers) : '—'}</span>,
     false
   ))}
 </tr>
@@ -201,7 +201,7 @@ function CompareContent() {
     <p style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>🌐 Language</p>
   </td>
   {creators.map((c) => cell(c.creator_id,
-    <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>
+    <span style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A' }}>
       {getLanguageName(c.primary_language) ?? <span style={{ color: '#9CA3AF' }}>—</span>}
     </span>,
     false
@@ -216,7 +216,7 @@ function CompareContent() {
   {creators.map((c) => {
     const loc = [c.city, c.country].filter(Boolean).join(', ');
     return cell(c.creator_id,
-      <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>
+      <span style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A' }}>
         {loc || <span style={{ color: '#9CA3AF' }}>—</span>}
       </span>,
       false
@@ -248,7 +248,7 @@ function CompareContent() {
     const handle = c.instagram_handle ?? c.tiktok_handle ?? '';
     return (
       <td key={c.creator_id} style={{ width: colWidth, padding: '14px 16px', backgroundColor: 'white', textAlign: 'center' }}>
-        <Link href={`/creators/${handle}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#7C3AED', color: 'white', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+        <Link href={`/creators/${handle}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
           <ExternalLink size={13} />
           View Profile
         </Link>

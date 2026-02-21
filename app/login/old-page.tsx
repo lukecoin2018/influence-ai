@@ -33,7 +33,7 @@ export default function LoginPage() {
 
   const inputStyle = {
     width: '100%', padding: '10px 14px', borderRadius: '8px',
-    border: '1px solid #E5E7EB', fontSize: '14px', color: '#111827',
+    border: '1px solid #E5E7EB', fontSize: '14px', color: '#3A3A3A',
     outline: 'none', boxSizing: 'border-box' as const, backgroundColor: 'white',
   };
 
@@ -41,7 +41,7 @@ export default function LoginPage() {
     <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <div style={{ width: '100%', maxWidth: '400px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#111827', margin: '0 0 8px 0' }}>Welcome Back</h1>
+          <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#3A3A3A', margin: '0 0 8px 0' }}>Welcome Back</h1>
           <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>Log in to your brand account.</p>
         </div>
 
@@ -61,13 +61,13 @@ export default function LoginPage() {
             </div>
           )}
 
-          <button onClick={handleSubmit} disabled={loading} style={{ padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg, #7C3AED, #6D28D9)', color: 'white', fontSize: '15px', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: '4px' }}>
+          <button onClick={handleSubmit} disabled={loading} style={{ padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg, #FFD700, #E6C200)', color: 'white', fontSize: '15px', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1, marginTop: '4px' }}>
             {loading ? 'Logging in...' : 'Log In'}
           </button>
 
           <p style={{ textAlign: 'center', fontSize: '13px', color: '#6B7280', margin: 0 }}>
             Don't have an account?{' '}
-            <Link href="/signup" style={{ color: '#7C3AED', fontWeight: 600, textDecoration: 'none' }}>Sign up</Link>
+            <Link href="/signup" style={{ color: '#FFD700', fontWeight: 600, textDecoration: 'none' }}>Sign up</Link>
           </p>
         </div>
       </div>

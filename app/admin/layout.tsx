@@ -19,10 +19,10 @@ function AdminSidebar() {
   const { signOut } = useAuth();
 
   return (
-    <div style={{ width: '220px', minHeight: '100vh', backgroundColor: '#1F2937', display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'sticky', top: 0, height: '100vh' }}>
+    <div style={{ width: '220px', minHeight: '100vh', backgroundColor: '#3A3A3A', display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'sticky', top: 0, height: '100vh' }}>
       <div style={{ padding: '20px 16px', borderBottom: '1px solid #374151' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#7C3AED', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#FFD700', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <BarChart2 size={14} color="white" />
           </div>
           <span style={{ fontSize: '13px', fontWeight: 700, color: 'white', letterSpacing: '-0.01em' }}>InfluenceAI Admin</span>

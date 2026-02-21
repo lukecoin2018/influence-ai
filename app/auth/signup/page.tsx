@@ -159,7 +159,7 @@ function SignUpContent() {
     border: '1px solid #E5E7EB',
     borderRadius: '8px',
     fontSize: '14px',
-    color: '#111827',
+    color: '#3A3A3A',
     backgroundColor: 'white',
     outline: 'none',
   };
@@ -178,7 +178,7 @@ function SignUpContent() {
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <Link href="/" style={{ textDecoration: 'none', fontSize: '22px', fontWeight: 800, color: '#7C3AED', letterSpacing: '-0.02em' }}>
+          <Link href="/" style={{ textDecoration: 'none', fontSize: '22px', fontWeight: 800, color: '#FFD700', letterSpacing: '-0.02em' }}>
             InfluenceAI
           </Link>
         </div>
@@ -188,7 +188,7 @@ function SignUpContent() {
           {/* ── STEP 1: Role selector ─────────────────────────────────── */}
           {step === 'role' && (
             <>
-              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#111827', margin: '0 0 8px 0', textAlign: 'center' }}>
+              <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 8px 0', textAlign: 'center' }}>
                 Join InfluenceAI
               </h1>
               <p style={{ fontSize: '14px', color: '#6B7280', textAlign: 'center', margin: '0 0 28px 0' }}>
@@ -218,7 +218,7 @@ function SignUpContent() {
                 style={{
                   width: '100%', padding: '12px',
                   borderRadius: '8px', border: 'none',
-                  backgroundColor: role ? '#7C3AED' : '#E5E7EB',
+                  backgroundColor: role ? '#FFD700' : '#E5E7EB',
                   color: role ? 'white' : '#9CA3AF',
                   fontSize: '15px', fontWeight: 600,
                   cursor: role ? 'pointer' : 'not-allowed',
@@ -230,7 +230,7 @@ function SignUpContent() {
 
               <p style={{ textAlign: 'center', fontSize: '13px', color: '#6B7280', margin: '20px 0 0 0' }}>
                 Already have an account?{' '}
-                <Link href="/auth/login" style={{ color: '#7C3AED', fontWeight: 600, textDecoration: 'none' }}>
+                <Link href="/auth/login" style={{ color: '#FFD700', fontWeight: 600, textDecoration: 'none' }}>
                   Log in
                 </Link>
               </p>
@@ -246,7 +246,7 @@ function SignUpContent() {
               >
                 ← Back
               </button>
-              <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: '0 0 24px 0' }}>
+              <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 24px 0' }}>
                 🏢 Create Brand Account
               </h1>
 
@@ -281,7 +281,7 @@ function SignUpContent() {
                 <button
                   type="submit"
                   disabled={loading}
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#7C3AED', color: 'white', fontSize: '15px', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '15px', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
                 >
                   {loading ? 'Creating account...' : 'Create Account'}
                 </button>
@@ -298,7 +298,7 @@ function SignUpContent() {
               >
                 ← Back
               </button>
-              <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#111827', margin: '0 0 6px 0' }}>
+              <h1 style={{ fontSize: '20px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 6px 0' }}>
                 ✨ Claim Your Profile
               </h1>
               <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 24px 0' }}>
@@ -343,7 +343,7 @@ function SignUpContent() {
                 <button
                   type="submit"
                   disabled={loading}
-                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#7C3AED', color: 'white', fontSize: '15px', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
+                  style={{ width: '100%', padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '15px', fontWeight: 600, cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}
                 >
                   {loading ? 'Creating account...' : 'Create Account'}
                 </button>
@@ -373,15 +373,15 @@ function RoleCard({
       style={{
         padding: '20px 16px',
         borderRadius: '12px',
-        border: selected ? '2px solid #7C3AED' : '2px solid #E5E7EB',
-        backgroundColor: selected ? '#F5F3FF' : 'white',
+        border: selected ? '2px solid #FFD700' : '2px solid #E5E7EB',
+        backgroundColor: selected ? '#FFF9E0' : 'white',
         cursor: 'pointer',
         textAlign: 'center',
         transition: 'all 0.15s',
       }}
     >
       <div style={{ fontSize: '28px', marginBottom: '8px' }}>{emoji}</div>
-      <div style={{ fontSize: '15px', fontWeight: 700, color: '#111827', marginBottom: '4px' }}>{title}</div>
+      <div style={{ fontSize: '15px', fontWeight: 700, color: '#3A3A3A', marginBottom: '4px' }}>{title}</div>
       <div style={{ fontSize: '12px', color: '#6B7280' }}>{description}</div>
     </button>
   );
