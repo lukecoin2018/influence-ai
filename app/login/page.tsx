@@ -1,7 +1,9 @@
 'use client';
 
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
@@ -9,6 +11,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const router = useRouter();
 
   async function handleSubmit() {
     if (!email || !password) { setError('Please enter your email and password.'); return; }
@@ -28,13 +31,13 @@ export default function LoginPage() {
 
       // Small delay to ensure Supabase writes session to localStorage before redirect
     await new Promise((r) => setTimeout(r, 300));
-    
+
     if (roleData?.role === 'admin') {
-      window.location.href = '/admin';
+      router.push('/admin');
     } else if (roleData?.role === 'creator') {
-      window.location.href = '/creator-dashboard';
+      router.push('/creator-dashboard');
     } else {
-      window.location.href = '/dashboard';
+      router.push('/dashboard');
     }
   }
 
