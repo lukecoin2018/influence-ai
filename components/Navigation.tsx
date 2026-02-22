@@ -2,8 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart2, Sparkles, User, LogOut } from 'lucide-react';
+import { BarChart2, Sparkles, User, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useState } from 'react';
 
 const navLinks = [
   { href: '/creators', label: 'Creators' },
@@ -15,6 +16,7 @@ const navLinks = [
 export function Navigation() {
   const pathname = usePathname();
   const { user, brandProfile, userRole, signOut } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   return (
     <header
@@ -24,17 +26,17 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between" style={{ height: '64px' }}>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 no-underline">
-        <div className="flex items-center justify-center rounded-lg flex-shrink-0" style={{ width: '32px', height: '32px', backgroundColor: '#FFD700' }}>
-          <BarChart2 size={16} color="#3A3A3A" strokeWidth={2.5} />
+        <Link href="/" className="flex items-center gap-2 no-underline" onClick={() => setMenuOpen(false)}>
+          <div className="flex items-center justify-center rounded-lg flex-shrink-0" style={{ width: '32px', height: '32px', backgroundColor: '#FFD700' }}>
+            <BarChart2 size={16} color="#3A3A3A" strokeWidth={2.5} />
           </div>
           <span className="font-semibold text-primary" style={{ fontSize: '15px', letterSpacing: '-0.01em' }}>
             InfluenceIT
           </span>
         </Link>
 
-        {/* Nav */}
-        <nav className="flex items-center gap-1">
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center gap-1">
           {navLinks.map(({ href, label, highlight }) => {
             const isActive = pathname === href || pathname.startsWith(`${href}/`);
             return (
@@ -52,49 +54,145 @@ export function Navigation() {
           })}
         </nav>
 
-        {/* Auth section */}
-        {user ? (
-          <div className="flex items-center gap-2">
-            {userRole === 'creator' ? (
-              <Link
-                href="/creator-dashboard"
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline ${
-                  pathname.startsWith('/creator-dashboard') ? 'bg-purple-light text-purple' : 'text-secondary hover:text-primary hover:bg-subtle'
-                }`}
+        {/* Desktop Auth */}
+        <div className="hidden md:flex items-center gap-2">
+          {user ? (
+            <>
+              {userRole === 'creator' ? (
+                <Link
+                  href="/creator-dashboard"
+                  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline ${
+                    pathname.startsWith('/creator-dashboard') ? 'bg-purple-light text-purple' : 'text-secondary hover:text-primary hover:bg-subtle'
+                  }`}
+                >
+                  <User size={14} />
+                  My Profile
+                </Link>
+              ) : userRole === 'brand' ? (
+                <Link
+                  href="/dashboard"
+                  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline ${
+                    pathname.startsWith('/dashboard') ? 'bg-purple-light text-purple' : 'text-secondary hover:text-primary hover:bg-subtle'
+                  }`}
+                >
+                  <User size={14} />
+                  {brandProfile?.company_name ?? 'Dashboard'}
+                </Link>
+              ) : null}
+              <button
+                onClick={signOut}
+                className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-secondary hover:text-primary hover:bg-subtle"
+                style={{ border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
               >
-                <User size={14} />
-                My Profile
+                <LogOut size={14} />
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="rounded-lg font-medium no-underline px-4 py-2 text-sm text-secondary hover:text-primary hover:bg-subtle">
+                Log in
               </Link>
-            ) : userRole === 'brand' ? (
-              <Link
-                href="/dashboard"
-                className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium no-underline ${
-                  pathname.startsWith('/dashboard') ? 'bg-purple-light text-purple' : 'text-secondary hover:text-primary hover:bg-subtle'
-                }`}
-              >
-                <User size={14} />
-                {brandProfile?.company_name ?? 'Dashboard'}
+              <Link href="/signup" className="bg-purple rounded-lg font-medium no-underline px-4 py-2 text-sm" style={{ color: '#3A3A3A' }}>
+                Sign up
               </Link>
-            ) : null /* admin — no nav link shown */}
-            <button
-              onClick={signOut}
-              className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-secondary hover:text-primary hover:bg-subtle"
-              style={{ border: 'none', backgroundColor: 'transparent', cursor: 'pointer' }}
-            >
-              <LogOut size={14} />
-            </button>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2">
-            <Link href="/login" className="rounded-lg font-medium no-underline px-4 py-2 text-sm text-secondary hover:text-primary hover:bg-subtle">
-              Log in
-            </Link>
-            <Link href="/signup" className="bg-purple rounded-lg font-medium no-underline px-4 py-2 text-sm" style={{ color: '#3A3A3A' }}>
-              Sign up
-            </Link>
-          </div>
-        )}
+            </>
+          )}
+        </div>
+
+        {/* Mobile hamburger */}
+        <button
+          className="flex md:hidden items-center justify-center rounded-lg"
+          onClick={() => setMenuOpen(!menuOpen)}
+          style={{ width: '36px', height: '36px', border: 'none', backgroundColor: 'transparent', cursor: 'pointer', color: '#3A3A3A' }}
+        >
+          {menuOpen ? <X size={20} /> : <Menu size={20} />}
+        </button>
       </div>
+
+      {/* Mobile menu dropdown */}
+      {menuOpen && (
+        <div
+          className="md:hidden"
+          style={{ borderTop: '1px solid #E5E7EB', backgroundColor: 'white', paddingBottom: '16px' }}
+        >
+          {/* Nav links */}
+          <div style={{ padding: '8px 16px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            {navLinks.map(({ href, label, highlight }) => {
+              const isActive = pathname === href || pathname.startsWith(`${href}/`);
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  onClick={() => setMenuOpen(false)}
+                  className={`rounded-lg font-medium no-underline px-4 py-3 text-sm flex items-center gap-2 ${
+                    isActive ? 'bg-purple-light text-purple' : 'text-secondary hover:text-primary hover:bg-subtle'
+                  }`}
+                >
+                  {highlight && <Sparkles size={12} color={isActive ? '#FFD700' : '#9CA3AF'} />}
+                  {label}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Divider */}
+          <div style={{ height: '1px', backgroundColor: '#F3F4F6', margin: '8px 16px' }} />
+
+          {/* Auth links */}
+          <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            {user ? (
+              <>
+                {userRole === 'creator' && (
+                  <Link
+                    href="/creator-dashboard"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium no-underline text-secondary hover:text-primary hover:bg-subtle"
+                  >
+                    <User size={14} />
+                    My Profile
+                  </Link>
+                )}
+                {userRole === 'brand' && (
+                  <Link
+                    href="/dashboard"
+                    onClick={() => setMenuOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium no-underline text-secondary hover:text-primary hover:bg-subtle"
+                  >
+                    <User size={14} />
+                    {brandProfile?.company_name ?? 'Dashboard'}
+                  </Link>
+                )}
+                <button
+                  onClick={() => { signOut(); setMenuOpen(false); }}
+                  className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium text-secondary hover:text-primary hover:bg-subtle"
+                  style={{ border: 'none', backgroundColor: 'transparent', cursor: 'pointer', textAlign: 'left' }}
+                >
+                  <LogOut size={14} />
+                  Log out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-lg font-medium no-underline px-4 py-3 text-sm text-secondary hover:text-primary hover:bg-subtle"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setMenuOpen(false)}
+                  className="rounded-lg font-medium no-underline px-4 py-3 text-sm text-center"
+                  style={{ backgroundColor: '#FFD700', color: '#3A3A3A' }}
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </header>
   );
 }

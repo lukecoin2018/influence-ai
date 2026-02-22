@@ -42,20 +42,21 @@ async function getCreator(handle: string): Promise<CreatorDetail | null> {
     .eq('creator_id', profile.creator_id)
     .single();
 
-  const { data: claimedProfile } = await supabase
+    const { data: claimedProfile } = await supabase
     .from('creator_profiles')
     .select('display_name, custom_bio, rate_post, rate_reel, rate_story, rate_package, rate_currency, rate_notes, availability_status, availability_note, claim_status')
     .eq('creator_id', profile.creator_id)
     .eq('claim_status', 'verified')
     .maybeSingle();
 
-  const aiSummaryFromProfile =
-    (profiles ?? []).find((p: any) => p.ai_summary)?.ai_summary ?? null;
+  const aiSummaryFromProfile = 
+  (profiles ?? []).find((p: any) => p.ai_summary)?.ai_summary ?? null;
 
-  return { ...creator, ...summary, ai_summary: aiSummaryFromProfile, city: creator.city ?? null, country: creator.country ?? null, primary_language: creator.primary_language ?? null, contact_email: creator.contact_email ?? null, claimed_profile: claimedProfile ?? null, social_profiles: profiles ?? [] } as CreatorDetail;
+return { ...creator, ...summary, ai_summary: aiSummaryFromProfile, city: creator.city ?? null, country: creator.country ?? null, primary_language: creator.primary_language ?? null, contact_email: creator.contact_email ?? null, claimed_profile: claimedProfile ?? null, social_profiles: profiles ?? [] } as CreatorDetail;return { ...creator, ...summary, ai_summary: aiSummaryFromProfile, city: creator.city ?? null, country: creator.country ?? null, primary_language: creator.primary_language ?? null, contact_email: creator.contact_email ?? null, social_profiles: profiles ?? [] } as CreatorDetail;
 }
 
 async function getSimilarCreators(creatorId: string, category: string | null, totalFollowers: number): Promise<any[]> {
+  // Try vector similarity first
   const { data: creator } = await supabase
     .from('creators')
     .select('embedding')
@@ -86,6 +87,7 @@ async function getSimilarCreators(creatorId: string, category: string | null, to
     }
   }
 
+  // Fallback to category/follower matching
   if (!category) {
     const { data } = await supabase
       .from('v_creator_summary')
@@ -160,7 +162,7 @@ function ContentMixBar({ mix }: { mix: Record<string, number> }) {
         {entries.map(([type, pct]) => (
           <div key={type} style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
             <div style={{ width: '10px', height: '10px', borderRadius: '2px', backgroundColor: colors[type] ?? defaultColor, flexShrink: 0 }} />
-            <span style={{ fontSize: '12px', color: '#6B7280' }}>{displayNames[type] ?? type} <strong style={{ color: '#3A3A3A' }}>{pct}%</strong></span>
+          <span style={{ fontSize: '12px', color: '#6B7280' }}>{displayNames[type] ?? type} <strong style={{ color: '#3A3A3A' }}>{pct}%</strong></span>
           </div>
         ))}
       </div>
@@ -185,6 +187,8 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <h2 style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>Content Analytics</h2>
@@ -197,6 +201,7 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
         )}
       </div>
 
+      {/* Key metrics */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '12px' }}>
         {calculated_engagement_rate != null && (
           <div style={{ backgroundColor: '#F9FAFB', borderRadius: '10px', padding: '16px' }}>
@@ -231,6 +236,7 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
         )}
       </div>
 
+      {/* Content mix */}
       {content_mix && Object.keys(content_mix).length > 0 && (
         <div className="card" style={{ padding: '20px' }}>
           <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 16px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Content Mix</h3>
@@ -238,6 +244,7 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
         </div>
       )}
 
+      {/* Top hashtags */}
       {top_hashtags && top_hashtags.length > 0 && (
         <div className="card" style={{ padding: '20px' }}>
           <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Top Hashtags</h3>
@@ -251,11 +258,12 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
         </div>
       )}
 
+      {/* Brand partnerships */}
       {sponsored_posts_count != null && sponsored_posts_count > 0 && (
         <div className="card" style={{ padding: '20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
             <h3 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: 0, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Brand Partnerships Detected</h3>
-            <span style={{ padding: '2px 8px', borderRadius: '999px', backgroundColor: '#FFF0F5', color: '#FF4D94', fontSize: '12px', fontWeight: 700 }}>{brand_partnership_count}</span>
+            <span style={{ padding: '2px 8px', borderRadius: '999px', backgroundColor: '#FFF9E0', color: '#FFD700', fontSize: '12px', fontWeight: 700 }}>{brand_partnership_count}</span>
           </div>
           {detected_brands && detected_brands.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
@@ -276,8 +284,8 @@ function ContentAnalytics({ enrichment, enrichedAt }: { enrichment: EnrichmentDa
 function AvatarFallback({ name }: { name: string }) {
   const initials = name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase();
   return (
-    <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#FFF0F5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-      <span style={{ fontSize: '24px', fontWeight: 700, color: '#FF4D94' }}>{initials}</span>
+    <div style={{ width: '96px', height: '96px', borderRadius: '50%', backgroundColor: '#FFF0F5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <span style={{ fontSize: '28px', fontWeight: 700, color: '#FF4D94' }}>{initials}</span>
     </div>
   );
 }
@@ -312,6 +320,7 @@ function MetricCard({ label, value }: { label: string; value: string | React.Rea
 function PlatformMetrics({ profile }: { profile: SocialProfile }) {
   const isPlatformInstagram = profile.platform === 'instagram';
 
+  // Build the fourth metric card conditionally
   const fourthMetric = (() => {
     if (profile.platform === 'tiktok') {
       const likes = profile.platform_data?.likes_count;
@@ -334,9 +343,9 @@ function PlatformMetrics({ profile }: { profile: SocialProfile }) {
   const metrics = fourthMetric ? [...baseMetrics, fourthMetric] : baseMetrics;
 
   return (
-    <div className="card" style={{ padding: '24px', flex: 1, minWidth: 0 }}>
+    <div className="card" style={{ padding: '24px', flex: 1 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-        <div style={{ color: isPlatformInstagram ? '#FF4D94' : '#3AAFF4' }}>
+        <div style={{ color: isPlatformInstagram ? '#E1306C' : '#010101' }}>
           {isPlatformInstagram ? <InstagramIcon size={18} /> : <TikTokIcon size={18} />}
         </div>
         <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>
@@ -344,7 +353,7 @@ function PlatformMetrics({ profile }: { profile: SocialProfile }) {
         </h3>
         <span style={{ fontSize: '13px', color: '#6B7280' }}>@{profile.handle}</span>
         {profile.profile_url && (
-          <a href={profile.profile_url} target="_blank" rel="noopener noreferrer" style={{ marginLeft: 'auto', color: '#3AAFF4', display: 'flex', alignItems: 'center' }}>
+          <a href={profile.profile_url} target="_blank" rel="noopener noreferrer" style={{ marginLeft: 'auto', color: '#FFD700', display: 'flex', alignItems: 'center' }}>
             <ExternalLink size={14} />
           </a>
         )}
@@ -372,9 +381,9 @@ function SimilarCreatorCard({ creator }: { creator: any }) {
   return (
     <Link href={`/creators/${handle}`} style={{ textDecoration: 'none' }}>
       <div className="card" style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-        <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#FFF0F5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <span style={{ fontSize: '11px', fontWeight: 600, color: '#FF4D94' }}>
-            {(creator.name ?? '??').slice(0, 2).toUpperCase()}
+        <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#FFF9E0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: '#FFD700' }}>
+          {(creator.name ?? '??').slice(0, 2).toUpperCase()}
           </span>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -488,20 +497,23 @@ export default async function CreatorProfilePage({
   const creator = await getCreator(handle);
   if (!creator) notFound();
 
+  // Check if user is logged in (for gated contact email)
   const { data: { session } } = await supabase.auth.getSession();
   const isLoggedIn = !!session;
 
+  // Pull intelligence fields (all nullable — safe if missing)
   const aiSummary = creator.ai_summary ?? null;
   const city = creator.city ?? null;
   const country = creator.country ?? null;
   const primaryLanguage = creator.primary_language ?? null;
   const contactEmail = creator.contact_email ?? null;
 
+
   const instagramEnrichment = (creator.social_profiles?.find((p) => p.platform === 'instagram')?.enrichment_data ?? null) as EnrichmentData | null;
   const tiktokEnrichment = (creator.social_profiles?.find((p) => p.platform === 'tiktok')?.enrichment_data ?? null) as EnrichmentData | null;
   const primaryEnrichment = instagramEnrichment ?? tiktokEnrichment;
   const enrichedAt = creator.social_profiles?.find((p) => p.enriched_at !== null)?.enriched_at ?? null;
-  const hasEnrichment = !!primaryEnrichment && Object.keys(primaryEnrichment).length > 0 && !!enrichedAt;
+  const hasEnrichment = !!primaryEnrichment && Object.keys(primaryEnrichment).length > 0 && !!enrichedAt; 
   const socialProfiles = creator.social_profiles ?? [];
   const instagramProfile = socialProfiles.find((p) => p.platform === 'instagram');
   const tiktokProfile = socialProfiles.find((p) => p.platform === 'tiktok');
@@ -519,164 +531,152 @@ export default async function CreatorProfilePage({
     <>
       <CreatorStructuredData creator={creator} aiSummary={creator.ai_summary ?? null} />
       <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh' }}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6" style={{ paddingTop: '24px', paddingBottom: '80px' }}>
+      <div className="max-w-7xl mx-auto px-6" style={{ paddingTop: '32px', paddingBottom: '80px' }}>
 
-          <Link href="/creators" style={{ textDecoration: 'none', fontSize: '14px', fontWeight: 500, marginBottom: '20px', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#6B7280' }}>
-            <ArrowLeft size={16} />
-            Back to Creators
-          </Link>
+        <Link href="/creators" style={{ textDecoration: 'none', fontSize: '14px', fontWeight: 500, marginBottom: '24px', display: 'inline-flex', alignItems: 'center', gap: '6px', color: '#6B7280' }}>
+          <ArrowLeft size={16} />
+          Back to Creators
+        </Link>
 
-          {/* Profile header card */}
-          <div className="card" style={{ padding: '24px', marginBottom: '20px', marginTop: '16px' }}>
-            {/* Top row — avatar + name */}
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: '16px' }}>
-              <AvatarFallback name={creator.name} />
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
-                  <h1 style={{ fontSize: 'clamp(18px, 4vw, 24px)', fontWeight: 700, color: '#3A3A3A', margin: 0, letterSpacing: '-0.02em' }}>{creator.name}</h1>
-                  {(instagramProfile?.is_verified || tiktokProfile?.is_verified) && (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                      <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                    </svg>
-                  )}
-                  {cleanCategory && <CategoryBadge category={cleanCategory} />}
-                  {isClaimed && <ClaimedBadge />}
-                </div>
-
-                {/* Platform links */}
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
-                  {instagramProfile && (
-                    <a href={instagramProfile.profile_url ?? '#'} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 10px', borderRadius: '8px', backgroundColor: '#F3F4F6', color: '#FF4D94', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
-                      <InstagramIcon size={13} />
-                      @{instagramProfile.handle}
-                    </a>
-                  )}
-                  {tiktokProfile && (
-                    <a href={tiktokProfile.profile_url ?? '#'} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 10px', borderRadius: '8px', backgroundColor: '#F3F4F6', color: '#3AAFF4', fontSize: '12px', fontWeight: 600, textDecoration: 'none' }}>
-                      <TikTokIcon size={13} />
-                      @{tiktokProfile.handle}
-                    </a>
-                  )}
-                  {website && (
-                    <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '5px 10px', borderRadius: '8px', border: '1px solid #E5E7EB', color: '#6B7280', fontSize: '12px', fontWeight: 500, textDecoration: 'none' }}>
-                      <ExternalLink size={12} />
-                      {website.replace(/^https?:\/\//, '').split('/')[0]}
-                    </a>
-                  )}
-                </div>
-
+        <div className="card" style={{ padding: '32px', marginBottom: '24px', marginTop: '16px' }}>
+          <div style={{ display: 'flex', gap: '24px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+            <AvatarFallback name={creator.name} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '6px' }}>
+                <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#3A3A3A', margin: 0, letterSpacing: '-0.02em' }}>{creator.name}</h1>
+                {(instagramProfile?.is_verified || tiktokProfile?.is_verified) && (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#FFD700" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+                {cleanCategory && <CategoryBadge category={cleanCategory} />}
+                {isClaimed && <ClaimedBadge />}
+              </div>
+              <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', marginBottom: '12px' }}>
+                {instagramProfile && (
+                  <a href={instagramProfile.profile_url ?? '#'} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', backgroundColor: '#F3F4F6', color: '#FF4D94', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+                    <InstagramIcon size={14} />
+                    @{instagramProfile.handle}
+                  </a>
+                )}
+                {tiktokProfile && (
+                  <a href={tiktokProfile.profile_url ?? '#'} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', backgroundColor: '#F0F0F0', color: '#010101', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+                    <TikTokIcon size={14} />
+                    @{tiktokProfile.handle}
+                  </a>
+                )}
+                {website && (
+                  <a href={website.startsWith('http') ? website : `https://${website}`} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', color: '#6B7280', fontSize: '13px', fontWeight: 500, textDecoration: 'none' }}>
+                    <ExternalLink size={13} />
+                    {website.replace(/^https?:\/\//, '').split('/')[0]}
+                  </a>
+                )}
                 {/* Intelligence badges */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  <LocationBadge city={city} country={country} />
-                  <LanguageBadge languageCode={primaryLanguage} />
-                  {isClaimed && claimedProfile?.availability_status && (
-                    <PublicAvailabilityBadge status={claimedProfile.availability_status} />
-                  )}
-                </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '12px' }}>
+                <LocationBadge city={city} country={country} />
+                <LanguageBadge languageCode={primaryLanguage} />
+                {isClaimed && claimedProfile?.availability_status && (
+                  <PublicAvailabilityBadge status={claimedProfile.availability_status} />
+                )}
               </div>
 
-              {/* Updated date — hide on very small screens */}
-              {primaryProfile?.platform_data?.last_updated_at && (
-                <p className="hidden sm:block" style={{ fontSize: '12px', color: '#9CA3AF', margin: 0, flexShrink: 0 }}>
-                  Updated {formatDate(primaryProfile.platform_data.last_updated_at)}
-                </p>
-              )}
-            </div>
-
-            {/* Actions row */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: description ? '16px' : 0 }}>
-              <SaveToShortlist creatorId={creator.creator_id} />
-              {!isLoggedIn && (
-                <Link
-                  href={`/auth/signup?handle=${instagramProfile?.handle ?? tiktokProfile?.handle ?? ''}&role=creator`}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    backgroundColor: '#FFF0F5',
-                    border: '1px solid #FFB3D1',
-                    color: '#FF4D94',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    textDecoration: 'none'
-                  }}
-                >
-                  ✦ Is this you? Claim this profile
-                </Link>
-              )}
-            </div>
-
-            {description && (
-              <p style={{ fontSize: '15px', color: '#374151', lineHeight: '1.6', margin: 0 }}>{description}</p>
-            )}
-          </div>
-
-          {/* Platform metrics — stack on mobile */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
-            {instagramProfile && <PlatformMetrics profile={instagramProfile} />}
-            {tiktokProfile && <PlatformMetrics profile={tiktokProfile} />}
-          </div>
-
-          {/* Cross-platform total */}
-          {instagramProfile && tiktokProfile && (
-            <div className="card" style={{ padding: '20px 24px', marginBottom: '24px' }}>
-              <p style={{ fontSize: '12px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px 0' }}>Total Cross-Platform Followers</p>
-              <p style={{ fontSize: '28px', fontWeight: 800, color: '#FFD700', margin: 0, letterSpacing: '-0.02em' }}>{formatCount(creator.total_followers)}</p>
-            </div>
-          )}
-
-          {/* Main content + sidebar — stack on mobile */}
-          <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-
-              {/* Rates (logged in) */}
-              {isClaimed && claimedProfile && isLoggedIn && (
-                <div className="card" style={{ padding: '20px' }}>
-                  <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#3A3A3A', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 14px 0' }}>Rates</h3>
-                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                    {claimedProfile.rate_post && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Post</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_post).toLocaleString()}</p></div>}
-                    {claimedProfile.rate_reel && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Reel</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_reel).toLocaleString()}</p></div>}
-                    {claimedProfile.rate_story && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Story</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_story).toLocaleString()}</p></div>}
-                    {claimedProfile.rate_package && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Package</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_package).toLocaleString()}</p></div>}
-                  </div>
-                  {claimedProfile.rate_notes && <p style={{ fontSize: '13px', color: '#6B7280', margin: '10px 0 0 0', fontStyle: 'italic' }}>"{claimedProfile.rate_notes}"</p>}
-                </div>
-              )}
-
-              {/* Rates (logged out) */}
-              {isClaimed && claimedProfile && !isLoggedIn && (
-                <div className="card" style={{ padding: '20px', textAlign: 'center', backgroundColor: '#EBF7FF' }}>
-                  <p style={{ fontSize: '14px', fontWeight: 600, color: '#3AAFF4', margin: '0 0 4px 0' }}>Rates available</p>
-                  <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
-                    <a href="/auth/login" style={{ color: '#3AAFF4', fontWeight: 600 }}>Log in</a> as a brand to view rates
-                  </p>
-                </div>
-              )}
-
-              {hasEnrichment && (
-                <ContentAnalytics enrichment={primaryEnrichment!} enrichedAt={enrichedAt} />
-              )}
-
-              <div className="card" style={{ padding: '28px', backgroundColor: 'white', border: '1px solid #E5E7EB' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 8px 0' }}>Interested in working with {creator.name.split(' ')[0]}?</h2>
-                <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 20px 0', lineHeight: '1.6' }}>Reach out to discuss a potential partnership and get access to full analytics.</p>
-                <GetInTouchButton creatorId={creator.creator_id} creatorName={creator.name} />
               </div>
+            <div style={{ marginBottom: '12px' }}>
+             <SaveToShortlist creatorId={creator.creator_id} />
             </div>
-
-            {/* Similar creators sidebar */}
-            {similarCreators.length > 0 && (
-              <div className="card" style={{ padding: '24px' }}>
-                <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Similar Creators</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {similarCreators.map((c) => <SimilarCreatorCard key={c.creator_id} creator={c} />)}
+            
+            {!isLoggedIn && (
+                <div style={{ marginBottom: '12px' }}>
+                  <Link
+                    href={`/auth/signup?handle=${instagramProfile?.handle ?? tiktokProfile?.handle ?? ''}&role=creator`}
+                    style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: '6px', 
+                      padding: '8px 16px', 
+                      borderRadius: '8px', 
+                      backgroundColor: '#FFF0F5', 
+                      border: '1px solid #FFB3D1', 
+                      color: '#FF4D94', 
+                      fontSize: '13px', 
+                      fontWeight: 600, 
+                      textDecoration: 'none' 
+                    }}
+                  >
+                    ✦ Is this you? Claim this profile
+                  </Link>
                 </div>
-              </div>
+              )}   
+
+          {description && (
+                <p style={{ fontSize: '15px', color: '#374151', lineHeight: '1.6', margin: 0, maxWidth: '640px' }}>{description}</p>
+              )}
+            </div>
+            {primaryProfile?.platform_data?.last_updated_at && (
+              <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0, flexShrink: 0 }}>Updated {formatDate(primaryProfile.platform_data.last_updated_at)}</p>
             )}
           </div>
         </div>
+
+        <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', marginBottom: '24px' }}>
+          {instagramProfile && <PlatformMetrics profile={instagramProfile} />}
+          {tiktokProfile && <PlatformMetrics profile={tiktokProfile} />}
+        </div>
+
+        {instagramProfile && tiktokProfile && (
+          <div className="card" style={{ padding: '20px 24px', marginBottom: '24px' }}>
+            <p style={{ fontSize: '12px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 4px 0' }}>Total Cross-Platform Followers</p>
+            <p style={{ fontSize: '28px', fontWeight: 800, color: '#FFD700', margin: 0, letterSpacing: '-0.02em' }}>{formatCount(creator.total_followers)}</p>
+          </div>
+        )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: similarCreators.length > 0 ? '1fr 300px' : '1fr', gap: '24px', alignItems: 'start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {/* AI Summary — most impactful addition, shown above Content Analytics */}
+         
+          
+          {isClaimed && claimedProfile && isLoggedIn && (
+            <div className="card" style={{ padding: '20px' }}>
+              <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#3A3A3A', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 14px 0' }}>Rates</h3>
+              <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                {claimedProfile.rate_post && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Post</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_post).toLocaleString()}</p></div>}
+                {claimedProfile.rate_reel && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Reel</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_reel).toLocaleString()}</p></div>}
+                {claimedProfile.rate_story && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Story</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_story).toLocaleString()}</p></div>}
+                {claimedProfile.rate_package && <div style={{ padding: '8px 14px', borderRadius: '8px', backgroundColor: '#F3F4F6' }}><p style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: 600, textTransform: 'uppercase', margin: '0 0 2px 0' }}>Package</p><p style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>${Number(claimedProfile.rate_package).toLocaleString()}</p></div>}
+              </div>
+              {claimedProfile.rate_notes && <p style={{ fontSize: '13px', color: '#6B7280', margin: '10px 0 0 0', fontStyle: 'italic' }}>"{claimedProfile.rate_notes}"</p>}
+            </div>
+          )}
+          {isClaimed && claimedProfile && !isLoggedIn && (
+            <div className="card" style={{ padding: '20px', textAlign: 'center', backgroundColor: '#EBF7FF' }}>
+              <p style={{ fontSize: '14px', fontWeight: 600, color: '#3AAFF4', margin: '0 0 4px 0' }}>Rates available</p>
+              <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
+                <a href="/auth/login" style={{ color: '#3AAFF4', fontWeight: 600 }}>Log in</a> as a brand to view rates
+              </p>
+            </div>
+          )}
+
+          {hasEnrichment && (
+          <ContentAnalytics enrichment={primaryEnrichment!} enrichedAt={enrichedAt} />
+            )}
+            
+            <div className="card" style={{ padding: '28px', backgroundColor: 'white', border: '1px solid #E5E7EB' }}>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#6B7280', margin: '0 0 8px 0' }}>Interested in working with {creator.name.split(' ')[0]}?</h2>
+              <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 20px 0', lineHeight: '1.6' }}>Reach out to discuss a potential partnership and get access to full analytics.</p>
+              <GetInTouchButton creatorId={creator.creator_id} creatorName={creator.name} />
+            </div>
+          </div>
+
+          {similarCreators.length > 0 && (
+            <div className="card" style={{ padding: '24px' }}>
+              <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Similar Creators</h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {similarCreators.map((c) => <SimilarCreatorCard key={c.creator_id} creator={c} />)}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
       </div>
     </>
   );
