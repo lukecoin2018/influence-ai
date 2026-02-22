@@ -19,7 +19,7 @@ export function Footer() {
               style={{ color: '#FFD700' }}
               className="text-xl font-extrabold mb-3 tracking-tight"
             >
-              InfluenceAI
+              InfluenceIT
             </h3>
             <p className="text-sm leading-relaxed" style={{ color: '#9CA3AF' }}>
               AI-powered influencer matching for modern brands.
@@ -119,7 +119,7 @@ export function Footer() {
           style={{ borderTop: '1px solid #4B5563' }}
         >
           <p className="text-sm" style={{ color: '#6B7280' }}>
-            © {new Date().getFullYear()} InfluenceAI. All rights reserved.
+            © {new Date().getFullYear()} InfluenceIT. All rights reserved.
           </p>
 
           {/* LMG Media attribution — required by brief */}

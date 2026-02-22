@@ -6,8 +6,8 @@ import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata: Metadata = {
   title: {
-    default: 'InfluenceAI — Creator Discovery Platform',
-    template: '%s | InfluenceAI',
+    default: 'InfluenceIT — Creator Discovery Platform',
+    template: '%s | InfluenceIT',
   },
   description: 'Discover and evaluate Instagram creators for influencer partnerships. Data-driven creator discovery for modern marketing teams.',
 };

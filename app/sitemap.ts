@@ -13,7 +13,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const handle = creator.instagram_handle || creator.tiktok_handle;
       if (!handle) return null;
       return {
-        url: `https://influenceai.com/creators/${handle}`,
+        url: `https://influenceit.app/creators/${handle}`,
         lastModified: new Date(),
         changeFrequency: 'weekly' as const,
         priority: 0.7,
@@ -23,19 +23,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     {
-      url: 'https://influenceai.com',
+      url: 'https://influenceit.app',
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 1.0,
     },
     {
-      url: 'https://influenceai.com/creators',
+      url: 'https://influenceit.app/creators',
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
-      url: 'https://influenceai.com/match',
+      url: 'https://influenceit.app/match',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,

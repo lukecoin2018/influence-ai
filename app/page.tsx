@@ -79,7 +79,7 @@ export default async function HomePage() {
       {/* Value props */}
       <section style={{ maxWidth: '1280px', margin: '0 auto', padding: '80px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <h2 style={{ fontSize: '36px', fontWeight: 800, color: '#3A3A3A', margin: '0 0 12px 0', letterSpacing: '-0.02em' }}>Why InfluenceAI</h2>
+          <h2 style={{ fontSize: '36px', fontWeight: 800, color: '#3A3A3A', margin: '0 0 12px 0', letterSpacing: '-0.02em' }}>Why InfluenceIT</h2>
           <p style={{ fontSize: '17px', color: '#6B7280', margin: 0, maxWidth: '480px', marginLeft: 'auto', marginRight: 'auto' }}>Everything you need to make confident creator partnership decisions.</p>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px' }}>

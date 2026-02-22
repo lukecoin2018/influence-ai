@@ -9,7 +9,7 @@ export default function AboutPage() {
         {/* Header */}
         <div style={{ maxWidth: '640px', marginBottom: '64px' }}>
           <h1 style={{ fontSize: '42px', fontWeight: 800, color: '#3A3A3A', margin: '0 0 16px 0', letterSpacing: '-0.03em', lineHeight: 1.1 }}>
-            About InfluenceAI
+            About InfluenceIT
           </h1>
           <p style={{ fontSize: '18px', color: '#6B7280', margin: 0, lineHeight: '1.7' }}>
             We help marketing teams discover and evaluate Instagram creators using real data — not follower counts alone.
@@ -20,7 +20,7 @@ export default function AboutPage() {
         <div className="card" style={{ padding: '40px', marginBottom: '24px', maxWidth: '720px' }}>
           <h2 style={{ fontSize: '20px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 12px 0' }}>Our Mission</h2>
           <p style={{ fontSize: '15px', color: '#6B7280', margin: 0, lineHeight: '1.7' }}>
-            Influencer marketing is broken. Brands overpay for large accounts with disengaged audiences, while high-performing mid-tier creators go undiscovered. InfluenceAI exists to fix that — by surfacing creators based on what actually matters: authentic engagement, audience quality, and content relevance.
+            Influencer marketing is broken. Brands overpay for large accounts with disengaged audiences, while high-performing mid-tier creators go undiscovered. InfluenceIT exists to fix that — by surfacing creators based on what actually matters: authentic engagement, audience quality, and content relevance.
           </p>
         </div>
 

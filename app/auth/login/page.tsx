@@ -63,7 +63,7 @@ export default function LoginPage() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <Link href="/" style={{ textDecoration: 'none', fontSize: '22px', fontWeight: 800, color: '#FFD700', letterSpacing: '-0.02em' }}>
-            InfluenceAI
+            InfluenceIT
           </Link>
         </div>
 

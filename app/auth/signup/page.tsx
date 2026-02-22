@@ -179,7 +179,7 @@ function SignUpContent() {
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <Link href="/" style={{ textDecoration: 'none', fontSize: '22px', fontWeight: 800, color: '#FFD700', letterSpacing: '-0.02em' }}>
-            InfluenceAI
+            InfluenceIT
           </Link>
         </div>
 
@@ -189,7 +189,7 @@ function SignUpContent() {
           {step === 'role' && (
             <>
               <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 8px 0', textAlign: 'center' }}>
-                Join InfluenceAI
+                Join InfluenceIT
               </h1>
               <p style={{ fontSize: '14px', color: '#6B7280', textAlign: 'center', margin: '0 0 28px 0' }}>
                 I am a...

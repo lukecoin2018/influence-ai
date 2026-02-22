@@ -8,6 +8,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/dashboard/', '/creator-dashboard/', '/api/', '/admin/'],
     },
-    sitemap: 'https://influenceai.com/sitemap.xml',
+    sitemap: 'https://influenceit.app/sitemap.xml',
   };
 }

@@ -16,7 +16,7 @@ export function Footer() {
               >
                 <BarChart2 size={14} color="white" strokeWidth={2.5} />
               </div>
-              <span className="font-semibold text-primary text-sm">InfluenceAI</span>
+              <span className="font-semibold text-primary text-sm">InfluenceIT</span>
             </Link>
             <p className="text-secondary text-sm leading-relaxed" style={{ maxWidth: '280px', margin: 0 }}>
               Data-driven creator discovery for modern marketing teams.
@@ -40,7 +40,7 @@ export function Footer() {
               </p>
               <div className="flex flex-col gap-2">
                 <Link href="/about" className="text-sm text-secondary hover:text-primary no-underline">About</Link>
-                <a href="mailto:hello@influenceai.com" className="text-sm text-secondary hover:text-primary no-underline">Contact</a>
+                <a href="mailto:hello@influenceit.app" className="text-sm text-secondary hover:text-primary no-underline">Contact</a>
               </div>
             </div>
           </div>
@@ -49,7 +49,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="flex flex-wrap justify-between items-center gap-3 border-t border-subtle" style={{ marginTop: '40px', paddingTop: '24px' }}>
           <p className="text-muted" style={{ fontSize: '12px', margin: 0 }}>
-            © {new Date().getFullYear()} InfluenceAI. All rights reserved.
+            © {new Date().getFullYear()} InfluenceIT. All rights reserved.
           </p>
           <p className="text-muted" style={{ fontSize: '12px', margin: 0 }}>
             Built for marketing teams who care about data.

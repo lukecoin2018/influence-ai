@@ -426,7 +426,7 @@ function CreatorStructuredData({ creator, aiSummary }: { creator: any; aiSummary
     '@type': 'Person',
     name: creator.name || canonicalHandle,
     alternateName: `@${canonicalHandle}`,
-    url: `https://influenceai.com/creators/${canonicalHandle}`,
+    url: `https://influenceit.app/creators/${canonicalHandle}`,
     ...(aiSummary && { description: aiSummary }),
     jobTitle: 'Content Creator',
     sameAs: [
@@ -456,7 +456,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { handle } = await params;
   const creator = await getCreator(handle);
-  if (!creator) return { title: 'Creator Not Found | InfluenceAI' };
+  if (!creator) return { title: 'Creator Not Found | InfluenceIT' };
 
   const name = creator.name || handle;
   const followers = creator.total_followers >= 1_000_000
@@ -466,16 +466,16 @@ export async function generateMetadata({
   const canonicalHandle = creator.instagram_handle || creator.tiktok_handle || handle;
   const desc = creator.ai_summary
     ? creator.ai_summary.slice(0, 160)
-    : `${name} - ${platform} creator with ${followers} followers. View engagement analytics, content insights, and brand partnership history on InfluenceAI.`;
+    : `${name} - ${platform} creator with ${followers} followers. View engagement analytics, content insights, and brand partnership history on InfluenceIT.`;
 
   return {
-    title: `${name} (@${handle}) - ${platform} Creator | InfluenceAI`,
+    title: `${name} (@${handle}) - ${platform} Creator | InfluenceIT`,
     description: desc,
     openGraph: {
       title: `${name} (@${handle}) - ${platform} Creator`,
       description: desc,
       type: 'profile',
-      url: `https://influenceai.com/creators/${canonicalHandle}`,
+      url: `https://influenceit.app/creators/${canonicalHandle}`,
     },
     twitter: {
       card: 'summary',
@@ -483,7 +483,7 @@ export async function generateMetadata({
       description: desc,
     },
     alternates: {
-      canonical: `https://influenceai.com/creators/${canonicalHandle}`,
+      canonical: `https://influenceit.app/creators/${canonicalHandle}`,
     },
   };
 }

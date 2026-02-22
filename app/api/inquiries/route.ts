@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
     // Send admin notification
     try {
       await transporter.sendMail({
-        from: `InfluenceAI <${process.env.GMAIL_USER}>`,
+        from: `InfluenceIT <${process.env.GMAIL_USER}>`,
         to: process.env.ADMIN_EMAIL,
         subject: `New Inquiry: ${brandProfile?.company_name} → @${creatorHandle}`,
         html: `
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
               </div>
             </div>
             <div style="background: #f3f4f6; padding: 16px; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none; text-align: center; color: #6b7280; font-size: 14px;">
-              <p style="margin: 0;">InfluenceAI Platform</p>
+              <p style="margin: 0;">InfluenceIT Platform</p>
             </div>
           </div>
         `,
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
     // Send confirmation to brand
     try {
       await transporter.sendMail({
-        from: `InfluenceAI <${process.env.GMAIL_USER}>`,
+        from: `InfluenceIT <${process.env.GMAIL_USER}>`,
         to: brandProfile?.email,
         subject: `Inquiry Confirmed: @${creatorHandle}`,
         html: `
@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
               </p>
               <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
                 You can view your inquiries anytime in your 
-                <a href="https://influenceai.vercel.app/dashboard" style="color: #FFD700;">dashboard</a>.
+                <a href="https://influenceit.vercel.app/dashboard" style="color: #FFD700;">dashboard</a>.
               </p>
             </div>
           </div>

@@ -25,7 +25,7 @@ function AdminSidebar() {
           <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#FFD700', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <BarChart2 size={14} color="white" />
           </div>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: 'white', letterSpacing: '-0.01em' }}>InfluenceAI Admin</span>
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'white', letterSpacing: '-0.01em' }}>InfluenceIT Admin</span>
         </div>
       </div>
 

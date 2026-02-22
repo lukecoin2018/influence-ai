@@ -33,7 +33,7 @@ export function Navigation() {
             <BarChart2 size={16} color="white" strokeWidth={2.5} />
           </div>
           <span className="font-semibold text-primary" style={{ fontSize: '15px', letterSpacing: '-0.01em' }}>
-            InfluenceAI
+            InfluenceIT
           </span>
         </Link>
 
