@@ -43,7 +43,7 @@ export default async function HomePage() {
           <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#FFD700' }} />
           <span style={{ fontSize: '13px', fontWeight: 600, color: '#FFD700' }}>{stats.totalCreators} creators and growing</span>
         </div>
-        <h1 className="mx-auto" style={{ fontSize: 'clamp(32px, 6vw, 56px)', fontWeight: 800, color: '#3A3A3A', margin: '0 0 20px 0', lineHeight: '1.1', letterSpacing: '-0.03em', maxWidth: '760px' }}>
+        <h1 style={{ fontSize: 'clamp(32px, 6vw, 56px)', fontWeight: 800, textAlign: 'center', color: '#3A3A3A', margin: '0 0 20px 0', lineHeight: '1.1', letterSpacing: '-0.03em', maxWidth: '760px', width: '100%', marginLeft: 'auto', marginRight: 'auto' }}>
           Find the right creators for your brand
         </h1>
         <p className="mx-auto" style={{ fontSize: 'clamp(16px, 2vw, 19px)', color: '#6B7280', margin: '0 auto 36px', maxWidth: '560px', lineHeight: '1.6' }}>
