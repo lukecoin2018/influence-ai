@@ -227,7 +227,9 @@ export function ResultsPage({ result, onStartOver, onBack }: ResultsPageProps) {
             style={{ backgroundColor: '#FF4D94', color: '#fff' }}>
             Calculate Another Rate
           </button>
-          <Link href="/creator-dashboard/negotiate"
+          <Link href={`/creator-dashboard/negotiate?rate=${result.recommendedRate}&deliverables=${encodeURIComponent(
+  result.deliverableBreakdowns.map(d => d.label).join(', ')
+)}`}
             className="flex-1 py-3 rounded-xl font-semibold text-sm text-center transition-all hover:shadow-md"
             style={{ backgroundColor: '#FFD700', color: '#3A3A3A' }}>
             Use Rate in Negotiation →
