@@ -2,7 +2,7 @@
 
 // Place at: app/creator-dashboard/negotiate/page.tsx
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense  } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -54,7 +54,7 @@ const defaultForm: FormState = {
   brandName: "",
 };
 
-export default function NegotiatePage() {
+function NegotiatePageInner() {
   const { user, creatorProfile, userRole } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -348,5 +348,13 @@ export default function NegotiatePage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function NegotiatePage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA' }} />}>
+      <NegotiatePageInner />
+    </Suspense>
   );
 }
