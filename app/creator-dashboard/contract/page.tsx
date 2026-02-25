@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
-import { ContractState, DealType, SelectedClause } from "@/lib/contract-types";
+import { ContractState, DealType, SelectedClause } from "@/lib/contract";
 import { CLAUSE_LIBRARY } from "@/lib/clause-library";
 import { DEAL_TYPE_PRESETS } from "@/lib/deal-types";
 import { ToolHeader } from "@/components/tools/shared/ToolHeader";
