@@ -1,9 +1,9 @@
 "use client";
 
 // Place at: components/tools/contract/DealTypeSelector.tsx
-// Import change: @/types/contract → @/lib/contract-types
+// Import change: @/types/contract → @/lib/contract
 
-import { DealType } from "@/lib/contract-types";
+import { DealType } from "@/lib/contract";
 
 const dealTypes: Array<{
   id: DealType;

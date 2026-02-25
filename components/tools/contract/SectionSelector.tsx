@@ -3,7 +3,7 @@
 // Place at: components/tools/contract/SectionSelector.tsx
 // Import changes: @/contexts/ContractContext → props, @/data/* → @/lib/*
 
-import { ContractSection, DealType } from "@/lib/contract-types";
+import { ContractSection, DealType } from "@/lib/contract";
 import { DEAL_TYPE_PRESETS } from "@/lib/deal-types";
 
 interface SectionSelectorProps {
