@@ -150,6 +150,35 @@ export default function CreatorDashboardPage() {
           </div>
         )}
 
+        {/* ── Creator Tools ───────────────────────────────────────────── */}
+<div className="card" style={{ padding: '24px', marginBottom: '20px' }}>
+  <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 16px 0' }}>
+    Creator Tools
+  </p>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    {[
+      { href: '/creator-dashboard/calculator', icon: '🧮', title: 'Rate Calculator', desc: 'Calculate your fair market rate based on your stats', color: '#3AAFF4' },
+      { href: '/creator-dashboard/negotiate', icon: '🤝', title: 'Negotiation Assistant', desc: 'Get personalized email templates for brand deals', color: '#FF4D94' },
+      { href: '/creator-dashboard/contract', icon: '📄', title: 'Contract Builder', desc: 'Generate a professional contract for your next deal', color: '#FFD700' },
+    ].map(({ href, icon, title, desc, color }) => (
+      <Link
+        key={href}
+        href={href}
+        style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '14px 16px', backgroundColor: '#F9FAFB', borderRadius: '10px', textDecoration: 'none', border: '1px solid #E5E7EB' }}
+      >
+        <div style={{ width: '40px', height: '40px', borderRadius: '10px', backgroundColor: 'white', border: `1.5px solid ${color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '20px' }}>
+          {icon}
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 2px 0' }}>{title}</p>
+          <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>{desc}</p>
+        </div>
+        <span style={{ color: color, fontSize: '18px', flexShrink: 0 }}>→</span>
+      </Link>
+    ))}
+  </div>
+</div>
+
         {/* ── Brand Interest ──────────────────────────────────────────── */}
         <div className="card" style={{ padding: '24px' }}>
           <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 16px 0' }}>
