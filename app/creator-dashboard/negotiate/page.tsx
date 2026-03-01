@@ -25,7 +25,7 @@ import { ResponseOptions } from "@/components/tools/negotiate/ResponseOptions";
 
 const TOTAL_STEPS = 4;
 const STEP_LABELS = ["Stage", "Numbers", "Objection", "Flexibility"];
-const [agreedPrice, setAgreedPrice] = useState("");
+
 
 interface FormState {
   stage: NegotiationStage | null;
@@ -59,7 +59,7 @@ function NegotiatePageInner() {
   const { user, creatorProfile, userRole } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-
+  const [agreedPrice, setAgreedPrice] = useState("");
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormState>(defaultForm);
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
