@@ -49,36 +49,10 @@ async function getCreator(handle: string): Promise<CreatorDetail | null> {
     .eq('claim_status', 'verified')
     .maybeSingle();
 
-  // ── Fetch media kit from storage ──────────────────────────────────────────
-  let mediaKitUrl: string | null = null;
-  if (profile.creator_id) {
-    const { data: files } = await supabase.storage
-      .from('media-kits')
-      .list( profile.creator_id, { limit: 1, sortBy: { column: 'created_at', order: 'desc' } });
-
-    if (files && files.length > 0) {
-      const { data: urlData } = supabase.storage
-        .from('media-kits')
-        .getPublicUrl(`${ profile.creator_id}/${files[0].name}`);
-      mediaKitUrl = urlData.publicUrl;
-    }
-  }
-
   const aiSummaryFromProfile =
     (profiles ?? []).find((p: any) => p.ai_summary)?.ai_summary ?? null;
 
-  return {
-    ...creator,
-    ...summary,
-    ai_summary: aiSummaryFromProfile,
-    city: creator.city ?? null,
-    country: creator.country ?? null,
-    primary_language: creator.primary_language ?? null,
-    contact_email: creator.contact_email ?? null,
-    claimed_profile: claimedProfile ?? null,
-    social_profiles: profiles ?? [],
-    media_kit_url: mediaKitUrl,
-  } as CreatorDetail;
+  return { ...creator, ...summary, ai_summary: aiSummaryFromProfile, city: creator.city ?? null, country: creator.country ?? null, primary_language: creator.primary_language ?? null, contact_email: creator.contact_email ?? null, claimed_profile: claimedProfile ?? null, social_profiles: profiles ?? [] } as CreatorDetail;
 }
 
 async function getSimilarCreators(creatorId: string, category: string | null, totalFollowers: number): Promise<any[]> {
@@ -522,7 +496,6 @@ export default async function CreatorProfilePage({
   const country = creator.country ?? null;
   const primaryLanguage = creator.primary_language ?? null;
   const contactEmail = creator.contact_email ?? null;
-  const mediaKitUrl = (creator as any).media_kit_url ?? null;
 
   const instagramEnrichment = (creator.social_profiles?.find((p) => p.platform === 'instagram')?.enrichment_data ?? null) as EnrichmentData | null;
   const tiktokEnrichment = (creator.social_profiles?.find((p) => p.platform === 'tiktok')?.enrichment_data ?? null) as EnrichmentData | null;
@@ -602,7 +575,7 @@ export default async function CreatorProfilePage({
                 </div>
               </div>
 
-              {/* Updated date */}
+              {/* Updated date — hide on very small screens */}
               {primaryProfile?.platform_data?.last_updated_at && (
                 <p className="hidden sm:block" style={{ fontSize: '12px', color: '#9CA3AF', margin: 0, flexShrink: 0 }}>
                   Updated {formatDate(primaryProfile.platform_data.last_updated_at)}
@@ -613,31 +586,6 @@ export default async function CreatorProfilePage({
             {/* Actions row */}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: description ? '16px' : 0 }}>
               <SaveToShortlist creatorId={creator.creator_id} />
-
-              {/* ── Media Kit download button ── */}
-              {mediaKitUrl && (
-                <a
-                  href={mediaKitUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    padding: '8px 16px',
-                    borderRadius: '8px',
-                    backgroundColor: '#FFFBEB',
-                    border: '1px solid #FDE68A',
-                    color: '#92400E',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    textDecoration: 'none',
-                  }}
-                >
-                  📎 Download Media Kit
-                </a>
-              )}
-
               {!isLoggedIn && (
                 <Link
                   href={`/auth/signup?handle=${instagramProfile?.handle ?? tiktokProfile?.handle ?? ''}&role=creator`}
@@ -665,7 +613,7 @@ export default async function CreatorProfilePage({
             )}
           </div>
 
-          {/* Platform metrics */}
+          {/* Platform metrics — stack on mobile */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
             {instagramProfile && <PlatformMetrics profile={instagramProfile} />}
             {tiktokProfile && <PlatformMetrics profile={tiktokProfile} />}
@@ -679,7 +627,7 @@ export default async function CreatorProfilePage({
             </div>
           )}
 
-          {/* Main content + sidebar */}
+          {/* Main content + sidebar — stack on mobile */}
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 

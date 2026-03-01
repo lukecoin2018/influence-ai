@@ -44,7 +44,7 @@ export default function MediaKitPage() {
     try {
       const { data, error } = await supabase.storage
         .from("media-kits")
-        .list(user!.id, { limit: 1, sortBy: { column: "created_at", order: "desc" } });
+        .list(creatorProfile!.creator_id, { limit: 1, sortBy: { column: "created_at", order: "desc" } });
 
       if (error) throw error;
 
@@ -52,7 +52,7 @@ export default function MediaKitPage() {
         const file = data[0];
         const { data: urlData } = supabase.storage
           .from("media-kits")
-          .getPublicUrl(`${user!.id}/${file.name}`);
+          .getPublicUrl(`${creatorProfile!.creator_id}/${file.name}`);
 
         setMediaKit({
           url: urlData.publicUrl,
@@ -89,13 +89,13 @@ export default function MediaKitPage() {
       if (mediaKit) {
         await supabase.storage
           .from("media-kits")
-          .remove([`${user!.id}/${mediaKit.name}`]);
+          .remove([`${creatorProfile!.creator_id}/${mediaKit.name}`]);
       }
 
       const fileName = `media-kit-${Date.now()}.pdf`;
       const { error: uploadError } = await supabase.storage
         .from("media-kits")
-        .upload(`${user!.id}/${fileName}`, file, { contentType: "application/pdf" });
+        .upload(`${creatorProfile!.creator_id}/${fileName}`, file, { contentType: "application/pdf" });
 
       if (uploadError) throw uploadError;
 
@@ -113,7 +113,7 @@ export default function MediaKitPage() {
     try {
       await supabase.storage
         .from("media-kits")
-        .remove([`${user!.id}/${mediaKit.name}`]);
+        .remove([`${creatorProfile!.creator_id}/${mediaKit.name}`]);
       setMediaKit(null);
     } catch (e: any) {
       setError(e.message || "Delete failed.");
