@@ -16,6 +16,7 @@ const NAV_ITEMS = [
   { href: "/creator-dashboard/negotiate", label: "Negotiation", icon: "🤝" },
   { href: "/creator-dashboard/contract", label: "Contract Builder", icon: "📄" },
   { href: "/creator-dashboard/edit", label: "Edit Profile", icon: "✏️" },
+  { href: "/creator-dashboard/media-kit", label: "Media Kit", icon: "📎" },
 ];
 
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
