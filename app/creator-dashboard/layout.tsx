@@ -1,5 +1,10 @@
+import dynamic from "next/dynamic";
 import React from "react";
-import { DashboardShell } from "@/components/creator-dashboard/DashboardShell";
+
+const DashboardShell = dynamic(
+  () => import("@/components/creator-dashboard/DashboardShell").then(m => m.DashboardShell),
+  { ssr: false }
+);
 
 export default function CreatorDashboardLayout({
   children,
