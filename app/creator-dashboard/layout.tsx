@@ -21,9 +21,19 @@ export default function CreatorDashboardLayout({
       }}>
         <div style={{
           height: "64px", backgroundColor: "#fff", borderBottom: "1px solid #E5E7EB",
-          display: "flex", alignItems: "center", justifyContent: "flex-end",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
           padding: "0 24px", position: "sticky", top: 0, zIndex: 10,
         }}>
+          <button
+  onClick={() => setSidebarOpen(prev => !prev)}
+  style={{
+    width: "32px", height: "32px", borderRadius: "8px", border: "1px solid #E5E7EB",
+    backgroundColor: "#F9FAFB", cursor: "pointer", display: "flex",
+    alignItems: "center", justifyContent: "center",
+  }}
+>
+  <span style={{ fontSize: "14px", color: "#6B7280" }}>☰</span>
+</button>
           <a href="/" style={{
             fontSize: "13px", fontWeight: 500, color: "#6B7280", textDecoration: "none",
             padding: "6px 12px", borderRadius: "8px", border: "1px solid #E5E7EB",
