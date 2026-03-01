@@ -94,18 +94,20 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
             </div>
           )}
 
-          {isOpen && (
-            <button
-              onClick={onToggle}
-              style={{
-                width: "28px", height: "28px", borderRadius: "6px", border: "1px solid #E5E7EB",
-                backgroundColor: "#F9FAFB", cursor: "pointer", display: "flex",
-                alignItems: "center", justifyContent: "center", flexShrink: 0,
-              }}
-            >
-              <span style={{ fontSize: "12px", color: "#6B7280" }}>◀</span>
-            </button>
-          )}
+{!isOpen && (
+  <button
+    onClick={onToggle}
+    style={{
+      margin: "16px auto 8px",
+      width: "36px", height: "36px", borderRadius: "8px",
+      border: "1px solid #E5E7EB", backgroundColor: "#F9FAFB",
+      cursor: "pointer", display: "flex", alignItems: "center",
+      justifyContent: "center", flexShrink: 0,
+    }}
+  >
+    <span style={{ fontSize: "14px", color: "#6B7280" }}>▶</span>
+  </button>
+)}
         </div>
 
         {/* Collapse button when closed */}
