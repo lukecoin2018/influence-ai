@@ -70,18 +70,31 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           flexShrink: 0,
         }}>
           {isOpen && (
-            <Link href="/" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-              <div style={{
-                width: "32px", height: "32px", borderRadius: "8px",
-                backgroundColor: "#FFD700", display: "flex", alignItems: "center",
-                justifyContent: "center", flexShrink: 0,
-              }}>
-                <span style={{ fontSize: "16px", fontWeight: 800, color: "#3A3A3A" }}>I</span>
-              </div>
-              <span style={{ fontSize: "15px", fontWeight: 700, color: "#3A3A3A", whiteSpace: "nowrap" }}>
-                InfluenceIT
-              </span>
-            </Link>
+            <>
+              <Link href="/" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+                <div style={{
+                  width: "32px", height: "32px", borderRadius: "8px",
+                  backgroundColor: "#FFD700", display: "flex", alignItems: "center",
+                  justifyContent: "center", flexShrink: 0,
+                }}>
+                  <span style={{ fontSize: "16px", fontWeight: 800, color: "#3A3A3A" }}>I</span>
+                </div>
+                <span style={{ fontSize: "15px", fontWeight: 700, color: "#3A3A3A", whiteSpace: "nowrap" }}>
+                  InfluenceIT
+                </span>
+              </Link>
+              <button
+                onClick={onToggle}
+                style={{
+                  width: "28px", height: "28px", borderRadius: "6px",
+                  border: "1px solid #E5E7EB", backgroundColor: "#F9FAFB",
+                  cursor: "pointer", display: "flex", alignItems: "center",
+                  justifyContent: "center", flexShrink: 0,
+                }}
+              >
+                <span style={{ fontSize: "12px", color: "#6B7280" }}>◀</span>
+              </button>
+            </>
           )}
 
           {!isOpen && (
