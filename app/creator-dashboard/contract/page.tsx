@@ -2,8 +2,8 @@
 
 // Place at: app/creator-dashboard/contract/page.tsx
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { ContractState, DealType, SelectedClause } from "@/lib/contract";
@@ -32,8 +32,10 @@ const initialContract: ContractState = {
   lastModified: new Date(),
 };
 
-export default function ContractPage() {
+function ContractPageInner() {
   const { user, creatorProfile, userRole } = useAuth();
+  const searchParams = useSearchParams();
+  const [prefillNote, setPrefillNote] = useState("");
   const router = useRouter();
 
   const [step, setStep] = useState<BuilderStep>(1);
@@ -63,6 +65,20 @@ export default function ContractPage() {
     }
     prefill();
   }, [user]);
+
+
+  // Pre-fill agreed price + deliverables from negotiation via URL params
+useEffect(() => {
+  const agreedPrice = searchParams.get("agreedPrice");
+  const deliverables = searchParams.get("deliverables");
+  if (!agreedPrice && !deliverables) return;
+  setContract(prev => ({
+    ...prev,
+    negotiatedPrice: Number(agreedPrice),
+    negotiatedDeliverables: deliverables || "",
+  }));
+  setPrefillNote(`✓ Pre-filled from negotiation: $${Number(agreedPrice).toLocaleString()}${deliverables ? ` · ${deliverables}` : ""}`);
+}, [searchParams]);
 
   // ── Step 1: Deal type selection ──────────────────────────────────────────
   const handleSelectDealType = (dealType: DealType) => {
@@ -152,6 +168,13 @@ export default function ContractPage() {
           ]}
         />
 
+
+{prefillNote && (
+  <div style={{ marginBottom: "16px", padding: "10px 16px", backgroundColor: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "10px" }}>
+    <p style={{ fontSize: "13px", color: "#92400E", margin: 0 }}>{prefillNote}</p>
+  </div>
+)}
+
         {/* Card */}
         <div style={{
           backgroundColor: "#fff",
@@ -226,5 +249,12 @@ export default function ContractPage() {
         )}
       </div>
     </div>
+  );
+}
+export default function ContractPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: "100vh", backgroundColor: "#FAFAFA" }} />}>
+      <ContractPageInner />
+    </Suspense>
   );
 }

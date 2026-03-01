@@ -25,6 +25,7 @@ import { ResponseOptions } from "@/components/tools/negotiate/ResponseOptions";
 
 const TOTAL_STEPS = 4;
 const STEP_LABELS = ["Stage", "Numbers", "Objection", "Flexibility"];
+const [agreedPrice, setAgreedPrice] = useState("");
 
 interface FormState {
   stage: NegotiationStage | null;
@@ -234,11 +235,46 @@ function NegotiatePageInner() {
             ]}
           />
           <ResponseOptions
-            options={options}
-            onBack={() => { setOptions(null); setStep(1); setForm(defaultForm); }}
-            fairRate={Number(form.fairRate)}
-            brandOffer={Number(form.brandOffer)}
-          />
+  options={options}
+  onBack={() => { setOptions(null); setStep(1); setForm(defaultForm); }}
+  fairRate={Number(form.fairRate)}
+  brandOffer={Number(form.brandOffer)}
+/>
+
+{/* ── Build Contract CTA ─────────────────────────────────── */}
+<div style={{ backgroundColor: '#fff', border: '1px solid #E5E7EB', borderRadius: '16px', padding: '24px', marginTop: '16px' }}>
+  <p style={{ fontSize: '13px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 12px 0' }}>
+    Ready to close the deal?
+  </p>
+  <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 16px 0' }}>
+    Enter the final agreed price and build your contract.
+  </p>
+  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+    <div style={{ position: 'relative', flex: 1 }}>
+      <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6B7280', fontSize: '14px' }}>$</span>
+      <input
+        type="number"
+        placeholder="Final agreed price"
+        value={agreedPrice}
+        onChange={e => setAgreedPrice(e.target.value)}
+        style={{ width: '100%', padding: '10px 14px 10px 28px', borderRadius: '10px', border: '1.5px solid #E5E7EB', backgroundColor: '#F9FAFB', color: '#3A3A3A', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+      />
+    </div>
+    <button
+      onClick={() => {
+        const params = new URLSearchParams({
+          agreedPrice: agreedPrice,
+          deliverables: form.deliverables,
+        });
+        router.push(`/creator-dashboard/contract?${params.toString()}`);
+      }}
+      disabled={!agreedPrice}
+      style={{ padding: '10px 20px', borderRadius: '10px', backgroundColor: agreedPrice ? '#FFD700' : '#F9FAFB', color: agreedPrice ? '#3A3A3A' : '#9CA3AF', fontWeight: 700, fontSize: '14px', border: 'none', cursor: agreedPrice ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
+    >
+      📄 Build Contract →
+    </button>
+  </div>
+</div>
         </div>
       </div>
     );
