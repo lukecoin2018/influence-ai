@@ -1,5 +1,5 @@
-import { Campaign } from '@/types/campaign';
-import { CreatorList } from '@/types/creator';
+import { Campaign } from '@/types/brand/campaign';
+import { CreatorList } from '@/types/brand/creator';
 
 const STORAGE_KEYS = {
   CURRENT_CAMPAIGN: 'current_campaign',
