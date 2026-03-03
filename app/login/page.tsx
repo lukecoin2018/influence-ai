@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -29,7 +29,6 @@ export default function LoginPage() {
     const { data: roleData } = await supabase
       .from('user_roles').select('role').eq('user_id', data.user.id).single();
 
-    // Small delay to ensure Supabase writes session to localStorage before redirect
     await new Promise((r) => setTimeout(r, 300));
 
     const redirectTo = searchParams.get('redirectTo');
@@ -86,5 +85,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }
