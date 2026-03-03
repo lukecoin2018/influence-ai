@@ -1,4 +1,4 @@
-import { CampaignType } from '@/types/campaign';
+import { CampaignType } from '@/types/brand/campaign';
 
 export interface CampaignTypeOption {
   id: CampaignType;
