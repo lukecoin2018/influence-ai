@@ -16,7 +16,7 @@ interface ActivityItem {
   id: string
   action: string
   created_at: string
-  details?: string
+  details?: string | object
 }
 
 export default function AdminOverviewPage() {
@@ -103,7 +103,7 @@ export default function AdminOverviewPage() {
         <p style={{ color: '#6b7280', marginTop: '4px', fontSize: '14px', margin: '4px 0 0' }}>Welcome back. Here's what's happening.</p>
       </div>
 
-      {/* Stat Cards — plain */}
+      {/* Stat Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginBottom: '40px' }}>
         {statCards.map((card) => (
           <a key={card.label} href={card.href} style={{ display: 'block', background: 'white', border: '1px solid #E5E7EB', borderRadius: '12px', padding: '20px 24px', textDecoration: 'none', transition: 'box-shadow 0.15s' }}
@@ -127,7 +127,11 @@ export default function AdminOverviewPage() {
                 <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#D1D5DB', marginTop: '6px', flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: '14px', color: '#374151', margin: 0 }}>{item.action}</p>
-                  {item.details && <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.details}</p>}
+                  {item.details && (
+                    <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {typeof item.details === 'object' ? JSON.stringify(item.details) : item.details}
+                    </p>
+                  )}
                 </div>
                 <time style={{ fontSize: '12px', color: '#9ca3af', flexShrink: 0 }}>
                   {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
