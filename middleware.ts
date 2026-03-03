@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(req: NextRequest) {
-  const res = NextResponse.next()
+  let supabaseResponse = NextResponse.next({ request: req })
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,32 +15,36 @@ export async function middleware(req: NextRequest) {
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) =>
-            res.cookies.set(name, value, options)
+            req.cookies.set(name, value)
+          )
+          supabaseResponse = NextResponse.next({ request: req })
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
           )
         },
       },
     }
   )
 
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = req.nextUrl
 
   const isProtected =
     pathname === '/creators' ||
     pathname === '/creators/' ||
     pathname.startsWith('/find-creators') ||
-    pathname.startsWith('/match') || 
+    pathname.startsWith('/match') ||
     pathname.startsWith('/compare') ||
     pathname.startsWith('/brand-dashboard') ||
     pathname.startsWith('/creator-dashboard')
 
-  if (isProtected && !session) {
+  if (isProtected && !user) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(loginUrl)
   }
 
-  return res
+  return supabaseResponse
 }
 
 export const config = {
