@@ -1,4 +1,4 @@
-import type { CalculatorInputs, BudgetResults, AlternativeScenario } from '../types'
+import type { CalculatorInputs, BudgetResults, AlternativeScenario } from './types'
 
 // Base rates per post by tier (in USD)
 const BASE_RATES = {
