@@ -26,7 +26,7 @@ export async function middleware(req: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { session } } = await supabase.auth.getSession()
   const { pathname } = req.nextUrl
 
   const isProtected =
@@ -38,7 +38,7 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith('/brand-dashboard') ||
     pathname.startsWith('/creator-dashboard')
 
-  if (isProtected && !user) {
+    if (isProtected && !session) {
     const loginUrl = new URL('/login', req.url)
     loginUrl.searchParams.set('redirectTo', pathname)
     return NextResponse.redirect(loginUrl)
