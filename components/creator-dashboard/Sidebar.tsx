@@ -177,22 +177,39 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
                 justifyContent: isOpen ? "flex-start" : "center",
                 borderRadius: "8px",
                 marginTop: "8px",
-                backgroundColor: tokenBalance <= 10 ? "#FEF2F2" : "#F0FDF4",
-                border: `1px solid ${tokenBalance <= 10 ? "#FECACA" : "#BBF7D0"}`,
+                backgroundColor: tokenBalance <= 30 ? "#FEF2F2" : "#F0FDF4",
+                border: `1px solid ${tokenBalance <= 30 ? "#FECACA" : "#BBF7D0"}`,
               }}
             >
               <span style={{ fontSize: "16px", flexShrink: 0 }}>💰</span>
               {isOpen && (
-                <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
-                  <span style={{
-                    fontSize: "13px",
-                    fontWeight: 600,
-                    color: tokenBalance <= 10 ? "#DC2626" : "#15803D",
-                    whiteSpace: "nowrap",
-                  }}>
-                    {tokenBalance} tokens
-                  </span>
-                  {tokenBalance <= 10 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
+                    <span style={{
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      color: tokenBalance <= 30 ? "#DC2626" : "#15803D",
+                      whiteSpace: "nowrap",
+                    }}>
+                      {tokenBalance} tokens
+                    </span>
+                    {tokenBalance <= 30 && (
+                      <Link
+                        href="/pricing/creators"
+                        style={{
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          color: "#DC2626",
+                          textDecoration: "none",
+                          whiteSpace: "nowrap",
+                          opacity: 0.8,
+                        }}
+                      >
+                        + Add tokens
+                      </Link>
+                    )}
+                  </div>
+                  {tokenBalance <= 30 && (
                     <span style={{ fontSize: "10px", color: "#DC2626", whiteSpace: "nowrap" }}>
                       Running low
                     </span>
