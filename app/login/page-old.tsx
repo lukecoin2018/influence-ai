@@ -1,16 +1,17 @@
 'use client';
 
+'use client';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const router = useRouter();
 
   async function handleSubmit() {
     if (!email || !password) { setError('Please enter your email and password.'); return; }
@@ -28,7 +29,16 @@ export default function LoginPage() {
     const { data: roleData } = await supabase
       .from('user_roles').select('role').eq('user_id', data.user.id).single();
 
-      window.location.href = roleData?.role === 'creator' ? '/creator-dashboard' : '/dashboard';
+      // Small delay to ensure Supabase writes session to localStorage before redirect
+    await new Promise((r) => setTimeout(r, 300));
+
+    if (roleData?.role === 'admin') {
+      router.push('/admin');
+    } else if (roleData?.role === 'creator') {
+      router.push('/creator-dashboard');
+    } else {
+      router.push('/dashboard');
+    }
   }
 
   const inputStyle = {
@@ -42,7 +52,7 @@ export default function LoginPage() {
       <div style={{ width: '100%', maxWidth: '400px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#3A3A3A', margin: '0 0 8px 0' }}>Welcome Back</h1>
-          <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>Log in to your brand account.</p>
+          <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>Log in to your account.</p>
         </div>
 
         <div className="card" style={{ padding: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>

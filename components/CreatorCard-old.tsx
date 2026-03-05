@@ -1,19 +1,18 @@
 'use client';
 
 import Link from 'next/link';
-import { CheckCircle, Lock } from 'lucide-react';
-import { formatCount } from '@/lib/formatters';
+import Image from 'next/image';
+import { CheckCircle } from 'lucide-react';
+import { formatCount, truncate } from '@/lib/formatters';
 import { CategoryBadge } from './CategoryBadge';
 import { EngagementIndicator } from './EngagementIndicator';
 import type { Creator } from '@/lib/types';
 import { IntelligenceBadgeRow } from '@/components/creator/IntelligenceBadges';
-import { useState } from 'react';
 
 interface CreatorCardProps {
   creator: Creator;
   onCompareToggle?: (handle: string) => void;
   isSelectedForCompare?: boolean;
-  profilesLocked?: boolean;  // true when user has no free views and no tokens
 }
 
 function AvatarFallback({ name }: { name: string }) {
@@ -43,15 +42,14 @@ function TikTokIcon() {
   );
 }
 
-export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare, profilesLocked }: CreatorCardProps) {
-  const [showLockedTip, setShowLockedTip] = useState(false);
-
+export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare }: CreatorCardProps) {
   const {
     name,
     instagram_handle,
     instagram_followers,
     instagram_engagement,
     instagram_verified,
+    instagram_pic,
     tiktok_handle,
     tiktok_followers,
     tiktok_engagement,
@@ -64,11 +62,14 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare, pr
   } = creator;
 
   const primaryHandle = primary_platform === 'tiktok' ? tiktok_handle : (instagram_handle ?? tiktok_handle);
+  const profilePic = primary_platform === 'tiktok' ? creator.tiktok_pic : (instagram_pic ?? creator.tiktok_pic);
   const primaryEngagement = primary_platform === 'tiktok' ? tiktok_engagement : (instagram_engagement ?? tiktok_engagement);
   const isVerified = primary_platform === 'tiktok' ? creator.tiktok_verified : (instagram_verified ?? creator.tiktok_verified);
   const compareHandle = primaryHandle ?? '';
-  const hasInstagram = !!instagram_handle;
+
+  // Get category from platform_data via the handle we have
   const hasTikTok = !!tiktok_handle;
+  const hasInstagram = !!instagram_handle;
   const hasBoth = hasInstagram && hasTikTok;
 
   return (
@@ -83,7 +84,10 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare, pr
 
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-        <AvatarFallback name={name} />
+        
+          <AvatarFallback name={name} />
+        
+
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '2px' }}>
             <span style={{ fontWeight: 700, fontSize: '14px', color: '#3A3A3A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -95,6 +99,8 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare, pr
               </svg>
             )}
           </div>
+
+          {/* Platform handles */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
             {instagram_handle && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#FF4D94' }}>
@@ -109,6 +115,7 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare, pr
               </div>
             )}
           </div>
+          {/* Intelligence: location + language */}
           <IntelligenceBadgeRow
             city={city}
             country={country}
@@ -118,18 +125,18 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare, pr
         </div>
       </div>
 
-      {/* Follower counts */}
+      {/* Platform follower counts */}
       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
         {instagram_handle && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#F3F4F6', borderRadius: '6px', padding: '4px 8px' }}>
-            <span style={{ color: '#FF4D94' }}><InstagramIcon /></span>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280' }}>{formatCount(instagram_followers)}</span>
+          <span style={{ color: '#FF4D94' }}><InstagramIcon /></span>
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280' }}>{formatCount(instagram_followers)}</span>
           </div>
         )}
         {tiktok_handle && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', backgroundColor: '#F3F4F6', borderRadius: '6px', padding: '4px 8px' }}>
-            <span style={{ color: '#3AAFF4' }}><TikTokIcon /></span>
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280' }}>{formatCount(tiktok_followers)}</span>
+          <span style={{ color: '#3AAFF4' }}><TikTokIcon /></span>
+          <span style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280' }}>{formatCount(tiktok_followers)}</span>
           </div>
         )}
         {hasBoth && (
@@ -139,7 +146,7 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare, pr
         )}
       </div>
 
-      {/* Engagement + email */}
+      {/* Engagement + category */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
         <EngagementIndicator rate={primaryEngagement} showLabel={false} size="sm" />
         {contact_email && (
@@ -150,63 +157,11 @@ export function CreatorCard({ creator, onCompareToggle, isSelectedForCompare, pr
         )}
       </div>
 
-      {/* View Profile button — locked or normal */}
+      {/* View profile */}
       {primaryHandle && (
-        profilesLocked ? (
-          <div style={{ position: 'relative', marginTop: 'auto' }}>
-            <button
-              onClick={() => setShowLockedTip((v) => !v)}
-              style={{
-                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                width: '100%', padding: '8px', borderRadius: '8px',
-                border: '1px solid #FDE68A', backgroundColor: '#FFFBEB',
-                fontSize: '13px', fontWeight: 500, color: '#92400E',
-                cursor: 'pointer',
-              }}
-            >
-              <Lock size={13} />
-              View Profile
-            </button>
-
-            {/* Tooltip */}
-            {showLockedTip && (
-              <div style={{
-                position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%',
-                transform: 'translateX(-50%)',
-                backgroundColor: 'white', border: '1px solid #E5E7EB',
-                borderRadius: '10px', padding: '14px 16px',
-                boxShadow: '0 4px 16px rgba(0,0,0,0.1)',
-                width: '220px', textAlign: 'center', zIndex: 20,
-              }}>
-                <p style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 4px' }}>
-                  🔒 Out of tokens
-                </p>
-                <p style={{ fontSize: '12px', color: '#6B7280', margin: '0 0 12px', lineHeight: 1.4 }}>
-                  Profile views cost 3 tokens after your 5 free views.
-                </p>
-                <a
-                  href="/pricing/brands"
-                  style={{
-                    display: 'block', padding: '7px',
-                    backgroundColor: '#FFD700', borderRadius: '7px',
-                    fontSize: '12px', fontWeight: 700, color: '#3A3A3A',
-                    textDecoration: 'none',
-                  }}
-                >
-                  Get More Tokens
-                </a>
-              </div>
-            )}
-          </div>
-        ) : (
-          <Link
-            href={`/creators/${primaryHandle}`}
-            style={{ display: 'block', textAlign: 'center', padding: '8px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: 500, color: '#6B7280', textDecoration: 'none', marginTop: 'auto' }}
-            className="hover:bg-subtle hover:text-primary hover:border-purple"
-          >
-            View Profile
-          </Link>
-        )
+        <Link href={`/creators/${primaryHandle}`} style={{ display: 'block', textAlign: 'center', padding: '8px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: 500, color: '#6B7280', textDecoration: 'none', marginTop: 'auto' }} className="hover:bg-subtle hover:text-primary hover:border-purple">
+          View Profile
+        </Link>
       )}
     </div>
   );

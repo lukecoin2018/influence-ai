@@ -7,8 +7,6 @@ import Step2Context from './steps/Step2Context'
 import Step3Goals from './steps/Step3Goals'
 import Step4Responses from './steps/Step4Responses'
 import SavedResponsesModal from './SavedResponsesModal'
-import { useTokenGate } from '@/hooks/useTokenGate'
-import { TokenGateModal } from '@/components/shared/TokenGateModal'
 
 export interface NegotiationData {
   scenario: string
@@ -63,15 +61,23 @@ export interface ResponseOption {
 }
 
 export default function NegotiationAssistant() {
-  const { checking, blocked, balance, needed, checkAndCharge, dismiss } = useTokenGate({ chargeEveryTime: true })
-
   const [currentStep, setCurrentStep] = useState(1)
   const [showSavedModal, setShowSavedModal] = useState(false)
   const [data, setData] = useState<NegotiationData>({
-    scenario: '', scenarioDetails: {}, followerCount: '', engagementRate: '',
-    niche: '', pastWorkQuality: '', professionalism: '', creatorImportance: '',
-    budgetFlexibility: '', scopeFlexibility: '', timelineFlexibility: '',
-    requirementsFlexibility: '', priorities: [], willingTo: [],
+    scenario: '',
+    scenarioDetails: {},
+    followerCount: '',
+    engagementRate: '',
+    niche: '',
+    pastWorkQuality: '',
+    professionalism: '',
+    creatorImportance: '',
+    budgetFlexibility: '',
+    scopeFlexibility: '',
+    timelineFlexibility: '',
+    requirementsFlexibility: '',
+    priorities: [],
+    willingTo: [],
   })
 
   useEffect(() => {
@@ -81,7 +87,9 @@ export default function NegotiationAssistant() {
         const parsed = JSON.parse(saved)
         setData(parsed.data || data)
         setCurrentStep(parsed.step || 1)
-      } catch {}
+      } catch (e) {
+        console.error('Failed to load saved data:', e)
+      }
     }
   }, [])
 
@@ -89,21 +97,25 @@ export default function NegotiationAssistant() {
     localStorage.setItem('negotiationData', JSON.stringify({ data, step: currentStep }))
   }, [data, currentStep])
 
-  const updateData = (updates: Partial<NegotiationData>) =>
+  const updateData = (updates: Partial<NegotiationData>) => {
     setData(prev => ({ ...prev, ...updates }))
+  }
 
   const canProceed = () => {
     switch (currentStep) {
       case 1:
         return data.scenario !== '' &&
-          (data.scenario === 'multiple'
-            ? data.scenarioDetails.multiplePoints?.trim()
-            : Object.keys(data.scenarioDetails).length > 0)
+               (data.scenario === 'multiple' ?
+                 data.scenarioDetails.multiplePoints?.trim() :
+                 Object.keys(data.scenarioDetails).length > 0)
       case 2:
-        return data.followerCount !== '' && data.niche !== '' &&
-          data.creatorImportance !== '' && data.budgetFlexibility !== '' &&
-          data.scopeFlexibility !== '' && data.timelineFlexibility !== '' &&
-          data.requirementsFlexibility !== ''
+        return data.followerCount !== '' &&
+               data.niche !== '' &&
+               data.creatorImportance !== '' &&
+               data.budgetFlexibility !== '' &&
+               data.scopeFlexibility !== '' &&
+               data.timelineFlexibility !== '' &&
+               data.requirementsFlexibility !== ''
       case 3:
         return data.priorities.length > 0 && data.willingTo.length > 0
       default:
@@ -112,23 +124,25 @@ export default function NegotiationAssistant() {
   }
 
   const resetForm = () => {
-    setData({
-      scenario: '', scenarioDetails: {}, followerCount: '', engagementRate: '',
-      niche: '', pastWorkQuality: '', professionalism: '', creatorImportance: '',
-      budgetFlexibility: '', scopeFlexibility: '', timelineFlexibility: '',
-      requirementsFlexibility: '', priorities: [], willingTo: [],
-    })
+    const emptyData: NegotiationData = {
+      scenario: '',
+      scenarioDetails: {},
+      followerCount: '',
+      engagementRate: '',
+      niche: '',
+      pastWorkQuality: '',
+      professionalism: '',
+      creatorImportance: '',
+      budgetFlexibility: '',
+      scopeFlexibility: '',
+      timelineFlexibility: '',
+      requirementsFlexibility: '',
+      priorities: [],
+      willingTo: [],
+    }
+    setData(emptyData)
     setCurrentStep(1)
     localStorage.removeItem('negotiationData')
-  }
-
-  // ── Token gate: charge once when clicking Generate Responses (step 3 → 4) ─
-  const handleContinue = async () => {
-    if (currentStep === 3) {
-      const allowed = await checkAndCharge('negotiation_assistant')
-      if (!allowed) return
-    }
-    setCurrentStep(prev => prev + 1)
   }
 
   const steps = [
@@ -140,10 +154,6 @@ export default function NegotiationAssistant() {
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA' }}>
-
-      {blocked && (
-        <TokenGateModal balance={balance} needed={needed} toolName="Negotiation Assistant" onDismiss={dismiss} />
-      )}
 
       {/* Header */}
       <header style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E7EB', padding: '20px 32px' }}>
@@ -158,9 +168,15 @@ export default function NegotiationAssistant() {
           <button
             onClick={() => setShowSavedModal(true)}
             style={{
-              display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px',
-              border: '1px solid #3AAFF4', backgroundColor: '#EBF7FF', color: '#3AAFF4',
-              borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 8,
+              padding: '8px 16px',
+              border: '1px solid #3AAFF4',
+              backgroundColor: '#EBF7FF',
+              color: '#3AAFF4',
+              borderRadius: 8,
+              fontSize: 13,
+              fontWeight: 600,
+              cursor: 'pointer',
             }}
           >
             <History style={{ width: 16, height: 16 }} />
@@ -169,7 +185,7 @@ export default function NegotiationAssistant() {
         </div>
       </header>
 
-      {/* Progress */}
+      {/* Progress Steps */}
       <div style={{ backgroundColor: '#FFFFFF', borderBottom: '1px solid #E5E7EB', padding: '16px 32px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', alignItems: 'center' }}>
           {steps.map((step, i) => (
@@ -184,12 +200,18 @@ export default function NegotiationAssistant() {
                 }}>
                   {step.num}
                 </div>
-                <span style={{ fontSize: 14, fontWeight: currentStep === step.num ? 600 : 400, color: currentStep >= step.num ? '#3A3A3A' : '#9CA3AF' }}>
+                <span style={{
+                  fontSize: 14, fontWeight: currentStep === step.num ? 600 : 400,
+                  color: currentStep >= step.num ? '#3A3A3A' : '#9CA3AF',
+                }}>
                   {step.label}
                 </span>
               </div>
               {i < steps.length - 1 && (
-                <div style={{ flex: 1, height: 2, margin: '0 16px', backgroundColor: currentStep > step.num ? '#3AAFF4' : '#E5E7EB' }} />
+                <div style={{
+                  flex: 1, height: 2, margin: '0 16px',
+                  backgroundColor: currentStep > step.num ? '#3AAFF4' : '#E5E7EB',
+                }} />
               )}
             </div>
           ))}
@@ -204,18 +226,26 @@ export default function NegotiationAssistant() {
         {currentStep === 4 && <Step4Responses data={data} resetForm={resetForm} />}
       </div>
 
-      {/* Bottom nav */}
+      {/* Bottom Navigation */}
       {currentStep < 4 && (
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, backgroundColor: '#FFFFFF', borderTop: '1px solid #E5E7EB', padding: '14px 32px' }}>
+        <div style={{
+          position: 'fixed', bottom: 0, left: 0, right: 0,
+          backgroundColor: '#FFFFFF',
+          borderTop: '1px solid #E5E7EB',
+          padding: '14px 32px',
+        }}>
           <div style={{ maxWidth: 900, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <button
               onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
               disabled={currentStep === 1}
               style={{
-                display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px',
-                borderRadius: 8, border: '1px solid #E5E7EB', backgroundColor: '#FFFFFF',
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '10px 20px', borderRadius: 8,
+                border: '1px solid #E5E7EB',
+                backgroundColor: '#FFFFFF',
                 color: currentStep === 1 ? '#9CA3AF' : '#3A3A3A',
-                fontSize: 14, fontWeight: 600, cursor: currentStep === 1 ? 'not-allowed' : 'pointer',
+                fontSize: 14, fontWeight: 600,
+                cursor: currentStep === 1 ? 'not-allowed' : 'pointer',
                 opacity: currentStep === 1 ? 0.4 : 1,
               }}
             >
@@ -224,26 +254,29 @@ export default function NegotiationAssistant() {
             </button>
 
             <button
-              onClick={handleContinue}
-              disabled={!canProceed() || checking}
+              onClick={() => setCurrentStep(prev => prev + 1)}
+              disabled={!canProceed()}
               style={{
-                display: 'flex', alignItems: 'center', gap: 8, padding: '10px 24px',
-                borderRadius: 8, border: 'none',
-                backgroundColor: checking ? '#F3F4F6' : '#FFD700',
-                color: checking ? '#9CA3AF' : '#3A3A3A',
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '10px 24px', borderRadius: 8,
+                border: 'none',
+                backgroundColor: '#FFD700',
+                color: '#3A3A3A',
                 fontSize: 14, fontWeight: 700,
-                cursor: canProceed() && !checking ? 'pointer' : 'not-allowed',
-                opacity: canProceed() && !checking ? 1 : 0.35,
+                cursor: canProceed() ? 'pointer' : 'not-allowed',
+                opacity: canProceed() ? 1 : 0.35,
               }}
             >
-              {checking ? 'Checking...' : currentStep === 3 ? 'Generate Responses' : 'Continue'}
+              {currentStep === 3 ? 'Generate Responses' : 'Continue'}
               <ArrowRight style={{ width: 16, height: 16 }} />
             </button>
           </div>
         </div>
       )}
 
-      {showSavedModal && <SavedResponsesModal onClose={() => setShowSavedModal(false)} />}
+      {showSavedModal && (
+        <SavedResponsesModal onClose={() => setShowSavedModal(false)} />
+      )}
     </div>
   )
 }

@@ -1,62 +1,9 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
-import { createSupabaseServerClient } from '@/lib/supabase-server';
-import { checkAndChargeAccess, FREE_ALLOWANCES } from '@/lib/tokens';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
 
-  // ── Token gate ────────────────────────────────────────────────────────────
-  let tokenInfo = null;
-
-  try {
-    const serverSupabase = await createSupabaseServerClient();
-    const { data: { user } } = await serverSupabase.auth.getUser();
-
-    if (user) {
-      const { data: brandProfile } = await serverSupabase
-        .from('brand_profiles')
-        .select('id, token_balance, directory_pages_used, profile_views_used')
-        .eq('id', user.id)
-        .maybeSingle();
-
-      if (brandProfile) {
-        const paginate = searchParams.get('paginate') === 'true';
-
-        if (paginate) {
-          // Paginating — charge free allowance or tokens
-          const access = await checkAndChargeAccess(user.id, 'directory_pages');
-
-          if (!access.allowed) {
-            return NextResponse.json({
-              locked: true,
-              reason: 'tokens',
-              balance: access.balance,
-              needed: 5,
-            }, { status: 402 });
-          }
-
-          tokenInfo = { ...access, profile_views_used: brandProfile.profile_views_used ?? 0 };
-        } else {
-          // Initial load / filter change — read current state, don't charge
-          const used = brandProfile.directory_pages_used ?? 0;
-          const limit = FREE_ALLOWANCES.directory_pages;
-          tokenInfo = {
-            withinFree: used < limit,
-            used,
-            limit,
-            balance: brandProfile.token_balance ?? 0,
-            allowed: true,
-            profile_views_used: brandProfile.profile_views_used ?? 0,
-          };
-        }
-      }
-    }
-  } catch {
-    // If auth check fails, fall through and serve results publicly
-  }
-
-  // ── Query params ──────────────────────────────────────────────────────────
   const search = searchParams.get('search') ?? '';
   const minFollowers = searchParams.get('minFollowers');
   const maxFollowers = searchParams.get('maxFollowers');
@@ -69,11 +16,10 @@ export async function GET(request: Request) {
   const page = parseInt(searchParams.get('page') ?? '1', 10);
   const limit = parseInt(searchParams.get('limit') ?? '24', 10);
   const offset = (page - 1) * limit;
-  const language = searchParams.get('language') || '';
-  const country = searchParams.get('country') || '';
-  const hasEmail = searchParams.get('hasEmail') === 'true';
+  const language = searchParams.get('language') || ''
+  const country  = searchParams.get('country') || ''
+  const hasEmail = searchParams.get('hasEmail') === 'true'
 
-  // ── Build query ───────────────────────────────────────────────────────────
   let query = supabase.from('v_creator_summary').select('*', { count: 'exact' });
 
   if (search) {
@@ -90,6 +36,7 @@ export async function GET(request: Request) {
     );
   }
 
+
   if (platform === 'instagram') query = query.not('instagram_handle', 'is', null);
   if (platform === 'tiktok') query = query.not('tiktok_handle', 'is', null);
   if (platform === 'both') {
@@ -101,7 +48,7 @@ export async function GET(request: Request) {
   }
 
   if (language) query = query.eq('primary_language', language);
-  if (country) query = query.eq('country', country);
+  if (country)  query = query.eq('country', country);
   if (hasEmail) query = query.not('contact_email', 'is', null);
 
   if (category) {
@@ -122,7 +69,6 @@ export async function GET(request: Request) {
     tiktok_followers: 'tiktok_followers',
     instagram_engagement: 'instagram_engagement',
     tiktok_engagement: 'tiktok_engagement',
-    follower_count: 'total_followers',
   };
   const safeSortBy = validSortFields[sortBy] ?? 'total_followers';
 
@@ -137,13 +83,11 @@ export async function GET(request: Request) {
   }
 
   const total = count ?? 0;
-
   return NextResponse.json({
     creators: data,
     total,
     page,
     limit,
     totalPages: Math.ceil(total / limit),
-    tokenInfo,
   });
 }

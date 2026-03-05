@@ -7,8 +7,6 @@ import { formatCount } from '@/lib/formatters';
 import { EngagementIndicator } from '@/components/EngagementIndicator';
 import { SaveToShortlist } from '@/components/SaveToShortlist';
 import { useAuth } from '@/context/AuthContext';
-import { useTokenGate } from '@/hooks/useTokenGate';
-import { TokenGateModal } from '@/components/shared/TokenGateModal';
 
 interface MatchResult {
   creator_id: string;
@@ -146,16 +144,16 @@ function MatchCard({ result, rank }: { result: MatchResult; rank: number }) {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <Link href={`/creators/${result.handle}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
-            View Full Profile <ArrowRight size={13} />
-          </Link>
-          <SaveToShortlist
-            creatorId={result.creator_id}
-            matchScore={result.score}
-            matchExplanation={result.explanation}
-          />
-        </div>
+<div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+  <Link href={`/creators/${result.handle}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px', borderRadius: '8px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '13px', fontWeight: 600, textDecoration: 'none' }}>
+    View Full Profile <ArrowRight size={13} />
+  </Link>
+  <SaveToShortlist
+    creatorId={result.creator_id}
+    matchScore={result.score}
+    matchExplanation={result.explanation}
+  />
+</div>
       </div>
     </div>
   );
@@ -185,8 +183,6 @@ const EXAMPLE_BRIEFS = [
 
 export default function MatchPage() {
   const { user } = useAuth();
-  const { checking, blocked, balance, needed, checkAndCharge, dismiss } = useTokenGate({ chargeEveryTime: true });
-
   const [briefText, setBriefText] = useState('');
   const [platform, setPlatform] = useState('');
   const [minFollowers, setMinFollowers] = useState('');
@@ -203,11 +199,6 @@ export default function MatchPage() {
       return;
     }
     setError('');
-
-    // ── Token gate: charge 20 tokens per search ───────────────────────────
-    const allowed = await checkAndCharge('ai_match');
-    if (!allowed) return;
-
     setLoading(true);
     setResults(null);
 
@@ -237,11 +228,6 @@ export default function MatchPage() {
 
   return (
     <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh' }}>
-
-      {blocked && (
-        <TokenGateModal balance={balance} needed={needed} toolName="AI Match" onDismiss={dismiss} />
-      )}
-
       <div className="max-w-4xl mx-auto px-6" style={{ paddingTop: '48px', paddingBottom: '80px' }}>
 
         {/* Header */}
@@ -289,7 +275,9 @@ export default function MatchPage() {
             {/* Filters */}
             <div className="card" style={{ padding: '28px' }}>
               <h2 style={{ fontSize: '14px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 20px 0' }}>Filters <span style={{ fontWeight: 400, color: '#9CA3AF' }}>(optional)</span></h2>
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
+                {/* Platform */}
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Platform</label>
                   <div style={{ display: 'flex', gap: '6px' }}>
@@ -300,18 +288,26 @@ export default function MatchPage() {
                     ))}
                   </div>
                 </div>
+
+                {/* Min Followers */}
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Min Followers</label>
                   <input type="number" value={minFollowers} onChange={(e) => setMinFollowers(e.target.value)} placeholder="10,000" style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', color: '#3A3A3A', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
+
+                {/* Max Followers */}
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Max Followers</label>
                   <input type="number" value={maxFollowers} onChange={(e) => setMaxFollowers(e.target.value)} placeholder="1,000,000" style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', color: '#3A3A3A', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
+
+                {/* Min Engagement */}
                 <div>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Min Engagement %</label>
                   <input type="number" value={minEngagement} onChange={(e) => setMinEngagement(e.target.value)} placeholder="2.0" step="0.1" style={{ width: '100%', padding: '8px 12px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '13px', color: '#3A3A3A', outline: 'none', boxSizing: 'border-box' }} />
                 </div>
+
+                {/* Content Preference */}
                 <div style={{ gridColumn: 'span 2' }}>
                   <label style={{ display: 'block', fontSize: '12px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: '8px' }}>Content Preference</label>
                   <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
@@ -331,13 +327,9 @@ export default function MatchPage() {
               </div>
             )}
 
-            <button
-              onClick={handleSubmit}
-              disabled={checking}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px 32px', borderRadius: '12px', background: checking ? '#F3F4F6' : 'linear-gradient(135deg, #FFD700, #E6C200)', color: checking ? '#9CA3AF' : 'white', fontSize: '16px', fontWeight: 700, border: 'none', cursor: checking ? 'not-allowed' : 'pointer', boxShadow: checking ? 'none' : '0 4px 14px rgba(124, 58, 237, 0.4)' }}
-            >
+            <button onClick={handleSubmit} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '16px 32px', borderRadius: '12px', background: 'linear-gradient(135deg, #FFD700, #E6C200)', color: 'white', fontSize: '16px', fontWeight: 700, border: 'none', cursor: 'pointer', boxShadow: '0 4px 14px rgba(124, 58, 237, 0.4)' }}>
               <Sparkles size={18} />
-              {checking ? 'Checking tokens...' : 'Find My Creators'}
+              Find My Creators
             </button>
           </div>
         )}
@@ -346,6 +338,7 @@ export default function MatchPage() {
 
         {results && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Results header */}
             <div className="card" style={{ padding: '24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', marginBottom: '12px' }}>
                 <div>
@@ -360,6 +353,8 @@ export default function MatchPage() {
                 <p style={{ fontSize: '14px', color: '#374151', lineHeight: '1.6', margin: 0 }}>{results.summary}</p>
               </div>
             </div>
+
+            {/* Match cards */}
             {results.matches.map((match, i) => (
               <MatchCard key={match.creator_id} result={match} rank={i + 1} />
             ))}

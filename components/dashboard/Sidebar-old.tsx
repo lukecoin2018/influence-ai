@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 
@@ -23,35 +22,10 @@ const NAV_ITEMS = [
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
-  const [tokenBalance, setTokenBalance] = useState<number | null>(null);
-
-  // Fetch token balance when user is available
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const fetchBalance = async () => {
-      const { data } = await supabase
-        .from("brand_profiles")
-        .select("token_balance")
-        .eq("id", user.id)
-        .single();
-
-      if (data) setTokenBalance(data.token_balance);
-    };
-
-    fetchBalance();
-  }, [user?.id]);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
     return pathname.startsWith(href);
-  };
-
-  // Colour the token pill based on balance level
-  const getTokenStyle = (balance: number) => {
-    if (balance === 0)  return { bg: "#FEE2E2", text: "#991B1B", border: "#FECACA" };
-    if (balance <= 20)  return { bg: "#FEF3C7", text: "#92400E", border: "#FDE68A" };
-    return               { bg: "#F0FDF4", text: "#166534", border: "#BBF7D0" };
   };
 
   return (
@@ -63,7 +37,6 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       transition: "width 0.2s ease", overflow: "hidden",
       zIndex: 30, boxShadow: "2px 0 8px rgba(0,0,0,0.04)",
     }}>
-
       {/* Logo */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "center",
@@ -111,58 +84,6 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         })}
       </nav>
 
-      {/* Token Balance */}
-      {tokenBalance !== null && (
-        <div style={{
-          padding: isOpen ? "10px 12px" : "10px 0",
-          borderTop: "1px solid #F3F4F6",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: isOpen ? "flex-start" : "center",
-          flexShrink: 0,
-        }}>
-          {isOpen ? (
-            <div style={{
-              display: "flex", alignItems: "center", justifyContent: "space-between",
-              width: "100%",
-              backgroundColor: getTokenStyle(tokenBalance).bg,
-              border: `1px solid ${getTokenStyle(tokenBalance).border}`,
-              borderRadius: "8px",
-              padding: "8px 10px",
-            }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <span style={{ fontSize: "14px" }}>🪙</span>
-                <span style={{ fontSize: "12px", fontWeight: 600, color: getTokenStyle(tokenBalance).text }}>
-                  Tokens
-                </span>
-              </div>
-              <span style={{
-                fontSize: "13px", fontWeight: 700,
-                color: getTokenStyle(tokenBalance).text,
-              }}>
-                {tokenBalance}
-              </span>
-            </div>
-          ) : (
-            // Collapsed: just show the coin emoji with a small badge
-            <div title={`${tokenBalance} tokens`} style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-              <span style={{ fontSize: "18px" }}>🪙</span>
-              <span style={{
-                position: "absolute", top: "-4px", right: "-6px",
-                backgroundColor: getTokenStyle(tokenBalance).bg,
-                border: `1px solid ${getTokenStyle(tokenBalance).border}`,
-                color: getTokenStyle(tokenBalance).text,
-                fontSize: "9px", fontWeight: 700,
-                borderRadius: "999px", padding: "0 3px", lineHeight: "14px",
-                minWidth: "14px", textAlign: "center",
-              }}>
-                {tokenBalance > 99 ? "99+" : tokenBalance}
-              </span>
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Bottom */}
       <div style={{ padding: "12px", borderTop: "1px solid #F3F4F6", flexShrink: 0 }}>
         <button onClick={onToggle} style={{
@@ -183,8 +104,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           }}>{user.email}</p>
         )}
 
-        <button
-          onClick={async () => { await supabase.auth.signOut(); window.location.href = "/"; }}
+        <button onClick={async () => { await supabase.auth.signOut(); window.location.href = '/'; }}
           style={{
             display: "flex", alignItems: "center", gap: "10px",
             padding: isOpen ? "9px 10px" : "9px 0",

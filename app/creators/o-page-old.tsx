@@ -14,7 +14,6 @@ function CreatorsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // Filter state — initialise from URL
   const [search, setSearch] = useState(searchParams.get('search') ?? '');
   const [minFollowers, setMinFollowers] = useState(searchParams.get('minFollowers') ?? '');
   const [maxFollowers, setMaxFollowers] = useState(searchParams.get('maxFollowers') ?? '');
@@ -27,7 +26,6 @@ function CreatorsContent() {
   const [sortBy, setSortBy] = useState(searchParams.get('sortBy') ?? 'follower_count');
   const [page, setPage] = useState(parseInt(searchParams.get('page') ?? '1', 10));
 
-  // Data state
   const [creators, setCreators] = useState<Creator[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
@@ -35,14 +33,12 @@ function CreatorsContent() {
   const [categories, setCategories] = useState<string[]>([]);
   const [compareHandles, setCompareHandles] = useState<string[]>([]);
 
-  // Load categories once
   useEffect(() => {
     fetch('/api/categories')
       .then((r) => r.json())
       .then((d) => setCategories(d.categories ?? []));
   }, []);
 
-  // Build query string and update URL
   const buildQueryString = useCallback(() => {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
@@ -59,7 +55,6 @@ function CreatorsContent() {
     return params.toString();
   }, [search, minFollowers, maxFollowers, minEngagement, category, verified, sortBy, page, language, country, hasEmail]);
 
-  // Fetch creators
   const fetchCreators = useCallback(async () => {
     setLoading(true);
     const qs = buildQueryString();
@@ -81,10 +76,8 @@ function CreatorsContent() {
     fetchCreators();
   }, [fetchCreators]);
 
-  // Reset to page 1 when filters change
   const handleFilterChange = () => setPage(1);
 
-  // Compare handlers
   const toggleCompare = (handle: string) => {
     setCompareHandles((prev) => {
       if (prev.includes(handle)) return prev.filter((h) => h !== handle);
@@ -95,11 +88,11 @@ function CreatorsContent() {
 
   return (
     <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh' }}>
-      <div className="max-w-7xl mx-auto px-6" style={{ paddingTop: '40px', paddingBottom: '80px' }}>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6" style={{ paddingTop: '32px', paddingBottom: '80px' }}>
 
         {/* Page header */}
-        <div style={{ marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
+        <div style={{ marginBottom: '24px' }}>
+          <h1 style={{ fontSize: 'clamp(22px, 4vw, 28px)', fontWeight: 700, color: '#3A3A3A', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>
             Creator Discovery
           </h1>
           <p style={{ fontSize: '15px', color: '#6B7280', margin: 0 }}>
@@ -108,11 +101,11 @@ function CreatorsContent() {
         </div>
 
         {/* Filters */}
-        <div className="card" style={{ padding: '20px', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', alignItems: 'flex-end' }}>
+        <div className="card" style={{ padding: '16px 20px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', alignItems: 'flex-end' }}>
 
             {/* Search */}
-            <div style={{ flex: '1 1 240px', minWidth: '200px' }}>
+            <div style={{ flex: '1 1 200px', minWidth: '0' }}>
               <label style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '6px' }}>
                 Search
               </label>
@@ -128,14 +121,14 @@ function CreatorsContent() {
                     paddingTop: '8px', paddingBottom: '8px',
                     border: '1px solid #E5E7EB', borderRadius: '8px',
                     fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white',
-                    outline: 'none',
+                    outline: 'none', boxSizing: 'border-box',
                   }}
                 />
               </div>
             </div>
 
             {/* Category */}
-            <div style={{ flex: '1 1 180px', minWidth: '160px' }}>
+            <div style={{ flex: '1 1 140px', minWidth: '0' }}>
               <label style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '6px' }}>
                 Category
               </label>
@@ -146,7 +139,7 @@ function CreatorsContent() {
                   width: '100%', padding: '8px 12px',
                   border: '1px solid #E5E7EB', borderRadius: '8px',
                   fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white',
-                  outline: 'none', cursor: 'pointer',
+                  outline: 'none', cursor: 'pointer', boxSizing: 'border-box',
                 }}
               >
                 <option value="">All categories</option>
@@ -157,7 +150,7 @@ function CreatorsContent() {
             </div>
 
             {/* Min followers */}
-            <div style={{ flex: '1 1 130px', minWidth: '120px' }}>
+            <div style={{ flex: '1 1 120px', minWidth: '0' }}>
               <label style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '6px' }}>
                 Min Followers
               </label>
@@ -169,13 +162,14 @@ function CreatorsContent() {
                 style={{
                   width: '100%', padding: '8px 12px',
                   border: '1px solid #E5E7EB', borderRadius: '8px',
-                  fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white', outline: 'none',
+                  fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white',
+                  outline: 'none', boxSizing: 'border-box',
                 }}
               />
             </div>
 
             {/* Max followers */}
-            <div style={{ flex: '1 1 130px', minWidth: '120px' }}>
+            <div style={{ flex: '1 1 120px', minWidth: '0' }}>
               <label style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '6px' }}>
                 Max Followers
               </label>
@@ -187,15 +181,16 @@ function CreatorsContent() {
                 style={{
                   width: '100%', padding: '8px 12px',
                   border: '1px solid #E5E7EB', borderRadius: '8px',
-                  fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white', outline: 'none',
+                  fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white',
+                  outline: 'none', boxSizing: 'border-box',
                 }}
               />
             </div>
 
             {/* Min engagement */}
-            <div style={{ flex: '1 1 130px', minWidth: '120px' }}>
+            <div style={{ flex: '1 1 120px', minWidth: '0' }}>
               <label style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '6px' }}>
-                Min Eng. Rate
+                Min Eng. %
               </label>
               <input
                 type="number"
@@ -206,13 +201,14 @@ function CreatorsContent() {
                 style={{
                   width: '100%', padding: '8px 12px',
                   border: '1px solid #E5E7EB', borderRadius: '8px',
-                  fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white', outline: 'none',
+                  fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white',
+                  outline: 'none', boxSizing: 'border-box',
                 }}
               />
             </div>
 
             {/* Sort */}
-            <div style={{ flex: '1 1 160px', minWidth: '150px' }}>
+            <div style={{ flex: '1 1 140px', minWidth: '0' }}>
               <label style={{ fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'block', marginBottom: '6px' }}>
                 Sort By
               </label>
@@ -223,7 +219,7 @@ function CreatorsContent() {
                   width: '100%', padding: '8px 12px',
                   border: '1px solid #E5E7EB', borderRadius: '8px',
                   fontSize: '14px', color: '#3A3A3A', backgroundColor: 'white',
-                  outline: 'none', cursor: 'pointer',
+                  outline: 'none', cursor: 'pointer', boxSizing: 'border-box',
                 }}
               >
                 <option value="follower_count">Most Followers</option>
@@ -247,8 +243,8 @@ function CreatorsContent() {
             </div>
           </div>
         </div>
-        
-      {/* Intelligence Filters */}
+
+        {/* Intelligence Filters */}
         <div className="card" style={{ padding: '16px 20px', marginBottom: '24px' }}>
           <IntelligenceFilters
             language={language}
@@ -260,7 +256,7 @@ function CreatorsContent() {
               if (updates.hasEmail !== undefined) { setHasEmail(updates.hasEmail); handleFilterChange(); }
             }}
           />
-        </div> 
+        </div>
 
         {/* Grid */}
         {loading ? (
@@ -280,14 +276,10 @@ function CreatorsContent() {
             </p>
           </div>
         ) : (
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '20px',
-          }}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {creators.map((creator) => (
               <CreatorCard
-              key={creator.creator_id}
+                key={creator.creator_id}
                 creator={creator}
                 onCompareToggle={toggleCompare}
                 isSelectedForCompare={compareHandles.includes(creator.instagram_handle ?? creator.tiktok_handle ?? '')}
@@ -313,7 +305,8 @@ function CreatorsContent() {
               <ChevronLeft size={16} /> Prev
             </button>
 
-            <div style={{ display: 'flex', gap: '4px' }}>
+            {/* Page numbers — desktop only */}
+            <div className="hidden sm:flex" style={{ gap: '4px' }}>
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 const pageNum = Math.max(1, Math.min(page - 2, totalPages - 4)) + i;
                 return (
@@ -333,6 +326,11 @@ function CreatorsContent() {
                 );
               })}
             </div>
+
+            {/* Page counter — mobile only */}
+            <span className="flex sm:hidden" style={{ fontSize: '14px', color: '#6B7280', padding: '0 8px' }}>
+              {page} / {totalPages}
+            </span>
 
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}

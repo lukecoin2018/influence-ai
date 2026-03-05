@@ -154,15 +154,7 @@ export default function CampaignTypePage() {
         </div>
       </div>
 
-      <Navigation
-        currentStep={1}
-        totalSteps={9}
-        onContinue={handleContinue}
-        onSave={handleSave}
-        canProceed={!!canProceed}
-        tokenAction="campaign_brief"
-        toolName="Campaign Brief"
-      />
+      <Navigation currentStep={1} totalSteps={9} onContinue={handleContinue} onSave={handleSave} canProceed={!!canProceed} />
     </div>
   );
 }

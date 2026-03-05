@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
-import { useTokenGate } from '@/hooks/useTokenGate';
-import { TokenGateModal } from '@/components/shared/TokenGateModal';
 
 
 interface Props {
@@ -27,8 +25,6 @@ const TIMELINES = [
 
 export function InquiryModal({ creatorId, creatorName, onClose }: Props) {
   const { user } = useAuth();
-  const { checking, blocked, balance, needed, checkAndCharge, dismiss } = useTokenGate({ chargeEveryTime: true });
-
   const [campaignType, setCampaignType] = useState('');
   const [budgetRange, setBudgetRange] = useState('');
   const [timeline, setTimeline] = useState('');
@@ -39,13 +35,8 @@ export function InquiryModal({ creatorId, creatorName, onClose }: Props) {
 
   async function handleSubmit() {
     if (!message.trim()) { setError('Please write a message.'); return; }
-    setError('');
-
-    // ── Token gate: charge 5 tokens per inquiry ───────────────────────────
-    const allowed = await checkAndCharge('send_inquiry');
-    if (!allowed) return;
-
     setLoading(true);
+    setError('');
   
     const res = await fetch('/api/inquiries', {
       method: 'POST',
@@ -84,10 +75,6 @@ export function InquiryModal({ creatorId, creatorName, onClose }: Props) {
 
   return (
     <>
-      {blocked && (
-        <TokenGateModal balance={balance} needed={needed} toolName="Send Inquiry" onDismiss={dismiss} />
-      )}
-
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.4)', zIndex: 100 }} />
       <div style={{
         position: 'fixed', top: '50%', left: '50%',
@@ -162,12 +149,8 @@ export function InquiryModal({ creatorId, creatorName, onClose }: Props) {
               </div>
             )}
 
-            <button
-              onClick={handleSubmit}
-              disabled={loading || checking}
-              style={{ padding: '12px', borderRadius: '10px', background: loading || checking ? '#F3F4F6' : 'linear-gradient(135deg, #FFD700, #E6C200)', color: loading || checking ? '#9CA3AF' : 'white', fontSize: '15px', fontWeight: 700, border: 'none', cursor: loading || checking ? 'not-allowed' : 'pointer' }}
-            >
-              {checking ? 'Checking tokens...' : loading ? 'Sending...' : 'Send Inquiry'}
+            <button onClick={handleSubmit} disabled={loading} style={{ padding: '12px', borderRadius: '10px', background: 'linear-gradient(135deg, #FFD700, #E6C200)', color: 'white', fontSize: '15px', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
+              {loading ? 'Sending...' : 'Send Inquiry'}
             </button>
           </div>
         )}

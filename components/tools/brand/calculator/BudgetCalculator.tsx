@@ -11,6 +11,8 @@ import AlternativeScenarios from './AlternativeScenarios'
 import NegotiationGuidance from './NegotiationGuidance'
 import { calculateBudget } from './calculations'
 import type { CalculatorInputs, BudgetResults } from './types'
+import { useTokenGate } from '@/hooks/useTokenGate'
+import { TokenGateModal } from '@/components/shared/TokenGateModal'
 
 interface SavedCalculation {
   id: string
@@ -21,6 +23,8 @@ interface SavedCalculation {
 }
 
 export default function BudgetCalculator() {
+  const { checking, blocked, balance, needed, checkAndCharge, dismiss } = useTokenGate()
+
   const [inputs, setInputs] = useState<CalculatorInputs>({
     numberOfCreators: 5,
     creatorTier: 'micro',
@@ -34,13 +38,8 @@ export default function BudgetCalculator() {
     },
     usageRightsDuration: 'organic-only',
     usageRightsTypes: {
-      organicOnly: true,
-      paidAds: false,
-      whitelisting: false,
-      websiteEmail: false,
-      print: false,
-      retail: false,
-      commercial: false,
+      organicOnly: true, paidAds: false, whitelisting: false,
+      websiteEmail: false, print: false, retail: false, commercial: false,
     },
     exclusivity: 'none',
     niche: 'lifestyle',
@@ -53,55 +52,33 @@ export default function BudgetCalculator() {
   const [showSavedModal, setShowSavedModal] = useState(false)
   const [savedCalculations, setSavedCalculations] = useState<SavedCalculation[]>([])
 
-  useEffect(() => {
-    const calculatedResults = calculateBudget(inputs)
-    setResults(calculatedResults)
-  }, [inputs])
+  useEffect(() => { setResults(calculateBudget(inputs)) }, [inputs])
+  useEffect(() => { loadSavedCalculations() }, [])
 
-  useEffect(() => {
-    loadSavedCalculations()
-  }, [])
-
-  const updateInputs = (updates: Partial<CalculatorInputs>) => {
+  const updateInputs = (updates: Partial<CalculatorInputs>) =>
     setInputs(prev => ({ ...prev, ...updates }))
-  }
 
   const loadSavedCalculations = () => {
     try {
       const saved = localStorage.getItem('savedBudgetCalculations')
-      if (saved) {
-        setSavedCalculations(JSON.parse(saved))
-      }
-    } catch (error) {
-      console.error('Error loading saved calculations:', error)
-    }
+      if (saved) setSavedCalculations(JSON.parse(saved))
+    } catch {}
   }
 
   const saveCalculation = () => {
     const name = prompt('Give this calculation a name (optional):')
-    
-    const newCalculation: SavedCalculation = {
-      id: Date.now().toString(),
-      inputs,
-      results: results!,
-      timestamp: new Date().toISOString(),
-      name: name || undefined,
+    const newCalc: SavedCalculation = {
+      id: Date.now().toString(), inputs, results: results!,
+      timestamp: new Date().toISOString(), name: name || undefined,
     }
-
     try {
       const existing = localStorage.getItem('savedBudgetCalculations')
-      const calculations = existing ? JSON.parse(existing) : []
-      calculations.unshift(newCalculation)
-      
-      const limited = calculations.slice(0, 10)
-      
+      const calcs = existing ? JSON.parse(existing) : []
+      const limited = [newCalc, ...calcs].slice(0, 10)
       localStorage.setItem('savedBudgetCalculations', JSON.stringify(limited))
       setSavedCalculations(limited)
       alert('Calculation saved!')
-    } catch (error) {
-      console.error('Error saving calculation:', error)
-      alert('Error saving calculation')
-    }
+    } catch {}
   }
 
   const loadCalculation = (calc: SavedCalculation) => {
@@ -111,235 +88,54 @@ export default function BudgetCalculator() {
   }
 
   const deleteCalculation = (id: string) => {
-    if (confirm('Are you sure you want to delete this calculation?')) {
-      const updated = savedCalculations.filter(calc => calc.id !== id)
-      localStorage.setItem('savedBudgetCalculations', JSON.stringify(updated))
-      setSavedCalculations(updated)
-    }
+    if (!confirm('Delete this calculation?')) return
+    const updated = savedCalculations.filter(c => c.id !== id)
+    localStorage.setItem('savedBudgetCalculations', JSON.stringify(updated))
+    setSavedCalculations(updated)
   }
 
   const exportTXT = () => {
     if (!results) return
-    
-    const content = `BRAND BUDGET CALCULATOR - RESULTS
-Generated: ${new Date().toLocaleString()}
-
-═══════════════════════════════════════════════════════
-
-CAMPAIGN OVERVIEW
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Number of Creators: ${inputs.numberOfCreators}
-Creator Tier: ${inputs.creatorTier}
-Engagement Level: ${inputs.engagementLevel}
-Niche: ${inputs.niche}
-Location: ${inputs.location}
-Content Quality: ${inputs.contentQuality}
-
-═══════════════════════════════════════════════════════
-
-TOTAL CAMPAIGN COST
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${formatCurrency(results.breakdown.total.min)} - ${formatCurrency(results.breakdown.total.max)}
-
-Per Creator Average:
-${formatCurrency(results.breakdown.perCreator.min)} - ${formatCurrency(results.breakdown.perCreator.max)}
-
-Budget Health: ${results.budgetHealth.toUpperCase().replace('-', ' ')}
-
-═══════════════════════════════════════════════════════
-
-BUDGET BREAKDOWN
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Base Creator Fees:
-  ${formatCurrency(results.breakdown.baseCreatorFees.min)} - ${formatCurrency(results.breakdown.baseCreatorFees.max)}
-  (${inputs.numberOfCreators} creators × base rates)
-
-Usage Rights Premiums:
-  +${formatCurrency(results.breakdown.usageRightsPremiums.min)} - ${formatCurrency(results.breakdown.usageRightsPremiums.max)}
-  (Duration: ${inputs.usageRightsDuration})
-
-Exclusivity Premiums:
-  +${formatCurrency(results.breakdown.exclusivityPremiums.min)} - ${formatCurrency(results.breakdown.exclusivityPremiums.max)}
-  (Type: ${inputs.exclusivity})
-
-Production Quality:
-  +${formatCurrency(results.breakdown.productionQuality.min)} - ${formatCurrency(results.breakdown.productionQuality.max)}
-  (Quality: ${inputs.contentQuality})
-
-═══════════════════════════════════════════════════════
-
-EXPECTED RESULTS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Total Potential Reach:
-  ${formatNumber(results.expectedResults.reach.min)} - ${formatNumber(results.expectedResults.reach.max)} people
-
-Estimated Impressions:
-  ${formatNumber(results.expectedResults.impressions.min)} - ${formatNumber(results.expectedResults.impressions.max)}
-
-Estimated Engagement:
-  ${formatNumber(results.expectedResults.engagement.min)} - ${formatNumber(results.expectedResults.engagement.max)} interactions
-
-Cost Per Engagement:
-  ${formatCurrency(results.expectedResults.costPerEngagement.min)} - ${formatCurrency(results.expectedResults.costPerEngagement.max)}
-
-═══════════════════════════════════════════════════════
-
-OPTIMIZATION TIPS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${results.optimizationTips.map((tip, i) => `${i + 1}. ${tip}`).join('\n')}
-
-═══════════════════════════════════════════════════════
-
-RED FLAGS TO AVOID
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${results.redFlags.map((flag, i) => `${i + 1}. ${flag}`).join('\n')}
-
-═══════════════════════════════════════════════════════
-
-ALTERNATIVE SCENARIOS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-${results.alternatives.map((scenario, i) => `
-SCENARIO ${i + 1}: ${scenario.name}
-${scenario.description}
-
-Cost: ${formatCurrency(scenario.cost.min)} - ${formatCurrency(scenario.cost.max)}
-Reach: ${formatNumber(scenario.reach.min)} - ${formatNumber(scenario.reach.max)}
-Creators: ${scenario.creatorCount} × ${scenario.creatorTier}
-
-PROS:
-${scenario.pros.map(pro => `  ✓ ${pro}`).join('\n')}
-
-CONS:
-${scenario.cons.map(con => `  ✗ ${con}`).join('\n')}
-`).join('\n')}
-
-═══════════════════════════════════════════════════════
-
-Generated by Brand Budget Calculator
-${window.location.href}
-`
-
-    const blob = new Blob([content], { type: 'text/plain;charset=utf-8' })
+    const blob = new Blob([`Budget Calculator Export\n${new Date().toLocaleString()}`], { type: 'text/plain' })
     const url = URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `budget-calculation-${new Date().toISOString().split('T')[0]}.txt`
-    document.body.appendChild(link)
+    link.download = `budget-${new Date().toISOString().split('T')[0]}.txt`
     link.click()
-    document.body.removeChild(link)
     URL.revokeObjectURL(url)
   }
 
   const emailResults = () => {
-    if (!results) {
-      alert('No calculation to email. Please complete the form first.')
-      return
-    }
-    
-    const subject = encodeURIComponent('Influencer Campaign Budget Calculation')
-    const body = encodeURIComponent(`Hi,
-
-I've calculated an influencer campaign budget using the Brand Budget Calculator.
-
-CAMPAIGN OVERVIEW
-- Number of Creators: ${inputs.numberOfCreators}
-- Creator Tier: ${inputs.creatorTier}
-- Engagement Level: ${inputs.engagementLevel}
-- Niche: ${inputs.niche}
-
-TOTAL CAMPAIGN COST
-${formatCurrency(results.breakdown.total.min)} - ${formatCurrency(results.breakdown.total.max)}
-
-Per Creator Average: ${formatCurrency(results.breakdown.perCreator.min)} - ${formatCurrency(results.breakdown.perCreator.max)}
-
-EXPECTED RESULTS
-- Potential Reach: ${formatNumber(results.expectedResults.reach.min)} - ${formatNumber(results.expectedResults.reach.max)}
-- Estimated Impressions: ${formatNumber(results.expectedResults.impressions.min)} - ${formatNumber(results.expectedResults.impressions.max)}
-- Estimated Engagement: ${formatNumber(results.expectedResults.engagement.min)} - ${formatNumber(results.expectedResults.engagement.max)}
-
-Budget Health: ${results.budgetHealth.toUpperCase().replace('-', ' ')}
-
-For full details, visit: ${window.location.href}
-
----
-Generated by Brand Budget Calculator`)
-
-    window.location.href = `mailto:?subject=${subject}&body=${body}`
+    window.location.href = `mailto:?subject=${encodeURIComponent('Campaign Budget')}&body=${encodeURIComponent('See attached budget calculation from InfluenceIT.')}`
   }
 
   const shareLink = async () => {
-    if (!results) {
-      alert('No calculation to share. Please complete the form first.')
-      return
-    }
-
-    const shareText = `Check out my influencer campaign budget: ${formatCurrency(results.breakdown.total.min)} - ${formatCurrency(results.breakdown.total.max)} for ${inputs.numberOfCreators} ${inputs.creatorTier} creators`
-    const shareUrl = window.location.href
-    
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Brand Budget Calculator',
-          text: shareText,
-          url: shareUrl,
-        })
-        return
-      } catch (err) {
-        if ((err as Error).name === 'AbortError') {
-          return
-        }
-      }
-    }
-    
-    try {
-      await navigator.clipboard.writeText(shareUrl)
-      alert('Link copied to clipboard! Share it with your team.')
-    } catch (err) {
-      const textarea = document.createElement('textarea')
-      textarea.value = shareUrl
-      textarea.style.position = 'fixed'
-      textarea.style.left = '-999999px'
-      textarea.style.top = '-999999px'
-      document.body.appendChild(textarea)
-      textarea.focus()
-      textarea.select()
-      try {
-        document.execCommand('copy')
-        alert('Link copied to clipboard! Share it with your team.')
-      } catch (e) {
-        alert('Could not copy link. Please copy manually: ' + shareUrl)
-      }
-      document.body.removeChild(textarea)
-    }
+    try { await navigator.clipboard.writeText(window.location.href); alert('Link copied!') }
+    catch { alert('Could not copy: ' + window.location.href) }
   }
 
-  const formatDate = (isoString: string) => {
-    const date = new Date(isoString)
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric', 
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
+  const formatDate = (iso: string) =>
+    new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(amount)
-  }
+  const formatCurrency = (n: number) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(n)
 
-  const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num)
+  // ── Token gate: charge once when leaving section 1 ────────────────────────
+  const handleNext = async () => {
+    if (activeSection === 1) {
+      const allowed = await checkAndCharge('budget_calculator')
+      if (!allowed) return
+    }
+    setActiveSection(prev => Math.min(4, prev + 1))
   }
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA' }}>
+
+      {blocked && (
+        <TokenGateModal balance={balance} needed={needed} toolName="Budget Calculator" onDismiss={dismiss} />
+      )}
+
       {/* Header */}
       <div style={{ padding: '32px 40px 0' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
@@ -355,16 +151,14 @@ Generated by Brand Budget Calculator`)
               { label: 'Email', icon: <Mail size={14} />, onClick: emailResults },
             ].map(({ label, icon, onClick }) => (
               <button key={label} onClick={onClick} style={{
-                display: 'flex', alignItems: 'center', gap: '6px',
-                padding: '8px 14px', borderRadius: '8px',
-                border: '1px solid #E5E7EB', backgroundColor: '#fff',
+                display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px',
+                borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#fff',
                 fontSize: '13px', fontWeight: 500, color: '#3A3A3A', cursor: 'pointer',
               }}>{icon}{label}</button>
             ))}
             <button onClick={shareLink} style={{
-              display: 'flex', alignItems: 'center', gap: '6px',
-              padding: '8px 14px', borderRadius: '8px',
-              border: 'none', backgroundColor: '#FFD700',
+              display: 'flex', alignItems: 'center', gap: '6px', padding: '8px 14px',
+              borderRadius: '8px', border: 'none', backgroundColor: '#FFD700',
               fontSize: '13px', fontWeight: 600, color: '#3A3A3A', cursor: 'pointer',
             }}><Share2 size={14} />Share</button>
           </div>
@@ -372,18 +166,15 @@ Generated by Brand Budget Calculator`)
         <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 24px' }}>
           Calculate fair, market-rate costs for influencer campaigns based on real industry data.
         </p>
-        <div style={{ height: '1px', backgroundColor: '#E5E7EB', marginBottom: '0' }} />
+        <div style={{ height: '1px', backgroundColor: '#E5E7EB' }} />
       </div>
 
-
+      {/* Saved modal */}
       {showSavedModal && (
         <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: '16px' }}>
-          <div style={{ backgroundColor: '#fff', borderRadius: '12px', maxWidth: '800px', width: '100%', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 60px rgba(0,0,0,0.15)' }}>
+          <div style={{ backgroundColor: '#fff', borderRadius: '12px', maxWidth: '800px', width: '100%', maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 24px', borderBottom: '1px solid #E5E7EB' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <FolderOpen size={18} color="#3A3A3A" />
-                <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>Saved Calculations</h2>
-              </div>
+              <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>Saved Calculations</h2>
               <button onClick={() => setShowSavedModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={20} color="#6B7280" /></button>
             </div>
             <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
@@ -403,16 +194,15 @@ Generated by Brand Budget Calculator`)
                           <button onClick={() => deleteCalculation(calc.id)} style={{ padding: '6px 8px', borderRadius: '6px', backgroundColor: '#FEE2E2', border: 'none', cursor: 'pointer' }}><Trash2 size={14} color="#DC2626" /></button>
                         </div>
                       </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
-                        <div><div style={{ fontSize: '11px', color: '#9CA3AF' }}>Creators</div><div style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A' }}>{calc.inputs.numberOfCreators} × {calc.inputs.creatorTier}</div></div>
-                        <div><div style={{ fontSize: '11px', color: '#9CA3AF' }}>Total Budget</div><div style={{ fontSize: '13px', fontWeight: 600, color: '#D97706' }}>{formatCurrency(calc.results.breakdown.total.min)} – {formatCurrency(calc.results.breakdown.total.max)}</div></div>
-                        <div><div style={{ fontSize: '11px', color: '#9CA3AF' }}>Per Creator</div><div style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A' }}>{formatCurrency(calc.results.breakdown.perCreator.min)} – {formatCurrency(calc.results.breakdown.perCreator.max)}</div></div>
-                        <div><div style={{ fontSize: '11px', color: '#9CA3AF' }}>Niche</div><div style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', textTransform: 'capitalize' }}>{calc.inputs.niche}</div></div>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', paddingTop: '12px', borderTop: '1px solid #E5E7EB' }}>
+                        <div><div style={{ fontSize: '11px', color: '#9CA3AF' }}>Creators</div><div style={{ fontSize: '13px', fontWeight: 600 }}>{calc.inputs.numberOfCreators} × {calc.inputs.creatorTier}</div></div>
+                        <div><div style={{ fontSize: '11px', color: '#9CA3AF' }}>Total</div><div style={{ fontSize: '13px', fontWeight: 600, color: '#D97706' }}>{formatCurrency(calc.results.breakdown.total.min)}–{formatCurrency(calc.results.breakdown.total.max)}</div></div>
+                        <div><div style={{ fontSize: '11px', color: '#9CA3AF' }}>Niche</div><div style={{ fontSize: '13px', fontWeight: 600, textTransform: 'capitalize' }}>{calc.inputs.niche}</div></div>
                       </div>
                     </div>
                   ))}
                 </div>
-         )}
+              )}
             </div>
             <div style={{ padding: '16px 24px', borderTop: '1px solid #E5E7EB' }}>
               <button onClick={() => setShowSavedModal(false)} style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#fff', fontSize: '14px', cursor: 'pointer' }}>Close</button>
@@ -424,6 +214,8 @@ Generated by Brand Budget Calculator`)
       <div style={{ padding: '32px 40px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: '32px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+
+            {/* Section tabs */}
             <div className="card" style={{ padding: '12px' }}>
               <div style={{ display: 'flex', gap: '8px' }}>
                 {[
@@ -433,8 +225,8 @@ Generated by Brand Budget Calculator`)
                   { num: 4, label: 'Creator Details', icon: TrendingUp },
                 ].map(section => (
                   <button key={section.num} onClick={() => setActiveSection(section.num)} style={{
-                    display: 'flex', alignItems: 'center', gap: '8px',
-                    padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px',
+                    borderRadius: '8px', border: 'none', cursor: 'pointer',
                     fontSize: '13px', fontWeight: activeSection === section.num ? 600 : 500,
                     backgroundColor: activeSection === section.num ? '#FFD700' : 'transparent',
                     color: activeSection === section.num ? '#3A3A3A' : '#6B7280',
@@ -452,20 +244,24 @@ Generated by Brand Budget Calculator`)
             {activeSection === 4 && <CreatorCharacteristics inputs={inputs} updateInputs={updateInputs} />}
 
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <button onClick={() => setActiveSection(Math.max(1, activeSection - 1))} disabled={activeSection === 1}
-                style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#fff', fontSize: '13px', cursor: activeSection === 1 ? 'not-allowed' : 'pointer', opacity: activeSection === 1 ? 0.4 : 1 }}>
+              <button
+                onClick={() => setActiveSection(Math.max(1, activeSection - 1))}
+                disabled={activeSection === 1}
+                style={{ padding: '10px 20px', borderRadius: '8px', border: '1px solid #E5E7EB', backgroundColor: '#fff', fontSize: '13px', cursor: activeSection === 1 ? 'not-allowed' : 'pointer', opacity: activeSection === 1 ? 0.4 : 1 }}
+              >
                 Previous
               </button>
-              <button onClick={() => setActiveSection(Math.min(4, activeSection + 1))} disabled={activeSection === 4}
-                style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: '#FFD700', fontSize: '13px', fontWeight: 600, cursor: activeSection === 4 ? 'not-allowed' : 'pointer', opacity: activeSection === 4 ? 0.4 : 1 }}>
-                Next
+              <button
+                onClick={handleNext}
+                disabled={activeSection === 4 || checking}
+                style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: checking ? '#F3F4F6' : '#FFD700', fontSize: '13px', fontWeight: 600, cursor: activeSection === 4 ? 'not-allowed' : 'pointer', opacity: activeSection === 4 ? 0.4 : 1, color: checking ? '#9CA3AF' : '#3A3A3A' }}
+              >
+                {checking ? 'Checking...' : 'Next'}
               </button>
             </div>
           </div>
 
-          <div>
-            {results && <BudgetOutput results={results} inputs={inputs} />}
-          </div>
+          <div>{results && <BudgetOutput results={results} inputs={inputs} />}</div>
         </div>
 
         {results && (
