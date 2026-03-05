@@ -1,8 +1,5 @@
 "use client";
 
-// Place at: components/creator-dashboard/Sidebar.tsx
-
-import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -19,6 +16,7 @@ const NAV_ITEMS = [
   { href: "/creator-dashboard/negotiate", label: "Negotiation", icon: "🤝" },
   { href: "/creator-dashboard/contract", label: "Contract Builder", icon: "📄" },
   { href: "/creator-dashboard/edit", label: "Edit Profile", icon: "✏️" },
+  { href: "/creator-dashboard/media-kit", label: "Media Kit", icon: "📎" },
 ];
 
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
@@ -59,83 +57,29 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           boxShadow: "2px 0 8px rgba(0,0,0,0.04)",
         }}
       >
-        {/* Logo + toggle */}
+        {/* Logo */}
         <div style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
+          justifyContent: "center",
           padding: "16px",
           borderBottom: "1px solid #F3F4F6",
           minHeight: "64px",
           flexShrink: 0,
         }}>
+          <div style={{
+            width: "32px", height: "32px", borderRadius: "8px",
+            backgroundColor: "#FFD700", display: "flex", alignItems: "center",
+            justifyContent: "center", flexShrink: 0,
+          }}>
+            <span style={{ fontSize: "16px", fontWeight: 800, color: "#3A3A3A" }}>I</span>
+          </div>
           {isOpen && (
-            <>
-              <Link href="/" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-                <div style={{
-                  width: "32px", height: "32px", borderRadius: "8px",
-                  backgroundColor: "#FFD700", display: "flex", alignItems: "center",
-                  justifyContent: "center", flexShrink: 0,
-                }}>
-                  <span style={{ fontSize: "16px", fontWeight: 800, color: "#3A3A3A" }}>I</span>
-                </div>
-                <span style={{ fontSize: "15px", fontWeight: 700, color: "#3A3A3A", whiteSpace: "nowrap" }}>
-                  InfluenceIT
-                </span>
-              </Link>
-              <button
-                onClick={onToggle}
-                style={{
-                  width: "28px", height: "28px", borderRadius: "6px",
-                  border: "1px solid #E5E7EB", backgroundColor: "#F9FAFB",
-                  cursor: "pointer", display: "flex", alignItems: "center",
-                  justifyContent: "center", flexShrink: 0,
-                }}
-              >
-                <span style={{ fontSize: "12px", color: "#6B7280" }}>◀</span>
-              </button>
-            </>
+            <span style={{ fontSize: "15px", fontWeight: 700, color: "#3A3A3A", whiteSpace: "nowrap", marginLeft: "8px" }}>
+              InfluenceIT
+            </span>
           )}
-
-          {!isOpen && (
-            <div style={{
-              width: "32px", height: "32px", borderRadius: "8px",
-              backgroundColor: "#FFD700", display: "flex", alignItems: "center",
-              justifyContent: "center", margin: "0 auto",
-            }}>
-              <span style={{ fontSize: "16px", fontWeight: 800, color: "#3A3A3A" }}>I</span>
-            </div>
-          )}
-
-{!isOpen && (
-  <button
-    onClick={onToggle}
-    style={{
-      margin: "16px auto 8px",
-      width: "36px", height: "36px", borderRadius: "8px",
-      border: "1px solid #E5E7EB", backgroundColor: "#F9FAFB",
-      cursor: "pointer", display: "flex", alignItems: "center",
-      justifyContent: "center", flexShrink: 0,
-    }}
-  >
-    <span style={{ fontSize: "14px", color: "#6B7280" }}>▶</span>
-  </button>
-)}
         </div>
-
-        {/* Collapse button when closed */}
-        {!isOpen && (
-          <button
-            onClick={onToggle}
-            style={{
-              margin: "8px auto", width: "36px", height: "28px", borderRadius: "6px",
-              border: "1px solid #E5E7EB", backgroundColor: "#F9FAFB", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            }}
-          >
-            <span style={{ fontSize: "12px", color: "#6B7280" }}>▶</span>
-          </button>
-        )}
 
         {/* Nav items */}
         <nav style={{ flex: 1, padding: "8px", overflowY: "auto", overflowX: "hidden" }}>
@@ -186,21 +130,45 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           })}
         </nav>
 
-        {/* Bottom: user + sign out */}
+        {/* Bottom: collapse + email + sign out */}
         <div style={{
           padding: "12px",
           borderTop: "1px solid #F3F4F6",
           flexShrink: 0,
         }}>
+          {/* Collapse toggle */}
+          <button
+            onClick={onToggle}
+            title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            style={{
+              display: "flex", alignItems: "center", gap: "10px",
+              padding: isOpen ? "9px 10px" : "9px 0",
+              justifyContent: isOpen ? "flex-start" : "center",
+              borderRadius: "8px", background: "none", border: "none",
+              color: "#6B7280", cursor: "pointer", width: "100%",
+              marginBottom: "4px",
+            }}
+          >
+            <span style={{ fontSize: "16px" }}>{isOpen ? "◀" : "▶"}</span>
+            {isOpen && (
+              <span style={{ fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap" }}>
+                Collapse
+              </span>
+            )}
+          </button>
+
+          {/* Email */}
           {isOpen && user?.email && (
             <p style={{
-              fontSize: "11px", color: "#9CA3AF", margin: "0 0 8px 0",
+              fontSize: "11px", color: "#9CA3AF", margin: "4px 0 8px 0",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               padding: "0 4px",
             }}>
               {user.email}
             </p>
           )}
+
+          {/* Sign out */}
           <button
             onClick={async () => {
               await supabase.auth.signOut();

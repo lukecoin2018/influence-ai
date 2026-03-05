@@ -1,6 +1,9 @@
+// Place at: app/api/inquiries/route.ts (replace existing file)
+
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
+import { grantCreatorTokens } from '@/lib/tokens';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -23,7 +26,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Message is required.' }, { status: 400 });
     }
 
-    // Save to database
+    // Save inquiry to database
     const { error } = await supabaseAdmin.from('inquiries').insert({
       brand_id: brandId,
       creator_id: creatorId,
@@ -36,14 +39,44 @@ export async function POST(req: NextRequest) {
 
     if (error) throw error;
 
-    // Get brand profile
+    // ── Earn event: first inquiry received (15 tokens, one-time) ─────────────
+    // creatorId here is the social_profiles.creator_id UUID.
+    // We need the creator_profiles.id which equals auth.uid() for the token balance.
+    // creator_profiles has a creator_id FK → find the matching row.
+    try {
+      const { data: creatorProfile } = await supabaseAdmin
+        .from('creator_profiles')
+        .select('id, earned_first_inquiry, token_balance')
+        .eq('creator_id', creatorId)
+        .maybeSingle();
+
+      if (creatorProfile && !creatorProfile.earned_first_inquiry) {
+        // Mark flag first to prevent race conditions
+        await supabaseAdmin
+          .from('creator_profiles')
+          .update({ earned_first_inquiry: true })
+          .eq('id', creatorProfile.id);
+
+        // Grant 15 tokens and log the transaction
+        await grantCreatorTokens(
+          creatorProfile.id,
+          15,
+          'earn_first_inquiry',
+          { triggered_by: 'inquiry_received', creator_id: creatorId }
+        );
+      }
+    } catch (earnError) {
+      // Earn event failed silently — inquiry was already saved successfully
+      console.error('Failed to grant first inquiry tokens:', earnError);
+    }
+
+    // ── Fetch profiles for email notifications ────────────────────────────────
     const { data: brandProfile } = await supabaseAdmin
       .from('brand_profiles')
       .select('company_name, contact_name, email, industry')
       .eq('id', brandId)
       .single();
 
-    // Get creator info
     const { data: creatorSummary } = await supabaseAdmin
       .from('v_creator_summary')
       .select('*')
@@ -55,7 +88,7 @@ export async function POST(req: NextRequest) {
     const creatorFollowers = creatorSummary?.total_followers ?? 0;
     const creatorPlatform = creatorSummary?.instagram_handle ? 'Instagram' : 'TikTok';
 
-    // Send admin notification
+    // ── Admin notification email ──────────────────────────────────────────────
     try {
       await transporter.sendMail({
         from: `InfluenceIT <${process.env.GMAIL_USER}>`,
@@ -97,7 +130,7 @@ export async function POST(req: NextRequest) {
       console.error('Failed to send admin notification:', emailError);
     }
 
-    // Send confirmation to brand
+    // ── Brand confirmation email ──────────────────────────────────────────────
     try {
       await transporter.sendMail({
         from: `InfluenceIT <${process.env.GMAIL_USER}>`,
@@ -118,7 +151,7 @@ export async function POST(req: NextRequest) {
                 <strong>Timeline:</strong> ${timeline || 'Not specified'}
               </p>
               <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
-                You can view your inquiries anytime in your 
+                You can view your inquiries anytime in your
                 <a href="https://influenceit.vercel.app/dashboard" style="color: #FFD700;">dashboard</a>.
               </p>
             </div>

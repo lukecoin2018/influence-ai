@@ -15,10 +15,9 @@ import { DealTypeSelector } from "@/components/tools/contract/DealTypeSelector";
 import { SectionSelector } from "@/components/tools/contract/SectionSelector";
 import { ClauseCustomizer } from "@/components/tools/contract/ClauseCustomizer";
 import { ContractPreview } from "@/components/tools/contract/ContractPreview";
-import { useCreatorTokenGate } from "@/hooks/useCreatorTokenGate";
-import { TokenGateModal } from "@/components/shared/TokenGateModal";
 
 type BuilderStep = 1 | 2 | 3 | 4;
+
 const STEP_LABELS = ["Deal Type", "Sections", "Customize", "Preview"];
 
 const initialContract: ContractState = {
@@ -36,15 +35,12 @@ const initialContract: ContractState = {
 function ContractPageInner() {
   const { user, creatorProfile, userRole } = useAuth();
   const searchParams = useSearchParams();
+  const [prefillNote, setPrefillNote] = useState("");
   const router = useRouter();
 
-  const [prefillNote, setPrefillNote] = useState("");
   const [step, setStep] = useState<BuilderStep>(1);
   const [contract, setContract] = useState<ContractState>(initialContract);
   const [saving, setSaving] = useState(false);
-
-  // Token gate — charged once when leaving step 1, same pattern as brand dashboard
-  const { checking, blocked, balance, needed, checkAndCharge, dismiss } = useCreatorTokenGate();
 
   // Auth guard
   useEffect(() => {
@@ -52,7 +48,7 @@ function ContractPageInner() {
     if (userRole && userRole !== "creator") router.push("/creator-dashboard");
   }, [user, userRole, router]);
 
-  // Pre-fill creator name
+  // Pre-fill creator name from Supabase
   useEffect(() => {
     if (!user) return;
     async function prefill() {
@@ -70,30 +66,27 @@ function ContractPageInner() {
     prefill();
   }, [user]);
 
-  // Pre-fill agreed price + deliverables from negotiation via URL params
-  useEffect(() => {
-    const agreedPrice = searchParams.get("agreedPrice");
-    const deliverables = searchParams.get("deliverables");
-    if (!agreedPrice && !deliverables) return;
-    setContract(prev => ({
-      ...prev,
-      negotiatedPrice: Number(agreedPrice),
-      negotiatedDeliverables: deliverables || "",
-    }));
-    setPrefillNote(`✓ Pre-filled from negotiation: $${Number(agreedPrice).toLocaleString()}${deliverables ? ` · ${deliverables}` : ""}`);
-  }, [searchParams]);
 
-  // ── Step 1: Deal type selection ──────────────────────────────
+  // Pre-fill agreed price + deliverables from negotiation via URL params
+useEffect(() => {
+  const agreedPrice = searchParams.get("agreedPrice");
+  const deliverables = searchParams.get("deliverables");
+  if (!agreedPrice && !deliverables) return;
+  setContract(prev => ({
+    ...prev,
+    negotiatedPrice: Number(agreedPrice),
+    negotiatedDeliverables: deliverables || "",
+  }));
+  setPrefillNote(`✓ Pre-filled from negotiation: $${Number(agreedPrice).toLocaleString()}${deliverables ? ` · ${deliverables}` : ""}`);
+}, [searchParams]);
+
+  // ── Step 1: Deal type selection ──────────────────────────────────────────
   const handleSelectDealType = (dealType: DealType) => {
     setContract(prev => ({ ...prev, dealType, lastModified: new Date() }));
   };
 
-  // ── Token charged here: step 1 → 2, mirrors brand dashboard ─────────────
-  const handleDealTypeNext = async () => {
+  const handleDealTypeNext = () => {
     if (!contract.dealType) return;
-
-    const allowed = await checkAndCharge("creator_contract_builder");
-    if (!allowed) return; // TokenGateModal shown via blocked state
 
     // Auto-select recommended sections for this deal type
     const preset = DEAL_TYPE_PRESETS.find(p => p.id === contract.dealType);
@@ -107,7 +100,7 @@ function ContractPageInner() {
     setStep(2);
   };
 
-  // ── Step 2: Section selection ────────────────────────────────
+  // ── Step 2: Section selection ────────────────────────────────────────────
   const handleToggleSection = (sectionId: string) => {
     setContract(prev => {
       const isSelected = prev.selectedSections.includes(sectionId);
@@ -124,7 +117,7 @@ function ContractPageInner() {
     });
   };
 
-  // ── Step 3: Clause customization ────────────────────────────
+  // ── Step 3: Clause customization ─────────────────────────────────────────
   const handleSaveClause = (clause: SelectedClause) => {
     setContract(prev => {
       const existingIndex = prev.clauses.findIndex(c => c.sectionId === clause.sectionId);
@@ -135,8 +128,8 @@ function ContractPageInner() {
     });
   };
 
-  // ── Step 3 → 4: Save draft and move to preview (token already spent) ─────
   const handleCustomizerNext = async () => {
+    // Save to Supabase when moving to preview
     if (user) {
       setSaving(true);
       try {
@@ -164,16 +157,6 @@ function ContractPageInner() {
 
   return (
     <div style={{ backgroundColor: "#FAFAFA", minHeight: "100vh", padding: "24px" }}>
-      {blocked && (
-        <TokenGateModal
-          balance={balance}
-          needed={needed}
-          toolName="Contract Builder"
-          onDismiss={dismiss}
-          accountType="creator" 
-        />
-      )}
-
       <div style={{ maxWidth: "720px", margin: "0 auto" }}>
         <ToolHeader
           icon="📄"
@@ -185,11 +168,12 @@ function ContractPageInner() {
           ]}
         />
 
-        {prefillNote && (
-          <div style={{ marginBottom: "16px", padding: "10px 16px", backgroundColor: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "10px" }}>
-            <p style={{ fontSize: "13px", color: "#92400E", margin: 0 }}>{prefillNote}</p>
-          </div>
-        )}
+
+{prefillNote && (
+  <div style={{ marginBottom: "16px", padding: "10px 16px", backgroundColor: "#FFFBEB", border: "1px solid #FDE68A", borderRadius: "10px" }}>
+    <p style={{ fontSize: "13px", color: "#92400E", margin: 0 }}>{prefillNote}</p>
+  </div>
+)}
 
         {/* Card */}
         <div style={{
@@ -199,6 +183,7 @@ function ContractPageInner() {
           padding: "32px",
           boxShadow: "0 1px 4px rgba(0,0,0,0.04)",
         }}>
+          {/* Progress — shown on steps 1-3 */}
           {step < 4 && (
             <ProgressBar
               currentStep={step}
@@ -207,13 +192,13 @@ function ContractPageInner() {
             />
           )}
 
-{step === 1 && (
-  <DealTypeSelector
-    selectedDealType={contract.dealType}
-    onSelect={handleSelectDealType}
-    onNext={handleDealTypeNext}
-  />
-)}
+          {step === 1 && (
+            <DealTypeSelector
+              selectedDealType={contract.dealType}
+              onSelect={handleSelectDealType}
+              onNext={handleDealTypeNext}
+            />
+          )}
 
           {step === 2 && (
             <SectionSelector
@@ -237,7 +222,7 @@ function ContractPageInner() {
           )}
         </div>
 
-        {/* Step 4 preview renders outside the card */}
+        {/* Step 4 preview renders outside the card (needs full width for document) */}
         {step === 4 && (
           <ContractPreview
             contract={contract}
@@ -266,7 +251,6 @@ function ContractPageInner() {
     </div>
   );
 }
-
 export default function ContractPage() {
   return (
     <Suspense fallback={<div style={{ minHeight: "100vh", backgroundColor: "#FAFAFA" }} />}>

@@ -2,7 +2,7 @@
 
 // Place at: app/creator-dashboard/negotiate/page.tsx
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense  } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -22,11 +22,10 @@ import { Step2Numbers } from "@/components/tools/negotiate/Step2Numbers";
 import { Step3Objection } from "@/components/tools/negotiate/Step3Objection";
 import { Step4Flexibility } from "@/components/tools/negotiate/Step4Flexibility";
 import { ResponseOptions } from "@/components/tools/negotiate/ResponseOptions";
-import { useCreatorTokenGate } from "@/hooks/useCreatorTokenGate";
-import { TokenGateModal } from "@/components/shared/TokenGateModal";
 
 const TOTAL_STEPS = 4;
 const STEP_LABELS = ["Stage", "Numbers", "Objection", "Flexibility"];
+
 
 interface FormState {
   stage: NegotiationStage | null;
@@ -60,16 +59,12 @@ function NegotiatePageInner() {
   const { user, creatorProfile, userRole } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-
   const [agreedPrice, setAgreedPrice] = useState("");
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<FormState>(defaultForm);
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [options, setOptions] = useState<ResponseOption[] | null>(null);
   const [saving, setSaving] = useState(false);
-
-  // Token gate — charged once when leaving step 1, same pattern as brand dashboard
-  const { checking, blocked, balance, needed, checkAndCharge, dismiss } = useCreatorTokenGate();
 
   // Auth guard
   useEffect(() => {
@@ -81,6 +76,7 @@ function NegotiatePageInner() {
   useEffect(() => {
     if (!user) return;
 
+    // Check URL params first (passed from ResultsPage "Use Rate in Negotiation" button)
     const rateParam = searchParams.get("rate");
     const deliverablesParam = searchParams.get("deliverables");
 
@@ -93,6 +89,7 @@ function NegotiatePageInner() {
       return;
     }
 
+    // Otherwise pull latest calculation from Supabase
     async function prefill() {
       try {
         const { data } = await supabase
@@ -109,6 +106,7 @@ function NegotiatePageInner() {
                 .map((d: any) => `${d.quantity}x ${d.platform} ${d.contentType}`)
                 .join(", ")
             : "";
+
           const usageType = data.full_result?.input?.usageType || "organic";
           const usageDuration = data.full_result?.input?.usageDuration || 30;
           const exclusivityDays = data.full_result?.input?.exclusivityDays || 0;
@@ -122,9 +120,10 @@ function NegotiatePageInner() {
           }));
         }
       } catch {
-        // No previous calculation — defaults fine
+        // No previous calculation — defaults are fine
       }
 
+      // Also pre-fill creator name
       try {
         const { data: summary } = await supabase
           .from("v_creator_summary")
@@ -184,6 +183,7 @@ function NegotiatePageInner() {
     const generatedOptions = generateResponseOptions(input);
     setOptions(generatedOptions);
 
+    // Save to Supabase
     if (user) {
       setSaving(true);
       try {
@@ -208,15 +208,8 @@ function NegotiatePageInner() {
     }
   };
 
-  // ── Token charged here: step 1 → 2, mirrors brand dashboard ─────────────
-  const handleNext = async () => {
+  const handleNext = () => {
     if (!validate()) return;
-
-    if (step === 1) {
-      const allowed = await checkAndCharge("creator_negotiation");
-      if (!allowed) return; // TokenGateModal shown via blocked state
-    }
-
     if (step < TOTAL_STEPS) {
       setStep(s => s + 1);
     } else {
@@ -242,46 +235,46 @@ function NegotiatePageInner() {
             ]}
           />
           <ResponseOptions
-            options={options}
-            onBack={() => { setOptions(null); setStep(1); setForm(defaultForm); }}
-            fairRate={Number(form.fairRate)}
-            brandOffer={Number(form.brandOffer)}
-          />
+  options={options}
+  onBack={() => { setOptions(null); setStep(1); setForm(defaultForm); }}
+  fairRate={Number(form.fairRate)}
+  brandOffer={Number(form.brandOffer)}
+/>
 
-          {/* Build Contract CTA */}
-          <div style={{
-            backgroundColor: '#fff', border: '1px solid #E5E7EB',
-            borderRadius: '16px', padding: '24px', marginTop: '16px',
-          }}>
-            <p style={{ fontSize: '13px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 12px 0' }}>
-              Ready to close the deal?
-            </p>
-            <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 16px 0' }}>
-              Enter the final agreed price and build your contract.
-            </p>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <div style={{ position: 'relative', flex: 1 }}>
-                <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6B7280', fontSize: '14px' }}>$</span>
-                <input
-                  type="number"
-                  placeholder="Final agreed price"
-                  value={agreedPrice}
-                  onChange={e => setAgreedPrice(e.target.value)}
-                  style={{ width: '100%', padding: '10px 14px 10px 28px', borderRadius: '10px', border: '1.5px solid #E5E7EB', backgroundColor: '#F9FAFB', color: '#3A3A3A', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
-                />
-              </div>
-              <button
-                onClick={() => {
-                  const params = new URLSearchParams({ agreedPrice, deliverables: form.deliverables });
-                  router.push(`/creator-dashboard/contract?${params.toString()}`);
-                }}
-                disabled={!agreedPrice}
-                style={{ padding: '10px 20px', borderRadius: '10px', backgroundColor: agreedPrice ? '#FFD700' : '#F9FAFB', color: agreedPrice ? '#3A3A3A' : '#9CA3AF', fontWeight: 700, fontSize: '14px', border: 'none', cursor: agreedPrice ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
-              >
-                📄 Build Contract →
-              </button>
-            </div>
-          </div>
+{/* ── Build Contract CTA ─────────────────────────────────── */}
+<div style={{ backgroundColor: '#fff', border: '1px solid #E5E7EB', borderRadius: '16px', padding: '24px', marginTop: '16px' }}>
+  <p style={{ fontSize: '13px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 12px 0' }}>
+    Ready to close the deal?
+  </p>
+  <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 16px 0' }}>
+    Enter the final agreed price and build your contract.
+  </p>
+  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+    <div style={{ position: 'relative', flex: 1 }}>
+      <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6B7280', fontSize: '14px' }}>$</span>
+      <input
+        type="number"
+        placeholder="Final agreed price"
+        value={agreedPrice}
+        onChange={e => setAgreedPrice(e.target.value)}
+        style={{ width: '100%', padding: '10px 14px 10px 28px', borderRadius: '10px', border: '1.5px solid #E5E7EB', backgroundColor: '#F9FAFB', color: '#3A3A3A', fontSize: '14px', outline: 'none', boxSizing: 'border-box' }}
+      />
+    </div>
+    <button
+      onClick={() => {
+        const params = new URLSearchParams({
+          agreedPrice: agreedPrice,
+          deliverables: form.deliverables,
+        });
+        router.push(`/creator-dashboard/contract?${params.toString()}`);
+      }}
+      disabled={!agreedPrice}
+      style={{ padding: '10px 20px', borderRadius: '10px', backgroundColor: agreedPrice ? '#FFD700' : '#F9FAFB', color: agreedPrice ? '#3A3A3A' : '#9CA3AF', fontWeight: 700, fontSize: '14px', border: 'none', cursor: agreedPrice ? 'pointer' : 'not-allowed', whiteSpace: 'nowrap' }}
+    >
+      📄 Build Contract →
+    </button>
+  </div>
+</div>
         </div>
       </div>
     );
@@ -293,16 +286,6 @@ function NegotiatePageInner() {
 
   return (
     <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh', padding: '24px' }}>
-      {blocked && (
-        <TokenGateModal
-          balance={balance}
-          needed={needed}
-          toolName="Negotiation Assistant"
-          onDismiss={dismiss}
-          accountType="creator" 
-        />
-      )}
-
       <div style={{ maxWidth: '640px', margin: '0 auto' }}>
         <ToolHeader
           icon="🤝"
@@ -314,10 +297,12 @@ function NegotiatePageInner() {
           ]}
         />
 
+        {/* Gap analysis — shown inline between step headers once numbers are entered */}
         {showGapAnalysis && (
           <GapAnalysis fairRate={fairRateNum} brandOffer={brandOfferNum} />
         )}
 
+        {/* Card */}
         <div style={{
           backgroundColor: '#fff',
           border: '1px solid #E5E7EB',
@@ -372,26 +357,26 @@ function NegotiatePageInner() {
             )}
             <button
               onClick={handleNext}
-              disabled={!canProceed() || checking || saving}
+              disabled={!canProceed() || saving}
               className="flex-1 py-3 rounded-xl font-bold text-sm transition-all"
               style={{
-                background: canProceed() && !checking && !saving
+                background: canProceed() && !saving
                   ? step === TOTAL_STEPS
                     ? 'linear-gradient(135deg, #FFD700, #FF4D94)'
                     : '#FF4D94'
                   : '#F9FAFB',
-                color: canProceed() && !checking && !saving ? '#fff' : '#9CA3AF',
-                cursor: canProceed() && !checking && !saving ? 'pointer' : 'not-allowed',
+                color: canProceed() && !saving ? '#fff' : '#9CA3AF',
+                cursor: canProceed() && !saving ? 'pointer' : 'not-allowed',
               }}
             >
-              {checking ? 'Checking tokens...'
-                : saving ? 'Generating...'
-                : step === TOTAL_STEPS ? '✨ Generate My Responses'
-                : 'Next →'}
+              {step === TOTAL_STEPS
+                ? saving ? "Generating..." : "✨ Generate My Responses"
+                : "Next →"}
             </button>
           </div>
         </div>
 
+        {/* Pre-fill note */}
         {(form.fairRate || form.deliverables) && (
           <p className="text-center text-xs mt-4" style={{ color: '#9CA3AF' }}>
             ✓ Pre-filled from your last rate calculation

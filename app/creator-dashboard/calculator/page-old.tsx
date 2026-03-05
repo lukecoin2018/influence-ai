@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { calculateRate } from "@/lib/calculator-engine";
-import { CalculatorInput, CalculatorResult, Niche } from "@/types/calculator";
+import { CalculatorInput, CalculatorResult, Niche, Deliverable } from "@/types/calculator";
 import { ProgressBar } from "@/components/tools/shared/ProgressBar";
 import { ToolHeader } from "@/components/tools/shared/ToolHeader";
 import { FormStepBasics } from "@/components/tools/calculator/FormStepBasics";
@@ -15,8 +15,6 @@ import { FormStepContent } from "@/components/tools/calculator/FormStepContent";
 import { FormStepRights } from "@/components/tools/calculator/FormStepRights";
 import { FormStepFinal } from "@/components/tools/calculator/FormStepFinal";
 import { ResultsPage } from "@/components/tools/calculator/ResultsPage";
-import { useCreatorTokenGate } from "@/hooks/useCreatorTokenGate";
-import { TokenGateModal } from "@/components/shared/TokenGateModal";
 
 const TOTAL_STEPS = 4;
 const STEP_LABELS = ["Basics", "Deliverables", "Rights & Terms", "Final Details"];
@@ -45,26 +43,25 @@ export default function CalculatorPage() {
   const [saving, setSaving] = useState(false);
   const [prefilled, setPrefilled] = useState(false);
 
-  // Token gate — charged once when leaving step 1, same pattern as brand dashboard
-  const { checking, blocked, balance, needed, checkAndCharge, dismiss } = useCreatorTokenGate();
-
   // Auth guard
   useEffect(() => {
     if (!user) { router.push("/login"); return; }
     if (userRole && userRole !== "creator") { router.push("/creator-dashboard"); }
   }, [user, userRole, router]);
 
-  // Pre-fill from Supabase
+  // Pre-fill from Supabase using creator's real data
   useEffect(() => {
     if (!user || prefilled) return;
     async function prefill() {
       try {
+        // Pull summary view for total followers
         const { data: summary } = await supabase
           .from("v_creator_summary")
           .select("total_followers, display_name")
           .eq("user_id", user!.id)
           .single();
 
+        // Pull social profiles for engagement rates
         const { data: profiles } = await supabase
           .from("social_profiles")
           .select("platform, enrichment_data")
@@ -78,25 +75,28 @@ export default function CalculatorPage() {
         }
 
         if (profiles && profiles.length > 0) {
+          // Average engagement rates across platforms
           const rates = profiles
-            .map((p: any) => p.enrichment_data?.calculated_engagement_rate)
+            .map(p => p.enrichment_data?.calculated_engagement_rate)
             .filter(Boolean)
             .map(Number);
           if (rates.length > 0) {
             updates.engagementRate = parseFloat(
-              (rates.reduce((a: number, b: number) => a + b, 0) / rates.length).toFixed(2)
+              (rates.reduce((a, b) => a + b, 0) / rates.length).toFixed(2)
             );
           }
+
+          // Set a default deliverable based on their main platform
           const platformOrder = ["instagram", "tiktok", "youtube"];
           const mainProfile = profiles.sort(
-            (a: any, b: any) => platformOrder.indexOf(a.platform) - platformOrder.indexOf(b.platform)
+            (a, b) => platformOrder.indexOf(a.platform) - platformOrder.indexOf(b.platform)
           )[0];
-          if (mainProfile) {
+          if (mainProfile && updates.deliverables === undefined) {
             updates.deliverables = [{
               id: Date.now().toString(),
               platform: mainProfile.platform as any,
-              contentType: mainProfile.platform === "youtube" ? "integration"
-                : mainProfile.platform === "tiktok" ? "video-standard" : "reel-standard",
+              contentType: mainProfile.platform === "youtube" ? "integration" :
+                mainProfile.platform === "tiktok" ? "video-standard" : "reel-standard",
               quantity: 1,
             }];
           }
@@ -106,7 +106,8 @@ export default function CalculatorPage() {
           setInput(prev => ({ ...prev, ...updates }));
         }
         setPrefilled(true);
-      } catch {
+      } catch (e) {
+        // Pre-fill failed silently — defaults are fine
         setPrefilled(true);
       }
     }
@@ -123,19 +124,11 @@ export default function CalculatorPage() {
     return true;
   };
 
-  // ── Token charged here: step 1 → 2, mirrors brand budget calculator ───────
-  const handleNext = async () => {
-    if (step === 1) {
-      const allowed = await checkAndCharge("rate_calculator");
-      if (!allowed) return; // TokenGateModal shown via blocked state
-    }
-    setStep(s => s + 1);
-  };
-
   const handleCalculate = async () => {
     const calculatedResult = calculateRate(input);
     setResult(calculatedResult);
 
+    // Save to Supabase in background
     if (user) {
       setSaving(true);
       try {
@@ -157,16 +150,18 @@ export default function CalculatorPage() {
           confidence: calculatedResult.confidence,
           full_result: calculatedResult,
         });
-      } catch {
-        // Save failed silently
+      } catch (e) {
+        // Save failed silently — result still shown
       } finally {
         setSaving(false);
       }
     }
   };
 
+  // Loading state while auth resolves
   if (!user) return null;
 
+  // Results view
   if (result) {
     return (
       <ResultsPage
@@ -179,16 +174,6 @@ export default function CalculatorPage() {
 
   return (
     <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh', padding: '24px' }}>
-      {blocked && (
-        <TokenGateModal
-          balance={balance}
-          needed={needed}
-          toolName="Rate Calculator"
-          onDismiss={dismiss}
-          accountType="creator" 
-        />
-      )}
-
       <div style={{ maxWidth: '640px', margin: '0 auto' }}>
         <ToolHeader
           icon="🧮"
@@ -200,6 +185,7 @@ export default function CalculatorPage() {
           ]}
         />
 
+        {/* Card */}
         <div style={{
           backgroundColor: '#fff',
           border: '1px solid #E5E7EB',
@@ -209,6 +195,7 @@ export default function CalculatorPage() {
         }}>
           <ProgressBar currentStep={step} totalSteps={TOTAL_STEPS} stepLabels={STEP_LABELS} />
 
+          {/* Steps */}
           {step === 1 && (
             <FormStepBasics
               followers={input.followers}
@@ -254,34 +241,30 @@ export default function CalculatorPage() {
             )}
             {step < TOTAL_STEPS ? (
               <button
-                onClick={handleNext}
-                disabled={!canProceed() || checking}
+                onClick={() => setStep(s => s + 1)}
+                disabled={!canProceed()}
                 className="flex-1 py-3 rounded-xl font-semibold text-sm transition-all"
                 style={{
-                  backgroundColor: canProceed() && !checking ? '#FF4D94' : '#F9FAFB',
-                  color: canProceed() && !checking ? '#fff' : '#9CA3AF',
-                  cursor: canProceed() && !checking ? 'pointer' : 'not-allowed',
+                  backgroundColor: canProceed() ? '#FF4D94' : '#F9FAFB',
+                  color: canProceed() ? '#fff' : '#9CA3AF',
+                  cursor: canProceed() ? 'pointer' : 'not-allowed',
                 }}
               >
-                {checking ? 'Checking tokens...' : 'Next →'}
+                Next →
               </button>
             ) : (
               <button
                 onClick={handleCalculate}
                 disabled={saving}
                 className="flex-1 py-3 rounded-xl font-bold text-sm transition-all hover:shadow-lg"
-                style={{
-                  background: 'linear-gradient(135deg, #FFD700, #FF4D94)',
-                  color: '#fff',
-                  opacity: saving ? 0.7 : 1,
-                  cursor: saving ? 'not-allowed' : 'pointer',
-                }}
+                style={{ background: 'linear-gradient(135deg, #FFD700, #FF4D94)', color: '#fff' }}
               >
                 {saving ? "Calculating..." : "✨ Calculate My Rate"}
               </button>
             )}
           </div>
 
+          {/* Step hints */}
           {step === 2 && input.deliverables.length === 0 && (
             <p className="text-center text-xs mt-3" style={{ color: '#9CA3AF' }}>
               Add at least one deliverable to continue
@@ -289,6 +272,7 @@ export default function CalculatorPage() {
           )}
         </div>
 
+        {/* Footer note */}
         <p className="text-center text-xs mt-4" style={{ color: '#9CA3AF' }}>
           {prefilled ? "✓ Pre-filled with your profile data" : "Using default values"}
           {saving && " · Saving..."}

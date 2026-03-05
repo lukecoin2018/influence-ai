@@ -1,5 +1,8 @@
 "use client";
 
+// Place at: components/creator-dashboard/Sidebar.tsx
+
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
@@ -22,6 +25,39 @@ const NAV_ITEMS = [
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
+  const [tokenBalance, setTokenBalance] = useState<number | null>(null);
+
+  // Fetch creator token balance + realtime subscription
+  useEffect(() => {
+    if (!user) return;
+
+    // Initial fetch
+    supabase
+      .from("creator_profiles")
+      .select("token_balance")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => setTokenBalance(data?.token_balance ?? 0));
+
+    // Realtime — updates sidebar instantly when any tool deducts tokens
+    const channel = supabase
+      .channel("creator_token_balance")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "creator_profiles",
+          filter: `id=eq.${user.id}`,
+        },
+        (payload) => {
+          setTokenBalance((payload.new as any).token_balance ?? 0);
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user]);
 
   const isActive = (href: string, exact?: boolean) => {
     if (exact) return pathname === href;
@@ -128,6 +164,43 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
               </Link>
             );
           })}
+
+          {/* Token balance badge */}
+          {tokenBalance !== null && (
+            <div
+              title={!isOpen ? `${tokenBalance} tokens` : undefined}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                padding: isOpen ? "9px 10px" : "9px 0",
+                justifyContent: isOpen ? "flex-start" : "center",
+                borderRadius: "8px",
+                marginTop: "8px",
+                backgroundColor: tokenBalance <= 10 ? "#FEF2F2" : "#F0FDF4",
+                border: `1px solid ${tokenBalance <= 10 ? "#FECACA" : "#BBF7D0"}`,
+              }}
+            >
+              <span style={{ fontSize: "16px", flexShrink: 0 }}>💰</span>
+              {isOpen && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "1px" }}>
+                  <span style={{
+                    fontSize: "13px",
+                    fontWeight: 600,
+                    color: tokenBalance <= 10 ? "#DC2626" : "#15803D",
+                    whiteSpace: "nowrap",
+                  }}>
+                    {tokenBalance} tokens
+                  </span>
+                  {tokenBalance <= 10 && (
+                    <span style={{ fontSize: "10px", color: "#DC2626", whiteSpace: "nowrap" }}>
+                      Running low
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </nav>
 
         {/* Bottom: collapse + email + sign out */}

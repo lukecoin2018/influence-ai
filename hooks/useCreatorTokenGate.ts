@@ -1,18 +1,27 @@
+// Place at: hooks/useCreatorTokenGate.ts
+// Mirrors useTokenGate.ts but calls /api/tokens/creator-spend
+
 'use client';
 
 import { useState } from 'react';
 
-interface TokenGateResult {
+interface CreatorTokenGateResult {
   checking: boolean;
-  blocked: boolean;        // true = out of tokens, show modal
+  blocked: boolean;
   balance: number;
   needed: number;
-  charged: boolean;        // true = already charged this session
-  checkAndCharge: (action: string) => Promise<boolean>; // returns true if allowed
+  charged: boolean;
+  checkAndCharge: (action: string) => Promise<boolean>;
   dismiss: () => void;
 }
 
-export function useTokenGate(): TokenGateResult {
+interface CreatorTokenGateOptions {
+  chargeEveryTime?: boolean;
+}
+
+export function useCreatorTokenGate(options: CreatorTokenGateOptions = {}): CreatorTokenGateResult {
+  const { chargeEveryTime = false } = options;
+
   const [checking, setChecking] = useState(false);
   const [blocked, setBlocked] = useState(false);
   const [balance, setBalance] = useState(0);
@@ -20,12 +29,12 @@ export function useTokenGate(): TokenGateResult {
   const [charged, setCharged] = useState(false);
 
   const checkAndCharge = async (action: string): Promise<boolean> => {
-    // Already charged this session — allow through
-    if (charged) return true;
+    // Already charged this session — allow through (unless chargeEveryTime is set)
+    if (charged && !chargeEveryTime) return true;
 
     setChecking(true);
     try {
-      const res = await fetch('/api/tokens/spend', {
+      const res = await fetch('/api/tokens/creator-spend', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action }),
@@ -34,7 +43,6 @@ export function useTokenGate(): TokenGateResult {
       const data = await res.json();
 
       if (res.status === 402) {
-        // Out of tokens
         setBalance(data.balance ?? 0);
         setNeeded(data.needed ?? 0);
         setBlocked(true);
@@ -47,10 +55,9 @@ export function useTokenGate(): TokenGateResult {
         return true;
       }
 
-      // Any other error — allow through silently (don't block the user)
+      // Any other error — allow through silently
       return true;
     } catch {
-      // Network error — allow through silently
       return true;
     } finally {
       setChecking(false);

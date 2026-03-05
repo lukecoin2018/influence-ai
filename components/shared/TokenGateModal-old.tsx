@@ -59,7 +59,7 @@ export function TokenGateModal({ balance, needed, toolName, onDismiss }: TokenGa
         </p>
 
         <a
-          href="/pricing"
+          href="/pricing/brands"
           style={{
             display: 'block', width: '100%', padding: '12px',
             backgroundColor: '#FFD700', borderRadius: '10px',

@@ -1,5 +1,7 @@
 'use client';
 
+// Place at: components/shared/TokenGateModal.tsx
+
 import { Lock, X } from 'lucide-react';
 
 interface TokenGateModalProps {
@@ -7,9 +9,16 @@ interface TokenGateModalProps {
   needed: number;
   toolName: string;
   onDismiss: () => void;
+  accountType?: 'brand' | 'creator'; // optional, defaults to 'brand'
 }
 
-export function TokenGateModal({ balance, needed, toolName, onDismiss }: TokenGateModalProps) {
+export function TokenGateModal({
+  balance,
+  needed,
+  toolName,
+  onDismiss,
+  accountType = 'brand', // default keeps brand behaviour unchanged
+}: TokenGateModalProps) {
   return (
     <div style={{
       position: 'fixed', inset: 0, zIndex: 50,
@@ -59,7 +68,7 @@ export function TokenGateModal({ balance, needed, toolName, onDismiss }: TokenGa
         </p>
 
         <a
-          href="/pricing/brands"
+          href={accountType === 'creator' ? '/pricing/creators' : '/pricing/brands'}
           style={{
             display: 'block', width: '100%', padding: '12px',
             backgroundColor: '#FFD700', borderRadius: '10px',
