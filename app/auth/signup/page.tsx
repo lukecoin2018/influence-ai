@@ -804,24 +804,7 @@ function SignUpContent() {
                 {verifying ? 'Checking your bio...' : "I've added it — Verify Now"}
               </button>
 
-              <button
-                onClick={() => {
-                  window.location.href = '/creator-dashboard';
-                }}
-                style={{
-                  width: '100%',
-                  padding: '10px',
-                  borderRadius: '8px',
-                  border: '1px solid #E5E7EB',
-                  backgroundColor: 'white',
-                  color: '#6B7280',
-                  fontSize: '13px',
-                  fontWeight: 500,
-                  cursor: 'pointer',
-                }}
-              >
-                I'll do this later →
-              </button>
+            
             </>
           )}
         </div>

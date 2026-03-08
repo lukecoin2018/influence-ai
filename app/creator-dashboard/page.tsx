@@ -79,9 +79,8 @@ export default function CreatorDashboardPage() {
           Here's an overview of your creator profile and tools.
         </p>
       </div>
-      
-       {/* ── Verification Banner ────────────────────────────────────── */}
-       <VerificationBanner />
+
+    
 
       {/* ── Stat Cards ─────────────────────────────────────────────── */}
       {creatorData && (
