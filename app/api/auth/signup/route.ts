@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
       email,
       website: website || null,
       industry: industry || null,
+      status: 'approved',
     });
 
     if (profileError) throw profileError;
