@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { formatCount } from '@/lib/formatters';
+import { VerificationBanner } from '@/components/creator-dashboard/VerificationBanner';
 
 export default function CreatorDashboardPage() {
   const { user, creatorProfile, userRole, loading } = useAuth();
@@ -78,6 +79,9 @@ export default function CreatorDashboardPage() {
           Here's an overview of your creator profile and tools.
         </p>
       </div>
+      
+       {/* ── Verification Banner ────────────────────────────────────── */}
+       <VerificationBanner />
 
       {/* ── Stat Cards ─────────────────────────────────────────────── */}
       {creatorData && (
