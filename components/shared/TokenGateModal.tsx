@@ -12,7 +12,7 @@ interface TokenGateModalProps {
   trialExpired?: boolean;
 }
 
-export default function TokenGateModal({
+export function TokenGateModal({
   isOpen,
   onClose,
   accountType,
