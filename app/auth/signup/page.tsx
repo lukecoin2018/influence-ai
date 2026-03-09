@@ -119,6 +119,8 @@ function SignUpContent() {
       company_name: companyName,
       industry,
       status: 'approved',
+      subscription_tier: 'trial',
+      trial_ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     });
 
     router.push('/dashboard');

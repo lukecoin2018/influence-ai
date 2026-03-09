@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
@@ -20,23 +20,47 @@ const NAV_ITEMS = [
   { href: "/dashboard/shortlists", label: "Shortlists", icon: "⭐" },
 ];
 
+const TIER_LABELS: Record<string, string> = {
+  free: "Free",
+  trial: "Free Trial",
+  starter: "Starter",
+  growth: "Growth",
+  pro: "Pro",
+};
+
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useAuth();
   const [tokenBalance, setTokenBalance] = useState<number>(0);
+  const [subscriptionTier, setSubscriptionTier] = useState<string>("free");
+  const [trialExpired, setTrialExpired] = useState(false);
+  const [manageLoading, setManageLoading] = useState(false);
 
-  // Fetch token balance + realtime subscription
+  // Fetch token balance + subscription tier + realtime subscription
   useEffect(() => {
     if (!user?.id) return;
 
     // Initial fetch
     supabase
       .from("brand_profiles")
-      .select("token_balance")
+      .select("token_balance, subscription_tier, trial_ends_at")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
-        if (data) setTokenBalance(data.token_balance);
+        if (data) {
+          setTokenBalance(data.token_balance);
+          setSubscriptionTier(data.subscription_tier || "free");
+
+          // Check trial expiry
+          if (
+            data.subscription_tier === "trial" &&
+            data.trial_ends_at &&
+            new Date(data.trial_ends_at) < new Date()
+          ) {
+            setTrialExpired(true);
+          }
+        }
       });
 
     // Realtime — updates sidebar instantly when any tool deducts tokens
@@ -51,7 +75,11 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           filter: `id=eq.${user.id}`,
         },
         (payload) => {
-          setTokenBalance((payload.new as any).token_balance ?? 0);
+          const newData = payload.new as any;
+          setTokenBalance(newData.token_balance ?? 0);
+          if (newData.subscription_tier) {
+            setSubscriptionTier(newData.subscription_tier);
+          }
         }
       )
       .subscribe();
@@ -70,6 +98,27 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
     if (balance <= 20)  return { bg: "#FEF3C7", text: "#92400E", border: "#FDE68A" };
     return               { bg: "#F0FDF4", text: "#166534", border: "#BBF7D0" };
   };
+
+  const isPaidSubscriber = subscriptionTier && !["free", "trial"].includes(subscriptionTier) && !trialExpired;
+
+  async function handleManageSubscription() {
+    setManageLoading(true);
+    try {
+      const res = await fetch("/api/subscription/manage", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ accountType: "brand" }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      console.error("Portal error:", err);
+    } finally {
+      setManageLoading(false);
+    }
+  }
 
   return (
     <aside style={{
@@ -128,15 +177,111 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         })}
       </nav>
 
-      {/* Token Balance */}
-      {(
+      {/* Subscription + Tokens Section */}
+      <div style={{ borderTop: "1px solid #F3F4F6", flexShrink: 0 }}>
+
+        {/* Zero tokens banner (expanded only) */}
+        {isOpen && tokenBalance === 0 && isPaidSubscriber && (
+          <div style={{
+            margin: "8px 12px 0",
+            padding: "8px 10px",
+            borderRadius: "8px",
+            backgroundColor: "#FFFBEB",
+            border: "1px solid #FDE68A",
+            fontSize: "12px",
+            color: "#92400E",
+            lineHeight: 1.4,
+          }}>
+            You&apos;ve used all your tokens this month. Upgrade for more.
+          </div>
+        )}
+
+        {/* Trial expired banner */}
+        {isOpen && trialExpired && (
+          <div style={{
+            margin: "8px 12px 0",
+            padding: "8px 10px",
+            borderRadius: "8px",
+            backgroundColor: "#FEE2E2",
+            border: "1px solid #FECACA",
+            fontSize: "12px",
+            color: "#991B1B",
+            lineHeight: 1.4,
+          }}>
+            Your free trial has ended.
+          </div>
+        )}
+
+        {/* Plan badge + Manage/Upgrade */}
+        {isOpen && (
+          <div style={{
+            padding: "8px 12px 0",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}>
+            <span style={{
+              fontSize: "11px",
+              fontWeight: 600,
+              color: isPaidSubscriber ? "#3AAFF4" : "#9CA3AF",
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
+            }}>
+              {trialExpired ? "Trial Expired" : (TIER_LABELS[subscriptionTier] || "Free") + " Plan"}
+            </span>
+
+            {isPaidSubscriber ? (
+              <button
+                onClick={handleManageSubscription}
+                disabled={manageLoading}
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: "#3AAFF4",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                }}
+              >
+                {manageLoading ? "..." : "Manage"}
+              </button>
+            ) : (
+              <Link
+                href="/pricing/brands"
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: "#3AAFF4",
+                  textDecoration: "none",
+                }}
+              >
+                Upgrade
+              </Link>
+            )}
+          </div>
+        )}
+
+        {/* Collapsed: upgrade icon */}
+        {!isOpen && !isPaidSubscriber && (
+          <div style={{ display: "flex", justifyContent: "center", padding: "8px 0 0" }}>
+            <Link href="/pricing/brands" title="Upgrade plan" style={{
+              display: "flex", alignItems: "center", justifyContent: "center",
+              width: "28px", height: "28px", borderRadius: "6px",
+              backgroundColor: "#EBF5FF", textDecoration: "none",
+              fontSize: "14px",
+            }}>
+              ⬆
+            </Link>
+          </div>
+        )}
+
+        {/* Token Balance */}
         <div style={{
-          padding: isOpen ? "10px 12px" : "10px 0",
-          borderTop: "1px solid #F3F4F6",
+          padding: isOpen ? "8px 12px 10px" : "8px 0 10px",
           display: "flex",
           alignItems: "center",
           justifyContent: isOpen ? "flex-start" : "center",
-          flexShrink: 0,
         }}>
           {isOpen ? (
             <div style={{
@@ -177,7 +322,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
             </div>
           )}
         </div>
-      )}
+      </div>
 
       {/* Bottom */}
       <div style={{ padding: "12px", borderTop: "1px solid #F3F4F6", flexShrink: 0 }}>

@@ -22,35 +22,22 @@ const NAV_ITEMS = [
   { href: "/creator-dashboard/media-kit", label: "Media Kit", icon: "📎" },
 ];
 
-const TIER_LABELS: Record<string, string> = {
-  free: "Free",
-  starter: "Starter",
-  active: "Active",
-};
-
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
   const [tokenBalance, setTokenBalance] = useState<number | null>(null);
-  const [subscriptionTier, setSubscriptionTier] = useState<string>("free");
-  const [manageLoading, setManageLoading] = useState(false);
 
-  // Fetch creator token balance + subscription tier + realtime subscription
+  // Fetch creator token balance + realtime subscription
   useEffect(() => {
     if (!user) return;
 
     // Initial fetch
     supabase
       .from("creator_profiles")
-      .select("token_balance, subscription_tier")
+      .select("token_balance")
       .eq("id", user.id)
       .single()
-      .then(({ data }) => {
-        if (data) {
-          setTokenBalance(data.token_balance ?? 0);
-          setSubscriptionTier(data.subscription_tier || "free");
-        }
-      });
+      .then(({ data }) => setTokenBalance(data?.token_balance ?? 0));
 
     // Realtime — updates sidebar instantly when any tool deducts tokens
     const channel = supabase
@@ -64,11 +51,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
           filter: `id=eq.${user.id}`,
         },
         (payload) => {
-          const newData = payload.new as any;
-          setTokenBalance(newData.token_balance ?? 0);
-          if (newData.subscription_tier) {
-            setSubscriptionTier(newData.subscription_tier);
-          }
+          setTokenBalance((payload.new as any).token_balance ?? 0);
         }
       )
       .subscribe();
@@ -80,27 +63,6 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
     if (exact) return pathname === href;
     return pathname.startsWith(href);
   };
-
-  const isPaidSubscriber = subscriptionTier && !["free"].includes(subscriptionTier);
-
-  async function handleManageSubscription() {
-    setManageLoading(true);
-    try {
-      const res = await fetch("/api/subscription/manage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accountType: "creator" }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (err) {
-      console.error("Portal error:", err);
-    } finally {
-      setManageLoading(false);
-    }
-  }
 
   return (
     <>
@@ -202,186 +164,61 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
               </Link>
             );
           })}
-        </nav>
 
-        {/* Subscription + Tokens Section */}
-        <div style={{ borderTop: "1px solid #F3F4F6", flexShrink: 0 }}>
-
-          {/* Zero tokens banner — subscribed creators get buy more option */}
-          {isOpen && tokenBalance === 0 && isPaidSubscriber && (
-            <div style={{
-              margin: "8px 12px 0",
-              padding: "8px 10px",
-              borderRadius: "8px",
-              backgroundColor: "#FEF2F2",
-              border: "1px solid #FECACA",
-              fontSize: "12px",
-              color: "#991B1B",
-              lineHeight: 1.4,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}>
-              <span>No tokens left</span>
-              <Link href="/pricing/creators" style={{
-                fontSize: "11px",
-                fontWeight: 600,
-                color: "#DC2626",
-                textDecoration: "none",
-                whiteSpace: "nowrap",
-              }}>
-                Buy more
-              </Link>
-            </div>
-          )}
-
-          {/* Zero tokens banner — free creators get subscribe prompt */}
-          {isOpen && tokenBalance === 0 && !isPaidSubscriber && (
-            <div style={{
-              margin: "8px 12px 0",
-              padding: "8px 10px",
-              borderRadius: "8px",
-              backgroundColor: "#FEF2F2",
-              border: "1px solid #FECACA",
-              fontSize: "12px",
-              color: "#991B1B",
-              lineHeight: 1.4,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}>
-              <span>No tokens left</span>
-              <Link href="/pricing/creators" style={{
-                fontSize: "11px",
-                fontWeight: 600,
-                color: "#DC2626",
-                textDecoration: "none",
-                whiteSpace: "nowrap",
-              }}>
-                Subscribe
-              </Link>
-            </div>
-          )}
-
-          {/* Plan badge + Manage/Upgrade */}
-          {isOpen && (
-            <div style={{
-              padding: "8px 12px 0",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}>
-              <span style={{
-                fontSize: "11px",
-                fontWeight: 600,
-                color: isPaidSubscriber ? "#FF4D94" : "#9CA3AF",
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-              }}>
-                {(TIER_LABELS[subscriptionTier] || "Free") + " Plan"}
-              </span>
-
-              {isPaidSubscriber ? (
-                <button
-                  onClick={handleManageSubscription}
-                  disabled={manageLoading}
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    color: "#FF4D94",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 0,
-                  }}
-                >
-                  {manageLoading ? "..." : "Manage"}
-                </button>
-              ) : (
-                <Link
-                  href="/pricing/creators"
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    color: "#FF4D94",
-                    textDecoration: "none",
-                  }}
-                >
-                  Upgrade
-                </Link>
-              )}
-            </div>
-          )}
-
-          {/* Collapsed: upgrade icon for free users */}
-          {!isOpen && !isPaidSubscriber && (
-            <div style={{ display: "flex", justifyContent: "center", padding: "8px 0 0" }}>
-              <Link href="/pricing/creators" title="Upgrade plan" style={{
-                display: "flex", alignItems: "center", justifyContent: "center",
-                width: "28px", height: "28px", borderRadius: "6px",
-                backgroundColor: "#FFF0F6", textDecoration: "none",
-                fontSize: "14px",
-              }}>
-                ⬆
-              </Link>
-            </div>
-          )}
-
-          {/* Token balance */}
+          {/* Token balance badge */}
           {tokenBalance !== null && (
             <div
               title={!isOpen ? `${tokenBalance} tokens` : undefined}
               style={{
-                padding: isOpen ? "8px 12px 10px" : "8px 0 10px",
                 display: "flex",
                 alignItems: "center",
+                gap: "10px",
+                padding: isOpen ? "9px 10px" : "9px 0",
                 justifyContent: isOpen ? "flex-start" : "center",
+                borderRadius: "8px",
+                marginTop: "8px",
+                backgroundColor: tokenBalance <= 30 ? "#FEF2F2" : "#F0FDF4",
+                border: `1px solid ${tokenBalance <= 30 ? "#FECACA" : "#BBF7D0"}`,
               }}
             >
-              {isOpen ? (
-                <div style={{
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  width: "100%",
-                  backgroundColor: tokenBalance === 0 ? "#FEE2E2" : tokenBalance <= 30 ? "#FEF3C7" : "#F0FDF4",
-                  border: `1px solid ${tokenBalance === 0 ? "#FECACA" : tokenBalance <= 30 ? "#FDE68A" : "#BBF7D0"}`,
-                  borderRadius: "8px",
-                  padding: "8px 10px",
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span style={{ fontSize: "14px" }}>💰</span>
+              <span style={{ fontSize: "16px", flexShrink: 0 }}>💰</span>
+              {isOpen && (
+                <div style={{ display: "flex", flexDirection: "column", gap: "2px", flex: 1 }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
                     <span style={{
-                      fontSize: "12px", fontWeight: 600,
-                      color: tokenBalance === 0 ? "#991B1B" : tokenBalance <= 30 ? "#92400E" : "#166534",
+                      fontSize: "13px",
+                      fontWeight: 600,
+                      color: tokenBalance <= 30 ? "#DC2626" : "#15803D",
+                      whiteSpace: "nowrap",
                     }}>
-                      Tokens
+                      {tokenBalance} tokens
                     </span>
+                    {tokenBalance <= 30 && (
+                      <Link
+                        href="/pricing/creators"
+                        style={{
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          color: "#DC2626",
+                          textDecoration: "none",
+                          whiteSpace: "nowrap",
+                          opacity: 0.8,
+                        }}
+                      >
+                        + Add tokens
+                      </Link>
+                    )}
                   </div>
-                  <span style={{
-                    fontSize: "13px", fontWeight: 700,
-                    color: tokenBalance === 0 ? "#991B1B" : tokenBalance <= 30 ? "#92400E" : "#166534",
-                  }}>
-                    {tokenBalance}
-                  </span>
-                </div>
-              ) : (
-                <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontSize: "18px" }}>💰</span>
-                  <span style={{
-                    position: "absolute", top: "-4px", right: "-6px",
-                    backgroundColor: tokenBalance === 0 ? "#FEE2E2" : tokenBalance <= 30 ? "#FEF3C7" : "#F0FDF4",
-                    border: `1px solid ${tokenBalance === 0 ? "#FECACA" : tokenBalance <= 30 ? "#FDE68A" : "#BBF7D0"}`,
-                    color: tokenBalance === 0 ? "#991B1B" : tokenBalance <= 30 ? "#92400E" : "#166534",
-                    fontSize: "9px", fontWeight: 700,
-                    borderRadius: "999px", padding: "0 3px", lineHeight: "14px",
-                    minWidth: "14px", textAlign: "center",
-                  }}>
-                    {tokenBalance > 99 ? "99+" : tokenBalance}
-                  </span>
+                  {tokenBalance <= 30 && (
+                    <span style={{ fontSize: "10px", color: "#DC2626", whiteSpace: "nowrap" }}>
+                      Running low
+                    </span>
+                  )}
                 </div>
               )}
             </div>
           )}
-        </div>
+        </nav>
 
         {/* Bottom: collapse + email + sign out */}
         <div style={{

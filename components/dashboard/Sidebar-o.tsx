@@ -23,23 +23,40 @@ const NAV_ITEMS = [
 export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
-  const [tokenBalance, setTokenBalance] = useState<number | null>(null);
+  const [tokenBalance, setTokenBalance] = useState<number>(0);
 
-  // Fetch token balance when user is available
+  // Fetch token balance + realtime subscription
   useEffect(() => {
     if (!user?.id) return;
 
-    const fetchBalance = async () => {
-      const { data } = await supabase
-        .from("brand_profiles")
-        .select("token_balance")
-        .eq("id", user.id)
-        .single();
+    // Initial fetch
+    supabase
+      .from("brand_profiles")
+      .select("token_balance")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setTokenBalance(data.token_balance);
+      });
 
-      if (data) setTokenBalance(data.token_balance);
-    };
+    // Realtime — updates sidebar instantly when any tool deducts tokens
+    const channel = supabase
+      .channel("brand_token_balance")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "brand_profiles",
+          filter: `id=eq.${user.id}`,
+        },
+        (payload) => {
+          setTokenBalance((payload.new as any).token_balance ?? 0);
+        }
+      )
+      .subscribe();
 
-    fetchBalance();
+    return () => { supabase.removeChannel(channel); };
   }, [user?.id]);
 
   const isActive = (href: string, exact?: boolean) => {
@@ -112,7 +129,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
       </nav>
 
       {/* Token Balance */}
-      {tokenBalance !== null && (
+      {(
         <div style={{
           padding: isOpen ? "10px 12px" : "10px 0",
           borderTop: "1px solid #F3F4F6",
@@ -144,7 +161,6 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
               </span>
             </div>
           ) : (
-            // Collapsed: just show the coin emoji with a small badge
             <div title={`${tokenBalance} tokens`} style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
               <span style={{ fontSize: "18px" }}>🪙</span>
               <span style={{
