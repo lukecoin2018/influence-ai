@@ -1,57 +1,34 @@
 'use client';
 
+import { Lock, X } from 'lucide-react';
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 
 interface TokenGateModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  accountType: 'brand' | 'creator';
+  // Original props (used by existing tools)
+  balance: number;
+  needed: number;
+  toolName: string;
+  onDismiss: () => void;
+  accountType?: 'brand' | 'creator';
+  // New subscription-aware props (optional)
   subscriptionTier?: string | null;
-  tokenBalance?: number;
   trialExpired?: boolean;
 }
 
 export function TokenGateModal({
-  isOpen,
-  onClose,
-  accountType,
-  subscriptionTier = 'free',
-  tokenBalance = 0,
+  balance,
+  needed,
+  toolName,
+  onDismiss,
+  accountType = 'brand',
+  subscriptionTier,
   trialExpired = false,
 }: TokenGateModalProps) {
-  const router = useRouter();
   const [topUpLoading, setTopUpLoading] = useState<string | null>(null);
-
-  if (!isOpen) return null;
 
   const tier = subscriptionTier || 'free';
   const isFreeUser = tier === 'free' || tier === 'trial';
   const isSubscribed = !isFreeUser && tier !== 'trial_expired';
-
-  // Determine the modal state
-  const getModalState = () => {
-    // Brand: trial expired
-    if (accountType === 'brand' && (trialExpired || tier === 'trial_expired')) {
-      return 'brand_trial_expired';
-    }
-    // Free user with no tokens
-    if (isFreeUser && tokenBalance <= 0) {
-      return 'free_no_tokens';
-    }
-    // Subscribed brand with no tokens → upgrade
-    if (accountType === 'brand' && isSubscribed && tokenBalance <= 0) {
-      return 'brand_subscribed_no_tokens';
-    }
-    // Subscribed creator with no tokens → topup or upgrade
-    if (accountType === 'creator' && isSubscribed && tokenBalance <= 0) {
-      return 'creator_subscribed_no_tokens';
-    }
-    // Fallback
-    return 'free_no_tokens';
-  };
-
-  const modalState = getModalState();
 
   async function handleTopUp(packId: string) {
     setTopUpLoading(packId);
@@ -74,200 +51,187 @@ export function TokenGateModal({
     }
   }
 
-  const pricingUrl = `/pricing/${accountType}s`;
+  const pricingUrl = accountType === 'creator' ? '/pricing/creators' : '/pricing/brands';
 
-  const nextTierMap: Record<string, { name: string; tokens: string }> = {
-    // Brand tiers
-    starter: { name: 'Growth', tokens: '1,200' },
-    growth: { name: 'Pro', tokens: '3,000' },
-    pro: { name: 'Pro', tokens: '3,000' }, // Already max
-  };
+  // Determine what to show based on subscription status
+  const showTrialExpired = accountType === 'brand' && (trialExpired || tier === 'trial_expired');
+  const showCreatorTopUp = accountType === 'creator' && isSubscribed;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative bg-[#1A1A1A] rounded-2xl border border-gray-800 p-6 sm:p-8 max-w-md w-full shadow-2xl">
-        {/* Close button */}
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 50,
+      backgroundColor: 'rgba(0,0,0,0.4)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: '16px',
+    }}>
+      <div style={{
+        backgroundColor: 'white',
+        borderRadius: '16px',
+        padding: '32px',
+        maxWidth: '380px',
+        width: '100%',
+        boxShadow: '0 8px 40px rgba(0,0,0,0.12)',
+        position: 'relative',
+      }}>
+        {/* Close */}
         <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors cursor-pointer"
+          onClick={onDismiss}
+          style={{
+            position: 'absolute', top: '16px', right: '16px',
+            background: 'none', border: 'none', cursor: 'pointer',
+            color: '#9CA3AF', padding: '4px',
+          }}
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <X size={18} />
         </button>
 
         {/* Icon */}
-        <div className="flex justify-center mb-5">
-          <div
-            className={`w-14 h-14 rounded-full flex items-center justify-center ${
-              modalState === 'brand_trial_expired'
-                ? 'bg-yellow-900/30'
-                : 'bg-[#FFD700]/10'
-            }`}
-          >
-            <svg
-              className={`w-7 h-7 ${
-                modalState === 'brand_trial_expired'
-                  ? 'text-yellow-400'
-                  : 'text-[#FFD700]'
-              }`}
-              viewBox="0 0 24 24"
-              fill="currentColor"
-            >
-              <circle cx="12" cy="12" r="10" opacity="0.2" />
-              <circle cx="12" cy="12" r="6" />
-            </svg>
-          </div>
+        <div style={{
+          width: '52px', height: '52px', borderRadius: '14px',
+          backgroundColor: showTrialExpired ? '#FEE2E2' : '#FEF3C7',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          margin: '0 auto 20px',
+        }}>
+          <Lock size={24} color={showTrialExpired ? '#DC2626' : '#92400E'} />
         </div>
 
         {/* ===== Brand: Trial Expired ===== */}
-        {modalState === 'brand_trial_expired' && (
+        {showTrialExpired && (
           <>
-            <h2 className="text-xl font-bold text-white text-center mb-2">
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 8px', textAlign: 'center' }}>
               Your trial has ended
             </h2>
-            <p className="text-sm text-gray-400 text-center mb-6">
-              Subscribe to a plan to continue using InfluenceIT and get fresh
-              tokens every month.
+            <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 24px', textAlign: 'center', lineHeight: 1.5 }}>
+              Subscribe to a plan to continue using InfluenceIT and get fresh tokens every month.
             </p>
-            <button
-              onClick={() => router.push(pricingUrl)}
-              className="w-full py-3 rounded-xl bg-[#3AAFF4] text-black font-semibold hover:bg-[#5bc0ff] transition-colors cursor-pointer"
+            <a
+              href={pricingUrl}
+              style={{
+                display: 'block', width: '100%', padding: '12px',
+                backgroundColor: '#3AAFF4', borderRadius: '10px',
+                fontSize: '15px', fontWeight: 700, color: 'white',
+                textDecoration: 'none', textAlign: 'center',
+                marginBottom: '10px', boxSizing: 'border-box',
+              }}
             >
               View Brand Plans
-            </button>
+            </a>
           </>
         )}
 
-        {/* ===== Free User: No Tokens ===== */}
-        {modalState === 'free_no_tokens' && (
+        {/* ===== Creator Subscribed: Show top-up + upgrade ===== */}
+        {!showTrialExpired && showCreatorTopUp && (
           <>
-            <h2 className="text-xl font-bold text-white text-center mb-2">
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 8px', textAlign: 'center' }}>
               You&apos;re out of tokens
             </h2>
-            <p className="text-sm text-gray-400 text-center mb-6">
-              Subscribe to get tokens every month and keep using all{' '}
-              {accountType === 'brand' ? 'brand' : 'creator'} tools.
+            <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 6px', textAlign: 'center', lineHeight: 1.5 }}>
+              Using <strong>{toolName}</strong> costs <strong>{needed} tokens</strong>.
             </p>
-            <button
-              onClick={() => router.push(pricingUrl)}
-              className={`w-full py-3 rounded-xl font-semibold transition-colors cursor-pointer ${
-                accountType === 'brand'
-                  ? 'bg-[#3AAFF4] text-black hover:bg-[#5bc0ff]'
-                  : 'bg-[#FF4D94] text-white hover:bg-[#ff6faa]'
-              }`}
-            >
-              View Plans
-            </button>
-          </>
-        )}
-
-        {/* ===== Brand Subscribed: No Tokens ===== */}
-        {modalState === 'brand_subscribed_no_tokens' && (
-          <>
-            <h2 className="text-xl font-bold text-white text-center mb-2">
-              You&apos;ve used all your tokens
-            </h2>
-            <p className="text-sm text-gray-400 text-center mb-2">
-              Your tokens will refresh at the start of your next billing cycle.
-            </p>
-            {tier !== 'pro' && nextTierMap[tier] && (
-              <p className="text-sm text-gray-400 text-center mb-6">
-                Or upgrade to{' '}
-                <span className="text-[#FFD700] font-medium">
-                  {nextTierMap[tier].name}
-                </span>{' '}
-                for {nextTierMap[tier].tokens} tokens/month.
-              </p>
-            )}
-            <button
-              onClick={() => router.push(pricingUrl)}
-              className="w-full py-3 rounded-xl bg-[#3AAFF4] text-black font-semibold hover:bg-[#5bc0ff] transition-colors cursor-pointer"
-            >
-              {tier === 'pro' ? 'View Plans' : 'Upgrade Plan'}
-            </button>
-          </>
-        )}
-
-        {/* ===== Creator Subscribed: No Tokens ===== */}
-        {modalState === 'creator_subscribed_no_tokens' && (
-          <>
-            <h2 className="text-xl font-bold text-white text-center mb-2">
-              You&apos;ve used all your tokens
-            </h2>
-            <p className="text-sm text-gray-400 text-center mb-6">
-              Buy a top-up pack to keep going, or upgrade your plan for more
-              monthly tokens.
+            <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 20px', textAlign: 'center' }}>
+              Your balance: <strong>{balance} tokens</strong>
             </p>
 
             {/* Top-up buttons */}
-            <div className="space-y-3 mb-4">
-              <button
-                onClick={() => handleTopUp('creator_100')}
-                disabled={topUpLoading === 'creator_100'}
-                className="w-full py-3 rounded-xl bg-white/10 text-white font-medium border border-white/20 hover:bg-white/20 transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-between px-4"
-              >
-                <span className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-[#FFD700]" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="12" r="10" opacity="0.2" />
-                    <circle cx="12" cy="12" r="6" />
-                  </svg>
-                  100 tokens
-                </span>
-                <span className="text-gray-400">
-                  {topUpLoading === 'creator_100' ? 'Loading...' : '$15'}
-                </span>
-              </button>
+            <button
+              onClick={() => handleTopUp('creator_100')}
+              disabled={topUpLoading === 'creator_100'}
+              style={{
+                display: 'flex', width: '100%', padding: '12px 14px',
+                alignItems: 'center', justifyContent: 'space-between',
+                backgroundColor: '#F9FAFB', borderRadius: '10px',
+                border: '1px solid #E5E7EB', cursor: 'pointer',
+                marginBottom: '8px', opacity: topUpLoading === 'creator_100' ? 0.7 : 1,
+              }}
+            >
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A' }}>🪙 100 tokens</span>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#3A3A3A' }}>
+                {topUpLoading === 'creator_100' ? 'Loading...' : '$15'}
+              </span>
+            </button>
 
-              <button
-                onClick={() => handleTopUp('creator_250')}
-                disabled={topUpLoading === 'creator_250'}
-                className="w-full py-3 rounded-xl bg-white/10 text-white font-medium border border-white/20 hover:bg-white/20 transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-between px-4"
-              >
-                <span className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-[#FFD700]" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="12" r="10" opacity="0.2" />
-                    <circle cx="12" cy="12" r="6" />
-                  </svg>
-                  250 tokens
-                  <span className="text-[10px] bg-[#FFD700] text-black px-1.5 py-0.5 rounded-full font-bold">
-                    BEST VALUE
-                  </span>
-                </span>
-                <span className="text-gray-400">
-                  {topUpLoading === 'creator_250' ? 'Loading...' : '$30'}
-                </span>
-              </button>
-            </div>
+            <button
+              onClick={() => handleTopUp('creator_250')}
+              disabled={topUpLoading === 'creator_250'}
+              style={{
+                display: 'flex', width: '100%', padding: '12px 14px',
+                alignItems: 'center', justifyContent: 'space-between',
+                backgroundColor: '#F9FAFB', borderRadius: '10px',
+                border: '1px solid #E5E7EB', cursor: 'pointer',
+                marginBottom: '16px', opacity: topUpLoading === 'creator_250' ? 0.7 : 1,
+              }}
+            >
+              <span style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A' }}>
+                🪙 250 tokens
+                <span style={{
+                  fontSize: '10px', fontWeight: 700, color: '#92400E',
+                  backgroundColor: '#FEF3C7', padding: '2px 6px',
+                  borderRadius: '999px', marginLeft: '6px',
+                }}>BEST VALUE</span>
+              </span>
+              <span style={{ fontSize: '14px', fontWeight: 700, color: '#3A3A3A' }}>
+                {topUpLoading === 'creator_250' ? 'Loading...' : '$30'}
+              </span>
+            </button>
 
             {/* Divider */}
-            <div className="flex items-center gap-3 my-4">
-              <div className="flex-1 border-t border-gray-700" />
-              <span className="text-xs text-gray-500 uppercase">or</span>
-              <div className="flex-1 border-t border-gray-700" />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '0 0 16px' }}>
+              <div style={{ flex: 1, borderTop: '1px solid #E5E7EB' }} />
+              <span style={{ fontSize: '11px', color: '#9CA3AF', textTransform: 'uppercase' }}>or</span>
+              <div style={{ flex: 1, borderTop: '1px solid #E5E7EB' }} />
             </div>
 
-            {/* Upgrade CTA */}
-            <button
-              onClick={() => router.push(pricingUrl)}
-              className="w-full py-3 rounded-xl bg-[#FF4D94] text-white font-semibold hover:bg-[#ff6faa] transition-colors cursor-pointer"
+            <a
+              href={pricingUrl}
+              style={{
+                display: 'block', width: '100%', padding: '12px',
+                backgroundColor: '#FF4D94', borderRadius: '10px',
+                fontSize: '15px', fontWeight: 700, color: 'white',
+                textDecoration: 'none', textAlign: 'center',
+                marginBottom: '10px', boxSizing: 'border-box',
+              }}
             >
               Upgrade Plan
-            </button>
+            </a>
           </>
         )}
 
-        {/* Dismiss link */}
+        {/* ===== Default: Original behavior (free users + subscribed brands) ===== */}
+        {!showTrialExpired && !showCreatorTopUp && (
+          <>
+            <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 8px', textAlign: 'center' }}>
+              You&apos;re out of tokens
+            </h2>
+            <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 6px', textAlign: 'center', lineHeight: 1.5 }}>
+              Using <strong>{toolName}</strong> costs <strong>{needed} tokens</strong>.
+            </p>
+            <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '0 0 24px', textAlign: 'center' }}>
+              Your balance: <strong>{balance} tokens</strong>
+            </p>
+
+            <a
+              href={pricingUrl}
+              style={{
+                display: 'block', width: '100%', padding: '12px',
+                backgroundColor: '#FFD700', borderRadius: '10px',
+                fontSize: '15px', fontWeight: 700, color: '#3A3A3A',
+                textDecoration: 'none', textAlign: 'center',
+                marginBottom: '10px', boxSizing: 'border-box',
+              }}
+            >
+              {isSubscribed ? 'Upgrade Plan' : 'Get More Tokens'}
+            </a>
+          </>
+        )}
+
         <button
-          onClick={onClose}
-          className="w-full mt-3 py-2 text-center text-sm text-gray-500 hover:text-gray-300 transition-colors cursor-pointer"
+          onClick={onDismiss}
+          style={{
+            display: 'block', width: '100%', padding: '10px',
+            background: 'none', border: '1px solid #E5E7EB',
+            borderRadius: '10px', fontSize: '14px',
+            color: '#6B7280', cursor: 'pointer',
+          }}
         >
           Maybe later
         </button>
