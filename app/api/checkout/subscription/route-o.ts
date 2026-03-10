@@ -13,15 +13,18 @@ export async function POST(req: NextRequest) {
 
     const { accountType, tier } = await req.json();
 
+    // Validate inputs
     if (!accountType || !tier) {
       return NextResponse.json({ error: 'Missing accountType or tier' }, { status: 400 });
     }
 
+    // Get the correct price ID
     const priceId = (PRICE_IDS as any)[accountType]?.[tier];
     if (!priceId) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 });
     }
 
+    // Check if user already has a Stripe customer ID
     const profileTable = accountType === 'brand' ? 'brand_profiles' : 'creator_profiles';
     const { data: profile } = await supabase
       .from(profileTable)
@@ -31,6 +34,7 @@ export async function POST(req: NextRequest) {
 
     let customerId = profile?.stripe_customer_id;
 
+    // Create Stripe customer if doesn't exist
     if (!customerId) {
       const customer = await stripe.customers.create({
         email: user.email,
@@ -41,21 +45,21 @@ export async function POST(req: NextRequest) {
       });
       customerId = customer.id;
 
+      // Save customer ID to profile
       await supabase
         .from(profileTable)
         .update({ stripe_customer_id: customerId })
         .eq('id', user.id);
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin;
-
+    // Create checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${baseUrl}/${accountType === 'brand' ? 'dashboard' : 'creator-dashboard'}?checkout=success`,
-      cancel_url: `${baseUrl}/pricing/${accountType}s?checkout=canceled`,
+      success_url: `${req.nextUrl.origin}/${accountType === 'brand' ? 'dashboard' : 'creator-dashboard'}?checkout=success`,
+      cancel_url: `${req.nextUrl.origin}/pricing/${accountType}s?checkout=canceled`,
       metadata: {
         user_id: user.id,
         account_type: accountType,

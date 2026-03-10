@@ -13,11 +13,13 @@ export async function POST(req: NextRequest) {
 
     const { packId } = await req.json();
 
-    const priceId = (TOPUP_PRICE_IDS as any)[packId];
+    // Validate pack
+    const priceId = TOPUP_PRICE_IDS[packId as keyof typeof TOPUP_PRICE_IDS];
     if (!priceId) {
       return NextResponse.json({ error: 'Invalid pack' }, { status: 400 });
     }
 
+    // Verify user is a creator with an active subscription
     const { data: profile } = await supabase
       .from('creator_profiles')
       .select('stripe_customer_id, subscription_tier')
@@ -36,15 +38,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'No Stripe customer found' }, { status: 400 });
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin;
-
     const session = await stripe.checkout.sessions.create({
       customer: profile.stripe_customer_id,
       mode: 'payment',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${baseUrl}/creator-dashboard?topup=success`,
-      cancel_url: `${baseUrl}/creator-dashboard?topup=canceled`,
+      success_url: `${req.nextUrl.origin}/creator-dashboard?topup=success`,
+      cancel_url: `${req.nextUrl.origin}/creator-dashboard?topup=canceled`,
       metadata: {
         user_id: user.id,
         account_type: 'creator',
