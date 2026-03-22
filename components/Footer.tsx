@@ -11,7 +11,7 @@ export function Footer() {
       className="mt-auto"
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
 
           {/* ── Brand column ── */}
           <div className="md:col-span-1">
@@ -84,6 +84,35 @@ export function Footer() {
             </ul>
           </div>
 
+        {/* ── Resources column ── */}
+        <div>
+  <h4
+    className="text-xs font-semibold uppercase tracking-wider mb-4"
+    style={{ color: '#9CA3AF' }}
+  >
+    Resources
+  </h4>
+  <ul className="space-y-2">
+    {[
+      { href: '/discover', label: 'Discover Creators' },
+      { href: '/blog',     label: 'Blog'              },
+      { href: '/about',    label: 'About'             },
+    ].map(({ href, label }) => (
+      <li key={href}>
+        <Link
+          href={href}
+          className="text-sm transition-colors"
+          style={{ color: '#9CA3AF' }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#FFD700')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#9CA3AF')}
+        >
+          {label}
+        </Link>
+      </li>
+    ))}
+  </ul>
+</div>
+
           {/* ── Legal column ── */}
           <div>
             <h4
@@ -112,6 +141,7 @@ export function Footer() {
             </ul>
           </div>
         </div>
+
 
         {/* ── Bottom bar ── */}
         <div
