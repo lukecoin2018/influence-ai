@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://influenceit.app/discover' },
   openGraph: {
     title: 'Discover Influencers by Niche, Location & Size | InfluenceIT',
-    description: 'Browse verified Instagram and TikTok creators across 54 niches, locations, and follower tiers with real engagement data.',
+    description: 'Browse verified Instagram and TikTok creators across 54 niches, 17 locations, and 3 follower tiers with real engagement data.',
     url: 'https://influenceit.app/discover',
     siteName: 'InfluenceIT',
     type: 'website',
@@ -41,38 +41,10 @@ function groupNichesByCategory() {
     .sort((a, b) => a.category.localeCompare(b.category));
 }
 
-// ── Location grouping — pair Instagram + TikTok by locationLabel ──
-function groupLocationsByPlace() {
-  const map = new Map<string, {
-    emoji: string;
-    instagram?: { slug: string };
-    tiktok?: { slug: string };
-  }>();
-
-  for (const [slug, cfg] of Object.entries(LOCATION_PAGES)) {
-    const key = cfg.locationLabel;
-    if (!map.has(key)) map.set(key, { emoji: cfg.emoji });
-    const entry = map.get(key)!;
-    if (cfg.platform === 'instagram') entry.instagram = { slug };
-    else if (cfg.platform === 'tiktok') entry.tiktok = { slug };
-    else {
-      // no platform = both, treat as instagram for display
-      entry.instagram = { slug };
-    }
-  }
-
-  return Array.from(map.entries()).map(([locationLabel, data]) => ({
-    locationLabel,
-    emoji: data.emoji,
-    instagram: data.instagram,
-    tiktok: data.tiktok,
-  }));
-}
-
 // ── Badge components ───────────────────────────────────────
 function InstagramBadge() {
   return (
-    <span className="inline-flex items-center gap-1 text-xs font-medium text-pink-600 bg-pink-50 px-2 py-0.5 rounded-full flex-shrink-0">
+    <span className="inline-flex items-center gap-1 text-xs font-medium text-pink-600 bg-pink-50 px-2 py-0.5 rounded-full">
       <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none">
         <defs>
           <linearGradient id="ig-idx2" x1="0%" y1="100%" x2="100%" y2="0%">
@@ -91,7 +63,7 @@ function InstagramBadge() {
 
 function TikTokBadge() {
   return (
-    <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-900 bg-gray-100 px-2 py-0.5 rounded-full flex-shrink-0">
+    <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-900 bg-gray-100 px-2 py-0.5 rounded-full">
       <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none">
         <rect width="24" height="24" rx="5" fill="#010101" />
         <path d="M16.5 5.5C17.1 6.3 18 6.8 19 6.9V9.4C18 9.3 17.1 9 16.3 8.5V13.5C16.3 16.0 14.2 18 11.7 18C9.2 18 7.1 16.0 7.1 13.5C7.1 11.0 9.2 9.0 11.7 9.0C11.9 9.0 12.1 9.0 12.3 9.0V11.6C12.1 11.5 11.9 11.5 11.7 11.5C10.5 11.5 9.6 12.4 9.6 13.5C9.6 14.6 10.5 15.5 11.7 15.5C12.9 15.5 13.8 14.6 13.8 13.5V5.5H16.5Z" fill="white" />
@@ -118,10 +90,6 @@ function SectionHeading({ title, subtitle }: { title: string; subtitle?: string 
   );
 }
 
-// ── City/country labels for separating groups ──────────────
-const CITY_LABELS = ['New York', 'Los Angeles', 'London', 'Miami', 'Dallas', 'Paris', 'Madrid', 'Dubai'];
-const COUNTRY_LABELS = ['the United States', 'the United Kingdom', 'France', 'Germany', 'Spain', 'Canada', 'Brazil', 'Colombia', 'Mexico'];
-
 export default async function DiscoverIndexPage() {
   const supabase = await createSupabaseServerClient();
 
@@ -133,11 +101,8 @@ export default async function DiscoverIndexPage() {
 
   const totalCreators = count ?? 2200;
   const nicheGroups = groupNichesByCategory();
-  const locationGroups = groupLocationsByPlace();
+  const locationEntries = Object.entries(LOCATION_PAGES);
   const tierEntries = Object.entries(TIER_PAGES);
-
-  const cityGroups = locationGroups.filter(g => CITY_LABELS.includes(g.locationLabel));
-  const countryGroups = locationGroups.filter(g => COUNTRY_LABELS.includes(g.locationLabel));
 
   // Structured data
   const webPageJsonLd = {
@@ -163,6 +128,7 @@ export default async function DiscoverIndexPage() {
       <div className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-14">
           <div className="w-8 h-1 bg-[#FFD700] rounded-full mb-6" />
+
           <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 leading-tight max-w-2xl">
             Discover Influencers{' '}
             <span style={{ color: '#FF4D94' }}>by Niche</span>
@@ -172,10 +138,11 @@ export default async function DiscoverIndexPage() {
             <strong className="text-gray-900">{totalCreators.toLocaleString()}+ verified</strong>{' '}
             Instagram and TikTok creators — filter by niche, location, or creator size.
           </p>
+
           <div className="mt-8 flex flex-wrap gap-3">
             {[
               { icon: '📊', text: `${totalCreators.toLocaleString()}+ creators` },
-              { icon: '✅', text: 'All verified accounts' },
+              { icon: '✅', text: 'All verified' },
               { icon: '📸', text: 'Instagram & TikTok' },
               { icon: '🎯', text: '50K–500K sweet spot' },
             ].map((pill) => (
@@ -223,102 +190,66 @@ export default async function DiscoverIndexPage() {
 
         {/* ── Section 2: By Location ────────────────────── */}
         <section>
-          <SectionHeading
-            title="Browse by Top Locations"
-            subtitle="Most active creator hubs — we cover many more locations inside the platform"
-          />
+        <SectionHeading
+  title="Browse by Top Locations"
+  subtitle="Most active creator hubs — we cover many more locations inside the platform"
+/>
 
-          {/* Cities */}
+          {/* City pages */}
           <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Most Active Cities</h3>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mb-10">
-            {cityGroups.map(({ locationLabel, emoji, instagram, tiktok }) => (
-              <div key={locationLabel} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xl">{emoji}</span>
-                  <h4 className="font-bold text-gray-900">{locationLabel}</h4>
-                </div>
-                <div className="space-y-2">
-                  {instagram && (
-                    <Link
-                      href={`/discover/${instagram.slug}`}
-                      className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors group"
-                    >
-                      <div className="flex items-center gap-2">
-                        <InstagramBadge />
-                        <span className="text-sm text-gray-700 font-medium">Instagram Creators</span>
-                      </div>
-                      <ChevronRight />
-                    </Link>
-                  )}
-                  {tiktok && (
-                    <Link
-                      href={`/discover/${tiktok.slug}`}
-                      className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors group"
-                    >
-                      <div className="flex items-center gap-2">
-                        <TikTokBadge />
-                        <span className="text-sm text-gray-700 font-medium">TikTok Creators</span>
-                      </div>
-                      <ChevronRight />
-                    </Link>
-                  )}
-                </div>
-              </div>
-            ))}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+            {locationEntries
+              .filter(([, cfg]) => !['United States', 'United Kingdom', 'France', 'Germany', 'Spain', 'Canada', 'Brazil', 'Colombia', 'Mexico'].some(c => cfg.locationLabel.includes(c)) || cfg.locationLabel.includes('New York') || cfg.locationLabel.includes('Los Angeles') || ['London', 'Paris', 'Madrid', 'Dubai', 'Miami', 'Dallas'].includes(cfg.locationLabel))
+              .filter(([, cfg]) => ['New York', 'Los Angeles', 'London', 'Miami', 'Dallas', 'Paris', 'Madrid', 'Dubai'].includes(cfg.locationLabel))
+              .map(([slug, cfg]) => (
+                <Link
+                  key={slug}
+                  href={`/discover/${slug}`}
+                  className="flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-white hover:border-[#FFD700] hover:bg-amber-50 transition-all group"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{cfg.emoji}</span>
+                    <span className="text-sm font-medium text-gray-700">{cfg.locationLabel}</span>
+                  </div>
+                  <ChevronRight />
+                </Link>
+              ))}
           </div>
 
-          {/* Countries */}
+          {/* Country pages */}
           <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">Most Active Countries</h3>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {countryGroups.map(({ locationLabel, emoji, instagram, tiktok }) => (
-              <div key={locationLabel} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xl">{emoji}</span>
-                  <h4 className="font-bold text-gray-900">{locationLabel.replace('the ', '')}</h4>
-                </div>
-                <div className="space-y-2">
-                  {instagram && (
-                    <Link
-                      href={`/discover/${instagram.slug}`}
-                      className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors group"
-                    >
-                      <div className="flex items-center gap-2">
-                        <InstagramBadge />
-                        <span className="text-sm text-gray-700 font-medium">Instagram Creators</span>
-                      </div>
-                      <ChevronRight />
-                    </Link>
-                  )}
-                  {tiktok && (
-                    <Link
-                      href={`/discover/${tiktok.slug}`}
-                      className="flex items-center justify-between px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors group"
-                    >
-                      <div className="flex items-center gap-2">
-                        <TikTokBadge />
-                        <span className="text-sm text-gray-700 font-medium">TikTok Creators</span>
-                      </div>
-                      <ChevronRight />
-                    </Link>
-                  )}
-                </div>
-              </div>
-            ))}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {locationEntries
+              .filter(([, cfg]) => ['the United States', 'the United Kingdom', 'France', 'Germany', 'Spain', 'Canada', 'Brazil', 'Colombia', 'Mexico'].includes(cfg.locationLabel))
+              .map(([slug, cfg]) => (
+                <Link
+                  key={slug}
+                  href={`/discover/${slug}`}
+                  className="flex items-center justify-between px-4 py-3 rounded-xl border border-gray-200 bg-white hover:border-[#FFD700] hover:bg-amber-50 transition-all group"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">{cfg.emoji}</span>
+                    <span className="text-sm font-medium text-gray-700">{cfg.locationLabel.replace('the ', '')}</span>
+                  </div>
+                  <ChevronRight />
+                </Link>
+              ))}
           </div>
         </section>
 
         {/* ── Section 3: By Creator Size ────────────────── */}
         <section>
-          <SectionHeading
-            title="Browse by Creator Size"
-            subtitle="Popular niche + size combinations — many more size filters available inside the platform"
-          />
+        <SectionHeading
+  title="Browse by Creator Size"
+  subtitle="Popular niche + size combinations — many more size filters and niches available inside the platform"
+/>
 
+          {/* Tier explainer cards */}
           <div className="grid gap-4 sm:grid-cols-3 mb-8">
             {(Object.entries(FOLLOWER_TIERS) as [string, typeof FOLLOWER_TIERS[keyof typeof FOLLOWER_TIERS]][]).map(([key, tier]) => (
               <div key={key} className="rounded-2xl border border-gray-100 bg-gray-50 p-5">
                 <p className="font-bold text-gray-900 text-base">{tier.label}</p>
-                <p className="text-sm font-semibold mt-0.5" style={{ color: '#D4820A' }}>{tier.range} followers</p>
+                <p className="text-sm font-semibold mt-0.5" style={{ color: '#FFD700', WebkitTextStroke: '0.5px #D4820A' }}>{tier.range} followers</p>
                 <p className="text-xs text-gray-500 mt-2 leading-relaxed">
                   {key === 'micro' && 'Highest engagement rates. Best for authentic conversions and niche audiences.'}
                   {key === 'mid-tier' && 'The sweet spot. Real reach with real engagement. Best overall ROI.'}
@@ -328,6 +259,7 @@ export default async function DiscoverIndexPage() {
             ))}
           </div>
 
+          {/* Tier page links grouped by tier */}
           <div className="space-y-6">
             {(Object.keys(FOLLOWER_TIERS) as Array<keyof typeof FOLLOWER_TIERS>).map((tierKey) => {
               const tier = FOLLOWER_TIERS[tierKey];
@@ -367,7 +299,7 @@ export default async function DiscoverIndexPage() {
               Engagement rates, analytics, posting frequency, hashtags, and direct contact — all in one platform.
             </p>
             <a
-              href="/auth/signup"
+              href="/signup"
               className="mt-8 inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl font-bold text-base hover:brightness-95 transition-all"
               style={{ backgroundColor: '#FFD700', color: '#3A3A3A' }}
             >
