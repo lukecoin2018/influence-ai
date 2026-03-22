@@ -10,6 +10,7 @@ const navLinks = [
   { href: '/creators', label: 'Creators' },
   { href: '/match', label: 'Find Creators', highlight: true },
   { href: '/compare', label: 'Compare' },
+  { href: '/discover', label: 'Discover' },
   { href: '/about', label: 'About' },
 ];
 
