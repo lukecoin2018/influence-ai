@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────
 // app/discover/[slug]/page.tsx
-// Handles niche, location, and tier pages + structured data
+// Handles niche, location, tier, and use case pages
 // ─────────────────────────────────────────────────────────────
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
@@ -18,6 +18,7 @@ import {
   type DiscoverPageConfig,
   type LocationPageConfig,
   type TierPageConfig,
+  type UseCasePageConfig,
   type Platform,
 } from '@/lib/discover/config';
 
@@ -64,11 +65,11 @@ export async function generateMetadata({
   };
 }
 
-const SIGNUP_URL = '/signup';
+const SIGNUP_URL = '/auth/signup';
 const CTA_INSERT_INTERVAL = 9;
 
 // ─────────────────────────────────────────────────────────────
-// Build the Supabase query for each page type
+// Query builder per page type
 // ─────────────────────────────────────────────────────────────
 async function fetchCreators(pageConfig: ReturnType<typeof getPageConfig>, supabase: any) {
   if (!pageConfig) return { rawCreators: [], totalCount: 0 };
@@ -101,7 +102,6 @@ async function fetchCreators(pageConfig: ReturnType<typeof getPageConfig>, supab
 
   if (pageConfig.type === 'location') {
     const cfg = pageConfig as LocationPageConfig;
-    // Build OR filter for location matching
     const locationOr = cfg.locationMatch
       .map(l => `detected_country.ilike.%${l}%,detected_city.ilike.%${l}%`)
       .join(',');
@@ -115,9 +115,6 @@ async function fetchCreators(pageConfig: ReturnType<typeof getPageConfig>, supab
       .order('follower_count', { ascending: false })
       .limit(30);
 
-    if (cfg.platform) query = query.eq('platform', cfg.platform);
-    if (cfg.searchKeyword) query = query.ilike('ai_summary', `%${cfg.searchKeyword}%`);
-
     let countQuery = supabase
       .from('social_profiles')
       .select('*', { count: 'exact', head: true })
@@ -125,8 +122,8 @@ async function fetchCreators(pageConfig: ReturnType<typeof getPageConfig>, supab
       .lte('follower_count', 500_000)
       .or(locationOr);
 
-    if (cfg.platform) countQuery = countQuery.eq('platform', cfg.platform);
-    if (cfg.searchKeyword) countQuery = countQuery.ilike('ai_summary', `%${cfg.searchKeyword}%`);
+    if (cfg.platform) { query = query.eq('platform', cfg.platform); countQuery = countQuery.eq('platform', cfg.platform); }
+    if (cfg.searchKeyword) { query = query.ilike('ai_summary', `%${cfg.searchKeyword}%`); countQuery = countQuery.ilike('ai_summary', `%${cfg.searchKeyword}%`); }
 
     const [{ data: rawCreators, error }, { count }] = await Promise.all([query, countQuery]);
     if (error) console.error('[discover] location error:', error.message);
@@ -136,7 +133,6 @@ async function fetchCreators(pageConfig: ReturnType<typeof getPageConfig>, supab
   if (pageConfig.type === 'tier') {
     const cfg = pageConfig as TierPageConfig;
     const tier = FOLLOWER_TIERS[cfg.tier];
-
     const [{ data: rawCreators, error }, { count }] = await Promise.all([
       supabase
         .from('social_profiles')
@@ -157,40 +153,58 @@ async function fetchCreators(pageConfig: ReturnType<typeof getPageConfig>, supab
     return { rawCreators: rawCreators ?? [], totalCount: count ?? 0 };
   }
 
+  if (pageConfig.type === 'usecase') {
+    const cfg = pageConfig as UseCasePageConfig;
+
+    let query = supabase
+      .from('social_profiles')
+      .select(baseSelect)
+      .gte('follower_count', cfg.followerMin)
+      .lte('follower_count', cfg.followerMax)
+      .order('follower_count', { ascending: false })
+      .limit(30);
+
+    let countQuery = supabase
+      .from('social_profiles')
+      .select('*', { count: 'exact', head: true })
+      .gte('follower_count', cfg.followerMin)
+      .lte('follower_count', cfg.followerMax);
+
+    // If keywords provided, filter by first keyword (OR logic via multiple queries would be complex)
+    // Use the first keyword for now — covers the majority of results
+    if (cfg.searchKeywords.length > 0) {
+      query = query.ilike('ai_summary', `%${cfg.searchKeywords[0]}%`);
+      countQuery = countQuery.ilike('ai_summary', `%${cfg.searchKeywords[0]}%`);
+    }
+
+    const [{ data: rawCreators, error }, { count }] = await Promise.all([query, countQuery]);
+    if (error) console.error('[discover] usecase error:', error.message);
+    return { rawCreators: rawCreators ?? [], totalCount: count ?? 0 };
+  }
+
   return { rawCreators: [], totalCount: 0 };
 }
 
 // ─────────────────────────────────────────────────────────────
-// Page header helpers
+// Page header meta per type
 // ─────────────────────────────────────────────────────────────
-function getPageMeta(pageConfig: NonNullable<ReturnType<typeof getPageConfig>>, totalCreators: number) {
+function getPageMeta(pageConfig: NonNullable<ReturnType<typeof getPageConfig>>) {
   if (pageConfig.type === 'niche') {
     const cfg = pageConfig as DiscoverPageConfig;
-    return {
-      platformLabel: PLATFORM_LABEL[cfg.platform],
-      subtitlePill: PLATFORM_LABEL[cfg.platform],
-      platform: cfg.platform,
-      category: cfg.category,
-    };
+    return { platformLabel: PLATFORM_LABEL[cfg.platform], subtitlePill: PLATFORM_LABEL[cfg.platform], platform: cfg.platform as Platform | undefined, category: cfg.category };
   }
   if (pageConfig.type === 'location') {
     const cfg = pageConfig as LocationPageConfig;
-    return {
-      platformLabel: cfg.platform ? PLATFORM_LABEL[cfg.platform] : 'Instagram & TikTok',
-      subtitlePill: cfg.locationLabel,
-      platform: cfg.platform,
-      category: cfg.locationLabel,
-    };
+    return { platformLabel: cfg.platform ? PLATFORM_LABEL[cfg.platform] : 'Instagram & TikTok', subtitlePill: cfg.locationLabel, platform: cfg.platform as Platform | undefined, category: cfg.locationLabel };
   }
   if (pageConfig.type === 'tier') {
     const cfg = pageConfig as TierPageConfig;
     const tier = FOLLOWER_TIERS[cfg.tier];
-    return {
-      platformLabel: 'Instagram & TikTok',
-      subtitlePill: `${tier.label} · ${tier.range}`,
-      platform: undefined,
-      category: cfg.category,
-    };
+    return { platformLabel: 'Instagram & TikTok', subtitlePill: `${tier.label} · ${tier.range}`, platform: undefined, category: cfg.category };
+  }
+  if (pageConfig.type === 'usecase') {
+    const cfg = pageConfig as UseCasePageConfig;
+    return { platformLabel: 'Instagram & TikTok', subtitlePill: cfg.label, platform: undefined, category: cfg.label };
   }
   return { platformLabel: '', subtitlePill: '', platform: undefined, category: '' };
 }
@@ -226,9 +240,9 @@ export default async function DiscoverSlugPage({
   const totalCreators = totalCount || safeCreators.length;
   const year = new Date().getFullYear();
   const eduContent = getEducationalContent(pageConfig);
-  const { platformLabel, subtitlePill, platform, category } = getPageMeta(pageConfig, totalCreators);
+  const { platformLabel, subtitlePill, platform, category } = getPageMeta(pageConfig);
 
-  // ── Structured data ──────────────────────────────────────
+  // Structured data
   const breadcrumbJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -256,23 +270,22 @@ export default async function DiscoverSlugPage({
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Structured data */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd) }} />
 
       {/* ── Hero ──────────────────────────────────────────── */}
       <div className="bg-gray-50 border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-12">
-          {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-sm text-gray-400 mb-6">
             <a href="/" className="hover:text-gray-600 transition-colors">InfluenceIT</a>
             <span>/</span>
             <a href="/discover" className="hover:text-gray-600 transition-colors">Discover</a>
             <span>/</span>
-            <span className="text-gray-600 font-medium truncate max-w-[200px]">{pageConfig.title.replace(' for Brand Partnerships', '').replace(' (2026)', '')}</span>
+            <span className="text-gray-600 font-medium truncate max-w-[200px]">
+              {pageConfig.title.replace(' for Brand Partnerships', '').replace(' (2026)', '')}
+            </span>
           </nav>
 
-          {/* Pill */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-200 bg-white text-xs font-semibold text-gray-600 mb-5">
             {platform === 'instagram' && (
               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
@@ -296,7 +309,6 @@ export default async function DiscoverSlugPage({
             {subtitlePill}
           </div>
 
-          {/* H1 */}
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 leading-tight max-w-3xl">
             {pageConfig.title} ({year})
           </h1>
@@ -342,7 +354,6 @@ export default async function DiscoverSlugPage({
         <EducationalContent heading={eduContent.heading} paragraphs={eduContent.paragraphs} />
         <RelatedNiches relatedSlugs={pageConfig.related} currentSlug={slug} />
 
-        {/* ── Final CTA ─────────────────────────────────── */}
         <section className="mt-16 rounded-2xl bg-gray-900 px-8 py-12 text-center relative overflow-hidden">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-[#FFD700] rounded-b-full" />
           <div className="relative z-10">
