@@ -440,24 +440,36 @@ function CreatorStructuredData({ creator, aiSummary }: { creator: any; aiSummary
   const canonicalHandle = creator.instagram_handle || creator.tiktok_handle;
   const structuredData = {
     '@context': 'https://schema.org',
-    '@type': 'Person',
-    name: creator.name || canonicalHandle,
-    alternateName: `@${canonicalHandle}`,
-    url: `https://influenceit.app/creators/${canonicalHandle}`,
-    ...(aiSummary && { description: aiSummary }),
-    jobTitle: 'Content Creator',
-    sameAs: [
-      creator.instagram_handle ? `https://instagram.com/${creator.instagram_handle}` : null,
-      creator.tiktok_handle ? `https://tiktok.com/@${creator.tiktok_handle}` : null,
-    ].filter(Boolean),
-    ...(creator.country && {
-      address: {
-        '@type': 'PostalAddress',
-        addressCountry: creator.country,
-        ...(creator.city && { addressLocality: creator.city }),
-      },
-    }),
+    '@type': 'ProfilePage',
+    dateModified: creator.updated_at ?? new Date().toISOString(),
+    mainEntity: {
+      '@type': 'Person',
+      name: creator.name || canonicalHandle,
+      alternateName: `@${canonicalHandle}`,
+      url: `https://influenceit.app/creators/${canonicalHandle}`,
+      ...(aiSummary && { description: aiSummary }),
+      jobTitle: 'Content Creator',
+      ...(creator.total_followers && {
+        interactionStatistic: {
+          '@type': 'InteractionCounter',
+          interactionType: 'https://schema.org/FollowAction',
+          userInteractionCount: creator.total_followers,
+        },
+      }),
+      sameAs: [
+        creator.instagram_handle ? `https://instagram.com/${creator.instagram_handle}` : null,
+        creator.tiktok_handle ? `https://tiktok.com/@${creator.tiktok_handle}` : null,
+      ].filter(Boolean),
+      ...(creator.country && {
+        address: {
+          '@type': 'PostalAddress',
+          addressCountry: creator.country,
+          ...(creator.city && { addressLocality: creator.city }),
+        },
+      }),
+    },
   };
+
   return (
     <script
       type="application/ld+json"
