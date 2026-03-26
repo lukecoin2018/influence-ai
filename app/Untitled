@@ -1,0 +1,4 @@
+rm app/report/\[slug\]/ReportPageClient.tsx
+git add .
+git commit -m "Remove leftover ReportPageClient.tsx"
+git push
