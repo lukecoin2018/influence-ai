@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/dashboard/', '/creator-dashboard/', '/api/', '/admin/'],
+      disallow: ['/dashboard/', '/creator-dashboard/', '/api/', '/admin/', '/report/'],
     },
     sitemap: 'https://influenceit.app/sitemap.xml',
   };

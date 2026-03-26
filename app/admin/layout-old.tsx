@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { BarChart2, Building2, Users, MessageSquare, Mail, Activity, ArrowLeft, LogOut, FileText } from 'lucide-react';
+import { BarChart2, Building2, Users, MessageSquare, Mail, Activity, ArrowLeft, LogOut } from 'lucide-react';
 
 const sidebarLinks = [
   { href: '/admin', label: 'Overview', icon: BarChart2, exact: true },
@@ -12,7 +12,6 @@ const sidebarLinks = [
   { href: '/admin/inquiries', label: 'Inquiries', icon: MessageSquare },
   { href: '/admin/contact', label: 'Contact', icon: Mail },
   { href: '/admin/activity', label: 'Activity', icon: Activity },
-  { href: '/admin/reports', label: 'Reports', icon: FileText },
 ];
 
 function AdminSidebar() {
