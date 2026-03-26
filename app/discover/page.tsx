@@ -318,7 +318,7 @@ export default async function DiscoverIndexPage() {
               Engagement rates, analytics, posting frequency, hashtags, and direct contact — all in one platform.
             </p>
             <a
-              href="/auth/signup"
+              href="/signup"
               className="mt-8 inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl font-bold text-base hover:brightness-95 transition-all"
               style={{ backgroundColor: '#FFD700', color: '#3A3A3A' }}
             >

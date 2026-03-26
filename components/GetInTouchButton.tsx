@@ -30,7 +30,7 @@ export function GetInTouchButton({ creatorId, creatorName }: Props) {
 
   if (!user) {
     return (
-      <a href="/auth/signup" style={buttonStyle}>
+      <a href="/signup" style={buttonStyle}>
         Get in Touch
       </a>
     );

@@ -138,7 +138,7 @@ export default function BlogLayout({ post, children, relatedSlugs }: BlogLayoutP
             </p>
             <div className="mt-5 flex flex-wrap gap-3">
               <a
-                href="/auth/signup"
+                href="/signup"
                 className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-sm hover:brightness-95 transition-all"
                 style={{ backgroundColor: '#FFD700', color: '#3A3A3A' }}
               >

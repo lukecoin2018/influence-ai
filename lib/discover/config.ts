@@ -1011,217 +1011,39 @@ export const PLATFORM_LABEL: Record<Platform, string> = {
   tiktok: 'TikTok',
 };
 
-// ─────────────────────────────────────────────────────────────
-// EDUCATIONAL CONTENT
-// ─────────────────────────────────────────────────────────────
-
-export function getEducationalContent(config: AnyPageConfig): { heading: string; paragraphs: string[] } {
-  if (config.type === 'tier') {
-    return getTierEducationalContent(config.tier, config.category);
-  }
-  if (config.type === 'location') {
-    return getLocationEducationalContent(config.locationLabel);
-  }
-  if (config.type === 'usecase') {
-    return getUseCaseEducationalContent(config as UseCasePageConfig);
-  }
-  return getNicheEducationalContent((config as DiscoverPageConfig).category);
-}
-
-function getTierEducationalContent(tier: TierKey, category: string): { heading: string; paragraphs: string[] } {
-  const tierInfo = FOLLOWER_TIERS[tier];
-  const categoryLower = category.toLowerCase();
-
-  if (tier === 'micro') {
-    return {
-      heading: `Why ${category} Micro-Influencers (50K–100K) Outperform Larger Accounts`,
-      paragraphs: [
-        `${category} micro-influencers consistently deliver engagement rates 2–4× higher than accounts above 500K followers. Their audiences are tight-knit communities built around genuine shared interest in ${categoryLower} — not celebrity following.`,
-        `For brands, this translates directly to better ROI. A micro-influencer with 80K ${categoryLower} followers and a 7% engagement rate will drive more product consideration than a 2M follower macro account with 1% engagement. The numbers consistently favor micro for conversion-focused campaigns.`,
-        `${category} micro-influencers are also significantly more accessible. Partnership rates are typically 3–5× lower than mid-tier accounts, making it possible to work with 5–10 micro creators for the cost of a single macro partnership — diversifying your reach and testing multiple audiences simultaneously.`,
-        `Best use cases for ${categoryLower} micro-influencers: new product launches needing authentic early adopters, niche targeting where specific ${categoryLower} sub-communities matter, and always-on campaigns that need consistent content volume at sustainable cost.`,
-      ],
-    };
-  }
-
-  if (tier === 'mid-tier') {
-    return {
-      heading: `Why Mid-Tier ${category} Creators (100K–250K) Are the Brand Partnership Sweet Spot`,
-      paragraphs: [
-        `Mid-tier ${categoryLower} creators sit in the ideal intersection of reach and authenticity. With 100K–250K followers, they've built substantial audiences while maintaining the personal connection that makes influencer marketing work — their followers still feel like they know them.`,
-        `Engagement rates for mid-tier ${categoryLower} creators typically run 3–6%, significantly outperforming macro influencers while providing meaningfully more reach than micro accounts. This combination makes them the most efficient tier for brand awareness campaigns that also need to convert.`,
-        `From a budget perspective, mid-tier creators offer predictable, professional partnership terms. They're experienced enough to produce consistently high-quality content but not yet priced at the premium of top-tier accounts. Most brands find the best CPM and cost-per-engagement in this tier.`,
-        `Mid-tier ${categoryLower} creators work especially well for: seasonal campaigns needing real reach, product launches targeting established ${categoryLower} audiences, and long-term ambassador relationships where consistency and quality both matter.`,
-      ],
-    };
-  }
-
-  return {
-    heading: `Working with Top ${category} Influencers (250K–500K): Maximum Reach, Real Engagement`,
-    paragraphs: [
-      `Top-tier ${categoryLower} influencers with 250K–500K followers offer something rare: genuine scale without the authenticity collapse that affects celebrity accounts above 1M. Their audiences are still highly engaged ${categoryLower} enthusiasts — just a lot of them.`,
-      `At this follower range, expect engagement rates of 2–4% — lower than micro accounts but applied to a much larger base. A top-tier creator with 400K followers at 3% engagement produces 12,000 direct interactions per post. For awareness campaigns, this reach is unmatched in the mid-market.`,
-      `Top-tier ${categoryLower} influencers are typically highly professional content producers. They have established content pipelines, professional photography and editing, and experience working with major brands — meaning less hand-holding and more consistently premium output.`,
-      `Best use cases: major product launches needing broad category awareness, brand repositioning campaigns, hero content creation where production quality matters, and campaigns where a single high-visibility partnership is more valuable than distributed micro reach.`,
-    ],
-  };
-}
-
-function getLocationEducationalContent(locationLabel: string): { heading: string; paragraphs: string[] } {
-  return {
-    heading: `Why Work with Influencers Based in ${locationLabel}?`,
-    paragraphs: [
-      `Location matters in influencer marketing more than most brands realize. Creators based in ${locationLabel} have audiences that skew heavily toward that market — meaning your brand reaches consumers who can actually buy, visit, or engage with your product locally. Geographic alignment between creator and audience dramatically improves campaign relevance.`,
-      `${locationLabel}-based creators also bring authentic local cultural context to brand partnerships. They understand local trends, seasonality, consumer behaviors, and platform preferences in ways that international creators simply can't replicate. This cultural fluency shows in the content and resonates with local audiences.`,
-      `For brands targeting ${locationLabel} consumers specifically, local creators offer significantly better cost efficiency than running broad national or international campaigns. You're not paying to reach audiences in markets you don't serve — every impression is a relevant impression.`,
-      `Practical considerations: when working with ${locationLabel}-based creators, factor in local content regulations, platform usage patterns in the region, and language preferences. InfluenceIT's database includes verified location data, language detection, and AI summaries that flag these factors for every creator — ensuring you partner with creators genuinely based in the markets you care about.`,
-    ],
-  };
-}
-
-function getNicheEducationalContent(category: string): { heading: string; paragraphs: string[] } {
-  const content: Record<string, { heading: string; paragraphs: string[] }> = {
-    Beauty: {
-      heading: 'Working with Beauty Influencers: What Brands Need to Know',
-      paragraphs: [
-        'Mid-tier beauty creators (50K–500K followers) consistently outperform macro influencers when it comes to conversion. Their audiences are genuinely interested in beauty content rather than celebrity culture, leading to engagement rates 2–4× higher than accounts above 1 million followers.',
-        'In the beauty niche, expect authentic engagement rates of 3–8% on Instagram and 5–12% on TikTok. Beauty audiences respond especially well to tutorial-format Reels, product comparison stories, and "honest review" content — these formats drive saves and shares, which amplify organic reach.',
-        'Common content formats include Get Ready With Me (GRWM) videos, unboxing hauls, before-and-after skincare routines, and product dupes content. Brands that provide creative freedom and avoid scripted messaging see 40–60% higher engagement than those that restrict creators to rigid briefs.',
-        'For campaign success, provide products 3–4 weeks ahead of the posting date, brief for "authentic use" rather than endorsement, and consider multi-post campaigns — beauty audiences trust creators who use products over time rather than one-off sponsored posts.',
-      ],
-    },
-    Fashion: {
-      heading: 'Working with Fashion Influencers: What Brands Need to Know',
-      paragraphs: [
-        "Fashion mid-tier influencers bridge the gap between high-fashion aspirational content and everyday style. With 50K–500K followers, they're accessible enough that audiences see them as peers, not celebrities — and purchase recommendations land much harder.",
-        'Fashion content on Instagram sees average engagement of 2.5–5%, with Reels and carousel posts driving the highest interaction. On TikTok, "Get The Look" and styling challenge formats regularly go viral.',
-        'The most effective fashion brand campaigns include "styling challenge" briefs, seasonal "closet refresh" integrations, and event-based content. Avoid briefs that require creators to abandon their signature aesthetic.',
-        'Gifting campaigns work well for accessories and lower-price-point items, but for luxury fashion or significant product launches, paid partnerships drive better results. Budget 6–10 weeks for production timelines.',
-      ],
-    },
-    Fitness: {
-      heading: 'Working with Fitness Influencers: What Brands Need to Know',
-      paragraphs: [
-        'Fitness mid-tier creators have among the highest purchase intent audiences of any niche. Their followers are actively investing in their health — supplements, equipment, activewear, and apps all convert extremely well.',
-        'Expect engagement rates of 4–9% for fitness content on Instagram and 6–15% on TikTok. Workout tutorial formats, transformation stories, and "what I eat in a day" content see the highest saves.',
-        'Campaign formats that work best: product integration into real workout content, 30-day challenge campaigns, and "athlete-style" storytelling that positions the creator as someone who genuinely uses your product.',
-        'Seasonal peaks are January, spring, and September. Booking creators 8–12 weeks in advance is essential during these windows.',
-      ],
-    },
-    Lifestyle: {
-      heading: 'Working with Lifestyle Influencers: What Brands Need to Know',
-      paragraphs: [
-        "Lifestyle creators are the most versatile category for brand partnerships. Their content naturally spans home, wellness, fashion, food, and travel — making them ideal for brands that don't fit neatly into a single niche.",
-        'Lifestyle engagement rates sit at 3–6% on Instagram and 5–10% on TikTok. Long-form "Day in My Life" content and home setup posts drive unusually high saves.',
-        "The most effective brand integrations feel like natural additions to the creator's life. Products in 'morning routine' or 'weekend activities' content have 2–3× better recall than standalone review posts.",
-        "Lifestyle creators typically work with multiple brands — vet for conflicts before signing.",
-      ],
-    },
-    Wellness: {
-      heading: 'Working with Wellness Influencers: What Brands Need to Know',
-      paragraphs: [
-        'Wellness is one of the fastest-growing creator categories. Mid-tier wellness creators carry significant trust — often more than health publications — because followers see them as accessible guides.',
-        'Wellness content engagement sits at 4–8% on Instagram and 6–14% on TikTok. "Morning routine" and "what I take every day" formats drive the highest product consideration.',
-        'Supplement, app, and service brands dominate this category, but physical wellness products also perform well when integrated into authentic daily routine content.',
-        'Wellness audiences are skeptical of overtly commercial content. Long-term partnerships outperform one-off campaigns significantly.',
-      ],
-    },
-  };
-
-  return content[category] || {
-    heading: `Working with ${category} Influencers: What Brands Need to Know`,
-    paragraphs: [
-      `Mid-tier ${category.toLowerCase()} creators (50K–500K followers) consistently deliver stronger ROI than macro influencers. Their audiences are genuinely passionate about the niche, leading to engagement rates 2–4× higher than accounts above 1 million followers.`,
-      `Authentic integration beats scripted endorsement in every creator category. Provide creative freedom within a clear brief and allow the creator to speak in their own voice.`,
-      `Structure ${category.toLowerCase()} campaigns around multi-post integrations rather than one-off posts. Audiences trust creators who use products over time.`,
-      'Brief creators 4–6 weeks ahead of the desired posting date to allow for product delivery, genuine use, and content production.',
-    ],
-  };
-}
-
-function getUseCaseEducationalContent(config: UseCasePageConfig): { heading: string; paragraphs: string[] } {
-  const content: Record<string, { heading: string; paragraphs: string[] }> = {
-    'influencers-for-skincare-brands': {
-      heading: 'How to Run a Successful Skincare Influencer Campaign',
-      paragraphs: [
-        'Skincare is the beauty sub-niche with the highest purchase conversion rates. Audiences are genuinely invested in finding products that work — they research, compare, and when a trusted creator recommends something, they act. The key is finding creators whose skincare philosophy aligns with your brand positioning.',
-        'Multi-week "skin journey" campaigns dramatically outperform single-post reviews in this category. Skincare results take time, and audiences trust creators who show real before-and-after progress over weeks — not creators who make claims after 48 hours. Structure campaigns around genuine 4–6 week testing windows.',
-        'Ingredient transparency and science-backed messaging convert particularly well for skincare. Creators who can explain the formulation and mechanism — not just say "it works" — drive higher purchase intent. Brief your creators with full ingredient information and key claims to support.',
-        'For measurement, track saves and profile visits as leading indicators alongside direct conversion. Skincare audiences save content to revisit later when they\'re ready to purchase — a post with high saves is generating ongoing awareness even weeks after posting.',
-      ],
-    },
-    'influencers-for-beauty-brands': {
-      heading: 'Influencer Marketing for Beauty Brands: A Campaign Guide',
-      paragraphs: [
-        'Beauty is one of the most active influencer marketing categories, but also one of the most competitive. The brands that win are those that build genuine relationships with creators rather than treating partnerships as one-off ad placements. Audiences can immediately identify authenticity — and reward it.',
-        'GRWM (Get Ready With Me) and tutorial content consistently outperform standalone product reviews in the beauty niche. When creators integrate your product naturally into their routine content, it reaches audiences in a discovery mindset rather than a skeptical one. Brief for integration, not endorsement.',
-        'Micro and mid-tier beauty creators (50K–250K) deliver significantly higher engagement rates than macro accounts in this category. Their audiences are built around genuine beauty interest — not celebrity following. For most beauty brands, working with 5–10 mid-tier creators outperforms a single macro partnership.',
-        'Seeding programs work particularly well in beauty. Sending products to creators without a partnership obligation generates organic content at zero cost and identifies which creators genuinely respond to your products — making paid campaigns much more effective when you follow up.',
-      ],
-    },
-    'influencers-for-fitness-brands': {
-      heading: 'Influencer Marketing for Fitness Brands: What Works',
-      paragraphs: [
-        'Fitness creators have among the highest purchase-intent audiences in creator marketing. Their followers are actively investing in their health and actively searching for product recommendations — supplements, equipment, activewear, and apps all convert extremely well through fitness influencer partnerships.',
-        'The most effective fitness brand campaigns are built around genuine product use rather than endorsement. "30-day challenge" formats where the creator documents real use over time drive 3–5× better conversion than one-off sponsored posts. Audiences in this niche are highly skeptical of products creators clearly don\'t actually use.',
-        'Seasonal peaks matter enormously for fitness: January (new year), April–May (summer prep), and September (back-to-routine). Book creators 8–12 weeks ahead for these windows — top fitness creators fill their calendars early, and last-minute campaigns get lower-quality placements.',
-        'For supplement and nutrition brands specifically, ensure creators are briefed on compliant health claims. Fitness audiences are knowledgeable and vocal — if a creator makes unsupported efficacy claims, the comment section will notice. Accuracy builds trust; overclaiming destroys it.',
-      ],
-    },
-    'influencers-for-food-brands': {
-      heading: 'Influencer Marketing for Food & Beverage Brands: Campaign Guide',
-      paragraphs: [
-        'Food and beverage influencer content has some of the highest save rates of any category. Audiences bookmark recipes and product recommendations to use later — giving food brands extended exposure well beyond the initial post. A well-executed recipe integration keeps driving awareness for weeks.',
-        'The highest-performing food brand campaigns use a product-as-ingredient integration model: the creator develops a recipe around your product and presents it as their own creation. This feels authentic rather than promotional and drives far higher engagement than "review" style content.',
-        'TikTok food creators can generate reach wildly disproportionate to their follower count when content goes viral. If your product can be integrated into a visually satisfying, quick recipe, TikTok food partnerships offer exceptional potential upside. Instagram food creators excel at aesthetic product placement and lifestyle integration.',
-        'Seasonal alignment dramatically amplifies food brand campaigns. Launching a hot sauce with a "game day" recipe campaign, or a wellness drink with a "morning routine" integration in January — aligning with food moments and cultural occasions multiplies organic reach significantly over evergreen content.',
-      ],
-    },
-    'influencers-for-fashion-brands': {
-      heading: 'Influencer Marketing for Fashion Brands: Strategy Guide',
-      paragraphs: [
-        'Fashion is the largest influencer marketing category by spend, and for good reason — the purchase funnel is short. An audience member sees a creator wearing something they like and wants to buy it immediately. The challenge is finding creators whose aesthetic genuinely aligns with your brand positioning.',
-        'Styling-focused briefs consistently outperform review briefs in fashion. Ask creators to show "3 ways to wear" or "how I styled it for [occasion]" rather than reviewing the product. Styling content shows the product in real use and gives audiences practical inspiration — which converts.',
-        'TikTok fashion content has unique viral dynamics that Instagram lacks. "Outfit check" and "fit rating" formats, haul videos, and styling challenges regularly reach audiences far beyond a creator\'s follower count through the For You Page algorithm. For brand awareness, TikTok fashion partnerships offer exceptional reach potential.',
-        'For luxury and premium fashion brands, authenticity alignment matters more than follower count. A creator who genuinely shops at your price point and aesthetic is worth 10× a creator who clearly doesn\'t. Check a creator\'s organic content and shopping habits before partnering — audiences see through mismatched collaborations immediately.',
-      ],
-    },
-    'influencers-for-small-businesses': {
-      heading: 'Influencer Marketing for Small Businesses: Getting Started',
-      paragraphs: [
-        'Small businesses often assume influencer marketing is only for big brands with large budgets. The reality is the opposite — micro-influencers (50K–150K followers) are actually more accessible and more effective for small business marketing than their larger counterparts. Lower rates, higher engagement, and more authentic content alignment.',
-        'For small business budgets, gifting campaigns are a highly efficient starting point. Send your product to 10–15 micro creators in your niche without a paid partnership obligation. Track which ones post organically and engage genuinely — then invest paid budget in those proven relationships.',
-        'Micro-influencers in the 50K–150K range typically charge $200–$800 per post depending on niche and engagement rate. For a $3,000 budget, you can partner with 5–10 creators simultaneously — far more effective than spending the same amount on a single larger creator. Diversified reach and multiple authentic voices outperform single partnerships for awareness.',
-        'Discount codes and affiliate links are particularly effective for small business influencer campaigns because they create direct attribution. You know exactly which creator drove which sales, allowing you to optimize your spend toward what\'s working and build longer-term relationships with top performers.',
-      ],
-    },
-    'influencers-for-product-launches': {
-      heading: 'Running a Successful Product Launch Influencer Campaign',
-      paragraphs: [
-        'Product launches are the highest-stakes influencer marketing moments. Done well, a coordinated creator campaign can generate thousands of organic impressions in 24–48 hours and create genuine consumer excitement. Done poorly, a launch campaign that feels inauthentic can damage brand credibility before the product finds its audience.',
-        'The most effective launch campaigns use a tiered approach: seed 20–30 micro creators with product 4–6 weeks before launch for organic content, then activate 5–10 paid mid-tier partners on launch day for coordinated amplification. The organic groundwork makes the paid content feel less like advertising and more like discovery.',
-        'Embargo and coordinated posting dates are critical for launch impact. Brief all creators with a specific go-live date and time — simultaneous posting across multiple creators creates the perception of widespread awareness and social proof. Staggered posting over days dilutes the launch moment.',
-        'For launch campaigns, prioritize creators with high engagement rates over high follower counts. A launch needs people talking, sharing, and asking questions — engagement drives discovery. High-engagement micro creators generate more meaningful launch buzz than passive macro audiences.',
-      ],
-    },
-    'ugc-creators-for-brands': {
-      heading: 'Using UGC Creators for Brand Content: What Brands Need to Know',
-      paragraphs: [
-        'User-generated content (UGC) from creators has become one of the most effective formats in social media advertising. UGC-style content — authentic-looking, lo-fi, creator-native — dramatically outperforms polished brand creative in paid social, with brands reporting 2–4× higher click-through rates compared to traditional ad formats.',
-        'UGC creators produce content specifically designed to look organic rather than advertised. This native format performs better on TikTok and Instagram because platform algorithms favor content that keeps users engaged — and audiences respond more positively to content that doesn\'t feel like an ad.',
-        'The most effective UGC campaigns combine organic posting (creator posts to their own audience) with usage rights acquisition (brand uses the content in paid ads). This dual-purpose approach maximizes return on creative investment — the content works as influencer marketing and as paid social creative simultaneously.',
-        'When briefing UGC creators, provide the key message and call-to-action but allow format flexibility. The creator\'s native style is the product — over-scripting defeats the purpose. The best UGC briefs are one page: here\'s the product, here\'s what we want audiences to feel, here\'s the link we want them to click. Everything else is the creator\'s expertise.',
-      ],
-    },
-  };
+import { NICHE_CONTENT, LOCATION_CONTENT, TIER_CONTENT } from './educational-content';
  
-  return content[Object.keys(USE_CASE_PAGES).find(k => USE_CASE_PAGES[k] === config) || ''] || {
-    heading: `${config.title}: Campaign Guide`,
-    paragraphs: [
-      'Influencer marketing delivers the best results when creators genuinely align with your brand. Audiences can immediately identify authentic partnerships — and reward them with engagement, saves, and purchases.',
-      'Mid-tier creators (50K–500K) consistently outperform macro influencers for conversion-focused campaigns. Their audiences are built around genuine interest in the niche, not celebrity following.',
-      'Structure campaigns around multi-post integrations rather than one-off posts. Audiences trust creators who use products over time, and multiple touchpoints drive higher awareness and consideration.',
-      'Measure success beyond reach: track saves, profile visits, and direct conversion via unique discount codes or affiliate links to understand the true ROI of your influencer spend.',
-    ],
-  };
+export function getEducationalContent(config: AnyPageConfig): { heading: string; paragraphs: string[] } {
+  if (config.type === 'niche') {
+    const cfg = config as DiscoverPageConfig;
+    return NICHE_CONTENT[cfg.category] ?? NICHE_CONTENT['Beauty'];
+  }
+ 
+  if (config.type === 'location') {
+    const cfg = config as LocationPageConfig;
+    return LOCATION_CONTENT[cfg.locationLabel] ?? {
+      heading: `Why Work with Influencers Based in ${cfg.locationLabel}?`,
+      paragraphs: [
+        `Creators based in ${cfg.locationLabel} have audiences that skew heavily toward that market, meaning your brand reaches consumers who can actually engage with your product locally.`,
+        `${cfg.locationLabel}-based creators bring authentic local cultural context to brand partnerships that international creators cannot replicate.`,
+        `For brands targeting ${cfg.locationLabel} consumers, local creators offer significantly better cost efficiency than broad national campaigns.`,
+        `InfluenceIT's database includes verified location data, language detection, and AI summaries for every creator — ensuring you partner with creators genuinely based in the markets you care about.`,
+      ],
+    };
+  }
+ 
+  if (config.type === 'tier') {
+    const cfg = config as TierPageConfig;
+    return TIER_CONTENT[cfg.tier]?.[cfg.category] ?? {
+      heading: `${cfg.category} ${FOLLOWER_TIERS[cfg.tier].label}: What Brands Need to Know`,
+      paragraphs: [
+        `${cfg.category} creators in the ${FOLLOWER_TIERS[cfg.tier].range} range offer a strong balance of audience size and engagement quality for brand partnerships.`,
+        `Authentic integration outperforms scripted endorsement at every follower tier. Brief creators for genuine product use within their existing content style.`,
+        `Structure campaigns around multi-post integrations rather than one-off posts — audiences trust creators who use products consistently over time.`,
+        `Brief creators 4–6 weeks ahead of the desired posting date to allow for product delivery, genuine use, and content production.`,
+      ],
+    };
+  }
+ 
+  return { heading: '', paragraphs: [] };
 }

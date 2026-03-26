@@ -65,7 +65,7 @@ export async function generateMetadata({
   };
 }
 
-const SIGNUP_URL = '/auth/signup';
+const SIGNUP_URL = '/signup';
 const CTA_INSERT_INTERVAL = 9;
 
 // ─────────────────────────────────────────────────────────────
