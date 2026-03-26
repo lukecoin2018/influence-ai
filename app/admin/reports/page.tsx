@@ -1,7 +1,9 @@
 // app/admin/reports/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 
 interface BrandReport {
@@ -31,8 +33,11 @@ function CopyButton({ url }: { url: string }) {
 }
 
 export default function AdminReportsPage() {
+  const { user, userRole, loading } = useAuth();
+  const router = useRouter();
+
   const [reports, setReports] = useState<BrandReport[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [dataLoading, setDataLoading] = useState(true);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -44,18 +49,28 @@ export default function AdminReportsPage() {
   const [mode, setMode] = useState<'auto' | 'manual'>('auto');
   const [slugEdited, setSlugEdited] = useState(false);
 
-  useEffect(() => { if (!slugEdited) setSlug(toSlug(brandName)); }, [brandName, slugEdited]);
-  useEffect(() => { if (toast) { const t = setTimeout(() => setToast(null), 3500); return () => clearTimeout(t); } }, [toast]);
+  // Wait for auth exactly like other admin pages do
+  useEffect(() => {
+    if (loading) return;
+    if (!user || userRole !== 'admin') { router.push('/login'); return; }
+    loadReports();
+  }, [loading, user, userRole]);
 
-  const loadReports = useCallback(async () => {
-    setLoading(true);
+  useEffect(() => {
+    if (!slugEdited) setSlug(toSlug(brandName));
+  }, [brandName, slugEdited]);
+
+  useEffect(() => {
+    if (toast) { const t = setTimeout(() => setToast(null), 3500); return () => clearTimeout(t); }
+  }, [toast]);
+
+  async function loadReports() {
+    setDataLoading(true);
     const { data, error } = await supabase.from('brand_reports').select('*').order('created_at', { ascending: false });
     if (error) setToast({ message: 'Failed to load reports', type: 'error' });
     else setReports(data ?? []);
-    setLoading(false);
-  }, []);
-
-  useEffect(() => { loadReports(); }, [loadReports]);
+    setDataLoading(false);
+  }
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +85,7 @@ export default function AdminReportsPage() {
       mode,
     });
     if (error) {
-      setToast({ message: error.message.includes('unique') ? 'A report with that slug already exists' : 'Failed to create report', type: 'error' });
+      setToast({ message: error.message.includes('unique') ? 'A report with that slug already exists' : error.message, type: 'error' });
     } else {
       setToast({ message: 'Report created!', type: 'success' });
       setBrandName(''); setSlug(''); setBrandHandle(''); setCategory(''); setMode('auto'); setSlugEdited(false);
@@ -110,12 +125,10 @@ export default function AdminReportsPage() {
         <h2 style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 20px' }}>Create new report</h2>
         <form onSubmit={handleCreate}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
-
             <div>
               <label style={labelStyle}>Brand name <span style={{ color: '#EF4444' }}>*</span></label>
               <input style={inputStyle} type="text" required value={brandName} onChange={e => setBrandName(e.target.value)} placeholder="e.g. Nike" />
             </div>
-
             <div>
               <label style={labelStyle}>URL slug <span style={{ color: '#9CA3AF', fontWeight: 400 }}>(auto-generated)</span></label>
               <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB', overflow: 'hidden' }}>
@@ -123,7 +136,6 @@ export default function AdminReportsPage() {
                 <input style={{ flex: 1, padding: '8px 12px 8px 0', fontSize: '13px', color: '#3A3A3A', backgroundColor: 'transparent', border: 'none', outline: 'none' }} type="text" value={slug} onChange={e => { setSlug(e.target.value); setSlugEdited(true); }} placeholder="nike" />
               </div>
             </div>
-
             <div>
               <label style={labelStyle}>Mode</label>
               <select style={inputStyle} value={mode} onChange={e => setMode(e.target.value as 'auto' | 'manual')}>
@@ -131,23 +143,19 @@ export default function AdminReportsPage() {
                 <option value="manual">Manual category match</option>
               </select>
             </div>
-
             <div>
               <label style={labelStyle}>Brand Instagram handle <span style={{ color: '#9CA3AF', fontWeight: 400 }}>{mode === 'auto' ? '(used for auto-match)' : '(optional)'}</span></label>
               <div style={{ display: 'flex', alignItems: 'center', border: '1px solid #E5E7EB', borderRadius: '8px', backgroundColor: '#F9FAFB', overflow: 'hidden' }}>
                 <span style={{ padding: '8px 4px 8px 12px', fontSize: '13px', color: '#9CA3AF' }}>@</span>
-                <input style={{ flex: 1, padding: '8px 12px 8px 0', fontSize: '13px', color: '#3A3A3A', backgroundColor: 'transparent', border: 'none', outline: 'none' }} type="text" value={brandHandle} onChange={e => setBrandHandle(e.target.value)} placeholder="nikesportswear" />
+                <input style={{ flex: 1, padding: '8px 12px 8px 0', fontSize: '13px', color: '#3A3A3A', backgroundColor: 'transparent', border: 'none', outline: 'none' }} type="text" value={brandHandle} onChange={e => setBrandHandle(e.target.value)} placeholder="gymshark" />
               </div>
             </div>
-
             <div>
               <label style={labelStyle}>
-                Category / niche{' '}
-                {mode === 'manual' ? <span style={{ color: '#EF4444' }}>*</span> : <span style={{ color: '#9CA3AF', fontWeight: 400 }}>(optional fallback)</span>}
+                Category / niche {mode === 'manual' ? <span style={{ color: '#EF4444' }}>*</span> : <span style={{ color: '#9CA3AF', fontWeight: 400 }}>(optional fallback)</span>}
               </label>
               <input style={inputStyle} type="text" required={mode === 'manual'} value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. fitness, beauty, tech" />
             </div>
-
           </div>
           <button type="submit" disabled={creating || !brandName.trim()} style={{ padding: '9px 24px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#3A3A3A', backgroundColor: '#FFD700', border: 'none', cursor: creating || !brandName.trim() ? 'not-allowed' : 'pointer', opacity: creating || !brandName.trim() ? 0.5 : 1 }}>
             {creating ? 'Creating…' : 'Create report'}
@@ -159,10 +167,10 @@ export default function AdminReportsPage() {
       <div style={{ backgroundColor: 'white', borderRadius: '16px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
         <div style={{ padding: '16px 24px', borderBottom: '1px solid #F3F4F6' }}>
           <h2 style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A', margin: 0 }}>
-            All reports {!loading && <span style={{ color: '#9CA3AF', fontWeight: 400 }}>({reports.length})</span>}
+            All reports {!dataLoading && <span style={{ color: '#9CA3AF', fontWeight: 400 }}>({reports.length})</span>}
           </h2>
         </div>
-        {loading ? (
+        {dataLoading ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF', fontSize: '13px' }}>Loading…</div>
         ) : reports.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF', fontSize: '13px' }}>No reports yet. Create one above.</div>
