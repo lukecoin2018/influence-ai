@@ -395,7 +395,6 @@ export const LOCATION_PAGES: Record<string, LocationPageConfig> = {
     emoji: '🏙️',
     related: ['instagram-creators-london', 'instagram-creators-paris', 'instagram-fashion-creators'],
   },
-
   // ── Country pages ──────────────────────────────────────────
   'instagram-creators-united-states': {
     type: 'location',
@@ -584,6 +583,127 @@ export const LOCATION_PAGES: Record<string, LocationPageConfig> = {
   emoji: '🇲🇽',
   related: ['instagram-creators-mexico', 'tiktok-creators-united-states', 'tiktok-creators-los-angeles'],
 },
+
+'tiktok-creators-spain': {
+  type: 'location',
+  platform: 'tiktok',
+  locationMatch: ['Spain', 'Madrid', 'Barcelona'],
+  locationLabel: 'Spain',
+  title: 'Top TikTok Creators in Spain for Brand Partnerships',
+  description: 'Find verified TikTok creators based in Spain with authentic audiences. Spanish TikTok creators produce highly engaged fashion, lifestyle, food, and beauty content for both local and international audiences.',
+  label: 'Spain',
+  emoji: '🇪🇸',
+  related: ['instagram-creators-spain', 'tiktok-creators-colombia', 'instagram-creators-madrid'],
+},
+
+'tiktok-creators-colombia': {
+  type: 'location',
+  platform: 'tiktok',
+  locationMatch: ['Colombia'],
+  locationLabel: 'Colombia',
+  title: 'Top TikTok Creators in Colombia for Brand Partnerships',
+  description: 'Discover verified Colombian TikTok creators with real engagement data. Colombia has one of Latin America\'s fastest-growing TikTok creator communities, known for fashion, beauty, and lifestyle content.',
+  label: 'Colombia',
+  emoji: '🇨🇴',
+  related: ['instagram-creators-colombia', 'tiktok-creators-brazil', 'tiktok-creators-spain'],
+},
+
+'tiktok-creators-brazil': {
+  type: 'location',
+  platform: 'tiktok',
+  locationMatch: ['Brazil', 'Brasil'],
+  locationLabel: 'Brazil',
+  title: 'Top TikTok Creators in Brazil for Brand Partnerships',
+  description: 'Find verified Brazilian TikTok creators with highly engaged audiences. Brazil has one of the world\'s most active TikTok communities, with creators known for fashion, beauty, lifestyle, and entertainment content.',
+  label: 'Brazil',
+  emoji: '🇧🇷',
+  related: ['instagram-creators-brazil', 'tiktok-creators-colombia', 'tiktok-creators-spain'],
+},
+
+'tiktok-creators-canada': {
+  type: 'location',
+  platform: 'tiktok',
+  locationMatch: ['Canada', 'Toronto', 'Vancouver'],
+  locationLabel: 'Canada',
+  title: 'Top TikTok Creators in Canada for Brand Partnerships',
+  description: 'Discover verified Canadian TikTok creators with real engagement data. Canada\'s TikTok creator scene spans lifestyle, fashion, fitness, and food with bilingual English and French audiences.',
+  label: 'Canada',
+  emoji: '🇨🇦',
+  related: ['instagram-creators-canada', 'tiktok-creators-australia', 'instagram-creators-united-states'],
+},
+
+'tiktok-creators-france': {
+  type: 'location',
+  platform: 'tiktok',
+  locationMatch: ['France', 'Paris'],
+  locationLabel: 'France',
+  title: 'Top TikTok Creators in France for Brand Partnerships',
+  description: 'Find verified French TikTok creators with authentic audiences. French TikTok creators bring a distinctive aesthetic to fashion, beauty, food, and lifestyle content with strong European reach.',
+  label: 'France',
+  emoji: '🇫🇷',
+  related: ['instagram-creators-france', 'tiktok-creators-spain', 'instagram-creators-paris'],
+},
+
+'tiktok-creators-germany': {
+  type: 'location',
+  platform: 'tiktok',
+  locationMatch: ['Germany', 'Berlin'],
+  locationLabel: 'Germany',
+  title: 'Top TikTok Creators in Germany for Brand Partnerships',
+  description: 'Discover verified German TikTok creators with real engagement data. Germany\'s TikTok creator market is one of Europe\'s largest, with strong content across fitness, lifestyle, comedy, and tech.',
+  label: 'Germany',
+  emoji: '🇩🇪',
+  related: ['instagram-creators-germany', 'tiktok-creators-france', 'tiktok-creators-spain'],
+},
+
+'tiktok-creators-peru': {
+  type: 'location',
+  platform: 'tiktok',
+  locationMatch: ['Peru'],
+  locationLabel: 'Peru',
+  title: 'Top TikTok Creators in Peru for Brand Partnerships',
+  description: 'Find verified Peruvian TikTok creators with authentic audiences. Peru has a rapidly growing TikTok creator community producing engaging lifestyle, food, fashion, and entertainment content.',
+  label: 'Peru',
+  emoji: '🇵🇪',
+  related: ['tiktok-creators-colombia', 'tiktok-creators-brazil', 'instagram-creators-colombia'],
+},
+
+'tiktok-creators-japan': {
+  type: 'location',
+  platform: 'tiktok',
+  locationMatch: ['Japan'],
+  locationLabel: 'Japan',
+  title: 'Top TikTok Creators in Japan for Brand Partnerships',
+  description: 'Discover verified Japanese TikTok creators with real engagement data. Japan\'s TikTok creator scene is known for unique beauty, fashion, food, and lifestyle content with a distinct aesthetic that resonates globally.',
+  label: 'Japan',
+  emoji: '🇯🇵',
+  related: ['tiktok-creators-australia', 'tiktok-beauty-creators', 'tiktok-lifestyle-creators'],
+},
+
+'tiktok-creators-chile': {
+  type: 'location',
+  platform: 'tiktok',
+  locationMatch: ['Chile'],
+  locationLabel: 'Chile',
+  title: 'Top TikTok Creators in Chile for Brand Partnerships',
+  description: 'Find verified Chilean TikTok creators with authentic audiences. Chile\'s TikTok creator community is one of South America\'s most dynamic, producing lifestyle, fashion, food, and entertainment content.',
+  label: 'Chile',
+  emoji: '🇨🇱',
+  related: ['tiktok-creators-colombia', 'tiktok-creators-brazil', 'tiktok-creators-peru'],
+},
+
+'tiktok-creators-australia': {
+  type: 'location',
+  platform: 'tiktok',
+  locationMatch: ['Australia'],
+  locationLabel: 'Australia',
+  title: 'Top TikTok Creators in Australia for Brand Partnerships',
+  description: 'Discover verified Australian TikTok creators with real engagement data. Australia\'s TikTok scene spans lifestyle, fitness, beauty, food, and outdoor adventure content with strong English-speaking audience reach.',
+  label: 'Australia',
+  emoji: '🇦🇺',
+  related: ['tiktok-creators-canada', 'instagram-creators-united-kingdom', 'tiktok-lifestyle-creators'],
+},
+
 };
 
 // ─────────────────────────────────────────────────────────────

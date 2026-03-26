@@ -326,6 +326,50 @@ export const LOCATION_CONTENT: Record<string, EduContent> = {
       'Beauty, food, family, and lifestyle are the strongest performing creator categories in Mexico. Mexican creator audiences engage deeply with content that reflects Mexican cultural values — family connection, food culture, community, and celebration. Brands that understand and respect these cultural priorities in their creator briefs consistently outperform those that simply adapt non-Mexican campaign templates.',
     ],
   },
+  // ─────────────────────────────────────────────────────────────────────────────
+// ADD THESE TO LOCATION_CONTENT in lib/discover/educational-content.ts
+// Paste them inside the LOCATION_CONTENT object, after the existing entries
+// ─────────────────────────────────────────────────────────────────────────────
+
+Peru: {
+  heading: 'Why Work with Influencers Based in Peru?',
+  paragraphs: [
+    'Peru is one of Latin America\'s most exciting emerging creator markets. The country\'s young, digitally engaged population has embraced TikTok with exceptional enthusiasm, building a creator community that is authentic, culturally rich, and rapidly growing in regional influence. Peruvian creators bring a distinctive cultural identity to their content — drawing on the country\'s world-renowned cuisine, fashion, and diverse regional cultures.',
+    'Peruvian TikTok content is characterised by high energy, creativity, and genuine community connection. Creators who have built followings in Peru have done so through content that resonates deeply with local cultural values — family, food, celebration, and national pride. For brands seeking authentic connection with Andean and broader Latin American audiences, Peruvian creators offer cultural credibility that international creators cannot replicate.',
+    'The cost efficiency of Peruvian creator partnerships is a significant advantage for brands exploring the Latin American market. Production quality from Peru\'s top creators is competitive with regional standards, while partnership costs reflect a market where the creator economy is still in a high-growth phase. Brands that invest early in Peruvian creator relationships build loyalty and first-mover advantage in a market that is rapidly increasing in commercial value.',
+    'Peru\'s strategic position as a cultural bridge between the Andean and broader Latin American markets makes Peruvian creators particularly effective for brands seeking regional reach. Content that resonates with Peruvian audiences frequently travels well to Bolivia, Ecuador, and Andean communities in other Latin American countries — amplifying campaign reach beyond Peru\'s 33 million domestic consumers.',
+  ],
+},
+
+Japan: {
+  heading: 'Why Work with Influencers Based in Japan?',
+  paragraphs: [
+    'Japan is one of the world\'s most commercially valuable and culturally distinctive creator markets. Japanese creators have developed a unique aesthetic sensibility — precision, attention to detail, and a blend of traditional and contemporary culture — that has global influence in beauty, fashion, food, and lifestyle categories. Being associated with Japanese creator content carries a quality signal that resonates with premium-oriented audiences worldwide.',
+    'Japanese TikTok has grown rapidly into one of Asia\'s most engaging platforms, with creators producing content that combines Japanese aesthetic traditions with contemporary social media formats. Japanese beauty creators in particular have global influence — J-beauty trends consistently shape international skincare and cosmetics markets, and Japanese creators are often the first to showcase techniques and products that later go mainstream globally.',
+    'The Japanese consumer market is characterised by exceptionally high quality standards and brand loyalty once established. Japanese creator audiences apply rigorous scrutiny to product recommendations — but when a trusted creator\'s endorsement is earned, it triggers purchasing behaviour and brand loyalty that is among the most durable of any market globally. Brands that succeed with Japanese creators gain customers who stay.',
+    'Japan\'s unique position at the intersection of East Asian and global culture makes Japanese creators effective for brands seeking simultaneous reach in Japan, South Korea, and Japanese-culture-influenced audiences globally. Japanese aesthetic trends have strong pull in China, Taiwan, Southeast Asia, and increasingly in Western markets where Japanese culture has significant cultural cachet.',
+  ],
+},
+
+Chile: {
+  heading: 'Why Work with Influencers Based in Chile?',
+  paragraphs: [
+    'Chile is Latin America\'s most economically developed market and one of its highest-income consumer economies. Chilean creator audiences reflect this economic context — they are brand-aware, quality-conscious consumers with purchasing power that exceeds the Latin American average. For brands entering the Latin American premium market, Chile offers the strongest combination of consumer sophistication and creator quality on the continent.',
+    'The Chilean TikTok creator community has grown rapidly, driven by the country\'s high smartphone penetration and strong broadband infrastructure. Chilean creators produce content with production quality that rivals North American standards — the country\'s geographic diversity (deserts, mountains, coastlines, vineyards) provides visual content backdrops that are genuinely spectacular and internationally appealing.',
+    'Chilean content culture values education, quality, and authenticity. Chilean audiences are receptive to detailed product information and respond well to creators who explain the genuine benefits and quality credentials of products they recommend. This makes Chile particularly effective for premium brands, technology products, and wellness categories where product quality differentiation matters.',
+    'Chile\'s strong trade relationships and cosmopolitan culture make Chilean creators effective gateways to the broader Southern Cone market — Argentina, Uruguay, and Paraguay all share cultural affinity with Chilean content. A Chilean creator campaign can deliver meaningful reach across the Southern Cone simultaneously, making the investment efficiency significantly higher than the domestic market size alone suggests.',
+  ],
+},
+
+Australia: {
+  heading: 'Why Work with Influencers Based in Australia?',
+  paragraphs: [
+    'Australia is one of the world\'s most commercially attractive English-speaking creator markets outside North America and the UK. Australian creators produce content that performs strongly across multiple English-speaking markets simultaneously — Australian lifestyle, fitness, and outdoor content resonates with audiences in the UK, US, Canada, and New Zealand, giving Australian creator partnerships unusually broad geographic reach for their partnership cost.',
+    'The Australian lifestyle aesthetic — outdoor living, beach culture, active wellness, and relaxed sophistication — has significant global appeal and is particularly influential in the fitness, outdoor, travel, food, and lifestyle categories. Australian creators in these spaces have built international followings that extend well beyond the domestic market of 26 million consumers.',
+    'Australian TikTok has developed a distinctive content culture that combines the casual authenticity of Australian social culture with high production quality. Australian creators are known for content that feels genuinely unscripted and personality-driven — a quality that resonates strongly with TikTok audiences who are increasingly resistant to polished, over-produced branded content.',
+    'The Australian market has strong brand sophistication — Australian consumers are familiar with international brands, make comparisons actively, and respond well to quality differentiation messaging. Australian creator audiences are willing to pay premium prices for products that are credibly recommended by creators they trust, making Australia one of the highest average order value markets for creator-driven e-commerce globally.',
+  ],
+},
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
