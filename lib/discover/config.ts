@@ -1094,9 +1094,10 @@ export function toSafeCreator(raw: {
   const platform = (raw.platform as Platform) || 'instagram';
 
   let cleanSummary = raw.ai_summary || '';
-cleanSummary = cleanSummary.replace(/^@\S+\s+(is\s+)?/i, '').trim();
-cleanSummary = cleanSummary.replace(/\(@[^)]+\)\s*/g, '').trim();
-cleanSummary = cleanSummary.replace(/,?\s*known as @\S+/gi, '').trim();
+  cleanSummary = cleanSummary.replace(/^@\S+\s+(is\s+)?/i, '').trim();
+  cleanSummary = cleanSummary.replace(/\(@[^)]+\)\s*/g, '').trim();
+  cleanSummary = cleanSummary.replace(/,?\s*known as @\S+/gi, '').trim();
+  cleanSummary = cleanSummary.replace(/^[A-Z][a-z]+(?:\s[A-Z][a-z]+)+\s+(creates?|is\s|shares?|posts?|offers?|brings?|combines?|focuses?|documents?|provides?|produces?)/i, (match, verb) => verb).trim();
   cleanSummary = cleanSummary.charAt(0).toUpperCase() + cleanSummary.slice(1);
 
   const teaser = cleanSummary
