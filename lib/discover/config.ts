@@ -1134,14 +1134,32 @@ export const PLATFORM_LABEL: Record<Platform, string> = {
   tiktok: 'TikTok',
 };
 
-import { NICHE_CONTENT, LOCATION_CONTENT, TIER_CONTENT } from './educational-content';
- 
-export function getEducationalContent(config: AnyPageConfig): { heading: string; paragraphs: string[] } {
+import {
+  NICHE_CONTENT,
+  LOCATION_CONTENT,
+  TIER_CONTENT,
+  PLATFORM_NICHE_CONTENT,
+  type ContentSection,
+} from './educational-content';
+
+export type EduContentResult = {
+  heading: string;
+  paragraphs?: string[];
+  sections?: ContentSection[];
+};
+
+export function getEducationalContent(config: AnyPageConfig): EduContentResult {
   if (config.type === 'niche') {
     const cfg = config as DiscoverPageConfig;
+    // Check for platform-specific rich content first (e.g. 'tiktok-Beauty')
+    const platformKey = `${cfg.platform}-${cfg.category}`;
+    if (PLATFORM_NICHE_CONTENT[platformKey]) {
+      return PLATFORM_NICHE_CONTENT[platformKey];
+    }
+    // Fall back to category-level content
     return NICHE_CONTENT[cfg.category] ?? NICHE_CONTENT['Beauty'];
   }
- 
+
   if (config.type === 'location') {
     const cfg = config as LocationPageConfig;
     return LOCATION_CONTENT[cfg.locationLabel] ?? {
@@ -1154,7 +1172,7 @@ export function getEducationalContent(config: AnyPageConfig): { heading: string;
       ],
     };
   }
- 
+
   if (config.type === 'tier') {
     const cfg = config as TierPageConfig;
     return TIER_CONTENT[cfg.tier]?.[cfg.category] ?? {
@@ -1167,6 +1185,53 @@ export function getEducationalContent(config: AnyPageConfig): { heading: string;
       ],
     };
   }
- 
+
   return { heading: '', paragraphs: [] };
+}
+
+export interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+export const NICHE_FAQ: Record<string, FAQItem[]> = {
+
+  'tiktok-Beauty': [
+    {
+      question: 'What is a good engagement rate for TikTok beauty creators?',
+      answer:
+        "Based on InfluenceIT's database of 651 verified mid-tier TikTok beauty creators, the median engagement rate is 8.54%, calculated from each creator's 15 most recent posts. A rate above 8% is considered strong for accounts between 50,000 and 500,000 followers. Rates above 15% indicate an exceptionally loyal audience — nearly 40% of beauty creators in our database exceed this threshold.",
+    },
+    {
+      question: 'How much do TikTok beauty creators charge for brand partnerships?',
+      answer:
+        'TikTok beauty creators in the mid-tier range (50,000–500,000 followers) typically charge between $150 and $3,000 per post depending on follower count and engagement rate. Creators with 50K–100K followers generally charge $150–$400 per post, while those with 250K–500K followers typically charge $1,000–$3,000. Exclusivity clauses add 30–50% to the base rate. Usage rights for paid advertising add a further 20–40%.',
+    },
+    {
+      question: 'What content formats work best for beauty brand partnerships on TikTok?',
+      answer:
+        'Get Ready With Me (GRWM) videos, makeup tutorials, product hauls, skincare routines, and before-and-after transformations consistently perform best. Tutorial formats drive significantly more saves and shares than simple product showcases, extending organic reach beyond the initial posting. Brands that provide creative freedom rather than rigid scripts see measurably higher engagement than those that restrict creators to specific messaging.',
+    },
+    {
+      question:
+        'What is the difference between TikTok and Instagram for beauty influencer marketing?',
+      answer:
+        "TikTok beauty creators in the mid-tier range achieve a median engagement rate of 8.54% according to InfluenceIT data, compared to typical Instagram engagement rates of 2–4% for comparable follower counts. TikTok also delivers significantly higher average views per post — 523,561 on average in our database. Instagram excels for long-term ambassador relationships, shoppable posts, and reaching audiences aged 25–45. Many effective beauty campaigns use both platforms simultaneously.",
+    },
+    {
+      question: 'How do I find the right TikTok beauty creator for my brand?',
+      answer:
+        "Look beyond follower count and prioritise engagement rate, posting consistency, audience demographics, and content alignment with your brand values. Use InfluenceIT's median engagement rate of 8.54% as your benchmark — creators below 3% warrant scrutiny. Review the last 15 posts rather than just the most viral. Check comment quality: genuine questions and personal responses indicate an authentic community. InfluenceIT provides verified engagement data calculated from each creator's 15 most recent posts.",
+    },
+  ],
+
+};
+
+export function getFAQContent(config: AnyPageConfig): FAQItem[] {
+  if (config.type === 'niche') {
+    const cfg = config as DiscoverPageConfig;
+    const platformKey = `${cfg.platform}-${cfg.category}`;
+    return NICHE_FAQ[platformKey] ?? [];
+  }
+  return [];
 }

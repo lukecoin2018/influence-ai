@@ -23,12 +23,16 @@ export default function StatsBar({
     },
     {
       value: avgEngagement ? `${avgEngagement}%` : '4–8%',
-      label: 'Average engagement rate in this niche',
+      label: avgEngagement
+        ? 'Median engagement rate (verified data)'
+        : 'Average engagement rate in this niche',
       icon: '📈',
     },
     {
       value: 'Verified',
-      label: `Real ${platform === 'instagram' ? 'Instagram' : 'TikTok'} accounts with authentic data`,
+      label: avgEngagement
+        ? 'Calculated from latest 15 posts per creator'
+        : `Real ${platform === 'instagram' ? 'Instagram' : 'TikTok'} accounts with authentic data`,
       icon: '✅',
     },
     {
@@ -41,10 +45,7 @@ export default function StatsBar({
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-gray-200 rounded-2xl overflow-hidden border border-gray-200">
       {stats.map((stat, i) => (
-        <div
-          key={i}
-          className="bg-white px-5 py-4 flex flex-col gap-1"
-        >
+        <div key={i} className="bg-white px-5 py-4 flex flex-col gap-1">
           <span className="text-lg">{stat.icon}</span>
           <span className="text-xl font-bold text-[#3A3A3A] leading-tight">
             {stat.value}

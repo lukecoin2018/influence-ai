@@ -522,3 +522,261 @@ export const TIER_CONTENT: Record<string, Record<string, EduContent>> = {
     },
   },
 };
+
+// ── Rich content types ────────────────────────────────────────
+
+export interface ContentSection {
+  type: 'h2' | 'h3' | 'paragraph' | 'table' | 'bullets';
+  content?: string;
+  headers?: string[];
+  rows?: string[][];
+  items?: string[];
+}
+
+export interface RichEduContent {
+  heading: string;
+  sections: ContentSection[];
+}
+
+// ── Platform-specific rich content ───────────────────────────
+// Key format: "{platform}-{category}" e.g. "tiktok-Beauty"
+// These override NICHE_CONTENT[category] for specific platform pages.
+// Add new platform-specific entries here as you create them.
+
+export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
+
+  'tiktok-Beauty': {
+    heading: 'TikTok Beauty Creators: The Complete Brand Partnership Guide',
+    sections: [
+
+      // ── Section 1: Value proposition ──────────────────────
+      {
+        type: 'h2',
+        content: 'What Makes TikTok Beauty Creators Valuable for Brands',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "BeautyTok has become one of the most commercially powerful communities on social media. Unlike Instagram, where beauty content often feels polished and aspirational, TikTok's algorithm rewards authentic, tutorial-driven content that shows real results — making it the platform where beauty purchasing decisions are increasingly made.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The format matters enormously. Get Ready With Me (GRWM) videos, product hauls, skincare routines, and before-and-after transformations do not just entertain — they inform purchase decisions in real time. Viewers save tutorials to revisit before shopping, share reviews with friends making the same purchase, and follow creator recommendations with a level of trust that traditional advertising cannot replicate.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier creators — those with between 50,000 and 500,000 followers — are where this trust is strongest. They have built genuine communities around shared beauty interests, they respond to comments, they remember their audience's preferences, and they post content that feels personal rather than promotional. For brands, this translates into measurably higher conversion rates compared to macro-influencers and celebrities, who often deliver reach without the same depth of audience connection.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok's global beauty community is also remarkably multilingual. Our database includes beauty creators posting in English, Spanish, Portuguese, French, Arabic, and Japanese — giving brands the ability to reach culturally specific audiences with authentic, native-language content rather than translated campaigns.",
+      },
+
+      // ── Section 2: Data ───────────────────────────────────
+      {
+        type: 'h2',
+        content: 'InfluenceIT Beauty Creator Data: 651 Verified Creators Analysed',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT tracks 651 mid-tier TikTok beauty creators with between 50,000 and 500,000 followers. Unlike industry reports that rely on estimates or self-reported data, every metric below is calculated from each creator's 15 most recent posts, giving brands an accurate picture of current performance rather than historical averages.",
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Performance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The median engagement rate across our verified TikTok beauty creator pool is 8.54%. This is the figure brands should use as a benchmark when evaluating creators — the median is a more reliable indicator than the average, which is skewed upward by creators with occasional viral posts.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The distribution of engagement across our beauty creator database is notably strong: nearly 40% of creators achieve engagement rates above 15%, indicating a substantial pool of creators with deeply loyal, highly responsive audiences. Fewer than a third fall below 2%, meaning the majority of mid-tier beauty creators on TikTok are delivering genuine audience engagement.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Reach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "A single post from a mid-tier TikTok beauty creator in our database generates an average of 523,561 views and 43,146 likes. For brands accustomed to paying premium rates for macro-influencer reach, this represents exceptional value — mid-tier creators typically charge a fraction of the cost while delivering comparable organic reach and significantly higher engagement depth.",
+      },
+      {
+        type: 'h3',
+        content: 'Posting Frequency',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Beauty creators in our database post an average of 3.22 times per week, maintaining consistent audience touchpoints without the content fatigue that affects higher-frequency accounts. Importantly, posting frequency alone is not a reliable quality signal — some of the highest-performing beauty creators in our database post less than once per week but maintain exceptional engagement because each post delivers genuine value.",
+      },
+      {
+        type: 'h3',
+        content: 'Geographic Distribution',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The United States accounts for the largest share of beauty creators in our database with 86 verified creators, followed by Spain (13), United Kingdom (11), Colombia (5), and Peru (4). UAE, France, Brazil, Chile, and Australia each contribute further creators in the verified pool. This distribution reflects TikTok beauty's particular strength in both English-speaking and Spanish-speaking markets — a meaningful advantage for brands targeting bilingual audiences or running multilingual campaigns.",
+      },
+
+      // ── Section 3: Evaluation ────────────────────────────
+      {
+        type: 'h2',
+        content: 'How to Evaluate a TikTok Beauty Creator',
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Rate Benchmarks',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Use 8.54% as your baseline — that is the median across InfluenceIT's verified beauty creator pool. Creators significantly below 3% engagement warrant careful scrutiny regardless of their follower count, as low engagement typically indicates an audience that has stopped actively interacting with the creator's content. Creators with engagement rates above 15% have demonstrated the kind of loyal community that converts viewer interest into purchasing action.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Bear in mind that engagement rate naturally decreases as follower count grows. A creator with 500,000 followers and 5% engagement is performing strongly; the same rate from a creator with 60,000 followers would be below average for that tier. Always compare engagement rates within follower tiers, not across them.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Consistency',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Always review the last 15 posts — not just the headline statistics or most viral video. A single breakout post can dramatically inflate a creator's engagement average while concealing mediocre typical performance. Consistent engagement across multiple posts demonstrates a creator who reliably connects with their audience rather than occasionally getting lucky with the algorithm.",
+      },
+      {
+        type: 'h3',
+        content: 'Audience Authenticity',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Scroll through the comment sections of recent posts. Authentic beauty communities generate genuine questions ('What foundation shade is that?'), product follow-up requests ('Did you do a full review of this?'), and personal responses from the creator. Generic emoji comments and one-word reactions can indicate low-quality audience engagement or inauthentic follower acquisition.",
+      },
+      {
+        type: 'h3',
+        content: 'Brand Partnership History',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT tracks detected brand partnerships from post analysis. Creators who integrate products naturally into their existing content style, maintain their authentic voice in sponsored posts, and disclose partnerships transparently tend to deliver better results than those whose sponsored content feels visibly different from their organic posts.",
+      },
+
+      // ── Section 4: Campaign strategy ─────────────────────
+      {
+        type: 'h2',
+        content: 'Building a Successful TikTok Beauty Creator Campaign',
+      },
+      {
+        type: 'h3',
+        content: 'Choosing the Right Content Format',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Different beauty content formats serve different campaign objectives. GRWM (Get Ready With Me) works best for brand awareness and lifestyle integration — a creator incorporating your product into their daily routine provides natural, non-promotional exposure that audiences accept and trust. Tutorial content is most effective for demonstrating specific product benefits, as step-by-step application videos generate high save rates that signal lasting value to TikTok's algorithm and extend organic reach significantly. Product hauls and reviews suit new product launches, while before-and-after content delivers the highest visual impact for skincare and transformation products.",
+      },
+      {
+        type: 'h3',
+        content: 'Brief for Authenticity, Not Perfection',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The most common reason beauty campaigns underperform on TikTok is an overly restrictive brief. Brands that require script approval, mandate specific hashtags, limit which products can appear in frame, and insist on multiple rounds of edits typically see engagement rates that are significantly lower than campaigns where creators are given genuine creative freedom. Provide clear non-negotiables — product mention, key benefit, disclosure language — then allow the creator's authentic voice to guide the execution. The audience follows this creator because they trust their opinion; that trust transfers to your brand only if the content feels genuinely theirs.",
+      },
+      {
+        type: 'h3',
+        content: 'Plan for Multiple Touchpoints',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Single-post beauty campaigns rarely deliver sustainable results. The purchase decision cycle for beauty products spans multiple interactions: a viewer might save a tutorial, return to it a week later, and convert after a follow-up recommendation from the same creator. Budget for a minimum of three posts spread across four to six weeks for meaningful brand recall and conversion opportunity. Multi-post campaigns also allow creators to show real results over time — particularly valuable for skincare products where efficacy is demonstrated through consistent use.",
+      },
+      {
+        type: 'h3',
+        content: 'Lead Time and Product Delivery',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Ship products a minimum of three weeks before the agreed posting date. Beauty creators need time to genuinely try products, form honest opinions, and incorporate them naturally into their content schedule. Rushed campaigns where products arrive days before posting are detectable to engaged beauty audiences, who are adept at identifying content created without real product experience. Inauthentic reviews damage both the creator's credibility and your brand's reputation with their audience.",
+      },
+
+      // ── Section 5: Pricing ────────────────────────────────
+      {
+        type: 'h2',
+        content: 'TikTok Beauty Creator Pricing Guide',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Pricing for TikTok beauty creators in the mid-tier range varies based on follower count, engagement rate, content format, exclusivity requirements, and usage rights. The following ranges reflect typical market rates in 2026:",
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', '$150–$400', '$400–$1,000'],
+          ['100K–250K', '$400–$1,000', '$1,000–$2,500'],
+          ['250K–500K', '$1,000–$3,000', '$2,500–$7,500'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Engagement rate materially affects pricing within each tier — a creator with 100,000 followers and 15% engagement will reasonably command rates at the higher end of the 100K–250K bracket, while a creator with 200,000 followers and 2% engagement should be priced more conservatively. Use InfluenceIT's verified engagement data to inform rate negotiations rather than relying solely on follower count.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Exclusivity clauses — preventing the creator from working with competing brands for a defined period — typically add 30–50% to the base rate. Usage rights for repurposing creator content in your own paid advertising add a further 20–40% depending on the duration and channels covered. If you intend to run creator content as paid social ads, negotiate usage rights upfront rather than attempting to renegotiate after posting.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For brands with limited budgets, creators in the 50K–100K follower range consistently offer the strongest return on investment. They maintain the highest engagement rates in the mid-tier segment, charge lower fees, and are often more flexible on creative collaboration. InfluenceIT's database includes over 200 verified beauty creators in this range with above-average engagement rates.",
+      },
+
+      // ── Section 6: Common mistakes ────────────────────────
+      {
+        type: 'h2',
+        content: 'Common Mistakes Brands Make with TikTok Beauty Creators',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Prioritising follower count over engagement rate. A creator with 500,000 followers and 1% engagement reaches fewer genuinely interested people than a creator with 100,000 followers and 10% engagement. The second creator's audience is actively paying attention. Use InfluenceIT's verified median of 8.54% as your quality benchmark — not raw follower numbers.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Running a single-post campaign and measuring it as a complete test. One post cannot meaningfully represent a creator partnership. If the algorithm delivers it to a cold audience, performance will be modest regardless of content quality. Judge creator partnerships over multiple posts before drawing conclusions about their value to your brand.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Sending products without a briefing call. Even experienced creators benefit from understanding your brand's values, the specific product benefits you want highlighted, and any claims that should not be made. A 20-minute briefing call prevents costly misalignments that require reshoots or content that cannot be approved for posting.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Expecting immediate sales conversion. TikTok beauty campaigns typically build brand awareness and consideration before driving direct sales. Measure success through engagement rate, save rate, profile visits, and website traffic in addition to direct conversion — these leading indicators predict longer-term commercial impact more reliably than first-week sales alone.",
+      },
+    ],
+  },
+
+};
