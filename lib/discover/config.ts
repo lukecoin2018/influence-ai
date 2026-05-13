@@ -1225,6 +1225,34 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'instagram-Beauty': [
+    {
+      question: 'What is a good engagement rate for Instagram beauty creators?',
+      answer:
+        "Based on InfluenceIT's database of 263 verified mid-tier Instagram beauty creators, the average engagement rate is 3.67%, with a median of 0.80%. Instagram engagement rates are structurally lower than TikTok due to platform mechanics — a 3% engagement rate on Instagram represents genuinely strong performance. Creators above 3.67% are outperforming the majority of their peers in our verified database.",
+    },
+    {
+      question: 'How much do Instagram beauty creators charge for brand partnerships?',
+      answer:
+        'Instagram beauty creators in the mid-tier range (50,000–500,000 followers) typically charge between $200 and $4,000 per post depending on follower count, engagement rate, and content format. Creators with 50K–100K followers generally charge $200–$600 per Reel or feed post, while those with 250K–500K followers typically charge $1,500–$4,000. Multi-format packages including Reels, Stories, and carousels range from $500 to $9,000 depending on follower tier. Usage rights for paid advertising add 25–50% to the base rate.',
+    },
+    {
+      question: 'What content formats work best for beauty brand partnerships on Instagram?',
+      answer:
+        'Reels deliver the highest organic reach for beauty brands on Instagram due to algorithmic amplification — ideal for product launches and awareness campaigns. Carousels generate the highest save rates, making them best for tutorials and before-and-after content. Stories drive the highest direct engagement and link clicks, making them most effective for conversion campaigns with shoppable product links. Multi-format campaigns combining all three consistently outperform single-format partnerships.',
+    },
+    {
+      question: 'What is the difference between Instagram and TikTok for beauty creator partnerships?',
+      answer:
+        "According to InfluenceIT's verified data, TikTok beauty creators achieve a median engagement rate of 8.54% compared to Instagram's 0.80% median, and generate an average of 523,561 views per post versus Instagram's 80,710. However, Instagram offers stronger shopping integration, longer content shelf life, and better reach into European markets and the 25–45 demographic. TikTok excels for discovery and viral reach; Instagram excels for conversion, shopping, and sustained brand awareness.",
+    },
+    {
+      question: 'How do I find the right Instagram beauty creator for my brand?',
+      answer:
+        "Prioritise verified engagement rate over follower count — given the wide engagement distribution in Instagram beauty, the difference between high and low performers is significant. Look for creators above the 3.67% average in InfluenceIT's database. Review saves as well as likes and comments, since saves indicate genuine purchase intent. Check Stories view counts alongside feed metrics. Assess aesthetic consistency across the last 30 posts to ensure the creator's visual style aligns with your brand positioning. InfluenceIT provides verified engagement data calculated from each creator's 15 most recent posts.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {

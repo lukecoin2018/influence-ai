@@ -779,4 +779,262 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'instagram-Beauty': {
+    heading: 'Instagram Beauty Creators: The Complete Brand Partnership Guide',
+    sections: [
+
+      // ── Section 1: Value proposition ────────────────────────
+      {
+        type: 'h2',
+        content: 'Why Instagram Beauty Creators Remain Essential for Brands',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram remains the foundational platform for beauty brand partnerships despite TikTok's rapid growth. The platform's visual-first format, shopping integration, and older demographic (skewing 25–45) make it indispensable for beauty brands seeking to reach consumers with established purchasing power. While TikTok drives discovery and virality, Instagram drives consideration and conversion — particularly for premium and luxury beauty products.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram beauty content has a longer shelf life than TikTok. A well-produced Reel or carousel post continues driving saves, profile visits, and website clicks for weeks after posting — unlike TikTok's algorithm-driven spikes that fade quickly. For brands building sustained brand awareness rather than single viral moments, Instagram's content longevity delivers better long-term return on investment.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The platform's shopping features — product tags, shop tabs, and direct checkout — create a frictionless purchase journey that no other social platform currently matches for beauty brands. Instagram beauty creators who integrate shoppable content into their posts can drive direct attribution in ways that are difficult to replicate on TikTok or YouTube.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier Instagram beauty creators — those with between 50,000 and 500,000 followers — occupy a particularly valuable position. They have built substantial enough audiences to deliver meaningful brand reach while maintaining the personal connection and aesthetic consistency that makes Instagram beauty influence commercially effective. InfluenceIT's database of 263 verified Instagram beauty creators in this range provides brands with a curated pool of proven partnership candidates.",
+      },
+
+      // ── Section 2: Data ─────────────────────────────────────
+      {
+        type: 'h2',
+        content: 'InfluenceIT Instagram Beauty Data: 263 Verified Creators Analysed',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT tracks 263 mid-tier Instagram beauty creators with between 50,000 and 500,000 followers. Every metric below is calculated from each creator's 15 most recent posts, providing an accurate picture of current performance rather than historical averages or self-reported estimates.",
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Performance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The average engagement rate across our verified Instagram beauty creator pool is 3.67%, with a median of 0.80%. The significant gap between average and median reflects the distribution within Instagram beauty: a subset of creators with highly engaged niche communities drives the average upward, while the majority of accounts fall below 1%. This data has an important implication for brand partnerships — on Instagram, creator selection based on verified engagement data is even more critical than on TikTok, where engagement rates are more consistently distributed.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For context, Instagram engagement rates are structurally lower than TikTok across all categories — this reflects platform mechanics rather than audience quality. Instagram's algorithmic feed and the platform's size mean that even highly loyal audiences see only a fraction of a creator's content. A 3% engagement rate on Instagram represents a genuinely engaged following; the same rate on TikTok would be considered below average.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Reach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "A single post from a mid-tier Instagram beauty creator in our database generates an average of 80,710 views and 6,663 likes. These figures primarily reflect Reels performance — Instagram's video format consistently outperforms static posts and carousels in reach due to algorithmic amplification. For brands seeking maximum organic reach on Instagram, Reels-first campaign briefs deliver significantly better results than static image partnerships.",
+      },
+      {
+        type: 'h3',
+        content: 'Posting Frequency',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram beauty creators in our database post an average of 7.65 times per week — significantly more frequently than their TikTok counterparts (3.22 posts per week). This higher frequency reflects Instagram's multi-format nature: creators typically post a combination of feed posts, Stories, and Reels across the week. For brands, this higher posting cadence means more opportunities for organic product integration — but also means that sponsored content competes with a higher volume of organic posts for audience attention.",
+      },
+      {
+        type: 'h3',
+        content: 'Geographic Distribution',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The United States accounts for the largest share of verified Instagram beauty creators in our database with 40 creators, followed by United Kingdom (9), and Spain, Sweden, France, UAE, and Germany with 5 creators each. Brazil (4) and Canada and Italy (3 each) complete the top ten. The strong European representation — particularly from Sweden, France, Germany, and Spain — reflects Instagram's dominance as the primary beauty platform in European markets where TikTok penetration remains lower.",
+      },
+
+      // ── Section 3: TikTok vs Instagram ──────────────────────
+      {
+        type: 'h2',
+        content: 'Instagram vs TikTok for Beauty Creator Partnerships',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database allows a direct data-driven comparison between the two platforms for beauty creator partnerships. The differences are significant and should inform campaign platform decisions.",
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Instagram Beauty', 'TikTok Beauty'],
+        rows: [
+          ['Verified creators (50K–500K)', '263', '651'],
+          ['Median engagement rate', '0.80%', '8.54%'],
+          ['Average engagement rate', '3.67%', '31.12%'],
+          ['Average views per post', '80,710', '523,561'],
+          ['Average likes per post', '6,663', '43,146'],
+          ['Average posts per week', '7.65', '3.22'],
+          ['Top creator country', 'United States (40)', 'United States (86)'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok delivers significantly higher engagement rates and views per post. Instagram delivers higher posting frequency, stronger shopping integration, and better reach into European and premium demographic markets. The most effective beauty campaigns use both platforms with platform-specific creative approaches rather than repurposing the same content across both.",
+      },
+
+      // ── Section 4: Evaluation ────────────────────────────────
+      {
+        type: 'h2',
+        content: 'How to Evaluate an Instagram Beauty Creator',
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Rate Benchmarks for Instagram',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Use 3.67% as your average benchmark for Instagram beauty creators, but prioritise finding creators above this average rather than those below. Given the wide distribution in our database — where the median sits at 0.80% — the difference between a high-performing and low-performing Instagram beauty creator is far greater than on TikTok. Creators with engagement rates above 3% on Instagram are genuinely outperforming the majority of their peers.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Note that Instagram engagement rate benchmarks decrease as follower count increases. A creator with 75,000 followers at 5% engagement is performing strongly; a creator with 400,000 followers at 2% engagement may also be performing well for their tier. Always compare engagement rates within similar follower brackets.",
+      },
+      {
+        type: 'h3',
+        content: 'Saves as a Quality Signal',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "On Instagram, saves are a more valuable engagement signal than likes for beauty content. When a follower saves a beauty post — a tutorial, a product recommendation, a skincare routine — they are signalling genuine purchase intent. They are bookmarking the content to reference when they shop. Brands should ask creators for their average save rate on beauty content, not just likes and comments, when evaluating partnership value.",
+      },
+      {
+        type: 'h3',
+        content: 'Stories Engagement',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Feed engagement metrics alone do not capture the full picture of an Instagram beauty creator's commercial value. Many creators have significantly higher engagement in Stories than in feed posts — and Stories are where direct product links, poll interactions, and genuine audience conversations happen. Request Stories view counts alongside feed metrics when evaluating Instagram beauty creators for partnership.",
+      },
+      {
+        type: 'h3',
+        content: 'Aesthetic Consistency',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram is a visual platform where aesthetic consistency signals professionalism and audience loyalty. Review the last 30 posts — not just the most recent. Creators who maintain a consistent visual style, colour palette, and content quality across their feed have built audiences that opted in specifically for that aesthetic. Your product being featured in their content is endorsement by aesthetic association, which carries commercial weight beyond the direct engagement numbers.",
+      },
+
+      // ── Section 5: Campaign strategy ────────────────────────
+      {
+        type: 'h2',
+        content: 'Building a Successful Instagram Beauty Creator Campaign',
+      },
+      {
+        type: 'h3',
+        content: 'Choosing the Right Content Format',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram offers multiple content formats, each with different performance characteristics for beauty brands. Reels deliver the highest organic reach due to algorithmic amplification and are the recommended format for new product launches and brand awareness campaigns. Carousels generate the highest save rates — ideal for tutorial content, before-and-after demonstrations, and multi-step routines where the audience needs to revisit the content. Stories drive the highest direct engagement and link clicks, making them the most effective format for conversion-focused campaigns with swipe-up product links.",
+      },
+      {
+        type: 'h3',
+        content: 'Integrate Shopping Features',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "If your brand has an Instagram Shop set up, brief creators to use product tags in their posts. Tagged products allow followers to purchase directly from the creator's post without leaving Instagram — dramatically reducing the friction between discovery and purchase. Instagram shopping integration is one of the platform's most significant advantages over TikTok for direct-response beauty campaigns, and it is consistently underutilised in creator briefs.",
+      },
+      {
+        type: 'h3',
+        content: 'Plan for Multi-Format Campaigns',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The most effective Instagram beauty campaigns combine formats rather than using a single post type. A campaign structure that includes one Reel for reach, two Stories for direct engagement and link clicks, and one carousel for save-driving tutorial content — all featuring the same product — creates multiple touchpoints across the creator's audience and significantly outperforms any single format alone.",
+      },
+      {
+        type: 'h3',
+        content: 'Allow Adequate Lead Time',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram beauty content requires more production time than TikTok. High-quality photography, edited Reels, and polished carousel layouts take significantly longer to produce than an authentic TikTok video. Budget a minimum of four weeks from product delivery to posting date — six weeks for campaigns requiring multiple content pieces or involving creators with complex production workflows.",
+      },
+
+      // ── Section 6: Pricing ──────────────────────────────────
+      {
+        type: 'h2',
+        content: 'Instagram Beauty Creator Pricing Guide',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Pricing for Instagram beauty creators in the mid-tier range varies based on follower count, engagement rate, content format, and usage rights. The following ranges reflect typical market rates in 2026:",
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Feed Post / Reel', 'Multi-Format Package'],
+        rows: [
+          ['50K–100K', '$200–$600', '$500–$1,500'],
+          ['100K–250K', '$600–$1,500', '$1,500–$3,500'],
+          ['250K–500K', '$1,500–$4,000', '$3,500–$9,000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram beauty creators typically charge more than TikTok creators at equivalent follower counts, reflecting the higher production quality required for Instagram content and the platform's stronger direct-response and shopping capabilities. Stories are often included in packages or priced separately at 20–30% of the feed post rate. Usage rights for repurposing Instagram creator content in paid advertising add 25–50% to the base rate.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Creators with above-average engagement rates — particularly those above 3.67% — command premiums within their follower tier. Given the wide engagement distribution in our Instagram beauty database, a creator with genuinely high engagement is a meaningfully scarcer asset than their TikTok equivalent, which justifies the premium.",
+      },
+
+      // ── Section 7: Common mistakes ──────────────────────────
+      {
+        type: 'h2',
+        content: 'Common Mistakes Brands Make with Instagram Beauty Creators',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Applying TikTok engagement benchmarks to Instagram. A 2% engagement rate on Instagram is not poor performance — it may represent a genuinely engaged audience of thousands of active beauty consumers. Evaluate Instagram creators against Instagram-specific benchmarks, not cross-platform comparisons.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Ignoring Stories in favour of feed posts exclusively. Stories often reach a more engaged, loyal subset of a creator's audience — the followers who are actively watching daily updates rather than passively scrolling a feed. Stories with product links consistently drive higher direct conversion than feed posts for beauty brands with active Instagram Shops.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Requesting static image posts instead of Reels. Organic reach for static Instagram posts has declined significantly in recent years as the algorithm increasingly prioritises video content. Brands that restrict creators to static imagery are sacrificing significant reach potential for aesthetic control. Brief for Reels first, with creative guidelines rather than rigid aesthetic restrictions.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Not leveraging the save metric. Brands typically report campaign performance using likes, comments, and reach — but for beauty content, saves are the strongest predictor of purchase intent. Request save data from creators as part of post-campaign reporting and factor it into creator performance evaluation for future partnerships.",
+      },
+    ],
+  },
+
 };
