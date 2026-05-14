@@ -1365,6 +1365,34 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'tiktok-Skincare': [
+    {
+      question: 'What is a good engagement rate for TikTok skincare creators?',
+      answer:
+        "Based on InfluenceIT's database of verified mid-tier TikTok skincare creators, the median engagement rate is 8.84% — the highest median of any category in our database. This reflects the exceptional audience engagement that skincare education content generates on TikTok. Creators above 8.84% are outperforming the majority of their verified peers. Our skincare creators also generate the highest average views per post of any category at 646,882, reflecting SkincareTok's strong algorithmic amplification.",
+    },
+    {
+      question: 'How much do TikTok skincare creators charge for brand partnerships?',
+      answer:
+        'TikTok skincare creators in the mid-tier range (50,000–500,000 followers) typically charge between $150 and $4,000 per post. Creators with 50K–100K followers generally charge $150–$500 per post, while those with 250K–500K followers typically charge $1,500–$4,000. Creators with dermatology credentials or professional skincare qualifications command premiums. Exclusivity clauses preventing work with competing skincare brands add 30–50% to the base rate. Usage rights for paid advertising add a further 20–40%.',
+    },
+    {
+      question: 'What content formats work best for skincare brand partnerships on TikTok?',
+      answer:
+        "Ingredient education content — where a creator explains the science behind an active ingredient and demonstrates your product's formulation — is the highest-performing format for skincare brands on TikTok. Routine integration (featuring your product in a creator's genuine morning or evening routine) drives strong saves and consideration. Genuine before-and-after documentation over four to eight weeks delivers the highest purchase conviction when authentic. Honest reviews that acknowledge individual variation build deeper audience trust than purely positive messaging.",
+    },
+    {
+      question: 'Why are Asian skincare creators important for brand partnerships?',
+      answer:
+        "South Korean, Japanese, Thai, and Vietnamese skincare creators have disproportionate influence on global skincare trends. K-beauty glass skin techniques, J-beauty fermented ingredient innovations, and other Asian skincare approaches consistently achieve mainstream Western adoption through TikTok creator education — often within weeks of trending in their origin markets. InfluenceIT's TikTok skincare database includes verified creators from South Korea, Japan, Thailand, and Vietnam, giving brands access to the markets that define global skincare innovation.",
+    },
+    {
+      question: 'How do I find the right TikTok skincare creator for my brand?',
+      answer:
+        "Start with skin type and concern alignment — match your product's primary benefit to the creator's documented skin concern and community focus. Then verify engagement against the 8.84% median benchmark in InfluenceIT's database. Check factual accuracy in the creator's educational content to ensure they communicate scientifically sound information. Look for creators who document genuine long-term product use rather than single-application impressions. InfluenceIT provides verified engagement data calculated from each creator's 15 most recent posts across verified TikTok skincare creators.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
