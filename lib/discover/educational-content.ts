@@ -1037,4 +1037,270 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'tiktok-Fashion': {
+    heading: 'TikTok Fashion Creators: The Complete Brand Partnership Guide',
+    sections: [
+
+      // ── Section 1: Value proposition ────────────────────────
+      {
+        type: 'h2',
+        content: 'Why TikTok Fashion Creators Are Essential for Modern Brands',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok has fundamentally changed how fashion trends form and spread. What once took months to move from runway to mainstream consumer awareness now happens in days — a single creator's outfit post can sell out a product within hours, spawn thousands of imitations, and establish a trend that shapes retail buying decisions for the season. For fashion brands, TikTok is no longer optional; it is where the industry's cultural conversation happens in real time.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The platform's fashion creator ecosystem is also its largest. InfluenceIT's database contains 1,317 verified mid-tier TikTok fashion creators — more than double the beauty category — reflecting fashion's dominance as TikTok's most active content vertical. This scale gives brands genuine choice in creator selection: the ability to find creators who align precisely with their aesthetic, price point, target demographic, and geographic market.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier TikTok fashion creators — those with between 50,000 and 500,000 followers — occupy the most commercially valuable position in the fashion creator ecosystem. They have built loyal style communities without the aspirational distance of celebrity accounts, their audiences genuinely look to them for style direction rather than passive entertainment, and their partnership rates remain accessible for brands without celebrity-level budgets.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The geographic diversity of TikTok fashion is a particular strength for global brands. Our database includes fashion creators from the United States, United Kingdom, Spain, Colombia, Peru, Mexico, Brazil, France, Canada, and Japan — giving brands the ability to run authentic, locally-relevant fashion campaigns across multiple markets simultaneously from a single creator discovery platform.",
+      },
+
+      // ── Section 2: Data ─────────────────────────────────────
+      {
+        type: 'h2',
+        content: 'InfluenceIT TikTok Fashion Data: 1,317 Verified Creators Analysed',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT tracks 1,317 mid-tier TikTok fashion creators with between 50,000 and 500,000 followers. Every metric below is calculated from each creator's 15 most recent posts, providing current performance data rather than historical averages or self-reported estimates.",
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Performance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The median engagement rate across our verified TikTok fashion creator pool is 7.95%. This figure is calculated from real post interactions and represents the midpoint of the distribution — half of our verified fashion creators achieve above this rate, half below. For campaign planning, 7.95% is the benchmark to use when evaluating individual creator performance: creators above this median are outperforming their peers in the same follower range.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The average engagement rate of 31.89% is significantly higher than the median, reflecting the presence of creators with exceptional viral posts that skew the overall average upward. When evaluating individual creators, the median is the more reliable benchmark — it is less susceptible to the distorting effect of a single breakout video.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Reach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "A single post from a mid-tier TikTok fashion creator in our database generates an average of 504,854 views and 45,231 likes. For fashion brands evaluating the cost efficiency of creator partnerships versus traditional advertising, these reach figures at mid-tier partnership rates represent exceptional value. The organic amplification potential of TikTok's fashion algorithm — which actively surfaces style content to non-followers — means actual reach frequently exceeds these averages for content that resonates with the platform's broader fashion community.",
+      },
+      {
+        type: 'h3',
+        content: 'Posting Frequency',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok fashion creators in our database post an average of 4.01 times per week — consistent with the platform's expectation of regular content without the excessive frequency that can signal quantity over quality. This posting cadence means fashion brands have frequent integration opportunities throughout a campaign period, and that sponsored content appears within a steady stream of authentic organic posts rather than standing out as an isolated promotional piece.",
+      },
+      {
+        type: 'h3',
+        content: 'Geographic Distribution',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The United States dominates our TikTok fashion creator database with 141 verified creators, followed by United Kingdom (22), Spain (16), Colombia (13), Peru (11), Mexico (11), Canada (11), Brazil (10), France (9), and Japan (8). The strong Latin American representation — Colombia, Peru, Mexico, and Brazil collectively accounting for 44 creators — reflects TikTok fashion's particular strength in Spanish and Portuguese-speaking markets, where fashion content engagement rates are consistently among the platform's highest globally.",
+      },
+
+      // ── Section 3: Fashion content formats ──────────────────
+      {
+        type: 'h2',
+        content: 'TikTok Fashion Content Formats That Drive Brand Results',
+      },
+      {
+        type: 'h3',
+        content: 'Outfit of the Day (OOTD)',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "OOTD content is the foundational format of TikTok fashion and consistently delivers strong engagement across all follower tiers. A creator showcasing a full outfit — with your brand's piece as the anchor — provides natural product exposure within the context audiences already expect and enjoy. OOTD content works particularly well for hero pieces: statement items that viewers immediately want to identify and purchase. The key to effective OOTD brand integration is ensuring the featured piece genuinely fits the creator's existing aesthetic rather than feeling like a visible insertion.",
+      },
+      {
+        type: 'h3',
+        content: 'Get The Look',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "'Get The Look' videos — where a creator recreates a celebrity, runway, or trending aesthetic — are TikTok fashion's highest-reach format. When a brand's piece is central to the recreation, the content reaches audiences both within and well beyond the creator's existing following, as TikTok's algorithm actively distributes trend-related fashion content to users who have engaged with similar aesthetics. For new brands seeking rapid awareness, commissioning 'Get The Look' content featuring their products is among the most cost-efficient reach strategies available.",
+      },
+      {
+        type: 'h3',
+        content: 'Styling Challenges and Transitions',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Styling challenges — where creators show multiple ways to style a single piece — and transition videos — where outfit changes are revealed through creative editing cuts — are TikTok formats that showcase product versatility while delivering the high-entertainment value the platform rewards with algorithmic amplification. These formats are particularly effective for wardrobe staples and versatile pieces where demonstrating multiple use cases is a genuine selling point.",
+      },
+      {
+        type: 'h3',
+        content: 'Haul Content',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Fashion hauls — where a creator shows multiple new purchases in a single video — are TikTok's highest-conversion format for fashion brands. Haul audiences are actively shopping-minded; they watch hauls specifically to discover new brands and products. A genuine inclusion in a creator's haul (as opposed to a standalone sponsored post) consistently drives above-average click-through and purchase intent. For brands launching new collections or seasonal releases, securing haul placements across multiple mid-tier creators simultaneously creates a market saturation effect that dramatically amplifies launch momentum.",
+      },
+
+      // ── Section 4: Evaluation ────────────────────────────────
+      {
+        type: 'h2',
+        content: 'How to Evaluate a TikTok Fashion Creator',
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Rate Benchmarks',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Use 7.95% as your baseline engagement benchmark for TikTok fashion creators — that is the median across InfluenceIT's verified pool of 1,317 creators. Creators significantly below 3% engagement warrant scrutiny regardless of follower count, as low engagement typically indicates an audience that is no longer actively interacting with the creator's content. Creators above 15% have demonstrated the kind of highly loyal style community that drives genuine purchase behaviour rather than passive content consumption.",
+      },
+      {
+        type: 'h3',
+        content: 'Aesthetic Alignment',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Aesthetic alignment is more important in fashion than in almost any other creator category. A fashion creator's audience has opted in specifically for their particular style point of view — minimalist, maximalist, streetwear, luxury-casual, sustainable, Y2K, or any of TikTok's countless micro-aesthetics. Your brand product being featured in their content carries the implicit endorsement of that aesthetic. A luxury brand featuring in a fast-fashion haul creator's content, or a sustainable brand appearing in a creator known for trend-chasing consumption, creates a brand-audience mismatch that audiences notice and that can generate negative associations rather than positive ones.",
+      },
+      {
+        type: 'h3',
+        content: 'Comment Section Quality',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok fashion comment sections are where style communities are most visible. Creators with genuinely engaged fashion audiences have comment sections full of specific questions ('What brand is that top?', 'Where is the link for the shoes?'), enthusiastic style conversations, and personal engagement from the creator themselves. Generic reactions and emoji-only comments suggest an audience that watches for entertainment but does not actively participate in the style community — which translates to lower commercial intent for fashion brand partnerships.",
+      },
+      {
+        type: 'h3',
+        content: 'Posting Consistency',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Review the last 30 days of content rather than just recent posts. Fashion creators who maintain consistent posting frequency, aesthetic coherence, and engagement levels across an extended period have demonstrated audience reliability. Creators who post in bursts with long gaps, or whose engagement fluctuates dramatically between posts, may have an audience that has become less predictably attentive — which affects campaign reliability.",
+      },
+
+      // ── Section 5: Campaign strategy ────────────────────────
+      {
+        type: 'h2',
+        content: 'Building a Successful TikTok Fashion Creator Campaign',
+      },
+      {
+        type: 'h3',
+        content: 'Match Campaign Objective to Content Format',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Different campaign objectives require different content formats. For brand awareness and trend association, 'Get The Look' and styling challenge formats deliver the highest reach. For conversion and direct purchase intent, haul content and OOTD with direct product links perform best. For brand positioning and aesthetic association, ongoing ambassador content that integrates your product into the creator's consistent aesthetic over multiple posts builds the strongest brand-audience association over time.",
+      },
+      {
+        type: 'h3',
+        content: 'Seasonal Timing',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Fashion content is highly seasonal and TikTok fashion audiences are acutely sensitive to seasonal relevance. Content featuring winter coats in summer, or summer dresses in winter, performs significantly below seasonal-appropriate content regardless of production quality. Book creators 6–8 weeks ahead of the season you are targeting — this allows time for product delivery, content production, and ensures posting aligns with the moment audiences are actively shopping for that category. January, late August, and early October are the three highest-intent shopping windows for fashion on TikTok.",
+      },
+      {
+        type: 'h3',
+        content: 'Multi-Creator Launch Strategy',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok's fashion algorithm is particularly responsive to volume signals — when multiple creators post content featuring the same brand or product within a short window, the algorithm interprets this as a trend signal and amplifies all related content. For new collection launches, coordinating 8–12 mid-tier fashion creators to post within the same 72-hour window creates a market saturation effect that individual creator partnerships cannot replicate. This strategy consistently drives above-average launch performance for fashion brands on TikTok.",
+      },
+      {
+        type: 'h3',
+        content: 'Creative Brief Best Practices',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Fashion briefs that specify exact styling — 'wear the jacket with black trousers and white trainers' — consistently underperform briefs that allow the creator to style your piece within their existing aesthetic. The creator's audience follows them specifically for their style point of view; overriding it with brand-mandated styling removes the authenticity that makes the content credible. Provide the piece, communicate your brand aesthetic and key values, and let the creator bring their styling intelligence to the execution.",
+      },
+
+      // ── Section 6: Pricing ──────────────────────────────────
+      {
+        type: 'h2',
+        content: 'TikTok Fashion Creator Pricing Guide',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Pricing for TikTok fashion creators in the mid-tier range varies based on follower count, engagement rate, content format, and exclusivity. The following ranges reflect typical market rates in 2026:",
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', '$150–$500', '$400–$1,200'],
+          ['100K–250K', '$500–$1,200', '$1,200–$3,000'],
+          ['250K–500K', '$1,200–$3,500', '$3,000–$8,500'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Fashion creators with above-average engagement rates — particularly those exceeding the 7.95% median in our database — command premiums within their follower tier. Haul content is typically priced at a premium over standard OOTD posts, reflecting its higher conversion performance. Exclusivity clauses preventing the creator from working with competing fashion brands typically add 30–50% to the base rate.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Usage rights for repurposing TikTok fashion content in paid advertising add 20–40% to the base rate. If you intend to run creator content as paid social ads — a strategy that consistently outperforms brand-produced creative in fashion categories — negotiate usage rights upfront rather than renegotiating after posting.",
+      },
+
+      // ── Section 7: Common mistakes ──────────────────────────
+      {
+        type: 'h2',
+        content: 'Common Mistakes Brands Make with TikTok Fashion Creators',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Choosing creators based on follower count rather than aesthetic alignment. A 400,000-follower fashion creator whose aesthetic conflicts with your brand positioning will deliver worse results than a 80,000-follower creator whose style community is perfectly aligned with your target customer. In fashion specifically, the right aesthetic fit matters more than raw reach.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Over-specifying the styling brief. Fashion audiences follow creators for their style intelligence — when a brand overrides that with mandatory styling, the content loses the authenticity that makes it credible. Brief creators with brand context and aesthetic direction, not specific outfit formulas.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Ignoring seasonal timing. Fashion content posted outside its relevant seasonal window consistently underperforms. A well-produced winter coat campaign posted in late January misses the key shopping window that runs from October to December. Plan fashion campaigns 6–8 weeks ahead of the target season.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Running single-creator campaigns for launches. TikTok's fashion algorithm responds to volume signals. A single creator partnership, however well executed, cannot create the trend momentum that a coordinated multi-creator launch generates. For product launches, budget for a minimum of five creators posting within the same week.",
+      },
+    ],
+  },
+
 };

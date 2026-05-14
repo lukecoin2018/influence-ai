@@ -1253,6 +1253,34 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'tiktok-Fashion': [
+    {
+      question: 'What is a good engagement rate for TikTok fashion creators?',
+      answer:
+        "Based on InfluenceIT's database of 1,317 verified mid-tier TikTok fashion creators, the median engagement rate is 7.95%, calculated from each creator's 15 most recent posts. A rate above 7.95% means the creator is outperforming more than half of our verified fashion creator pool. Rates above 15% indicate an exceptionally loyal style community. Use 7.95% as your benchmark when evaluating individual creator performance.",
+    },
+    {
+      question: 'How much do TikTok fashion creators charge for brand partnerships?',
+      answer:
+        'TikTok fashion creators in the mid-tier range (50,000–500,000 followers) typically charge between $150 and $3,500 per post depending on follower count and engagement rate. Creators with 50K–100K followers generally charge $150–$500 per post, while those with 250K–500K followers typically charge $1,200–$3,500. Haul content commands a premium over standard posts. Exclusivity clauses add 30–50% to the base rate, and usage rights for paid advertising add a further 20–40%.',
+    },
+    {
+      question: 'What content formats work best for fashion brand partnerships on TikTok?',
+      answer:
+        "Get The Look videos deliver the highest reach for fashion brands on TikTok due to algorithmic trend amplification. Haul content drives the highest purchase intent and conversion. OOTD (Outfit of the Day) posts provide natural product integration with strong engagement. Styling challenge and transition videos showcase product versatility and generate high entertainment value. For product launches, coordinating multiple creators to post haul or OOTD content within the same 72-hour window creates a trend signal that significantly amplifies campaign reach.",
+    },
+    {
+      question: 'How important is aesthetic alignment when choosing a TikTok fashion creator?',
+      answer:
+        "Aesthetic alignment is the single most important factor in TikTok fashion creator selection — more important than follower count or even engagement rate. A fashion creator's audience has opted in specifically for their style point of view. Your brand product appearing in their content carries implicit endorsement of that aesthetic. A brand whose positioning conflicts with the creator's aesthetic will see poor performance regardless of follower count, while a brand whose aesthetic aligns naturally will benefit from the trust the creator has built with their style community.",
+    },
+    {
+      question: 'How do I find the right TikTok fashion creator for my brand?',
+      answer:
+        "Start with aesthetic alignment — review the creator's last 30 posts to confirm their style is genuinely consistent with your brand positioning. Then check verified engagement data against the 7.95% median benchmark in InfluenceIT's database. Review comment section quality for evidence of an active style community rather than passive viewership. Check posting consistency and geographic audience match for your target market. InfluenceIT provides verified engagement data calculated from each creator's 15 most recent posts across 1,317 verified TikTok fashion creators.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
