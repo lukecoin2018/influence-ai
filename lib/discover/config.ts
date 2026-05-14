@@ -1429,6 +1429,34 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'usecase-Fashion Brands': [
+    {
+      question: 'How many fashion influencers are available on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes 1,885 verified fashion creators across TikTok and Instagram in the 50,000–500,000 follower range — 1,317 TikTok fashion creators with a median engagement rate of 7.95%, and 568 Instagram fashion creators with an average engagement rate of 3.23%. All metrics are calculated from each creator's 15 most recent posts. Our fashion database is the largest of any category, giving brands genuine choice across aesthetics, follower tiers, and geographic markets.",
+    },
+    {
+      question: 'Should fashion brands use TikTok or Instagram influencers?',
+      answer:
+        "Both platforms serve different roles. TikTok delivers higher engagement (7.95% median for fashion), greater reach per post (504,854 average views), and stronger performance for trend creation and reaching the 18–30 demographic. Instagram delivers native shopping integration, editorial-quality content, longer shelf life, and better reach into European markets (Germany, France, Italy, Spain) and the 26–40 demographic. The most effective fashion campaigns run TikTok-first for reach and trend momentum, with Instagram for conversion and brand positioning.",
+    },
+    {
+      question: 'What is the most important factor when selecting fashion influencers?',
+      answer:
+        "Aesthetic alignment is the single most important factor in fashion creator selection — more important than follower count or engagement rate. A fashion creator's audience follows them specifically for their style point of view. Your brand appearing in their content inherits that aesthetic association. A luxury brand in a fast-fashion creator's content creates negative association; a sustainable brand in a trend-consumption creator's content undermines brand values. Review the last 30 posts to confirm consistent aesthetic fit before evaluating any other metric.",
+    },
+    {
+      question: 'How much should fashion brands budget for influencer campaigns?',
+      answer:
+        "TikTok fashion creator partnerships typically cost $150–$3,500 per post in the mid-tier range. Instagram fashion creators typically charge $200–$5,000 per post. For a meaningful collection launch using 8–10 creators across both platforms, budget $8,000–$35,000 for content costs. Multi-creator coordinated launches — where 8–12 creators post within the same 72-hour window — create trend momentum that single-creator campaigns cannot replicate and deliver better cost-per-awareness than equivalent traditional advertising spend.",
+    },
+    {
+      question: 'What content formats drive the best results for fashion brand campaigns?',
+      answer:
+        "Styling content — showing multiple ways to wear a piece — drives the highest saves on both platforms, indicating purchase intent. Get The Look and trend recreation content drives the highest reach on TikTok due to algorithmic amplification. For Instagram, Reels deliver maximum organic reach while carousels generate the most saves. Haul content drives the highest direct purchase intent. For launches, coordinating multiple creators to post simultaneously within 72 hours creates trend momentum that dramatically amplifies campaign reach.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
