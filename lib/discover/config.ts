@@ -1281,6 +1281,34 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'instagram-Fashion': [
+    {
+      question: 'What is a good engagement rate for Instagram fashion creators?',
+      answer:
+        "Based on InfluenceIT's database of 568 verified mid-tier Instagram fashion creators, the average engagement rate is 3.23% with a median of 0.66%. Instagram engagement rates are structurally lower than TikTok due to platform mechanics — a 3% engagement rate on Instagram represents strong performance for fashion creators. Given the wide distribution in our database, prioritise creators above the 3.23% average. Saves are a particularly valuable engagement signal in fashion, as they indicate genuine purchase intent.",
+    },
+    {
+      question: 'How much do Instagram fashion creators charge for brand partnerships?',
+      answer:
+        'Instagram fashion creators in the mid-tier range (50,000–500,000 followers) typically charge between $200 and $5,000 per post depending on follower count, engagement rate, and content format. Creators with 50K–100K followers generally charge $200–$700 per Reel or feed post, while those with 250K–500K followers typically charge $1,800–$5,000. Multi-format packages including Reels, Stories, and carousels range from $500 to $12,000 depending on follower tier. Usage rights for paid advertising add 25–50% to the base rate.',
+    },
+    {
+      question: 'What content formats work best for fashion brand partnerships on Instagram?',
+      answer:
+        'Reels deliver the highest organic reach for fashion brands on Instagram due to algorithmic amplification — making them the recommended primary format for awareness campaigns. Carousels generate the highest save rates, ideal for styling tutorials and editorial content. Stories drive direct engagement and product link clicks, making them most effective for conversion campaigns with shoppable product links. Multi-format campaigns combining all three consistently outperform single-format partnerships for fashion brands.',
+    },
+    {
+      question: 'How does Instagram compare to TikTok for fashion influencer marketing?',
+      answer:
+        "According to InfluenceIT's verified data, TikTok fashion creators achieve a median engagement rate of 7.95% versus Instagram's 0.66% median, and generate an average of 504,854 views per post versus Instagram's 61,855. However, Instagram offers native shopping integration with product tags and direct checkout, stronger reach into European fashion markets (Germany, France, Italy, Spain), content with longer discoverability, and higher posting frequency. TikTok excels for trend awareness and viral reach; Instagram excels for conversion, shopping, and European market penetration.",
+    },
+    {
+      question: 'How do I find the right Instagram fashion creator for my brand?',
+      answer:
+        "Start with aesthetic alignment — review the creator's last 30 posts to confirm their visual style matches your brand positioning. Then check verified engagement data against the 3.23% average benchmark in InfluenceIT's database, with particular attention to save rates as an indicator of purchase intent. Request Stories view counts alongside feed metrics for a complete audience picture. For European market campaigns, our database includes strong representation from Germany, France, Italy, Spain, and the UK. InfluenceIT provides verified engagement data calculated from each creator's 15 most recent posts.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {

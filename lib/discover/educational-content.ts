@@ -1303,4 +1303,258 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'instagram-Fashion': {
+    heading: 'Instagram Fashion Creators: The Complete Brand Partnership Guide',
+    sections: [
+
+      // ── Section 1: Value proposition ────────────────────────
+      {
+        type: 'h2',
+        content: 'Why Instagram Remains the Premium Fashion Platform for Brands',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram built the modern influencer fashion economy and remains its most commercially sophisticated platform. The combination of high-quality visual content, shoppable posts, and a fashion-aware audience demographic — skewing 25–45 with established purchasing power — makes Instagram indispensable for fashion brands seeking conversion alongside awareness. While TikTok drives trend discovery, Instagram drives the considered purchase decisions that follow.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database includes 568 verified mid-tier Instagram fashion creators — a substantial pool that includes strong European representation reflecting Instagram's dominance as the primary fashion platform across France, Italy, Germany, Spain, and the UK. For fashion brands with European market ambitions, Instagram fashion creators offer unmatched reach into the continent's most influential fashion markets.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The platform's visual permanence distinguishes Instagram fashion content from TikTok. A well-produced Instagram Reel or editorial-quality carousel post remains discoverable and commercially active for months — appearing in Explore feeds, hashtag searches, and profile grids long after the initial posting date. Fashion brands investing in Instagram creator partnerships are building a content library with lasting commercial value, not just generating momentary viral attention.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram's shopping infrastructure — product tags, shop tabs, collection curation, and direct checkout — creates a seamless path from inspiration to purchase that is unmatched on any other social platform. Fashion creators who integrate shoppable content consistently drive higher direct attribution than equivalent TikTok posts, making Instagram the stronger platform for campaigns where direct sales conversion is the primary objective.",
+      },
+
+      // ── Section 2: Data ─────────────────────────────────────
+      {
+        type: 'h2',
+        content: 'InfluenceIT Instagram Fashion Data: 568 Verified Creators Analysed',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT tracks 568 mid-tier Instagram fashion creators with between 50,000 and 500,000 followers. Every metric below is calculated from each creator's 15 most recent posts — real performance data rather than historical averages or platform-reported estimates.",
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Performance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The average engagement rate across our verified Instagram fashion creator pool is 3.23%, with a median of 0.66%. As with all Instagram categories, engagement rates are structurally lower than TikTok due to the platform's algorithmic feed mechanics and larger overall audience size — this is a platform characteristic, not a reflection of audience quality. A 3% engagement rate on Instagram represents strong performance; the same rate on TikTok would be considered below average.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The gap between average (3.23%) and median (0.66%) in Instagram fashion is the widest of any category in our database, indicating that a small number of creators with highly engaged niche communities significantly pull the average upward. This data has a practical implication: on Instagram fashion, creator selection based on verified individual engagement data is more critical than on any other platform-category combination. The difference between a high and low performing Instagram fashion creator is substantial.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Reach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "A single post from a mid-tier Instagram fashion creator in our database generates an average of 61,855 views and 5,032 likes. These figures primarily reflect Reels performance — Instagram's video format consistently outperforms static posts in organic reach due to algorithmic amplification. Brands briefing Instagram fashion creators should prioritise Reels for maximum organic reach, with carousels for save-driving editorial content and Stories for direct conversion campaigns.",
+      },
+      {
+        type: 'h3',
+        content: 'Posting Frequency',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram fashion creators in our database post an average of 9.33 times per week — the highest posting frequency of any category in our database. This reflects Instagram's multi-format nature: a typical week includes a combination of feed posts, Reels, Stories, and potentially carousel posts. For brands, this high frequency means sponsored content integrates naturally into a busy posting schedule rather than standing out as an isolated promotional piece.",
+      },
+      {
+        type: 'h3',
+        content: 'Geographic Distribution',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The United States leads our Instagram fashion creator database with 65 verified creators, followed by United Kingdom (19), Germany (11), Spain (11), Brazil (10), France (9), Italy (9), Colombia (8), UAE (7), and India (7). The strong European representation — Germany, Spain, France, and Italy collectively accounting for 40 creators — reflects Instagram's position as the dominant fashion platform across continental Europe. The presence of India in the top ten is notable, reflecting Instagram's growing importance as a fashion platform in South Asia's rapidly expanding creator economy.",
+      },
+
+      // ── Section 3: Platform comparison ──────────────────────
+      {
+        type: 'h2',
+        content: 'Instagram vs TikTok for Fashion Creator Partnerships',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database enables a direct data comparison between Instagram and TikTok for fashion creator partnerships. The platforms serve different roles in the fashion marketing funnel and are most effective when used together rather than as alternatives.",
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Instagram Fashion', 'TikTok Fashion'],
+        rows: [
+          ['Verified creators (50K–500K)', '568', '1,317'],
+          ['Median engagement rate', '0.66%', '7.95%'],
+          ['Average engagement rate', '3.23%', '31.89%'],
+          ['Average views per post', '61,855', '504,854'],
+          ['Average likes per post', '5,032', '45,231'],
+          ['Average posts per week', '9.33', '4.01'],
+          ['Top European markets', 'Germany, France, Italy, Spain', 'Spain, France'],
+          ['Shopping integration', 'Native (product tags, checkout)', 'Limited'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok delivers significantly higher engagement rates and views per post. Instagram delivers stronger European market reach, native shopping integration, higher posting frequency, and content with lasting discoverability. The most effective fashion campaigns use Instagram for conversion and brand positioning while using TikTok for trend awareness and viral reach.",
+      },
+
+      // ── Section 4: Evaluation ────────────────────────────────
+      {
+        type: 'h2',
+        content: 'How to Evaluate an Instagram Fashion Creator',
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Rate in Context',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Given the wide engagement distribution in Instagram fashion — where the median is 0.66% but the average is 3.23% — creator selection based on verified engagement data is essential. Target creators above the 3.23% average rather than the median, as above-average Instagram fashion engagement represents genuine community strength. Always compare creators within the same follower bracket: a creator with 400,000 followers at 2% engagement may be outperforming their tier, while a creator with 60,000 followers at the same rate is underperforming theirs.",
+      },
+      {
+        type: 'h3',
+        content: 'Aesthetic and Editorial Quality',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram fashion audiences have been trained to expect high visual quality. Creators who invest in photography, lighting, and aesthetic coherence across their feed attract audiences that are more brand-aware and commercially sophisticated — exactly the demographic that fashion brand partnerships need to reach. Review not just individual posts but the creator's overall grid aesthetic: a visually consistent, editorially curated feed signals the kind of quality-oriented audience that drives fashion purchase decisions.",
+      },
+      {
+        type: 'h3',
+        content: 'Saves as the Key Engagement Metric',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "In Instagram fashion, saves are the single most important engagement metric for brands. When a follower saves an outfit post, they are bookmarking it for future reference — typically when they are ready to shop the look. Save rates are a direct measure of purchase intent that likes and comments cannot provide. Request save rate data from creators as part of your evaluation, and weight it heavily in partnership decisions. Creators with above-average save rates are building the kind of 'future shopping inspiration' library that converts browsers into buyers.",
+      },
+      {
+        type: 'h3',
+        content: 'Stories Performance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Feed metrics alone undervalue many Instagram fashion creators. Stories reach a creator's most loyal audience — the followers who actively watch daily updates rather than occasionally seeing feed posts. Stories views, poll participation, and swipe-up link clicks often reveal a more commercially valuable audience than feed engagement alone suggests. Request Stories insights alongside feed metrics for a complete picture of creator audience quality.",
+      },
+
+      // ── Section 5: Campaign strategy ────────────────────────
+      {
+        type: 'h2',
+        content: 'Building a Successful Instagram Fashion Creator Campaign',
+      },
+      {
+        type: 'h3',
+        content: 'Reels-First Briefing',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Organic reach for static Instagram posts has declined significantly as the algorithm increasingly prioritises video content. For fashion brand campaigns, brief creators for Reels as the primary deliverable — the algorithmic reach advantage is substantial. Static posts and carousels remain valuable for save-generating tutorial and editorial content, but should complement rather than replace video for awareness-focused campaigns.",
+      },
+      {
+        type: 'h3',
+        content: 'Leverage Instagram Shopping',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "If your brand has an Instagram Shop, brief creators to use product tags in their posts and Stories. Tagged products allow followers to purchase directly without leaving Instagram — significantly reducing the friction between discovery and conversion. Instagram shopping integration is the platform's most significant commercial advantage over TikTok for direct-response fashion campaigns and is consistently underutilised in creator briefs. Brands that enable and request shopping tag usage see measurably higher direct attribution from creator partnerships.",
+      },
+      {
+        type: 'h3',
+        content: 'Multi-Format Campaign Structure',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The most effective Instagram fashion campaigns combine multiple formats in a single partnership. A structure that includes one Reel for reach and awareness, one or two Stories for direct engagement and product link access, and one carousel for save-generating styling content creates multiple touchpoints with the creator's audience and consistently outperforms single-format partnerships. Brief this as a package rather than individual deliverables to give the creator creative coherence across formats.",
+      },
+      {
+        type: 'h3',
+        content: 'Allow for Production Time',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "High-quality Instagram fashion content takes longer to produce than TikTok content. Editorial-quality photography, styled Reels, and polished carousel layouts require planning, shooting, and editing time. Budget a minimum of four weeks from product delivery to posting date, and six weeks for multi-format campaigns or creators with high production standards. Rushed Instagram fashion content is immediately detectable by fashion-aware audiences and underperforms significantly compared to content given adequate production time.",
+      },
+
+      // ── Section 6: Pricing ──────────────────────────────────
+      {
+        type: 'h2',
+        content: 'Instagram Fashion Creator Pricing Guide',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Pricing for Instagram fashion creators in the mid-tier range varies based on follower count, engagement rate, content format, and usage rights. The following ranges reflect typical market rates in 2026:",
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Reel / Feed Post', 'Multi-Format Package'],
+        rows: [
+          ['50K–100K', '$200–$700', '$500–$1,800'],
+          ['100K–250K', '$700–$1,800', '$1,800–$4,500'],
+          ['250K–500K', '$1,800–$5,000', '$4,500–$12,000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram fashion creators typically command higher rates than TikTok creators at equivalent follower counts, reflecting the higher production investment required for quality Instagram content and the platform's stronger direct-response capabilities. Creators with above-average engagement — particularly those above 3.23% — command premiums within their follower tier. Stories are typically priced at 20–30% of the feed post rate when included as add-ons rather than within a package.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Usage rights for repurposing Instagram creator content in paid advertising add 25–50% to the base rate depending on duration and channels. Given Instagram's strong paid social performance for fashion brands — creator content consistently outperforms brand-produced creative in fashion ad formats — negotiating usage rights upfront is strongly recommended.",
+      },
+
+      // ── Section 7: Common mistakes ──────────────────────────
+      {
+        type: 'h2',
+        content: 'Common Mistakes Brands Make with Instagram Fashion Creators',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Selecting creators based on follower count alone. Given the wide engagement distribution in Instagram fashion, two creators with identical follower counts can have vastly different audience quality. Use InfluenceIT's verified engagement data — particularly save rates — to identify creators with genuinely commercially active audiences rather than passive follower counts.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Briefing for static posts instead of Reels. Static Instagram posts reach a fraction of the audience that Reels deliver due to algorithmic differences. Brands that insist on static imagery for aesthetic control are sacrificing significant reach. Brief for Reels with creative direction rather than aesthetic restriction.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Not activating Instagram Shopping. Brands that have Instagram Shops but do not require creators to use product tags are leaving direct attribution and conversion on the table. Product-tagged creator posts consistently drive higher measurable ROI than untagged equivalents — the additional brief requirement is minimal, the commercial benefit is significant.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Overlooking European market creators. For brands with European distribution, the strong presence of German, French, Italian, and Spanish creators in our Instagram fashion database represents a significant market access opportunity. European Instagram fashion audiences are commercially sophisticated, brand-aware, and respond strongly to creator recommendations — yet European creator partnerships are consistently underutilised by brands that default to US-only creator strategies.",
+      },
+    ],
+  },
+
 };
