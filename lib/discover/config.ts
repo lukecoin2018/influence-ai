@@ -1309,6 +1309,34 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'tiktok-Fitness': [
+    {
+      question: 'What is a good engagement rate for TikTok fitness influencers?',
+      answer:
+        "Based on InfluenceIT's database of verified mid-tier TikTok fitness creators, the median engagement rate is 6.86%, calculated from each creator's 15 most recent posts. Fitness is one of TikTok's highest-performing categories for organic reach — our verified fitness creators generate an average of 574,944 views per post, the highest average of any category in our database. Creators above the 6.86% median are outperforming their peers; creators above 15% have exceptional fitness community loyalty.",
+    },
+    {
+      question: 'How much do TikTok fitness influencers charge for brand partnerships?',
+      answer:
+        'TikTok fitness creators in the mid-tier range (50,000–500,000 followers) typically charge between $150 and $4,000 per post depending on follower count and engagement rate. Creators with 50K–100K followers generally charge $150–$500 per post, while those with 250K–500K followers typically charge $1,500–$4,000. Exclusivity clauses preventing work with competing brands add 30–50% to the base rate — important for supplement and nutrition brands. Usage rights for paid advertising add a further 20–40%.',
+    },
+    {
+      question: 'What content formats work best for fitness brand partnerships on TikTok?',
+      answer:
+        "Workout integration content — where a creator uses your product during an actual training session — consistently outperforms standalone product reviews for fitness brands. 'What I eat in a day' and supplement stack content are the highest-conversion formats for nutrition brands. Transformation and progress documentation builds the deepest audience trust over time. For fitness equipment and activewear, demonstration content within genuine workout videos delivers authenticity that drives purchase intent more effectively than promotional showcases.",
+    },
+    {
+      question: 'When is the best time to run a fitness influencer campaign on TikTok?',
+      answer:
+        "January is the single highest-intent month for fitness products globally, driven by new year motivation. Booking fitness creators for January campaigns requires planning in October or November — the best creators fill their January schedules by late November. Spring (March–April) is the second peak as audiences prepare for summer. September marks the back-to-routine peak. For always-on brands, long-term ambassador programmes that run across all three seasonal peaks consistently outperform individual campaign bursts.",
+    },
+    {
+      question: 'How do I find the right TikTok fitness influencer for my brand?',
+      answer:
+        "Start with fitness sub-niche alignment — ensure the creator's training focus matches your product's specific use case (weightlifting, yoga, HIIT, sports performance, etc.). Then verify engagement against the 6.86% median benchmark in InfluenceIT's database. Look for creators with documented transformation or training progress content, which signals the kind of audience investment that drives purchase behaviour. Check for consistent, authentic existing brand integrations. InfluenceIT provides verified engagement data calculated from each creator's 15 most recent posts.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
