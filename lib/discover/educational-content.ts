@@ -1793,4 +1793,249 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'instagram-Fitness': {
+    heading: 'Instagram Fitness Creators: The Complete Brand Partnership Guide',
+    sections: [
+
+      // ── Section 1: Value proposition ────────────────────────
+      {
+        type: 'h2',
+        content: 'Why Instagram Fitness Creators Remain Powerful for Brands',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram built the modern fitness influencer category. Long before TikTok existed, Instagram fitness creators were driving supplement sales, selling out activewear drops, and establishing the visual language of aspirational fitness culture that still dominates the category today. The platform remains essential for fitness brands — not despite TikTok's rise, but alongside it, serving a different and complementary role in the fitness marketing ecosystem.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram fitness content excels at the sustained, editorial-quality storytelling that builds deep brand association over time. Transformation journeys documented through a creator's feed, weekly training series delivered via Reels, and daily motivation shared through Stories create a persistent brand presence that single viral TikTok moments cannot replicate. For fitness brands building long-term market positioning rather than short-term awareness spikes, Instagram fitness creators remain the more strategic investment.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The platform's shopping features add direct commercial infrastructure to fitness creator partnerships. Activewear, supplements, fitness equipment, and health products can all be tagged directly in posts and Stories — allowing followers to purchase without leaving the app. For fitness brands with established Instagram Shops, creator partnerships on Instagram consistently deliver higher direct attribution than equivalent TikTok campaigns.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's Instagram fitness creator database is one of our fastest-growing categories as we expand creator coverage in this niche. The current verified pool already delivers actionable partnership data, and will expand significantly as we add more fitness creators — particularly from underrepresented markets including Latin America, Southeast Asia, and the Middle East, where fitness content engagement is growing rapidly.",
+      },
+
+      // ── Section 2: Data ─────────────────────────────────────
+      {
+        type: 'h2',
+        content: 'InfluenceIT Instagram Fitness Data: Verified Creators Analysed',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT tracks verified mid-tier Instagram fitness creators with between 50,000 and 500,000 followers. Every metric is calculated from each creator's 15 most recent posts. The fitness category is one of our fastest-growing database segments — the statistics below will improve as we add more verified creators.",
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Performance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The average engagement rate across our verified Instagram fitness creator pool is 8.61% — significantly higher than Instagram fashion (3.23%) and beauty (3.67%). The median engagement rate of 1.06% reflects the wide distribution typical of Instagram categories, but the above-average mean indicates a meaningful subset of fitness creators with genuinely exceptional audience engagement. These high-performing creators represent the most commercially valuable partnerships in our Instagram fitness database.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram fitness engagement rates are higher than other Instagram categories because fitness audiences are more actively engaged with the content they consume — they follow workout creators as part of a daily practice, not passive entertainment. This habitual engagement translates into stronger audience responsiveness to creator recommendations than most other Instagram niches deliver.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Reach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "A single post from a mid-tier Instagram fitness creator in our database generates an average of 136,801 views and 15,922 likes. While these figures are lower than TikTok fitness equivalents (574,944 average views), they represent strong performance within the Instagram ecosystem — and are significantly higher than Instagram fashion (61,855 views) and beauty (80,710 views) averages. Fitness content performs well on Instagram's Explore feed, where the algorithm actively serves workout and health content to users with fitness interests.",
+      },
+      {
+        type: 'h3',
+        content: 'Geographic Distribution',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Verified Instagram fitness creators in our database span the United States, India, Australia, UAE, United Kingdom, Italy, and Austria. The presence of India — the world's largest Instagram market by user count — reflects the platform's growing importance as a fitness content destination in South Asia. UAE and Australia's representation reflects Instagram fitness's particular strength in markets with strong outdoor and wellness cultures. As our database expands, we expect significantly broader geographic representation across all major English and non-English speaking fitness markets.",
+      },
+
+      // ── Section 3: Platform comparison ──────────────────────
+      {
+        type: 'h2',
+        content: 'Instagram vs TikTok for Fitness Creator Partnerships',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Both platforms serve distinct and complementary roles in fitness brand marketing. Understanding the differences helps brands allocate budgets effectively rather than treating the two as interchangeable alternatives.",
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Instagram Fitness', 'TikTok Fitness'],
+        rows: [
+          ['Median engagement rate', '1.06%', '6.86%'],
+          ['Average engagement rate', '8.61%', '24.24%'],
+          ['Average views per post', '136,801', '574,954'],
+          ['Average likes per post', '15,922', '44,851'],
+          ['Shopping integration', 'Native (product tags, checkout)', 'Limited'],
+          ['Content longevity', 'Weeks to months', 'Days to weeks'],
+          ['Audience age skew', '25–45', '18–35'],
+          ['Best for', 'Conversion, brand positioning', 'Awareness, viral reach'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok fitness delivers higher engagement rates and views per post. Instagram fitness delivers stronger direct conversion through shopping integration, longer content shelf life, and better reach into the 25–45 demographic with established fitness spending habits. The most effective fitness brand strategies use both platforms with platform-specific creative approaches and distinct campaign objectives.",
+      },
+
+      // ── Section 4: Evaluation ────────────────────────────────
+      {
+        type: 'h2',
+        content: 'How to Evaluate an Instagram Fitness Creator',
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Rate Context',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The 8.61% average engagement in our Instagram fitness database is the highest of any Instagram category we track. Use this as your benchmark — creators above 8% are genuinely exceptional performers on Instagram. Even creators near the 1.06% median may represent genuine fitness community value if their audience demographics and sub-niche alignment match your product. Always evaluate engagement in the context of follower tier: a creator with 400,000 followers at 3% engagement may be outperforming their tier despite sitting below the category average.",
+      },
+      {
+        type: 'h3',
+        content: 'Transformation Documentation',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram's grid format is uniquely suited to documenting fitness transformations over time. Creators who have built their following through documented personal progress — visible across months of feed posts — have an audience that has invested in their journey and trusts their recommendations as a result of witnessing real results. This transformation-documentation dynamic is Instagram's most powerful fitness creator content type and the one most strongly associated with product purchase influence.",
+      },
+      {
+        type: 'h3',
+        content: 'Stories Engagement',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For fitness creators, Stories are where the most commercially valuable audience interactions happen. Daily workout check-ins, supplement use documentation, poll-driven community engagement, and direct product links all occur primarily in Stories. A fitness creator with modest feed engagement but high Stories engagement — indicating a loyal daily-viewing audience — may be more valuable for certain campaign objectives than a creator with higher feed metrics but low daily audience interaction. Request Stories view counts alongside feed metrics when evaluating fitness partnerships.",
+      },
+      {
+        type: 'h3',
+        content: 'Sub-Niche Fit',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Fitness is one of the most sub-niche-dependent categories in creator marketing. A yoga brand, a powerlifting supplement company, a running shoe brand, and a home workout app all need fundamentally different creator profiles despite all operating in 'fitness'. Match your product's specific use case to the creator's documented training focus before evaluating any other metric. Audience mismatch within fitness is a more common and more costly error than in most other creator categories.",
+      },
+
+      // ── Section 5: Campaign strategy ────────────────────────
+      {
+        type: 'h2',
+        content: 'Building a Successful Instagram Fitness Creator Campaign',
+      },
+      {
+        type: 'h3',
+        content: 'Leverage Instagram Shopping',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Fitness is one of the highest-converting categories for Instagram Shopping. Activewear, supplements, equipment, and health products all have strong direct purchase behaviour from Instagram. Brief fitness creators to tag your products in both feed posts and Stories, and ensure your Instagram Shop is fully set up before campaign launch. The combination of a fitness creator's trust and Instagram's frictionless checkout consistently produces higher direct attribution than equivalent TikTok campaigns for fitness brands with established product lines.",
+      },
+      {
+        type: 'h3',
+        content: 'Workout Integration Over Product Reviews',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram fitness audiences respond to products that appear as genuine parts of a creator's actual training and lifestyle — not products that appear in obvious review contexts. Brief creators to incorporate your product into their real workout content: wearing your activewear during actual training sessions, using your supplement as part of their documented pre or post-workout routine, or demonstrating your equipment in genuine workout programming. Authentic integration consistently outperforms explicit product review content for fitness brand partnerships on Instagram.",
+      },
+      {
+        type: 'h3',
+        content: 'Seasonal Planning',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "January remains the highest-intent fitness purchasing month and requires booking creators in October or November to secure the best partners. Spring (March–April) is the second peak as audiences prepare for summer. September marks the back-to-routine peak after summer. For supplement brands, the January and September peaks are particularly important — both represent high-motivation moments when fitness audiences actively reassess and upgrade their supplement regimens.",
+      },
+      {
+        type: 'h3',
+        content: 'Ambassador Programmes Over One-Off Posts',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Fitness audiences on Instagram evaluate products over time. A creator mentioning a supplement once is noticed; a creator using it consistently across their feed and Stories for three months is trusted. Long-term ambassador programmes with consistent posting commitments — a minimum of monthly touchpoints over three to six months — consistently outperform equivalent spend on multiple one-off partnerships. The compounding trust effect of sustained product integration is the most powerful tool available to fitness brands on Instagram.",
+      },
+
+      // ── Section 6: Pricing ──────────────────────────────────
+      {
+        type: 'h2',
+        content: 'Instagram Fitness Creator Pricing Guide',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Pricing for Instagram fitness creators in the mid-tier range varies based on follower count, engagement rate, content format, and partnership duration. The following ranges reflect typical market rates in 2026:",
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Reel / Feed Post', 'Monthly Ambassador'],
+        rows: [
+          ['50K–100K', '$200–$600', '$600–$1,800/month'],
+          ['100K–250K', '$600–$1,800', '$1,800–$5,000/month'],
+          ['250K–500K', '$1,800–$5,000', '$5,000–$12,000/month'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Fitness creators with documented transformation content and above-average engagement command premiums within their follower tier. Ambassador programme rates are typically lower per-post than one-off rates — creators accept lower individual post fees in exchange for the reliable income of a sustained partnership. This makes ambassador programmes commercially efficient for brands willing to commit to a longer relationship.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For supplement and nutrition brands, exclusivity clauses preventing the creator from promoting competing products are standard practice and typically add 30–50% to the base rate. Usage rights for repurposing Instagram fitness content in paid advertising add 25–50% depending on duration and channels.",
+      },
+
+      // ── Section 7: Common mistakes ──────────────────────────
+      {
+        type: 'h2',
+        content: 'Common Mistakes Brands Make with Instagram Fitness Creators',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Not activating Instagram Shopping. Fitness is one of Instagram's highest-converting shopping categories, and fitness brands that do not require creators to use product tags are forgoing measurable direct attribution. Set up your Instagram Shop before campaign launch and make product tagging a standard brief requirement.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Briefing for explicit product reviews instead of workout integration. Fitness audiences are highly attuned to promotional content and respond far better to products they see genuinely incorporated into a creator's training lifestyle. Brief for authentic integration, not review-style endorsement.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Ignoring sub-niche alignment. A yoga creator's audience will not convert for powerlifting supplements; a bodybuilding creator's audience will not engage with mindfulness apps. Fitness sub-niche misalignment is the single most common cause of underperforming fitness creator campaigns. Verify the creator's specific fitness focus matches your product before any other evaluation.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Treating Instagram and TikTok as interchangeable. Instagram fitness excels at conversion, long-term brand building, and reaching the 25–45 demographic. TikTok fitness excels at viral reach and engaging the 18–35 demographic. Repurposing the same content across both platforms consistently underperforms platform-specific creative. Brief creators separately for each platform with distinct objectives and content approaches.",
+      },
+    ],
+  },
+
 };

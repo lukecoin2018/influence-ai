@@ -1337,6 +1337,34 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'instagram-Fitness': [
+    {
+      question: 'What is a good engagement rate for Instagram fitness creators?',
+      answer:
+        "Based on InfluenceIT's database of verified mid-tier Instagram fitness creators, the average engagement rate is 8.61% — the highest average of any Instagram category we track. The median is 1.06%, reflecting the wide engagement distribution typical of Instagram. Fitness audiences are more habitually engaged than other Instagram categories because they follow creators as part of a daily practice. Creators above the 8.61% average are exceptional performers; even creators near the median may represent strong value if sub-niche and demographic alignment is right.",
+    },
+    {
+      question: 'How much do Instagram fitness creators charge for brand partnerships?',
+      answer:
+        'Instagram fitness creators in the mid-tier range (50,000–500,000 followers) typically charge between $200 and $5,000 per post. Creators with 50K–100K followers generally charge $200–$600 per Reel or feed post, while those with 250K–500K followers typically charge $1,800–$5,000. Monthly ambassador programmes — which consistently outperform one-off posts in fitness — range from $600 to $12,000 per month depending on follower tier. Exclusivity clauses add 30–50% to the base rate; usage rights for paid advertising add 25–50%.',
+    },
+    {
+      question: 'What content formats work best for fitness brand partnerships on Instagram?',
+      answer:
+        "Workout integration content — products appearing as genuine parts of a creator's actual training routine — consistently outperforms explicit product reviews for fitness brands on Instagram. Reels deliver the highest organic reach and are the recommended primary format. Stories with product links drive the highest direct conversion, particularly for brands with Instagram Shopping enabled. Transformation documentation content builds the deepest audience trust over time. Monthly ambassador programmes that combine all three formats consistently outperform one-off post campaigns.",
+    },
+    {
+      question: 'How does Instagram compare to TikTok for fitness influencer marketing?',
+      answer:
+        "According to InfluenceIT's verified data, TikTok fitness creators achieve a median engagement rate of 6.86% versus Instagram's 1.06% median, and generate an average of 574,944 views per post versus Instagram's 136,801. However, Instagram offers native shopping integration, longer content shelf life, better reach into the 25–45 demographic with established fitness spending habits, and superior direct conversion tracking. TikTok excels for viral awareness and reaching younger demographics. The most effective fitness brands use both platforms with distinct objectives.",
+    },
+    {
+      question: 'How do I find the right Instagram fitness creator for my brand?',
+      answer:
+        "Start with sub-niche alignment — confirm the creator's specific fitness focus matches your product's use case (yoga, weightlifting, HIIT, running, etc.). Then verify engagement against InfluenceIT's 8.61% average benchmark for Instagram fitness. Look for creators with documented transformation content, which signals the audience investment that drives purchase behaviour. Request Stories view counts alongside feed metrics. Check for authentic existing brand integrations that demonstrate the creator's ability to integrate products naturally into their fitness content. InfluenceIT provides verified engagement data calculated from each creator's 15 most recent posts.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
