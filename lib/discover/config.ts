@@ -2027,6 +2027,90 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'instagram-Food': [
+    {
+      question: 'What engagement rate do Instagram food creators achieve?',
+      answer:
+        "InfluenceIT's verified database of 29 mid-tier Instagram food creators shows an average engagement rate of 6.79% — notably higher than Instagram fashion (3.23%) and beauty (3.67%) averages. The median is 1.25%, consistent with Instagram's wide engagement distribution across categories. Food content generates high save rates (recipe bookmarking), meaningful comment engagement (culinary questions and variations), and family sharing — all high-quality engagement signals. Average views per post reach 53,430, with Reels significantly outperforming static posts in reach.",
+    },
+    {
+      question: 'How much do Instagram food creators charge for brand partnerships?',
+      answer:
+        "Instagram food creators in the mid-tier range (50,000–500,000 followers) typically charge $200–$7,000 per post depending on follower count and content format. Recipe carousel posts typically command a premium over single Reels. Multi-format packages range from $600 to $14,000. Budget for generous product provision separately from creator fees — food creators need multiple product units for recipe testing. Usage rights for food photography in paid advertising and e-commerce add 25–50% to base rates.",
+    },
+    {
+      question: 'Why use Instagram food creators rather than TikTok food creators?',
+      answer:
+        "Instagram food creators deliver content longevity (months to years versus TikTok's days), premium visual quality for brand positioning, native shopping integration for direct attribution, and better reach into the 25–45 demographic who make most household food purchasing decisions. TikTok food creators deliver higher engagement rates (16.93% median vs 1.25%) and more views per post (739,674 vs 53,430). Most food brands benefit from both platforms with distinct creative: TikTok for discovery and viral reach, Instagram for brand positioning and conversion.",
+    },
+    {
+      question: 'What content formats work best for food brand partnerships on Instagram?',
+      answer:
+        "Recipe carousels are Instagram food's highest-save format — audiences bookmark complete recipe information for future cooking reference. Reels deliver the highest organic reach due to algorithmic amplification. Stories with product links drive direct conversion for brands with Instagram Shopping. High-quality food photography for feed posts builds aspirational brand associations. Multi-format packages combining all three consistently outperform single-format campaigns for food brands on Instagram.",
+    },
+    {
+      question: 'How do I find the right Instagram food creator for my brand?',
+      answer:
+        "Match the creator's food content style to your product category — recipe creators suit ingredients and kitchen products, food reviewers suit packaged goods, health food creators suit nutrition brands. Check engagement against InfluenceIT's 6.79% average benchmark for Instagram food. Prioritise save rates as a purchase intent signal. Confirm the creator uses Instagram Shopping product tags if you have an Instagram Shop. Review content production quality for visual consistency. InfluenceIT provides verified engagement from each creator's 15 most recent posts.",
+    },
+  ],
+
+  'instagram-Travel': [
+    {
+      question: 'What engagement rate do Instagram travel creators achieve?',
+      answer:
+        "InfluenceIT's verified database of 102 mid-tier Instagram travel creators shows an average engagement rate of 10.83% — the highest average engagement of any Instagram category in our database, more than three times the fashion average (3.23%). Travel audiences engage as active trip planners: saving destination content for inspiration boards, sharing with travel companions, and commenting with genuine booking intent questions. Average views per post reach 119,161, with strong Explore feed distribution reflecting Instagram's active amplification of destination content.",
+    },
+    {
+      question: 'How much do Instagram travel creators charge for brand partnerships?',
+      answer:
+        "Instagram travel creator partnerships include both creator fees and travel costs. Single posts range from $300–$7,000 depending on follower tier. Press trip packages covering flights, accommodation, and activities range from $1,200 to $35,000 total depending on destination and creator tier. Full destination campaigns range from $2,500 to $70,000. Budget three to four months lead time for international press trips. Content usage rights for travel photography — particularly valuable for brand imagery — add 25–50% to base rates.",
+    },
+    {
+      question: 'Why do Instagram travel creators have higher engagement than other Instagram categories?',
+      answer:
+        "Instagram travel content generates exceptional engagement because audiences interact with it as active trip planners rather than passive content consumers. Travel audiences save destination posts for planning reference, share with travel companions making joint decisions, and comment with genuine booking intent questions. The deferred nature of travel purchasing — where a save today drives a booking six to eighteen months later — means travel content generates sustained engagement over much longer periods than other content types.",
+    },
+    {
+      question: 'How does Instagram travel compare to TikTok travel for brand partnerships?',
+      answer:
+        "TikTok travel delivers higher engagement rates (11.63% median vs 1.69%) and more views per post (658,380 vs 119,161), with stronger viral discovery reach. Instagram travel delivers premium visual brand association, content longevity (years versus days), native shopping integration, and better reach into the 30–50 demographic with higher travel spending power. Instagram travel creator content is more reusable as hero brand imagery. Most travel brands benefit from both platforms with TikTok for discovery and Instagram for aspiration and conversion.",
+    },
+    {
+      question: 'How do I find the right Instagram travel creator for my destination or travel brand?',
+      answer:
+        "Match the creator's travel style to your brand positioning — budget travel creators reach different audiences than luxury travel creators. Verify engagement against InfluenceIT's 10.83% average benchmark for Instagram travel. Review content production quality for visual consistency and editorial standard. Check that existing brand partnerships demonstrate authentic destination documentation rather than obvious commercial staging. InfluenceIT provides verified engagement data from each creator's 15 most recent posts across 102 verified Instagram travel creators.",
+    },
+  ],
+
+  'instagram-Wellness': [
+    {
+      question: 'What engagement rate do Instagram wellness creators achieve?',
+      answer:
+        "InfluenceIT's verified database of 61 mid-tier Instagram wellness creators shows an average engagement rate of 9.26% — the second highest average engagement of any Instagram category in our database after travel. Average views per post reach 141,760 — the highest average views of any Instagram category we track. Wellness content generates exceptional save rates as audiences bookmark practice guides and product recommendations for ongoing reference, driving sustained brand impressions well beyond the initial posting date.",
+    },
+    {
+      question: 'How much do Instagram wellness creators charge for brand partnerships?',
+      answer:
+        "Instagram wellness creators in the mid-tier range (50,000–500,000 followers) typically charge $200–$5,500 per post. Multi-format packages range from $500 to $13,000. Monthly ambassador programmes range from $600 to $16,000 per month depending on follower tier. Budget for adequate product trial time — a minimum of four to six weeks of genuine product use before posting for supplements and treatments. Usage rights for paid advertising add 25–50% to base rates.",
+    },
+    {
+      question: 'Why do Instagram wellness creators outperform other Instagram categories in engagement?',
+      answer:
+        "Instagram wellness content generates the highest save rates of any Instagram category because audiences bookmark wellness guidance to reference repeatedly as they integrate practices into their daily lives. Morning routine posts, supplement recommendations, mindfulness guides, and health protocols are saved and revisited consistently — each revisit is an ongoing brand impression. Combined with genuine comment engagement from audiences sharing health journeys, Instagram wellness content's 9.26% average engagement reflects deep audience investment in creator guidance.",
+    },
+    {
+      question: 'How does Instagram wellness compare to TikTok wellness for brand partnerships?',
+      answer:
+        "TikTok wellness delivers higher engagement rates (5.64% median vs 0.80%) and more views per post (466,601 vs 141,760). Instagram wellness delivers higher average views per post in our database (141,760), content longevity through saves, native shopping integration, and better reach into the 30–50 demographic with established wellness product spending. Instagram's average engagement of 9.26% is notably high for the platform. Most wellness brands benefit from both: TikTok for discovery and viral reach, Instagram for sustained trust building and conversion.",
+    },
+    {
+      question: 'How do I find the right Instagram wellness creator for my brand?',
+      answer:
+        "Match your product's specific benefit to the creator's wellness focus area first — sleep brands need sleep-focused creators, gut health brands need nutrition and gut health creators. Verify engagement against InfluenceIT's 9.26% average benchmark. Look for creators who have documented genuine long-term product use — wellness audiences detect one-off endorsements immediately. Check content accuracy for scientific credibility. Prioritise long-term ambassador structures over one-off posts — Instagram wellness audiences need sustained evidence of genuine product use before converting. InfluenceIT provides verified engagement from each creator's 15 most recent posts.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
