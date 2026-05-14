@@ -1175,6 +1175,10 @@ export function getEducationalContent(config: AnyPageConfig): EduContentResult {
 
   if (config.type === 'tier') {
     const cfg = config as TierPageConfig;
+    const tierKey = `tier-${cfg.tier}-${cfg.category}`;
+    if (PLATFORM_NICHE_CONTENT[tierKey]) {
+      return PLATFORM_NICHE_CONTENT[tierKey];
+    }
     return TIER_CONTENT[cfg.tier]?.[cfg.category] ?? {
       heading: `${cfg.category} ${FOLLOWER_TIERS[cfg.tier].label}: What Brands Need to Know`,
       paragraphs: [
@@ -1457,6 +1461,62 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'tier-top-Beauty': [
+    {
+      question: 'What follower range counts as a top beauty influencer?',
+      answer:
+        "InfluenceIT defines top-tier beauty influencers as creators with 250,000 to 500,000 followers — the upper end of the mid-tier range that combines meaningful scale with genuine audience engagement. These creators have built substantial beauty communities while maintaining the authentic connection that drives purchase influence. They consistently outperform macro accounts (1M+ followers) on engagement rate and cost-per-conversion while delivering significantly more reach than micro-tier creators.",
+    },
+    {
+      question: 'How much do top beauty influencers charge for brand partnerships?',
+      answer:
+        "Top-tier beauty influencers with 250,000–500,000 followers typically charge $1,000–$3,000 per TikTok post and $1,800–$5,000 per Instagram post. Three-post packages range from $2,500–$7,500 on TikTok and $4,500–$12,000 on Instagram. Usage rights for paid advertising add 25–50% to base rates. Exclusivity clauses preventing work with competing beauty brands during the campaign period add 30–50%. Annual ambassador agreements typically provide better value than multiple individual campaigns.",
+    },
+    {
+      question: 'Why do top-tier beauty influencers outperform macro accounts?',
+      answer:
+        "Top-tier beauty influencers (250K–500K followers) maintain higher engagement rates (typically 5–12%) than macro accounts (1M+, typically 1–3%) because their audience relationship remains personal and community-driven rather than celebrity-distant. Their content feels authentic rather than promotional, their niche focus drives more relevant audience composition, and their creative flexibility allows genuine brand integration. For most beauty brands, three to four top-tier partnerships will outperform a single macro partnership on engagement, conversion, and content volume — often at lower total cost.",
+    },
+    {
+      question: 'What campaigns work best with top-tier beauty influencers?',
+      answer:
+        "Top-tier beauty influencers are best suited for hero product launches requiring broad category awareness, brand repositioning campaigns targeting new demographics or aesthetics, and premium content creation for owned brand channels. Their audience scale is sufficient for meaningful market penetration while their engagement quality drives genuine purchase consideration. Coordinating two to three top-tier creators to post within the same week for a product launch creates significant visibility with the target beauty demographic.",
+    },
+    {
+      question: 'How do I evaluate whether a top beauty influencer is worth the investment?',
+      answer:
+        "Verify engagement rate against InfluenceIT's verified benchmarks — at 250K–500K followers, 5%+ engagement indicates a genuinely active audience. Review existing brand partnerships for aesthetic alignment and exclusivity signals. Check content production quality across the last 30 posts for consistency. Assess comment quality for genuine beauty community interaction rather than generic reactions. Evaluate whether their aesthetic positioning aligns with your brand's target destination. InfluenceIT provides verified engagement data calculated from each creator's 15 most recent posts.",
+    },
+  ],
+
+  'tier-micro-Beauty': [
+    {
+      question: 'Why do beauty micro-influencers have higher engagement than larger accounts?',
+      answer:
+        "Beauty micro-influencers (50K–100K followers) consistently achieve higher engagement rates than larger accounts because their audiences are tight-knit communities built around genuine shared beauty interests rather than passive celebrity following. At micro scale, creators know their audience personally, respond to comments, and produce content directly tailored to their specific community. This intimacy creates the kind of audience trust that translates into purchase action. InfluenceIT's beauty database median engagement of 8.54% reflects this micro-tier strength.",
+    },
+    {
+      question: 'How much do beauty micro-influencers charge for partnerships?',
+      answer:
+        "Beauty micro-influencers with 50,000–100,000 followers typically charge $150–$400 per TikTok post and $200–$600 per Instagram post. Three-post packages range from $400–$1,000 on TikTok and $500–$1,500 on Instagram. Monthly ambassador programmes range from $500–$1,200 per month. The cost efficiency of micro partnerships — three to five times lower than mid-tier rates — enables brands to partner with six to ten micro creators for the cost of a single top-tier partnership.",
+    },
+    {
+      question: 'When should beauty brands choose micro-influencers over larger creators?',
+      answer:
+        "Choose beauty micro-influencers when your objective is niche targeting (specific skin concerns, skin types, or beauty aesthetics), authentic early adoption for new products, limited budget distribution across multiple creators, or always-on content volume throughout the year. Micro creators deliver higher engagement rates, more specific audience alignment, and more authentic advocacy than larger creators. They are particularly effective for ingredient education, clean beauty positioning, and building genuine brand advocates rather than one-off sponsored placements.",
+    },
+    {
+      question: 'What is the multi-creator micro strategy for beauty brands?',
+      answer:
+        "The most effective beauty micro-influencer strategy involves partnering with eight to twelve micro creators simultaneously rather than individually. When multiple creators a follower trusts all feature the same brand within a short window, the product perception shifts from 'this creator likes this' to 'everyone I trust uses this' — a fundamentally stronger social proof signal. This approach also generates more total content, tests multiple beauty communities simultaneously, and provides data on which creator aesthetics resonate most with your target audience.",
+    },
+    {
+      question: 'How do I evaluate a beauty micro-influencer before partnering?',
+      answer:
+        "At micro scale (50K–100K), expect engagement rates above 8% — consistent with InfluenceIT's 8.54% TikTok beauty median. Rates below 3% at micro scale are a red flag. Review comment sections for genuine community interaction: specific product questions and personal skin concern discussions indicate authentic engagement. Look for clear niche specificity within beauty that aligns with your product's primary benefit. Check that the creator responds personally to comments — this creator-audience responsiveness is what drives micro-tier purchase influence.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
@@ -1468,6 +1528,10 @@ export function getFAQContent(config: AnyPageConfig): FAQItem[] {
   if (config.type === 'usecase') {
     const cfg = config as UseCasePageConfig;
     return NICHE_FAQ[`usecase-${cfg.label}`] ?? [];
+  }
+  if (config.type === 'tier') {
+    const cfg = config as TierPageConfig;
+    return NICHE_FAQ[`tier-${cfg.tier}-${cfg.category}`] ?? [];
   }
   return [];
 }
