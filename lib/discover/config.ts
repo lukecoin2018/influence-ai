@@ -1943,6 +1943,90 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'tiktok-Food': [
+    {
+      question: 'What engagement rate do TikTok food influencers achieve?',
+      answer:
+        "TikTok food creators achieve exceptional engagement metrics. InfluenceIT's verified database shows a median engagement rate of 16.93% and an average of 739,674 views per post — the highest average views per post of any category in our database. Food content generates high saves (viewers bookmark recipes), shares (sending food discoveries to friends and family), and repeat views (referencing videos while cooking), all of which drive exceptional engagement metrics. Creators above the 16.93% median are outperforming an already exceptional benchmark.",
+    },
+    {
+      question: 'How much do TikTok food influencers charge for brand partnerships?',
+      answer:
+        "TikTok food creator partnerships typically cost $150–$4,500 per post in the mid-tier range. Creators with 50K–100K followers charge $150–$500, while those with 250K–500K followers charge $1,500–$4,500. Budget additionally for generous product provision — food creators need multiple units for recipe testing, variations, and reshoots. Late or insufficient product provision is the most common cause of delayed food creator content. The median engagement of 16.93% and 739,674 average views make food creator ROI exceptional against these investment levels.",
+    },
+    {
+      question: 'What content formats work best for food brand partnerships on TikTok?',
+      answer:
+        "Original recipe integration — where a creator develops a genuinely appealing recipe using your product — consistently outperforms promotional product mention by three to five times in engagement. Honest taste tests and first-impression content drive strong purchase intent for new product launches. Cooking hack and unexpected use case videos generate the highest viral reach. Seasonal recipe content tied to holiday or entertaining moments generates peak saves. Brief food creators for genuine culinary creativity rather than scripted brand messaging.",
+    },
+    {
+      question: 'When is the best time to run food brand influencer campaigns on TikTok?',
+      answer:
+        "Seasonal timing drives food content performance significantly. Holiday recipes (October–December) generate the highest engagement of any food content — book food creators by August for holiday campaigns. New Year health content (January) is ideal for nutrition and healthy food brands. Summer entertaining (May–July) suits beverages, grilling, and outdoor food brands. Back to school (August–September) suits convenient meal solutions. Book food creators eight to twelve weeks ahead of seasonal windows to capture peak organic momentum.",
+    },
+    {
+      question: 'How do I find the right TikTok food creator for my brand?',
+      answer:
+        "Match the creator's food content style to your product category first — recipe creators suit ingredient and grocery brands, food reviewers suit packaged goods and restaurant brands, health food creators suit nutrition brands. Verify engagement against the 16.93% median benchmark. Check that existing brand integrations feel like genuine culinary inspiration rather than obvious promotion. Review comment section quality for authentic food community discussion. InfluenceIT provides verified engagement data from each creator's 15 most recent posts across verified TikTok food creators.",
+    },
+  ],
+
+  'tiktok-Gaming': [
+    {
+      question: 'What is the engagement rate for TikTok gaming creators?',
+      answer:
+        "TikTok gaming creators achieve extraordinary engagement metrics. InfluenceIT's verified database shows a median engagement rate of 27.05% — one of the highest category medians in our database — with an average of 598,237 views per post. This exceptional engagement reflects gaming community loyalty: gaming audiences comment actively, debate content enthusiastically, share clips with gaming friends, and interact with creators as genuine community members. Gaming communities are among the most actively engaged audiences on any social platform.",
+    },
+    {
+      question: 'How much do TikTok gaming creators charge for brand partnerships?',
+      answer:
+        "TikTok gaming creators in the mid-tier range typically charge $150–$3,500 per post. Creators with 50K–100K followers charge $150–$450, while those with 250K–500K followers charge $1,200–$3,500. Three-post packages range from $400 to $8,500 depending on follower tier. Gaming partnerships require careful timing relative to the gaming release calendar — avoid booking campaigns during major game release windows when gaming audience attention is entirely focused on new releases.",
+    },
+    {
+      question: 'What brands work best with TikTok gaming creators?',
+      answer:
+        "Gaming peripheral and hardware brands (headsets, controllers, monitors, PCs) benefit most from gaming creator partnerships — gaming setup content generates high purchase intent from audiences actively seeking to improve their gaming experience. Energy drinks and snack brands with strong gaming cultural connections perform well. Mobile game brands benefit from genuine gameplay integration. Tech brands, streaming services, and lifestyle brands can also succeed when integration feels native to gaming content rather than obviously promotional.",
+    },
+    {
+      question: 'How do I avoid common mistakes in gaming creator brand partnerships?',
+      answer:
+        "Gaming audiences are among the most resistant to obvious advertising — they will express dissatisfaction with inauthentic integrations vocally in comments. Give gaming creators complete creative control over how your product appears in their content. Avoid mandatory sponsorship read segments that interrupt gameplay or comedy content. Time campaigns carefully around the gaming release calendar. Match your product to the specific gaming sub-niche — a console gaming creator's audience has different purchase behaviours from a mobile gaming creator's audience. Never attempt to bypass gaming community authenticity standards.",
+    },
+    {
+      question: 'How do I find the right TikTok gaming creator for my brand?',
+      answer:
+        "Start with gaming sub-niche alignment — match your product to the creator's specific gaming focus (mobile, console, PC, esports, gaming culture). Verify engagement against the extraordinary 27.05% median benchmark in InfluenceIT's database. Review existing brand integrations for native, non-disruptive execution quality. Check timing relative to upcoming game releases in the creator's focus area. InfluenceIT provides verified engagement data from each creator's 15 most recent posts across verified TikTok gaming creators.",
+    },
+  ],
+
+  'tiktok-Comedy': [
+    {
+      question: 'What engagement rate do TikTok comedy creators achieve?',
+      answer:
+        "TikTok comedy creators deliver exceptional reach metrics. InfluenceIT's verified database of 191 mid-tier TikTok comedy creators shows a median engagement rate of 12.59% and an average of 697,737 views per post — among the highest average views of any category in our database. Comedy content spreads through social sharing with particular efficiency: when a sketch resonates, friends send it to friends, TikTok's algorithm amplifies it to new audiences, and the viral ceiling for comedy content is higher than almost any other format.",
+    },
+    {
+      question: 'What brands benefit most from TikTok comedy creator partnerships?',
+      answer:
+        "Brands with everyday consumer purchase decisions — food, beverages, household products, apps — that appear naturally in relatable daily situations work best in comedy content. Brands with genuinely funny product concepts or names lend themselves well to comedic treatment. Services that solve relatable frustrations work well when the frustration becomes the comedic premise. Comedy creator partnerships are best for brands prioritising broad awareness over targeted conversion — the demographic reach of comedy content is the widest of any TikTok category.",
+    },
+    {
+      question: 'How should brands brief TikTok comedy creators?',
+      answer:
+        "Give comedy creators complete creative control over how your product appears — this is non-negotiable for comedy content to perform. Provide brand context, must-haves (disclosure, product mention), and nice-to-haves, then allow the creator's comedic judgment to guide execution. Avoid mandatory scripts, required demonstration segments, and extensive approval processes that remove comedic authenticity. The brief should prioritise comedy quality over brand message control — audiences will not engage with a sketch they do not find funny, regardless of how well the brand is presented.",
+    },
+    {
+      question: 'How much do TikTok comedy creators charge for brand partnerships?',
+      answer:
+        "TikTok comedy creators in the mid-tier range typically charge $200–$5,000 per post depending on follower count. Creators with 50K–100K followers charge $200–$600, while those with 250K–500K followers charge $1,800–$5,000. Three-post packages range from $500 to $12,000. Comedy creator partnerships should be evaluated on awareness and brand affinity metrics — reach, view count, share rate, and comment sentiment — rather than direct conversion, as comedy's primary commercial value is top-of-funnel brand awareness.",
+    },
+    {
+      question: 'How do I find the right TikTok comedy creator for my brand?',
+      answer:
+        "Review the creator's existing brand partnerships for evidence of successful native integration — does the brand appear within the comedy content naturally, or does it interrupt it? Check that the creator's comedy style and audience demographics align with your brand's target consumer. Verify engagement against InfluenceIT's 12.59% median benchmark. Look for creators whose comedic content already touches on situations relevant to your product — the most effective comedy brand partnerships emerge from genuine creative alignment rather than commercial convenience. InfluenceIT provides verified engagement from each creator's 15 most recent posts.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {

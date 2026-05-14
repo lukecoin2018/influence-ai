@@ -4578,4 +4578,352 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'tiktok-Food': {
+    heading: 'TikTok Food Influencers: The Complete Brand Partnership Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: "Why TikTok Food Creators Are the Platform's Most Commercially Powerful Category",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok food creators achieve extraordinary performance metrics that make them among the most commercially valuable creator partnerships available. InfluenceIT's database of verified mid-tier TikTok food creators delivers a median engagement rate of 16.93% and an average of 739,674 views per post — both among the highest figures of any category we track. Food content on TikTok spreads with remarkable efficiency: recipe videos, food reviews, cooking hacks, and culinary discoveries all generate the saves, shares, and repeat views that drive TikTok's algorithm to amplify content well beyond the creator's existing following.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The commercial opportunity in TikTok food is uniquely direct. Food and beverage brands have the most natural product integration in the creator economy — the product is literally the content. Unlike fashion brands inserting clothing into lifestyle videos or tech brands sponsoring streams, a food brand partnering with a food creator produces content where the brand's product is central, contextually inevitable, and immediately compelling to an audience that is there specifically because of their interest in food.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok's food creator database is one of our fastest-growing categories, and the current verified pool already delivers outstanding performance data. As we add more food creators to our database, the statistics will strengthen further — but the current numbers are already exceptional benchmarks for brands evaluating food creator partnership ROI.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT TikTok Food Creator Data: Verified Creators Analysed',
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Performance — Exceptional by Any Benchmark',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The median engagement rate of 16.93% across our verified TikTok food creators is one of the highest category medians in InfluenceIT's entire database. This reflects the extraordinary audience investment in food content: viewers save recipes for future cooking, share food discoveries with friends and family, comment with ingredient questions and personal variations, and return to food videos repeatedly as reference material while cooking. Every one of these behaviours registers as engagement, driving food content's outstanding interaction metrics.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The average engagement rate of 43.51% — significantly above the median — indicates the viral ceiling of food content when a recipe or food discovery resonates broadly. Food videos that reveal unexpected flavour combinations, surprisingly simple techniques for impressive results, or ingredients that solve common cooking problems regularly generate millions of views from audiences who discover the content through algorithm and social sharing rather than following the creator directly.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Reach — Among the Highest in Our Database',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "At an average of 739,674 views per post, TikTok food creators deliver the highest average views per post of any category in InfluenceIT's database — surpassing travel (658,380), comedy (697,737), and all other categories. This exceptional reach reflects food content's universal appeal: eating is a human universal, and content that makes cooking easier, more delicious, or more interesting reaches audiences across every demographic, geography, and interest category simultaneously.",
+      },
+      {
+        type: 'h2',
+        content: 'Campaign Formats That Drive Results for Food Brands',
+      },
+      {
+        type: 'h3',
+        content: 'Original Recipe Integration',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The most commercially effective format for food brand partnerships is original recipe integration — content where a creator develops a genuinely appealing recipe using your product as a featured ingredient. Audiences engage dramatically better with authentic culinary creativity than with promotional product mentions. Brief food creators to develop their own recipes rather than following scripted formulas — the best food creator partnerships feel like genuine culinary inspiration, with the brand's product appearing because it genuinely enhances the dish.",
+      },
+      {
+        type: 'h3',
+        content: 'Taste Tests and Honest Reviews',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Authentic taste test content generates strong purchase intent for food and beverage brands — particularly for new product launches and brand discovery. Food audiences respond to genuine reactions: the more unscripted and honest a taste test appears, the more commercially persuasive it is. Brands that allow creators to give candid, mixed reviews consistently see higher engagement and trust signals than those that insist on uniformly positive coverage.",
+      },
+      {
+        type: 'h3',
+        content: 'Cooking Hacks and Technique Content',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Cooking hack and technique videos — showing unexpected uses for a product, time-saving preparation methods, or surprising ingredient combinations — generate the highest viral reach of any food content format. When a food creator demonstrates that your product can be used in a way audiences had not considered, the content spreads through social sharing as viewers send it to friends who cook. For food brands seeking viral awareness rather than targeted conversion, technique and hack content is the optimal brief.",
+      },
+      {
+        type: 'h3',
+        content: 'Seasonal Recipe Campaigns',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Seasonal food content has highly predictable peak engagement windows that food brands should plan around. Holiday recipes (October–December) generate the highest engagement of any food content format — particularly Thanksgiving and Christmas recipes that audiences search for and save in large volumes. New Year health content (January) peaks for nutrition and healthy food brands. Summer entertaining content (May–July) suits beverages, grilling, and outdoor food brands. Book food creators eight to twelve weeks ahead of seasonal windows.",
+      },
+      {
+        type: 'h2',
+        content: 'TikTok Food Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', '$150–$500', '$400–$1,200'],
+          ['100K–250K', '$500–$1,500', '$1,200–$3,800'],
+          ['250K–500K', '$1,500–$4,500', '$3,800–$11,000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Food partnerships should include generous product provision in addition to creator fees. Food creators need multiple units for recipe testing, ingredient variations, and content reshoots — underproviding product is the most common cause of delayed or lower-quality food creator content. For recipe-focused campaigns, budget for product provision as a distinct line item from creator fees. The total investment across creator fees and product provision delivers exceptional ROI against a median engagement of 16.93% and 739,674 average views per post.",
+      },
+    ],
+  },
+
+  'tiktok-Gaming': {
+    heading: 'TikTok Gaming Creators: The Complete Brand Partnership Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why TikTok Gaming Creators Have the Most Loyal Communities in the Creator Economy',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok gaming creators achieve a median engagement rate of 27.05% in InfluenceIT's verified database — one of the highest engagement medians of any creator category on any platform. This extraordinary figure reflects the nature of gaming communities: they form around shared experiences, inside knowledge, platform-specific cultures, and genuine passion for games that creates audience loyalty unlike almost any other content category. Gaming creator communities are not audiences — they are tribes.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database includes 51 verified mid-tier TikTok gaming creators with an average of 598,237 views per post — strong reach figures that confirm gaming content's broad algorithmic appeal on TikTok. Our gaming creator database is actively growing as we expand coverage across gaming sub-niches, and current verified creators already represent high-performing accounts across mobile gaming, console gaming, and gaming culture content.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok has emerged as the primary discovery platform for gaming culture content — reaction videos, gameplay highlights, gaming commentary, and gaming lifestyle content all perform exceptionally well on the platform. While Twitch and YouTube remain the dominant platforms for long-form gaming content, TikTok's short-form format has created a distinct gaming content ecosystem that reaches younger gaming audiences more efficiently than any other platform.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT TikTok Gaming Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'TikTok Gaming Creators'],
+        rows: [
+          ['Verified creators (50K–500K)', '51 (growing)'],
+          ['Median engagement rate', '27.05%'],
+          ['Average engagement rate', '47.91%'],
+          ['Average views per post', '598,237'],
+          ['Platform', 'TikTok'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The 27.05% median engagement rate is exceptional by any standard — it means half of our verified TikTok gaming creators are achieving engagement rates that most categories never approach even at their highest-performing tier. This reflects the intensity of gaming audience engagement: gaming communities comment actively, debate content enthusiastically, share clips with their gaming friends, and interact with creators as genuine community members rather than passive viewers.",
+      },
+      {
+        type: 'h2',
+        content: 'Gaming Sub-Niches and Brand Alignment',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The gaming category is one of the most sub-niche-dependent in creator marketing. Each gaming sub-community has distinct demographics, platforms, and purchasing behaviours that require careful brand-creator matching.",
+      },
+      {
+        type: 'table',
+        headers: ['Gaming Sub-Niche', 'Key Demographic', 'Best Brand Category'],
+        rows: [
+          ['Mobile gaming', 'Broad, 16–35, higher female ratio', 'Mobile games, casual brands, lifestyle'],
+          ['Console gaming (PlayStation, Xbox)', '18–35, male-skewing', 'Gaming gear, peripherals, snacks, energy'],
+          ['PC gaming', '18–30, higher income, tech-savvy', 'PC hardware, peripherals, premium tech'],
+          ['Esports / competitive', '16–28, performance-focused', 'Energy drinks, peripherals, performance brands'],
+          ['Gaming culture / commentary', 'Broad gaming audience', 'Games, streaming services, lifestyle brands'],
+          ['Retro / classic gaming', '25–40, nostalgic', 'Retro merchandise, lifestyle brands'],
+          ['Indie gaming', 'Culturally curious, 20–35', 'Creative tools, indie brands, artisan products'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Campaign Formats for Gaming Brand Partnerships',
+      },
+      {
+        type: 'h3',
+        content: 'Native Content Integration',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Gaming audiences are exceptionally resistant to obvious advertising — they have developed sophisticated filters for commercial content and will express this resistance vocally in comment sections. The most effective gaming brand partnerships integrate products so naturally into gaming content that the commercial element is secondary to the gaming entertainment value. A product used during a genuine gaming session, mentioned in the natural flow of gameplay commentary, or featured as part of a creator's authentic gaming setup performs dramatically better than standalone promotional content.",
+      },
+      {
+        type: 'h3',
+        content: 'Gaming Setup and Peripheral Showcases',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Gaming setup content — where creators show their gaming station, peripherals, and hardware — is one of TikTok gaming's highest-performing formats and an ideal integration point for tech, peripheral, and lifestyle brands. Gaming audiences actively aspire to improve their setups and treat setup content as purchasing research. A product genuinely featured in a respected gaming creator's setup carries powerful aspirational endorsement that drives purchase intent among the audience.",
+      },
+      {
+        type: 'h3',
+        content: 'Challenge and Trending Content',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok gaming audiences participate actively in challenges and trending formats — creating content responses, attempting featured challenges, and sharing gaming achievements. Brands that create or sponsor gaming challenges can generate significant user-generated content and community participation that amplifies campaign reach beyond the initial creator partnership. Challenge formats work best when they connect to genuine gaming skill or achievement rather than purely promotional mechanics.",
+      },
+      {
+        type: 'h2',
+        content: 'TikTok Gaming Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', '$150–$450', '$400–$1,100'],
+          ['100K–250K', '$450–$1,200', '$1,100–$3,000'],
+          ['250K–500K', '$1,200–$3,500', '$3,000–$8,500'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Gaming creator partnerships require careful timing relative to the gaming calendar. Major game releases, esports tournament seasons, and platform events (Steam sales, PlayStation State of Play) all create content peaks that either amplify or compete with sponsored content. Brief your creator on campaign timing relative to the gaming calendar — posting a sponsored tech review during a major game launch will see significantly reduced performance as the creator's audience focuses entirely on the new release.",
+      },
+    ],
+  },
+
+  'tiktok-Comedy': {
+    heading: 'TikTok Comedy Creators: The Complete Brand Partnership Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why TikTok Comedy Creators Deliver Exceptional Brand Reach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok comedy creators are the platform's highest-reach category by absolute view volume. InfluenceIT's verified database of mid-tier TikTok comedy creators delivers a median engagement rate of 12.59% and an average of 697,737 views per post — placing comedy among the top three categories in our database for both metrics. Comedy content spreads on TikTok with particular efficiency: when a sketch, observation, or relatable moment resonates, it gets shared between friends, replayed by the algorithm to cold audiences, and generates the kind of cultural conversation that only comedy can create.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For brands seeking pure awareness reach, comedy creators offer the highest single-post exposure potential in the creator ecosystem. A comedy creator with 150,000 followers whose sketch goes viral can reach 10–50 million viewers in a week — a multiplier on their follower base that no other content format approaches. The key challenge and opportunity in comedy brand partnerships is integration: comedy audiences are the most resistant to obvious advertising, but brands that successfully integrate into comedy content benefit from the enormous goodwill that comedy generates.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database includes 191 verified mid-tier TikTok comedy creators — the largest creator pool in our database for this category. Comedy is one of TikTok's most established content categories, with a mature creator ecosystem that has developed sophisticated approaches to brand integration.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT TikTok Comedy Creator Data: 191 Verified Creators Analysed',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'TikTok Comedy Creators'],
+        rows: [
+          ['Verified creators (50K–500K)', '191'],
+          ['Median engagement rate', '12.59%'],
+          ['Average engagement rate', '36.45%'],
+          ['Average views per post', '697,737'],
+          ['Platform', 'TikTok'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The 12.59% median engagement rate reflects comedy content's inherent shareability — audiences who find a sketch funny share it immediately, driving above-average engagement through a combination of direct interaction and social amplification. The 697,737 average views per post confirms comedy content's exceptional algorithmic distribution: TikTok actively surfaces funny content to users across all interest categories, giving comedy creators the broadest cross-demographic reach of any content type.",
+      },
+      {
+        type: 'h2',
+        content: 'The Challenge and Opportunity of Comedy Brand Integration',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Comedy brand partnerships require a fundamentally different approach from any other creator category. Comedy audiences are exceptionally attuned to when commercial content interrupts entertainment — a poorly integrated brand mention will tank a video's performance and generate negative comments that damage both creator and brand. The sensitivity is real: comedy audiences feel betrayed when a creator they follow for entertainment becomes a vehicle for advertising.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The upside of getting comedy integration right, however, is equally significant. Brands that are genuinely funny — or that allow comedy creators to make genuinely funny content featuring their product — benefit from entertainment-level audience goodwill that straightforward advertising can never generate. Being associated with content that makes people laugh creates positive brand association that persists far longer than conventional advertising impressions.",
+      },
+      {
+        type: 'h2',
+        content: 'Comedy Brand Integration Formats That Work',
+      },
+      {
+        type: 'h3',
+        content: 'The Product as the Comedic Premise',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The most effective comedy brand integration makes the product central to the comedic setup rather than an interruption of it. When a creator develops a sketch where the brand's product is the source of the humour — a relatable situation involving the product, an unexpected use case that generates comedy, or a character whose relationship with the product is inherently funny — the brand becomes part of the entertainment rather than an obstacle to it. This requires giving creators complete creative control over how the brand appears in the comedic context.",
+      },
+      {
+        type: 'h3',
+        content: 'Native Integration During the Sketch',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The second most effective format involves the creator using the product naturally during a sketch without it being the comedic focus — appearing in frame during a scene, mentioned in passing as part of a character's life, or used as a prop that doesn't interrupt the comedy. This native integration approach works best for products that fit naturally into everyday life scenarios that comedy creators already build sketches around: food, tech, lifestyle products, and services that feature in relatable daily situations.",
+      },
+      {
+        type: 'h3',
+        content: 'Formats to Avoid',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Sponsorship read segments — where a comedian pauses their content to deliver a direct product endorsement — perform well in podcast formats but consistently underperform in TikTok comedy video contexts. Comedy audiences feel the tonal shift immediately and engage negatively. Mandatory scripted brand messages, required product demonstration segments, and approval processes that remove comedic authenticity all reduce comedy content performance significantly. The brief must prioritise comedy quality over brand message control.",
+      },
+      {
+        type: 'h2',
+        content: 'Which Brands Work Best with TikTok Comedy Creators',
+      },
+      {
+        type: 'bullets',
+        items: [
+          "Consumer brands with everyday purchase decisions — food, beverages, household products — that appear naturally in relatable daily situations comedy creators already portray.",
+          "Brands with genuinely funny product concepts or names that lend themselves to comedic treatment.",
+          "Brands with strong cultural recognition that comedy creators can reference for instant audience connection.",
+          "Services and apps that solve relatable frustrations — the frustration itself becomes the comedic premise, with the product as the resolution.",
+          "Brands targeting wide demographic awareness rather than niche conversion — comedy's broad reach makes it best for top-of-funnel awareness objectives.",
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'TikTok Comedy Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', '$200–$600', '$500–$1,500'],
+          ['100K–250K', '$600–$1,800', '$1,500–$4,500'],
+          ['250K–500K', '$1,800–$5,000', '$4,500–$12,000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Comedy creator partnerships should be evaluated primarily on awareness and brand affinity metrics rather than direct conversion. Reach, view count, share rate, and comment sentiment are the most relevant performance indicators for comedy campaigns. The halo effect of being associated with a beloved comedy creator — the positive brand feeling that audiences carry after seeing a genuinely funny sponsored video — has lasting commercial value that is difficult to measure but consistently reported by brands that invest in the category.",
+      },
+    ],
+  },
+
 };
