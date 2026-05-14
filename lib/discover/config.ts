@@ -1691,6 +1691,90 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'usecase-Fitness Brands': [
+    {
+      question: 'What types of fitness influencers work best for brand campaigns?',
+      answer:
+        "The most important factor is sub-niche alignment — matching your product's specific use case to the creator's fitness focus. Strength training and bodybuilding creators are best for protein supplements and gym equipment; yoga and flexibility creators suit mobility and mindfulness products; HIIT and general fitness creators suit activewear and energy products; home workout creators suit home fitness equipment. InfluenceIT's database spans all major fitness sub-niches across TikTok and Instagram with verified engagement data from each creator's 15 most recent posts.",
+    },
+    {
+      question: 'Should fitness brands use TikTok or Instagram influencers?',
+      answer:
+        "Both platforms serve different objectives. TikTok fitness creators deliver higher engagement rates (6.86% median), greater organic reach (574,944 average views per post), and stronger performance with the 18–30 demographic. Instagram fitness creators deliver native shopping integration, longer content shelf life, and better reach into the 30–45 demographic with higher supplement and premium activewear spending. The most effective fitness brand campaigns use both platforms with distinct creative: TikTok for awareness and viral reach, Instagram for conversion and brand positioning.",
+    },
+    {
+      question: 'When is the best time to run a fitness influencer campaign?',
+      answer:
+        "January is the single highest-intent month for fitness purchases globally — book creators in October to secure the best partners for this window. March–April is the second peak as audiences prepare for summer. September marks the back-to-routine peak after summer. For supplement brands, January and September are the two most critical windows. For activewear brands, spring and early autumn align with the highest purchase intent periods. Always-on ambassador programmes that run across all seasonal peaks consistently outperform individual burst campaigns.",
+    },
+    {
+      question: 'What content formats work best for fitness brand partnerships?',
+      answer:
+        "Genuine workout integration — your product appearing as part of the creator's actual training session — consistently outperforms standalone product reviews. Supplement stack videos are the highest-conversion format for nutrition brands. Transformation documentation over four to eight weeks builds the deepest audience trust. 'What I eat in a day' content is highly effective for nutrition and food brands. For activewear, workout content where the creator genuinely uses the product during training outperforms studio-style showcases.",
+    },
+    {
+      question: 'How much should fitness brands budget for influencer campaigns?',
+      answer:
+        "TikTok fitness creator partnerships typically cost $150–$4,000 per post in the mid-tier range. Instagram fitness creators typically charge $200–$5,000 per post. For a meaningful campaign using five to eight creators across both platforms, budget $5,000–$20,000 for content costs. Add 30–50% for exclusivity clauses preventing creators from promoting competing brands — standard practice for supplement and nutrition brands. Long-term ambassador programmes (3–6 months) deliver better ROI than equivalent one-off campaign spend in fitness.",
+    },
+  ],
+
+  'tier-top-Fashion': [
+    {
+      question: 'What follower range counts as a top fashion influencer?',
+      answer:
+        "InfluenceIT defines top-tier fashion influencers as creators with 250,000 to 500,000 followers — the upper mid-tier range that combines meaningful cultural influence with genuine audience engagement. These creators have established aesthetic identities within the fashion community, connections to fashion media and retail, and the scale to create real market impact for brand partnerships. TikTok top-tier fashion creators in our database deliver an average of 504,854 views per post consistent with the broader TikTok fashion category median of 7.95% engagement.",
+    },
+    {
+      question: 'Why should fashion brands choose top-tier over macro influencers?',
+      answer:
+        "Top-tier fashion influencers (250K–500K) typically outperform macro accounts (1M+) on engagement rate, content authenticity, and cost-per-conversion. Their audiences remain engaged beauty communities rather than passive celebrity followers. Their creative flexibility allows genuine brand integration rather than obvious promotional content. And their partnership costs — while premium — are a fraction of macro rates, allowing brands to activate multiple top-tier creators for the cost of a single macro partnership, generating more content and more diverse audience reach.",
+    },
+    {
+      question: 'How much do top fashion influencers charge for brand partnerships?',
+      answer:
+        "Top-tier fashion influencers with 250,000–500,000 followers typically charge $1,200–$3,500 per TikTok post and $1,800–$5,000 per Instagram post. Three-post packages range from $3,000–$8,500 on TikTok and $4,500–$12,000 on Instagram. Fashion week and event-aligned content commands a premium. Usage rights for paid advertising add 25–50%. Annual ambassador agreements provide better long-term value than multiple individual campaigns.",
+    },
+    {
+      question: 'What campaigns work best with top-tier fashion influencers?',
+      answer:
+        "Top-tier fashion creators are best suited for new collection launches requiring broad fashion community awareness, brand credibility building for emerging brands entering the market, and fashion week-aligned campaigns that connect brand partnerships to the fashion industry's highest-profile cultural moments. For maximum launch impact, combine two to three top-tier creators with five to eight mid-tier creators posting within the same launch window — the coordinated volume creates trend momentum that top-tier creators alone cannot generate.",
+    },
+    {
+      question: 'How important is aesthetic alignment with top-tier fashion influencers?',
+      answer:
+        "Aesthetic alignment is critical at the top tier — more so than at smaller tiers where mismatches have limited audience impact. Top-tier fashion creators have established aesthetic identities that 250,000+ followers have opted into over years. A brand-creator aesthetic mismatch at this scale is visible and potentially damaging. Review the creator's last 30 posts and existing brand partnership history before approaching. The brands they have worked with, the price points they represent, and the aesthetics they consistently champion all signal whether your brand belongs in their content world.",
+    },
+  ],
+
+  'tier-micro-Fashion': [
+    {
+      question: 'Why do fashion micro-influencers drive higher purchase intent than larger accounts?',
+      answer:
+        "Fashion micro-influencers (50K–100K) function as trusted style advisors to their communities rather than aspirational celebrities. Their audiences follow them specifically as peers whose taste they respect and act on. This advisory relationship generates higher purchase intent per engaged follower than any other follower tier in fashion — followers who save a micro fashion creator's outfit post are actively planning to shop the look. Micro creators also maintain genuine community interaction that builds audience trust over time in ways that larger accounts cannot sustain.",
+    },
+    {
+      question: 'How much do fashion micro-influencers charge for brand partnerships?',
+      answer:
+        "Fashion micro-influencers with 50,000–100,000 followers typically charge $150–$500 per TikTok post and $200–$700 per Instagram post. Three-post packages range from $400–$1,200 on TikTok and $500–$1,800 on Instagram. Monthly ambassador programmes range from $500–$1,400 per month on TikTok and $700–$2,000 on Instagram. The cost efficiency of micro partnerships — three to five times lower than mid-tier rates — enables brands to activate eight to twelve micro creators for the cost of a single top-tier campaign.",
+    },
+    {
+      question: 'What is the multi-creator micro fashion strategy?',
+      answer:
+        "The most effective micro fashion strategy involves partnering with eight to twelve micro creators simultaneously across different aesthetic niches — minimalist, maximalist, sustainable, vintage, streetwear. This approach tests which aesthetic communities respond best to your brand, creates a perception of ubiquity within the fashion creator ecosystem, generates more total content pieces than equivalent spend on larger creators, and builds early-adopter awareness across multiple style communities simultaneously. The coordinated posting creates trend signals that amplify all related content.",
+    },
+    {
+      question: 'When should fashion brands choose micro over larger creator tiers?',
+      answer:
+        "Choose micro fashion creators for niche aesthetic targeting where precise community fit matters more than raw reach, test campaigns evaluating which style communities respond best to your brand, always-on content programmes requiring consistent posting volume throughout the year, emerging brand launches seeking early-adopter fashion communities, and budget-constrained campaigns requiring maximum creator count per dollar spent. Micro creators are also ideal for gifting programmes where genuine product enthusiasm generates authentic content at cost-of-goods only.",
+    },
+    {
+      question: 'How do I evaluate a fashion micro-influencer before partnering?',
+      answer:
+        "Start with aesthetic alignment — review the last 30 posts to confirm their style is consistent with your brand positioning. Check engagement rates against InfluenceIT's 7.95% TikTok fashion median benchmark — at micro scale, expect rates at or above this figure. Review save rates as an indicator of purchase intent. Assess comment section quality for evidence of an active style community: specific outfit questions and personal creator responses indicate genuine engagement. Check posting consistency over the last month — micro creators should maintain regular posting to confirm an active audience.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
