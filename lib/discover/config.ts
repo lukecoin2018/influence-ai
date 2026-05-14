@@ -2195,6 +2195,90 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'instagram-Tech': [
+    {
+      question: 'What engagement rate do Instagram tech creators achieve?',
+      answer:
+        "InfluenceIT's verified database of 37 mid-tier Instagram tech creators shows an average engagement rate of 2.31% with average views of 137,153 per post — the highest average views of any Instagram category in our database except wellness. Instagram tech content benefits from strong Explore feed distribution as the algorithm actively serves tech content to users in active purchase consideration. Instagram tech reaches the 30–50 professional demographic — higher income, more considered purchasing, and stronger brand loyalty than younger TikTok tech audiences.",
+    },
+    {
+      question: 'How does Instagram tech compare to TikTok tech for brand partnerships?',
+      answer:
+        "TikTok tech delivers higher engagement rates (10.81% median vs 0.56%) and more views per post (532,302 vs 137,153). Instagram tech delivers access to the 30–50 professional demographic with higher purchasing power, content longevity of six to twelve months versus TikTok's two to eight weeks, premium aesthetic setup content format, and better reach for considered high-value purchases. For premium tech brands targeting professionals, Instagram's demographic alignment often delivers better conversion despite lower engagement rates.",
+    },
+    {
+      question: 'What makes Instagram tech content commercially different from TikTok?',
+      answer:
+        "Instagram tech content excels in three areas TikTok cannot match: the aesthetic setup and workspace content format that builds aspirational brand associations, long-form caption technical education that reaches purchase-research-oriented professionals, and content longevity of six to twelve months that dramatically improves long-term cost-per-impression. For premium tech, B2B-adjacent products, and software targeting professionals, Instagram's format and demographic alignment consistently outperforms TikTok for conversion quality.",
+    },
+    {
+      question: 'How much do Instagram tech creators charge for brand partnerships?',
+      answer:
+        "Instagram tech creators in the mid-tier range (50,000–500,000 followers) typically charge $250–$6,000 per post. Review series (three posts) range from $650 to $15,000 depending on follower tier. Product provision is standard — negotiate whether products are on loan or retained by the creator. Retained products generate ongoing organic content beyond contracted deliverables. Usage rights for repurposing content in advertising and e-commerce add 25–50% to base rates.",
+    },
+    {
+      question: 'How do I find the right Instagram tech creator for my brand?',
+      answer:
+        "Verify engagement against InfluenceIT's 2.31% average benchmark for Instagram tech. Check factual accuracy in recent review content — Instagram tech audiences research creator credibility and will hold brands accountable for inaccurate technical claims. Look for creators whose aesthetic and content style aligns with your brand positioning. Prioritise creators who include detailed technical information in captions alongside visual content. InfluenceIT provides verified engagement data from each creator's 15 most recent posts.",
+    },
+  ],
+
+  'tier-micro-Fitness': [
+    {
+      question: 'Why do fitness micro-influencers have higher engagement than larger fitness accounts?',
+      answer:
+        "Fitness micro-influencers (50K–100K) achieve extraordinary engagement because they maintain genuine community intimacy that larger accounts inevitably lose as their audience grows. InfluenceIT's TikTok micro fitness data shows a median engagement rate of 21.52% — among the highest of any tier in any category in our database. At micro scale, fitness creators know their audience's goals, respond personally to comments, and produce content tailored to a specific fitness community. That intimacy creates the trust that drives purchase action.",
+    },
+    {
+      question: 'How much do fitness micro-influencers charge?',
+      answer:
+        "Fitness micro-influencers with 50,000–100,000 followers typically charge $150–$400 per TikTok post and $200–$600 per Instagram post. Three-post packages range from $400–$1,000 on TikTok and $500–$1,500 on Instagram. Monthly ambassador programmes range from $500–$1,200 per month on TikTok and $600–$1,800 on Instagram. The cost efficiency — three to five times lower than mid-tier rates — enables fitness brands to activate six to ten micro creators for the cost of two mid-tier partnerships.",
+    },
+    {
+      question: 'What is the best campaign structure for fitness micro-influencers?',
+      answer:
+        "The most effective fitness micro strategy coordinates eight to twelve creators simultaneously across complementary fitness sub-niches. This creates a social proof effect where fitness consumers who follow multiple creators all see the same brand within a short window — shifting perception from 'this creator uses this' to 'everyone serious about fitness uses this'. The multi-creator approach also tests which sub-niches (strength, yoga, HIIT, running) respond best, providing market research data that guides future investment.",
+    },
+    {
+      question: 'What types of fitness brands benefit most from micro-influencer partnerships?',
+      answer:
+        "Supplement and nutrition brands benefit most — micro fitness audiences have the highest supplement purchase intent of any creator tier, and the intimate community relationships drive genuine product trial. Activewear brands entering specific fitness sub-niches (yoga, running, CrossFit) find micro creators provide the precise niche targeting that larger creators cannot. Home fitness equipment brands, fitness apps, and health food brands all benefit from micro fitness communities where purchasing intent is concentrated and community recommendations carry strong purchase influence.",
+    },
+    {
+      question: 'How do I evaluate a fitness micro-influencer before partnering?',
+      answer:
+        "At TikTok micro scale (50K–100K), expect engagement rates well above 6.86% — InfluenceIT's data shows a 21.52% median for micro fitness, so target creators at or above this benchmark. On Instagram, use 3.78% as the average benchmark. Verify genuine fitness sub-niche authenticity — micro audiences will detect partnerships that require the creator to step outside their authentic training focus. Check comment quality for genuine fitness community interaction: specific workout questions and personal training discussions indicate purchase-intent audiences.",
+    },
+  ],
+
+  'usecase-Product Launches': [
+    {
+      question: 'Why is creator marketing the most effective channel for product launches?',
+      answer:
+        "Creator partnerships deliver the three elements product launches require simultaneously: sufficient reach to create market awareness, established audience trust that builds credibility rather than skepticism, and genuine product integration that creates purchase intent. When eight to twelve creators post within the same 72-hour launch window, TikTok's algorithm interprets the volume as a trending signal and amplifies all related content — creating launch momentum that far exceeds the sum of individual creator post reach. No traditional advertising channel replicates this coordinated organic amplification.",
+    },
+    {
+      question: 'How many creators should be involved in a product launch campaign?',
+      answer:
+        "The most effective launch strategy uses a tiered mix: one to two top-tier creators (250K–500K followers) for prestige and flagship reach, three to five mid-tier creators (100K–250K) for core reach volume, and five to eight micro creators (50K–100K) for niche community penetration and the volume that creates coordinated launch momentum. Total creator count of 10–15 for mid-market launches and 15–25 for premium launches. All creators should post within the same 72-hour window for maximum algorithmic momentum.",
+    },
+    {
+      question: 'How much lead time does a product launch creator campaign need?',
+      answer:
+        "Book creators four to six weeks before launch day — not at launch. The best mid-tier creators have full schedules and need advance booking. Send products two to three weeks before launch day, giving creators time for genuine product familiarity while maintaining launch timing authenticity. Coordinate posting so all creator content goes live within 72 hours of launch day. Plan a second wave of creator content two to three weeks post-launch to sustain momentum into the purchase consideration window that follows initial launch excitement.",
+    },
+    {
+      question: 'What content formats work best for product launch creator campaigns?',
+      answer:
+        "First-impression and unboxing content is the most appropriate format for launch campaigns — novelty is genuinely credible at launch in a way it cannot be later. Early access content ('I got early access to this') creates scarcity signals that drive day-one purchase urgency. On TikTok, coordinate all creator content to use a shared launch hashtag for algorithmic connection between creator posts. On Instagram, Reels deliver maximum reach while Stories with product links drive direct conversion. Brief creators for multi-format output to maximise platform coverage.",
+    },
+    {
+      question: 'How much should brands budget for product launch creator campaigns?',
+      answer:
+        "Small brand launches using 5–8 creators on TikTok-first strategy typically cost $3,000–$12,000 in creator fees. Mid-market launches using 10–15 creators across both platforms typically cost $15,000–$40,000. Premium launches using 15–25 tiered creators across both platforms typically cost $40,000–$120,000. Add product provision costs separately. Book creators four to six weeks ahead and coordinate posting within the same 72-hour launch window for maximum algorithmic momentum. InfluenceIT's database of 2,000+ verified creators provides partners across all categories and tiers.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
