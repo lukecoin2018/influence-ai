@@ -4184,4 +4184,398 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'tiktok-Wellness': {
+    heading: 'TikTok Wellness Creators: The Complete Brand Partnership Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why TikTok Wellness Creators Carry Exceptional Brand Trust',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok wellness creators occupy one of the most trust-intensive positions in the creator economy. Their followers are not casual content consumers — they are people actively navigating health challenges, mental wellbeing, and lifestyle improvement, seeking guidance from creators they believe genuinely care about their audience's outcomes. This level of follower investment creates a creator-audience relationship where product recommendations carry the weight of trusted personal advice rather than commercial endorsement.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database includes 137 verified mid-tier TikTok wellness creators with a median engagement rate of 5.64% and an average of 466,601 views per post. Wellness content on TikTok spreads through the algorithm with particular efficiency because it addresses universal human needs — stress, sleep, anxiety, energy, and mental clarity — that resonate across demographics and generate high save rates from viewers who want to revisit the guidance.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The wellness category is one of the fastest-growing on TikTok globally. Mental health awareness content, mindfulness practices, sleep optimisation, gut health education, and holistic living have all found substantial engaged audiences on the platform — audiences that are actively purchasing products aligned with their wellness goals and actively seeking creator guidance on which products are worth their investment.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT TikTok Wellness Creator Data: 137 Verified Creators Analysed',
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Performance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The median engagement rate of 5.64% across our verified TikTok wellness creators reflects the genuine community investment that wellness content generates. Wellness audiences interact with content because it is directly relevant to their daily lives and ongoing health goals — they are not passive viewers but active participants in wellness communities that use TikTok as a primary source of health guidance.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The average engagement rate of 25.60% — significantly above the median — indicates the presence of wellness creators whose content achieves viral reach when it addresses topics of widespread concern. Mental health content, in particular, has demonstrated extraordinary viral potential on TikTok, with videos addressing anxiety, burnout, and emotional wellbeing regularly accumulating millions of views from non-followers who find the content through the algorithm.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Reach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "A single post from a mid-tier TikTok wellness creator in our database generates an average of 466,601 views and 38,920 likes — strong reach figures that confirm wellness content's broad algorithmic appeal. TikTok actively distributes wellness content to users who have engaged with health, lifestyle, or mental wellbeing content, meaning wellness creator posts reach audiences well beyond the creator's existing followers.",
+      },
+      {
+        type: 'h3',
+        content: 'Posting Frequency',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok wellness creators post an average of 2.81 times per week — a measured frequency that reflects the thoughtful, researched nature of quality wellness content. Unlike fashion or beauty where high posting volume is feasible, wellness content that covers mental health, nutritional science, or mindfulness practice requires preparation and accuracy. This lower frequency signals quality over quantity and means each post carries more audience weight.",
+      },
+      {
+        type: 'h2',
+        content: 'TikTok Wellness Sub-Niches and Brand Alignment',
+      },
+      {
+        type: 'table',
+        headers: ['Wellness Sub-Niche', 'Best Brand Category', 'Key Content Format'],
+        rows: [
+          ['Mental health / anxiety', 'Mental wellness apps, journals, therapy platforms', 'Educational, personal story'],
+          ['Sleep optimisation', 'Sleep supplements, sleep tech, bedding', 'Routine content, product integration'],
+          ['Gut health', 'Probiotics, nutrition brands, functional foods', 'Education, what I eat content'],
+          ['Mindfulness / meditation', 'Meditation apps, wellness supplements', 'Practice content, routine integration'],
+          ['Holistic living', 'Natural beauty, supplements, lifestyle brands', 'Day in my life, routine content'],
+          ['Energy and focus', 'Nootropics, energy supplements, productivity apps', 'Morning routine, work content'],
+          ['Stress and burnout', 'Wellness apps, supplements, self-care brands', 'Educational, personal journey'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Why Wellness Creator Audiences Have High Purchase Intent',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Wellness audiences are characterised by active self-investment — they are already spending money on supplements, apps, books, and services in pursuit of health improvements. Unlike entertainment audiences who passively consume content, wellness audiences actively seek products and practices that will improve specific outcomes they care about. When a trusted wellness creator recommends a product that addresses a viewer's specific concern, the purchase intent conversion is direct and fast.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Wellness audiences also have strong community amplification dynamics. When a wellness creator recommends a product, their audience discusses it in comments, asks follow-up questions about dosage or efficacy, shares personal experiences with similar products, and encourages community members to try it together. This community amplification extends the commercial impact of a single creator partnership far beyond the post's direct reach.",
+      },
+      {
+        type: 'h2',
+        content: 'Campaign Strategy for TikTok Wellness Creators',
+      },
+      {
+        type: 'h3',
+        content: 'Education-Based Content',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Wellness audiences are among the most research-oriented on TikTok. Content that explains why a product works — the science behind an ingredient, the mechanism of a practice, the evidence base for a wellness approach — consistently outperforms content that simply promotes a product's benefits. Brief wellness creators to lead with education before advocacy: explain what the product does and why, then share their personal experience with it. This format respects the audience's sophistication and builds the trust that converts viewers into purchasers.",
+      },
+      {
+        type: 'h3',
+        content: 'Routine Integration',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Morning routine and daily wellness ritual content are TikTok wellness's highest-performing formats. Products integrated into a creator's genuine documented wellness routine — a supplement taken as part of their morning, a meditation practice they actually follow, a sleep product used in their genuine evening ritual — benefit from the contextual authenticity of routine integration. Wellness audiences distinguish quickly between products genuinely used in a creator's life and products inserted for commercial purposes.",
+      },
+      {
+        type: 'h3',
+        content: 'Long-Term Ambassador Approach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Single-post wellness campaigns rarely deliver their full potential. Wellness audiences are among the most skeptical of one-off sponsored posts — they know that genuine wellness improvements take time, and a creator who mentions a supplement once has not demonstrated the sustained commitment that builds credibility. Long-term ambassador programmes where creators document genuine ongoing use over three to six months consistently outperform equivalent spend on multiple one-off partnerships by a significant margin.",
+      },
+      {
+        type: 'h2',
+        content: 'TikTok Wellness Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package', 'Monthly Ambassador'],
+        rows: [
+          ['50K–100K', '$150–$450', '$400–$1,100', '$500–$1,300/month'],
+          ['100K–250K', '$450–$1,200', '$1,100–$3,000', '$1,300–$3,500/month'],
+          ['250K–500K', '$1,200–$3,500', '$3,000–$8,500', '$3,500–$10,000/month'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Wellness creator partnerships should be structured around authenticity above all else. Creators who feel pressured into inauthentic endorsements deliver lower engagement and generate skeptical audience responses that damage both creator and brand credibility. The most commercially effective wellness partnerships are those where the creator genuinely believes in the product — which requires adequate product trial time and creative brief freedom to speak honestly about their experience.",
+      },
+    ],
+  },
+
+  'tiktok-Travel': {
+    heading: 'TikTok Travel Creators: The Complete Brand Partnership Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why TikTok Travel Creators Deliver the Highest Engagement of Any Category',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok travel creators achieve something extraordinary: the highest median engagement rate and highest average views per post of any creator category in InfluenceIT's database. With a median engagement of 11.63% and an average of 658,380 views per post, TikTok travel content consistently outperforms every other category on the platform's two most important commercial metrics. This exceptional performance reflects travel content's unique appeal — it combines aspiration, escapism, practical destination information, and cultural discovery in formats that audiences save, share, and return to repeatedly.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database includes 255 verified mid-tier TikTok travel creators — a pool that spans destination creators, budget travel specialists, luxury travel documentarians, adventure content creators, and solo travel guides. The diversity of travel sub-niches means brands from airlines and hotels to luggage companies, travel insurance providers, and tourism boards all have relevant creator communities to partner with.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Travel content on TikTok reaches audiences at a specific moment of commercial value: when they are dreaming about, planning, or actively booking travel. Unlike lifestyle or fashion content where the audience's commercial intent varies widely, travel content viewers are often in active travel consideration mode — making travel creator partnerships some of the highest-intent commercial placements available on any social platform.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT TikTok Travel Creator Data: 255 Verified Creators Analysed',
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Performance — The Highest in Our Database',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The median engagement rate of 11.63% across our verified TikTok travel creators is the highest median of any category in InfluenceIT's database — surpassing skincare (8.84%), lifestyle (9.08%), beauty (8.54%), and all other tracked categories. This exceptional engagement reflects the deep audience investment in travel content: viewers save destination videos for trip planning, share them with travel companions, and return to them repeatedly as they research destinations. Each of these behaviours registers as engagement, driving travel content's outstanding interaction metrics.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The average engagement rate of 46.48% — substantially above the median — indicates the presence of travel creators whose content achieves viral reach when it uncovers hidden destinations, reveals travel hacks, or showcases extraordinary experiences. Travel content has the highest viral ceiling of any category on TikTok: a single video revealing an unknown stunning destination can accumulate millions of views from non-followers who discover it through the algorithm or friend shares.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Reach — The Highest Average Views in Our Database',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "At an average of 658,380 views per post — the highest of any category in InfluenceIT's database — TikTok travel creators deliver extraordinary organic reach. A post from a mid-tier travel creator with 200,000 followers regularly reaches audiences three to four times their follower count through TikTok's destination and travel content algorithm. For travel brands evaluating creator marketing ROI, these reach figures at mid-tier partnership rates represent the most cost-efficient organic reach available on any social platform.",
+      },
+      {
+        type: 'h3',
+        content: 'Posting Frequency',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok travel creators post an average of 1.47 times per week — the lowest posting frequency of any category in our database. This is not a weakness but a reflection of the content format: genuine travel content requires actual travel, real destination footage, and thoughtful editing. The lower frequency means each post is a higher-investment creative piece that audiences engage with more deeply, and that sponsored content stands out less against a backdrop of high-volume posting.",
+      },
+      {
+        type: 'h2',
+        content: 'Travel Creator Sub-Niches and Brand Alignment',
+      },
+      {
+        type: 'table',
+        headers: ['Travel Sub-Niche', 'Best Brand Category', 'Partnership Format'],
+        rows: [
+          ['Destination discovery', 'Tourism boards, airlines, hotels', 'Press trip, destination campaign'],
+          ['Budget travel', 'Budget airlines, hostels, travel apps', 'Tips content, product integration'],
+          ['Luxury travel', 'Premium hotels, business class, luxury brands', 'Experience documentation'],
+          ['Adventure travel', 'Outdoor gear, activewear, travel insurance', 'Expedition content'],
+          ['Solo travel', 'Safety apps, travel accessories, accommodation', 'Journey documentation'],
+          ['Digital nomad', 'Productivity apps, co-working, tech gear', 'Lifestyle integration'],
+          ['Food and culture travel', 'Food brands, cultural experiences', 'Destination food content'],
+          ['Family travel', 'Family accommodation, family activities', 'Family journey documentation'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Campaign Formats for Travel Brand Partnerships',
+      },
+      {
+        type: 'h3',
+        content: 'Press Trips — The Dominant Travel Partnership Format',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Press trips — where a brand sponsors a creator's travel to a destination in exchange for content — are the primary format for destination, hotel, airline, and tourism brand partnerships. When executed well, press trips generate authentic destination documentation content that feels genuinely exploratory rather than promotional. The key to effective press trip content is allowing creators genuine time to experience the destination rather than over-scheduling with branded activities — content that shows real exploration consistently outperforms polished but obviously curated press trip itineraries.",
+      },
+      {
+        type: 'h3',
+        content: 'Product Integration in Travel Content',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For brands whose products support travel — luggage, packing accessories, travel tech, travel insurance, language apps, payment cards — integration into a creator's genuine travel content is the most authentic placement available. A luggage brand featured in a creator's actual packing content, a travel insurance brand mentioned in the context of genuine trip planning, or a travel tech product demonstrated during real use while travelling all benefit from the contextual authenticity that travel content's natural format provides.",
+      },
+      {
+        type: 'h3',
+        content: 'Destination and Tourism Campaigns',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Tourism boards and destination marketing organisations have found TikTok travel creators to be their most cost-efficient marketing channel by significant margin. A single well-executed TikTok video showcasing an underexplored destination can drive measurable increases in destination search volume, hotel bookings, and airline route performance. The organic reach of destination content — average 658,380 views per post in our database — and its tendency to generate secondary shares as viewers tag travel companions make tourism campaign ROI exceptional compared to traditional destination advertising.",
+      },
+      {
+        type: 'h2',
+        content: 'Planning Considerations for Travel Creator Partnerships',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Travel creator partnerships require more lead time than any other creator category. Press trips require visa arrangements, flight booking, accommodation coordination, and content planning that typically need three to four months of preparation. For seasonal travel campaigns — summer destination content, ski season content, festival season travel — add additional lead time to ensure content is produced and posted during the relevant booking window rather than after audiences have already made their travel decisions.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Content rights and exclusivity arrangements are particularly important in travel partnerships. A creator's destination content may feature multiple brands implicitly — the hotel, the airline, local restaurants, and activities all appear in destination documentation. Clarify which specific products and services require explicit disclosure and which appear organically as part of destination content. Contracts should specify which content pieces are sponsored, what brands cannot appear, and how long exclusivity applies to specific destinations or travel categories.",
+      },
+      {
+        type: 'h2',
+        content: 'TikTok Travel Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Post', 'Press Trip Package', 'Destination Campaign'],
+        rows: [
+          ['50K–100K', '$200–$600', '$800–$2,500', '$1,500–$5,000'],
+          ['100K–250K', '$600–$1,800', '$2,500–$7,000', '$5,000–$15,000'],
+          ['250K–500K', '$1,800–$5,000', '$7,000–$20,000', '$15,000–$40,000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Travel partnerships are typically the highest-cost creator partnerships per campaign due to trip costs in addition to creator fees. However, the content produced — genuine destination documentation by a creator with 11.63% median engagement and 658,380 average views — represents exceptional value when evaluated on cost-per-genuine-engaged-viewer. The organic virality potential of travel content means campaigns regularly deliver reach well beyond what the creator's follower count and partnership cost suggest.",
+      },
+    ],
+  },
+
+  'usecase-Small Businesses': {
+    heading: 'Affordable Influencers for Small Business Marketing: A Practical Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Influencer Marketing Works for Small Businesses',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Influencer marketing is not exclusively for large brands with large budgets. The mid-tier creator ecosystem — particularly the 50,000–150,000 follower range — was built for exactly the kind of authentic, community-driven marketing that small businesses excel at. Small businesses often have better brand stories, more genuine products, and more compelling founder narratives than large corporations — which are precisely the assets that creator audiences respond to most enthusiastically.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database focuses on mid-tier creators in the 50,000–500,000 follower range — a pool that includes hundreds of creators in the accessible 50,000–150,000 bracket where partnership rates are appropriate for small business budgets. These creators deliver genuine engagement with niche communities that convert at rates that justify the investment for businesses with limited marketing spend who need every partnership to perform.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The economics of small business influencer marketing have improved dramatically as the creator ecosystem has matured. Micro and lower mid-tier creators now offer professional content production, established audience relationships, and reliable campaign execution at rates that were unimaginable five years ago. For small businesses, this means accessing genuinely effective marketing channels that were previously only available to brands with significant advertising budgets.",
+      },
+      {
+        type: 'h2',
+        content: 'Creator Selection Strategy for Small Businesses',
+      },
+      {
+        type: 'h3',
+        content: 'Prioritise Niche Alignment Over Reach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For small businesses, a creator with 60,000 highly relevant followers is more valuable than a creator with 300,000 broadly interested followers. A skincare small business partnering with a 70,000-follower skincare creator reaches an audience that is entirely predisposed to their product. The same budget spent with a 300,000-follower lifestyle creator reaches a fraction who are relevant, with the rest being wasted exposure. Small business budgets require precise targeting — niche-specific micro creators deliver it.",
+      },
+      {
+        type: 'h3',
+        content: 'Local Creator Partnerships',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For small businesses with local or regional customer bases, location-based creator partnerships are particularly valuable. A local restaurant partnering with a food creator whose audience is concentrated in the same city, or a boutique partnering with a fashion creator known in the local community, converts at dramatically higher rates than equivalent partnerships with creators whose audiences are geographically dispersed. InfluenceIT's database includes location data for verified creators — enabling small businesses to find creators whose audiences actually overlap with their service area.",
+      },
+      {
+        type: 'h3',
+        content: 'Authentic Brand Story Partnerships',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Small businesses typically have more compelling brand stories than large corporations — founder journeys, artisan production methods, community roots, and genuine passion for the product category. Creators who connect with these stories organically become genuine advocates rather than commercial partners. For small businesses, identifying creators who would genuinely love your product and approaching them with a brand story partnership — leading with your story rather than a commercial proposition — generates the most authentic and commercially effective content.",
+      },
+      {
+        type: 'h2',
+        content: 'Budget-Smart Partnership Approaches for Small Businesses',
+      },
+      {
+        type: 'h3',
+        content: 'Gifting Programmes',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Gifting — sending products to creators in exchange for potential organic coverage without guaranteed posting — is the most accessible entry point for small businesses with very limited marketing budgets. While gifting does not guarantee content, creators who genuinely love a small business's product will often post organically, and the authenticity of unsponsored content typically generates stronger audience engagement than paid placements. Gifting works best for products with a genuine wow factor — items that creators feel proud to share with their audiences unprompted.",
+      },
+      {
+        type: 'h3',
+        content: 'Revenue Share Arrangements',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For small businesses with limited upfront budgets, affiliate or revenue share arrangements — where creators earn a percentage of sales they drive rather than a flat fee — align creator and brand incentives effectively. Creators who believe in a product's quality are often willing to accept revenue share arrangements, particularly with small businesses whose brand stories resonate with them. This structure reduces upfront risk for small businesses while giving creators genuine financial motivation to drive commercial results.",
+      },
+      {
+        type: 'h3',
+        content: 'Long-Term Relationship Building',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Small businesses benefit disproportionately from long-term creator relationships compared to large brands. When a creator who genuinely loves a small business features it repeatedly over months, their audience builds the kind of ambient brand awareness that makes the business feel like a community recommendation rather than an advertiser. Starting with gifting, transitioning to revenue share, and eventually moving to paid partnerships as the relationship and budget allow is a sustainable creator marketing growth strategy for small businesses.",
+      },
+      {
+        type: 'h2',
+        content: 'Small Business Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'TikTok Rate', 'Instagram Rate', 'Small Business Approach'],
+        rows: [
+          ['50K–75K', '$100–$250', '$150–$350', 'Gifting + small paid fee'],
+          ['75K–100K', '$150–$400', '$200–$600', 'Gifting or paid partnership'],
+          ['100K–150K', '$300–$600', '$400–$800', 'Paid partnership or revenue share'],
+          ['150K–250K', '$500–$1,000', '$700–$1,500', 'Paid partnership'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Small businesses should focus their budget on two to three carefully selected creators rather than spreading limited funds across many partnerships. A single well-chosen creator whose audience is genuinely relevant to your product, briefed with your authentic brand story and given genuine creative freedom, will consistently outperform three to four broadly chosen creators given restrictive commercial briefs. Quality of creator-brand alignment, not quantity of partnerships, drives small business influencer marketing ROI.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Consider offering creators early access, behind-the-scenes brand experiences, or co-creation opportunities in addition to product and fee. Small businesses can offer creators things large brands cannot — genuine access to founders, involvement in product development, and the authentic story of a real business building something meaningful. These non-monetary value elements make small business partnerships attractive to creators who are selective about commercial partnerships.",
+      },
+    ],
+  },
+
 };

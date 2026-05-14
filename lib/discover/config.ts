@@ -1859,6 +1859,90 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'tiktok-Wellness': [
+    {
+      question: 'What is a good engagement rate for TikTok wellness creators?',
+      answer:
+        "Based on InfluenceIT's database of 137 verified mid-tier TikTok wellness creators, the median engagement rate is 5.64%, calculated from each creator's 15 most recent posts. Wellness content generates above-average save rates — viewers bookmark wellness guidance to revisit — which contributes to engagement metrics. Creators above the 5.64% median are outperforming their verified peers. The average engagement of 25.60% reflects viral potential when wellness content addresses widespread concerns like anxiety, sleep, and burnout.",
+    },
+    {
+      question: 'How much do TikTok wellness creators charge for brand partnerships?',
+      answer:
+        "TikTok wellness creators in the mid-tier range (50,000–500,000 followers) typically charge $150–$3,500 per post. Creators with 50K–100K followers charge $150–$450, while those with 250K–500K followers charge $1,200–$3,500. Monthly ambassador programmes range from $500–$10,000 per month depending on follower tier. Long-term ambassador structures are particularly important in wellness, where sustained product integration builds the trust that one-off posts cannot achieve.",
+    },
+    {
+      question: 'What content formats work best for wellness brand partnerships on TikTok?',
+      answer:
+        "Education-based content — explaining why a product works, the science behind an ingredient, or the evidence base for a wellness practice — consistently outperforms promotional content in wellness. Morning routine and daily ritual content drives strong save rates. Personal journey and honest review content builds the deepest audience trust. Long-term ambassador content showing genuine ongoing product use over months is the highest-converting format for supplement and wellness app brands, where results take time to demonstrate.",
+    },
+    {
+      question: 'Which wellness sub-niches have the strongest brand partnership opportunities?',
+      answer:
+        "Mental health and anxiety content generates the highest viral reach in wellness — videos addressing common experiences like burnout, anxiety management, and emotional regulation regularly accumulate millions of views. Sleep optimisation and gut health are the fastest-growing sub-niches with strong commercial intent. Morning routine creators attract the widest brand integration opportunities. Mindfulness and meditation creators have smaller but exceptionally loyal audiences with high supplement and app purchase intent.",
+    },
+    {
+      question: 'How do I find the right TikTok wellness creator for my brand?',
+      answer:
+        "Match your product's specific benefit to the creator's wellness focus area first — a sleep supplement brand needs a sleep-focused creator, not a general wellness creator. Verify engagement against the 5.64% median benchmark. Check content accuracy: wellness audiences fact-check claims and hold brands accountable for creators who make inaccurate health statements. Look for creators who disclose partnerships transparently and integrate products within genuine wellness routines. InfluenceIT provides verified engagement data from each creator's 15 most recent posts.",
+    },
+  ],
+
+  'tiktok-Travel': [
+    {
+      question: 'What is the engagement rate for TikTok travel creators?',
+      answer:
+        "TikTok travel creators achieve the highest engagement metrics of any category in InfluenceIT's database. Our verified pool of 255 mid-tier TikTok travel creators delivers a median engagement rate of 11.63% and an average of 658,380 views per post — both the highest figures of any category we track. Travel content generates exceptional engagement because audiences save destination videos for trip planning, share them with travel companions, and return to them repeatedly during research. Each of these behaviours registers as engagement, driving travel content's outstanding metrics.",
+    },
+    {
+      question: 'How much do TikTok travel creators charge for brand partnerships?',
+      answer:
+        "TikTok travel creator partnerships typically include both creator fees and trip costs. Creator fees range from $200–$5,000 per post depending on follower count. Press trip packages — covering flights, accommodation, and activities in exchange for content — typically range from $800–$20,000 total cost depending on destination and creator tier. Full destination campaign packages range from $1,500–$40,000. Budget travel creation budgets generously — high-quality travel content requires genuine travel investment.",
+    },
+    {
+      question: 'What brands benefit most from TikTok travel creator partnerships?',
+      answer:
+        "Airlines, hotels, and accommodation brands benefit most directly — travel creator content drives measurable booking intent. Tourism boards and destination marketing organisations have found TikTok travel creators to be their most cost-efficient marketing channel. Luggage, travel accessories, travel insurance, language apps, and travel tech brands all benefit from genuine in-use integration in travel content. Food and hospitality brands benefit from destination food content. Any brand whose customer travels regularly has an opportunity to build brand association through travel creator partnerships.",
+    },
+    {
+      question: 'How much lead time do travel brand campaigns need?',
+      answer:
+        "Travel creator partnerships require more lead time than any other creator category. Press trips need three to four months for visa arrangements, flight booking, accommodation coordination, and content planning. For seasonal travel campaigns, add additional time to ensure content posts during the relevant booking window — not after audiences have already made travel decisions. Summer destination content should post by April; ski season content by November; festival season content six to eight weeks before the event.",
+    },
+    {
+      question: 'How do I find the right TikTok travel creator for my destination or travel brand?',
+      answer:
+        "Match the creator's travel style to your brand positioning first — budget travel creators reach different audiences than luxury travel creators, and adventure creators reach different demographics than family travel creators. Verify engagement against the 11.63% median benchmark in InfluenceIT's database — this is the highest category median we track, so use it as a quality standard. Review destination variety and content authenticity. Check that existing brand integrations feel genuinely exploratory rather than obviously staged. InfluenceIT provides verified engagement data from each creator's 15 most recent posts.",
+    },
+  ],
+
+  'usecase-Small Businesses': [
+    {
+      question: 'Can small businesses with limited budgets afford influencer marketing?',
+      answer:
+        "Yes — InfluenceIT's database focuses on mid-tier creators in the 50,000–500,000 follower range, including hundreds of creators in the accessible 50,000–150,000 bracket where partnership rates start from $100–$400 per post. Gifting programmes (sending products in exchange for potential organic coverage) provide the most accessible entry point. Revenue share arrangements — where creators earn a percentage of sales they drive — eliminate upfront costs entirely. Small businesses can run effective influencer campaigns with budgets from $500–$2,000 per month when focused on carefully selected niche-aligned micro creators.",
+    },
+    {
+      question: 'What follower range should small businesses target for influencer partnerships?',
+      answer:
+        "Small businesses should focus on creators with 50,000–150,000 followers — the range where partnership rates are most accessible and engagement rates are highest. A creator with 75,000 highly relevant followers will consistently outperform a 300,000-follower creator for a small business, because niche alignment drives conversion more than raw reach. InfluenceIT's database includes verified creators across all niches in this follower range, with engagement data calculated from each creator's 15 most recent posts.",
+    },
+    {
+      question: 'What makes a good influencer partnership for a small business?',
+      answer:
+        "Niche alignment is the most critical factor — a creator whose audience is genuinely predisposed to your product category converts at dramatically higher rates than a broadly popular creator. Authentic brand story fit matters enormously for small businesses — creators who connect with your founder story, production values, or community mission become genuine advocates. Local audience concentration is valuable for businesses with geographic customer bases. Start with gifting to identify creators who genuinely love your product before investing in paid partnerships.",
+    },
+    {
+      question: 'How should small businesses approach influencer outreach?',
+      answer:
+        "Lead with your brand story rather than a commercial proposition — small businesses have more compelling founder stories and authentic missions than most large brands, and creators respond to these. Offer genuine value beyond fee: early product access, behind-the-scenes experiences, and founder involvement that large brands cannot provide. Start with gifting to build authentic relationships before moving to paid partnerships. Focus on two to three carefully selected creators rather than spreading limited budget across many partnerships — quality of creator-brand alignment drives small business influencer ROI.",
+    },
+    {
+      question: 'What are the most cost-effective influencer campaign structures for small businesses?',
+      answer:
+        "Gifting programmes (products in exchange for potential organic coverage) provide the lowest-cost entry. Revenue share or affiliate arrangements eliminate upfront fees while giving creators performance-based motivation. Long-term relationships built through gifting that transition to paid partnerships over time generate the most authentic advocacy. For paid campaigns, two to three niche-aligned creators posting three posts each over six weeks consistently outperforms one large creator partnership at equivalent spend. Always negotiate usage rights when budget allows — small business creator content repurposed in paid social advertising extends campaign value significantly.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
