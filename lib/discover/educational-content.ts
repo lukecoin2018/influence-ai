@@ -3157,4 +3157,366 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'tiktok-Lifestyle': {
+    heading: 'TikTok Lifestyle Creators: The Complete Brand Partnership Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why TikTok Lifestyle Creators Are the Most Versatile Brand Partners',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok lifestyle creators are the most commercially versatile category in the creator economy. Their content naturally spans home, wellness, fashion, food, travel, and daily routines — making them effective brand partners for products that do not fit neatly into a single niche. A lifestyle creator can authentically integrate a beauty product, a home organisation solution, a food brand, and a wellness app within the same week without any audience mismatch, because their community opted in specifically for the breadth of their everyday life content.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database includes 963 verified mid-tier TikTok lifestyle creators — the second largest category in our database after fashion. With a median engagement rate of 9.08% — the highest of any TikTok category we track — and an average of 535,380 views per post, TikTok lifestyle creators deliver exceptional reach and engagement simultaneously. For brands seeking a single creator category that combines commercial flexibility with top-tier performance metrics, lifestyle is the answer.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The lifestyle category's strength on TikTok reflects the platform's core content format — Day in My Life videos, morning routines, apartment tours, and 'what I eat in a day' content are among TikTok's most-saved formats globally. These formats create habitual audience relationships: viewers return daily to follow a creator's life, building the kind of sustained engagement that drives genuine brand recall and purchase influence over time.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT TikTok Lifestyle Creator Data: 963 Verified Creators Analysed',
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Performance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The median engagement rate of 9.08% across our verified TikTok lifestyle creators is the highest median of any category in InfluenceIT's database — surpassing skincare (8.84%), beauty (8.54%), and fashion (7.95%). This reflects the habitual engagement that lifestyle content generates: audiences who follow a creator's daily life interact with content as part of their own daily routine, not as passive content consumption.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Reach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "A single post from a mid-tier TikTok lifestyle creator generates an average of 535,380 views and 49,041 likes — strong reach figures that reflect lifestyle content's broad algorithmic appeal. TikTok's algorithm actively distributes lifestyle content to users across multiple interest categories simultaneously, giving lifestyle posts organic reach into audiences that extend well beyond the creator's existing followers.",
+      },
+      {
+        type: 'h3',
+        content: 'Posting Frequency',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok lifestyle creators post an average of 2.70 times per week — lower than fashion (4.01) and beauty (3.22), reflecting the more personal, diary-style content format that requires genuine life moments rather than studio production. This lower frequency means each post carries more weight with the audience and that sponsored content stands out less against a backdrop of high-volume posting.",
+      },
+      {
+        type: 'h2',
+        content: 'Why the 9.08% Median Engagement Matters for Brands',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The lifestyle category's exceptional engagement rate is not accidental — it reflects the nature of lifestyle content consumption. When a viewer follows a lifestyle creator, they are opting into that person's daily life. They know the creator's home, their morning routine, their food preferences, their aesthetic choices. This intimacy creates an audience relationship that is qualitatively different from following a niche expert or a trend-focused creator.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For brands, this intimacy translates into the most natural product integration opportunities available. A lifestyle creator drinking your brand's coffee in their morning routine video is not advertising — it is showing their actual morning. A lifestyle creator organising their home with your product is not a sponsored post — it is their genuine life. The best lifestyle brand integrations are indistinguishable from organic content, which is precisely why they convert.",
+      },
+      {
+        type: 'h2',
+        content: 'Which Brands Benefit Most from TikTok Lifestyle Creator Partnerships',
+      },
+      {
+        type: 'bullets',
+        items: [
+          "Home and living brands — furniture, organisation, décor, kitchen products all integrate naturally into apartment and home tour content.",
+          "Food and beverage brands — meal prep, 'what I eat in a day', and cooking routine content is a lifestyle staple.",
+          "Wellness brands — morning routine and self-care content is one of TikTok lifestyle's highest-performing formats.",
+          "Fashion and accessories — outfit content within lifestyle vlogs reaches audiences in a non-promotional context.",
+          "Tech and productivity apps — Day in My Life content naturally incorporates the tools creators use to manage their lives.",
+          "Beauty products — skincare and makeup as part of morning routine content reaches audiences in genuine use context.",
+          "Travel and hospitality — lifestyle creators document travel as part of their ongoing life narrative, not as isolated travel content.",
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Campaign Strategy for TikTok Lifestyle Creators',
+      },
+      {
+        type: 'h3',
+        content: 'Routine Integration is the Highest-Converting Format',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Products featured as part of a creator's genuine daily routine consistently outperform products presented in isolation. A food brand featured in a creator's 'what I eat in a day' video, a home product shown in their 'clean with me' content, or a wellness product incorporated into their morning routine all benefit from the contextual authenticity of routine integration. Brief lifestyle creators to feature your product within their existing content formats rather than creating new, standalone product videos.",
+      },
+      {
+        type: 'h3',
+        content: 'Seasonal and Life Stage Relevance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Lifestyle content is highly responsive to life stages and seasonal moments — moving to a new home, starting a new job, seasonal home refreshes, back to school, and New Year routines all create natural product integration moments with heightened audience receptivity. Brands that align product partnerships with relevant life stage or seasonal moments in a creator's content achieve stronger audience connection than those that insert products into unrelated content contexts.",
+      },
+      {
+        type: 'h3',
+        content: 'Multi-Product Integration',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Unlike niche creators who typically feature one product at a time, lifestyle creators naturally integrate multiple products in a single piece of content — a morning routine video might feature skincare, a coffee brand, and a phone stand. This multi-product context can work in a brand's favour (appearing alongside other trusted products) or against it (competing for attention). For brands, securing a prominent placement within a lifestyle video — the first product featured, or the one the creator discusses most enthusiastically — maximises impact within the multi-product format.",
+      },
+      {
+        type: 'h2',
+        content: 'TikTok Lifestyle Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', '$150–$450', '$400–$1,100'],
+          ['100K–250K', '$450–$1,100', '$1,100–$2,800'],
+          ['250K–500K', '$1,100–$3,000', '$2,800–$7,500'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Lifestyle creators are typically open to multi-product partnership arrangements where multiple brands appear in a single piece of content — often at a discount per brand compared to exclusive single-product partnerships. This format suits brands with limited budgets who want lifestyle creator reach without exclusive placement costs. However, for brands where product prominence and clear brand focus are priorities, exclusive single-product placement is worth the premium.",
+      },
+    ],
+  },
+
+  'instagram-Lifestyle': {
+    heading: 'Instagram Lifestyle Creators: The Complete Brand Partnership Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Instagram Lifestyle Creators Remain Essential for Brand Partnerships',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram built the modern lifestyle influencer category. The platform's visual-first format made aspirational daily life content the dominant genre of social media — and Instagram lifestyle creators continue to set the aesthetic standard for brand partnerships across every consumer category. For brands seeking premium visual content, sustained brand association, and access to the 25–45 demographic with established purchasing power, Instagram lifestyle creators remain the foundational partnership tier.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database includes 419 verified mid-tier Instagram lifestyle creators — a substantial pool representing the breadth of lifestyle content across home, wellness, fashion, food, and travel. With an average engagement rate of 3.64% and an average of 64,416 views per post, Instagram lifestyle creators deliver strong platform-appropriate performance across a wide range of brand categories.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT Instagram Lifestyle Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Instagram Lifestyle', 'TikTok Lifestyle'],
+        rows: [
+          ['Verified creators (50K–500K)', '419', '963'],
+          ['Average engagement rate', '3.64%', '33.95%'],
+          ['Median engagement rate', '0.76%', '9.08%'],
+          ['Average views per post', '64,416', '535,380'],
+          ['Average likes per post', '5,919', '49,041'],
+          ['Average posts per week', '7.57', '2.70'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram lifestyle creators post an average of 7.57 times per week — significantly more than TikTok lifestyle creators (2.70) — reflecting Instagram's multi-format nature where Stories, Reels, and feed posts all contribute to weekly output. This higher posting frequency creates more brand integration opportunities and means sponsored content appears within a steady stream of authentic daily content.",
+      },
+      {
+        type: 'h2',
+        content: 'What Instagram Lifestyle Creators Deliver That TikTok Cannot',
+      },
+      {
+        type: 'h3',
+        content: 'Content Longevity and Discoverability',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram lifestyle content has a shelf life measured in weeks and months rather than the days typical of TikTok content. A home décor post, a travel story, or a seasonal styling Reel continues appearing in Explore feeds, hashtag searches, and profile grids long after posting. For brands building sustained awareness rather than single viral moments, this content longevity delivers compounding value that TikTok's algorithm-driven spikes cannot match.",
+      },
+      {
+        type: 'h3',
+        content: 'Aesthetic Brand Association',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram's grid format creates a persistent visual identity for each creator that brands inherit through association. A lifestyle creator whose feed communicates a specific aesthetic — minimal Scandinavian home, maximalist colour, sustainable living, urban professional — builds a visual brand identity that your product absorbs through consistent integration. For brands where visual positioning is a strategic asset, Instagram lifestyle creator association builds aesthetic equity that paid advertising cannot replicate.",
+      },
+      {
+        type: 'h3',
+        content: 'Shopping Integration',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram lifestyle content is the platform's most shoppable format — home products, fashion pieces, beauty items, food brands, and tech products can all be tagged directly in posts and Stories. Lifestyle audiences actively shop from creator content: they see a home product in an apartment tour and tap to purchase, or spot a clothing piece in a morning routine Reel and swipe up to shop. For brands with Instagram Shops, lifestyle creator partnerships deliver direct attribution at rates that most other content categories cannot match.",
+      },
+      {
+        type: 'h2',
+        content: 'Campaign Strategy for Instagram Lifestyle Creators',
+      },
+      {
+        type: 'h3',
+        content: 'Seasonal Content Planning',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram lifestyle content is highly seasonal — audiences engage most actively with content that reflects their current life moment. Home refresh content peaks in January and September; travel content peaks in spring and early summer; cosy home content peaks in autumn; holiday content peaks in November and December. Brands that align product partnerships with the seasonal content moments their target lifestyle creator is already producing achieve significantly stronger audience reception than those inserting products into out-of-season contexts.",
+      },
+      {
+        type: 'h3',
+        content: 'Stories for Daily Product Touchpoints',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram Stories are where lifestyle creators' most loyal audiences — those who watch daily — engage most consistently. For brands seeking repeated product exposure over a campaign period, negotiating Stories inclusions alongside feed posts creates daily audience touchpoints that build genuine brand familiarity. A lifestyle creator featuring your product in their morning routine Stories three times over two weeks generates stronger brand recall than a single high-production feed post.",
+      },
+      {
+        type: 'h2',
+        content: 'Instagram Lifestyle Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Reel/Post', 'Multi-Format Package'],
+        rows: [
+          ['50K–100K', '$200–$600', '$500–$1,500'],
+          ['100K–250K', '$600–$1,500', '$1,500–$3,800'],
+          ['250K–500K', '$1,500–$4,500', '$3,800–$11,000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram lifestyle creators often offer multi-brand partnership packages where several compatible brands appear across a content series — reducing per-brand cost while maintaining creator authenticity. For brands with limited budgets, these arrangements provide lifestyle creator reach at accessible costs. For brands prioritising exclusive placement and clear brand focus, single-brand partnerships deliver stronger individual brand impact.",
+      },
+    ],
+  },
+
+  'tier-mid-tier-Beauty': {
+    heading: 'Mid-Tier Beauty Creators (100K–250K): The Brand Partnership Sweet Spot',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Mid-Tier Beauty Creators Deliver the Best Brand Partnership Value',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier beauty creators — those with 100,000 to 250,000 followers — sit at the optimal intersection of audience scale and authentic engagement. They have built substantial communities large enough to deliver meaningful brand reach, while maintaining the personal connection with their audience that makes beauty influence commercially effective. Their followers still feel a genuine relationship with the creator, trust their recommendations, and act on their product endorsements in ways that larger accounts cannot consistently replicate.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's data for mid-tier beauty creators is compelling. TikTok mid-tier beauty creators (100K–250K) in our database achieve a median engagement rate of 11.80% — higher than the full TikTok beauty category median of 8.54% — with an average of 578,972 views per post. Instagram mid-tier beauty creators achieve an average engagement rate of 3.78% with 85,835 average views per post. Both figures represent strong performance at a follower tier that offers significantly lower partnership costs than top-tier accounts.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For beauty brands evaluating creator investment efficiency, mid-tier creators consistently deliver the best cost-per-engagement and cost-per-conversion in the creator ecosystem. They are experienced enough to produce professional content reliably, established enough to have genuine audience loyalty, but not so large that their engagement has diluted or their rates have moved into premium territory.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT Mid-Tier Beauty Creator Data (100K–250K)',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'TikTok Mid-Tier Beauty', 'Instagram Mid-Tier Beauty'],
+        rows: [
+          ['Verified creators', '260', '118'],
+          ['Median engagement rate', '11.80%', '0.94%'],
+          ['Average engagement rate', '32.46%', '3.78%'],
+          ['Average views per post', '578,972', '85,835'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The 11.80% median engagement rate for TikTok mid-tier beauty creators is exceptional — significantly above the full beauty category median of 8.54%. This above-average performance at mid-tier scale reflects a key dynamic: creators in the 100K–250K range have reached sufficient scale to attract engaged audiences while remaining personal enough to maintain the community connection that drives high interaction rates. It is the tier where scale and authenticity coexist most effectively.",
+      },
+      {
+        type: 'h2',
+        content: 'Mid-Tier vs Micro and Top-Tier Beauty Creators',
+      },
+      {
+        type: 'table',
+        headers: ['Factor', 'Micro (50K–100K)', 'Mid-Tier (100K–250K)', 'Top-Tier (250K–500K)'],
+        rows: [
+          ['Typical TikTok engagement', '8–15%', '8–15% (11.80% median)', '5–12%'],
+          ['Absolute reach per post', 'Lower', 'Strong', 'Highest'],
+          ['Content professionalism', 'Variable', 'Consistently high', 'Premium'],
+          ['Partnership cost', 'Lowest', 'Mid-range', 'Premium'],
+          ['Creative flexibility', 'Highest', 'High', 'Moderate'],
+          ['Brand partnership experience', 'Limited–moderate', 'Established', 'Highly experienced'],
+          ['Best for', 'Niche targeting, test campaigns', 'Core campaigns, launches', 'Hero launches, prestige'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier beauty creators are the ideal core campaign tier for most beauty brands. They are professional enough to deliver reliably on briefs, experienced enough to handle brand partnerships efficiently, and engaged enough to drive genuine audience response. For brands running regular campaigns, mid-tier creators provide the most operationally reliable and commercially consistent partnerships available.",
+      },
+      {
+        type: 'h2',
+        content: 'Campaign Uses for Mid-Tier Beauty Creators',
+      },
+      {
+        type: 'h3',
+        content: 'Core Product Launch Campaigns',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier beauty creators are the workhorses of product launch campaigns. Their audience scale delivers meaningful market penetration, their engagement quality drives genuine product consideration, and their partnership costs allow brands to activate multiple creators simultaneously — creating the coordinated launch momentum that single-creator campaigns cannot achieve. A launch campaign using four to six mid-tier beauty creators posting within the same week creates significant category visibility at a fraction of the cost of top-tier campaigns.",
+      },
+      {
+        type: 'h3',
+        content: 'Ambassador Programme Core Partners',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier beauty creators are the optimal tier for long-term ambassador programmes. They are professional enough to maintain consistent posting commitments, established enough that their audience loyalty is durable, and cost-effective enough that brands can sustain multi-month relationships without exhausting campaign budgets. A six-month ambassador programme with two to three mid-tier beauty creators builds the sustained social proof that one-off campaigns cannot replicate.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Creation for Paid Media',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier beauty creators produce content of consistently professional quality — suitable for repurposing in paid social advertising, e-commerce product pages, and brand owned channels with appropriate usage rights. At mid-tier rates, this content represents significantly better value than commissioning equivalent content from production agencies. Brands that negotiate usage rights upfront for mid-tier creator content effectively build a scalable content library at creator rates.",
+      },
+      {
+        type: 'h2',
+        content: 'Mid-Tier Beauty Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Platform', 'Single Post', '3-Post Package', 'Monthly Ambassador'],
+        rows: [
+          ['TikTok', '$400–$1,000', '$1,000–$2,500', '$1,200–$3,000/month'],
+          ['Instagram', '$600–$1,800', '$1,500–$4,500', '$1,800–$5,000/month'],
+          ['Both platforms', '$900–$2,500', '$2,300–$6,000', '$2,800–$7,000/month'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier beauty creator rates represent the most cost-efficient tier for brands planning regular campaigns. The combination of professional content quality, genuine audience engagement, and accessible rates makes mid-tier partnerships the highest-ROI investment available in beauty creator marketing for most campaign objectives. Usage rights for paid advertising add 25–40% to base rates — well worth negotiating upfront given the content quality mid-tier creators produce.",
+      },
+    ],
+  },
+
 };

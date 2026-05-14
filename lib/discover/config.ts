@@ -1607,6 +1607,90 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'tiktok-Lifestyle': [
+    {
+      question: 'What is a good engagement rate for TikTok lifestyle creators?',
+      answer:
+        "Based on InfluenceIT's database of 963 verified mid-tier TikTok lifestyle creators, the median engagement rate is 9.08% — the highest median of any category we track, surpassing beauty (8.54%), skincare (8.84%), and fashion (7.95%). This exceptional engagement reflects the habitual daily viewing relationship that lifestyle content creates with audiences. Creators above 9.08% are outperforming the majority of their verified peers.",
+    },
+    {
+      question: 'How much do TikTok lifestyle creators charge for brand partnerships?',
+      answer:
+        "TikTok lifestyle creators in the mid-tier range (50,000–500,000 followers) typically charge $150–$3,000 per post. Creators with 50K–100K followers charge $150–$450, while those with 250K–500K followers charge $1,100–$3,000. Three-post packages range from $400 to $7,500 depending on follower tier. Lifestyle creators are often open to multi-brand arrangements where several compatible products appear across a content series, reducing per-brand costs.",
+    },
+    {
+      question: 'What types of brands work best with TikTok lifestyle creators?',
+      answer:
+        "TikTok lifestyle creators are the most versatile brand partners in the creator economy — their content naturally spans home, food, fashion, wellness, beauty, and travel. Brands that benefit most include home and living products (featured in apartment tours and organisation content), food and beverage brands (in 'what I eat in a day' and meal prep content), wellness products (in morning routine content), and fashion accessories (in daily outfit content). Products that integrate naturally into daily routines achieve the highest authenticity and conversion.",
+    },
+    {
+      question: 'What content formats drive the best results with lifestyle creators on TikTok?',
+      answer:
+        "Day in My Life videos, morning routine content, 'what I eat in a day', apartment or home tours, and 'get ready with me' formats are TikTok lifestyle's highest-performing content types. Products integrated within these routine formats consistently outperform standalone product videos because they appear in genuine daily-use contexts. TikTok lifestyle content generates an average of 535,380 views per post in InfluenceIT's database — among the highest of any category.",
+    },
+    {
+      question: 'How do I find the right TikTok lifestyle creator for my brand?',
+      answer:
+        "Look for lifestyle creators whose daily life context aligns naturally with your product's use case — a home brand needs a creator who regularly posts home content, not primarily fashion content. Verify engagement against the 9.08% median benchmark in InfluenceIT's database. Review posting frequency and content consistency over the last 30 days. Check that existing brand integrations feel natural within the creator's content rather than visibly promotional. InfluenceIT provides verified engagement data calculated from each creator's 15 most recent posts across 963 verified TikTok lifestyle creators.",
+    },
+  ],
+
+  'instagram-Lifestyle': [
+    {
+      question: 'What is a good engagement rate for Instagram lifestyle creators?',
+      answer:
+        "Based on InfluenceIT's database of 419 verified mid-tier Instagram lifestyle creators, the average engagement rate is 3.64% with a median of 0.76%. As with all Instagram categories, engagement rates are structurally lower than TikTok due to platform mechanics — 3.64% represents strong performance for Instagram lifestyle. Creators above the 3.64% average are genuinely outperforming their peers. Saves are a particularly valuable engagement signal in lifestyle, indicating content that audiences plan to act on.",
+    },
+    {
+      question: 'How much do Instagram lifestyle creators charge for brand partnerships?',
+      answer:
+        "Instagram lifestyle creators in the mid-tier range (50,000–500,000 followers) typically charge $200–$4,500 per post. Creators with 50K–100K followers charge $200–$600, while those with 250K–500K followers charge $1,500–$4,500. Multi-format packages including Reels, Stories, and feed posts range from $500 to $11,000 depending on follower tier. Usage rights for paid advertising add 25–50% to base rates.",
+    },
+    {
+      question: 'What makes Instagram lifestyle creators valuable compared to TikTok lifestyle creators?',
+      answer:
+        "Instagram lifestyle creators deliver content longevity (weeks to months versus TikTok's days), persistent visual brand association through grid aesthetics, native shopping integration through product tags and direct checkout, and better reach into the 25–45 demographic with higher purchasing power. While TikTok lifestyle delivers higher engagement rates (9.08% median vs 0.76%) and greater per-post reach (535,380 vs 64,416 average views), Instagram excels for conversion, sustained brand positioning, and European market reach.",
+    },
+    {
+      question: 'What content formats work best for Instagram lifestyle creator campaigns?',
+      answer:
+        "Reels deliver the highest organic reach for Instagram lifestyle brands. Stories create daily product touchpoints with the creator's most loyal audience — particularly valuable for brands seeking repeated exposure over a campaign period. Carousels generate high save rates for home, styling, and recipe content where audiences bookmark for future reference. Multi-format packages combining all three consistently outperform single-format campaigns. Instagram lifestyle creators post an average of 7.57 times per week, creating multiple natural integration opportunities.",
+    },
+    {
+      question: 'How do I find the right Instagram lifestyle creator for my brand?',
+      answer:
+        "Start with aesthetic alignment — confirm the creator's visual style and life context genuinely matches your brand's positioning. Check engagement against InfluenceIT's 3.64% average benchmark for Instagram lifestyle. Prioritise save rates as a purchase intent signal. Review Stories view counts alongside feed metrics for a complete audience picture. Assess whether existing brand integrations feel natural within the creator's content. For brands with Instagram Shopping, confirm creators use product tags. InfluenceIT provides verified engagement data from each creator's 15 most recent posts.",
+    },
+  ],
+
+  'tier-mid-tier-Beauty': [
+    {
+      question: 'What follower range counts as a mid-tier beauty creator?',
+      answer:
+        "InfluenceIT defines mid-tier beauty creators as those with 100,000 to 250,000 followers — the sweet spot between micro-tier authenticity and top-tier scale. TikTok mid-tier beauty creators in our database achieve a median engagement rate of 11.80%, higher than the full TikTok beauty category median of 8.54%, confirming that the mid-tier delivers exceptional engagement at meaningful scale. Instagram mid-tier beauty creators achieve an average engagement rate of 3.78%.",
+    },
+    {
+      question: 'Why do mid-tier beauty creators have higher engagement than top-tier accounts?',
+      answer:
+        "Mid-tier beauty creators (100K–250K) maintain higher engagement rates than top-tier creators (250K–500K) because their audience relationship remains sufficiently personal for genuine community interaction while their scale delivers real market reach. At mid-tier scale, creators still know their audience's concerns, respond to comments, and produce content that feels tailored to their specific community. This balance of scale and intimacy is why TikTok mid-tier beauty creators achieve an 11.80% median engagement rate in InfluenceIT's database.",
+    },
+    {
+      question: 'How much do mid-tier beauty creators charge for brand partnerships?',
+      answer:
+        "Mid-tier beauty creators with 100,000–250,000 followers typically charge $400–$1,000 per TikTok post and $600–$1,800 per Instagram post. Three-post packages range from $1,000–$2,500 on TikTok and $1,500–$4,500 on Instagram. Monthly ambassador programmes range from $1,200–$3,000 per month on TikTok and $1,800–$5,000 on Instagram. Usage rights for paid advertising add 25–40% to base rates.",
+    },
+    {
+      question: 'When should beauty brands choose mid-tier over micro or top-tier creators?',
+      answer:
+        "Choose mid-tier beauty creators when you need both meaningful reach and genuine engagement — the combination that micro creators lack in reach and top-tier creators sometimes lack in engagement depth. Mid-tier is ideal for core product launch campaigns, ambassador programmes requiring professional content reliability, and content creation for paid media repurposing. For beauty brands running regular campaigns, mid-tier partnerships consistently deliver the best cost-per-engagement and cost-per-conversion of any follower tier.",
+    },
+    {
+      question: 'What is the most effective campaign structure for mid-tier beauty creators?',
+      answer:
+        "The most effective mid-tier beauty campaign structure activates four to six creators simultaneously for product launches — creating coordinated market presence at a fraction of top-tier campaign costs. For sustained brand building, a six-month ambassador programme with two to three mid-tier creators builds compounding social proof that one-off campaigns cannot replicate. TikTok mid-tier beauty creators generate an average of 578,972 views per post in InfluenceIT's database, confirming that mid-tier reach is sufficient for meaningful market penetration.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
