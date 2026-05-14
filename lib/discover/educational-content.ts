@@ -5270,4 +5270,353 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'instagram-Skincare': {
+    heading: 'Instagram Skincare Creators: The Complete Brand Partnership Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Instagram Remains Central to Skincare Brand Marketing',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram built the modern skincare influencer category. Before SkincareTok existed, Instagram skincare creators were educating audiences about ingredients, building communities around specific skin concerns, and establishing the science-forward content format that defines skincare creator marketing today. The platform remains essential for skincare brands — particularly for premium and clinical skincare where the 25–45 demographic, aspirational positioning, and educational depth all align with Instagram's strengths.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database includes 30 verified mid-tier Instagram skincare creators — a growing pool that already delivers solid performance data. With an average engagement rate of 2.67% and average views of 47,666 per post, Instagram skincare creators deliver consistent platform performance. Our Instagram skincare creator database is actively expanding, particularly as we add more creators from dermatology, esthetics, and clinical skincare communities.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram skincare content has a uniquely long shelf life. A well-produced skincare routine video, ingredient deep-dive carousel, or before-and-after documentation post remains discoverable and commercially relevant for months — appearing in hashtag searches, Explore feeds, and skincare community shares long after the initial posting date. For skincare brands investing in creator content, this longevity dramatically improves cost-per-impression metrics over the full life of quality skincare content.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT Instagram Skincare Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Instagram Skincare', 'TikTok Skincare'],
+        rows: [
+          ['Verified creators (50K–500K)', '30 (growing)', '94'],
+          ['Average engagement rate', '2.67%', '33.69%'],
+          ['Median engagement rate', '0.95%', '8.84%'],
+          ['Average views per post', '47,666', '646,882'],
+          ['Content shelf life', 'Months to years', 'Days to weeks'],
+          ['Shopping integration', 'Native (product tags)', 'Limited'],
+          ['Audience age skew', '25–45', '18–35'],
+          ['Best for', 'Premium skincare, conversion', 'Discovery, younger audience'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "While TikTok skincare delivers higher absolute engagement rates and views, Instagram skincare creators access the 25–45 demographic who spend more on skincare per year than younger demographics, respond to clinical and scientific skincare positioning, and make considered purchase decisions through sustained brand exposure rather than impulse discovery. For premium and clinical skincare brands, Instagram's demographic profile is the more commercially valuable audience.",
+      },
+      {
+        type: 'h2',
+        content: 'Instagram Skincare Creator Strengths',
+      },
+      {
+        type: 'h3',
+        content: 'Carousel Education Format',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram skincare carousels — where creators explain an ingredient, routine, or skincare concept across multiple slides — are the category's highest-save format. Skincare audiences bookmark educational carousels to reference repeatedly as they build their routines, creating sustained brand impressions that a single view metric significantly understates. For skincare brands with educational product stories, carousel integration with a respected Instagram skincare creator can generate more commercial value per save than any other content format.",
+      },
+      {
+        type: 'h3',
+        content: 'Dermatologist and Esthetician Creator Premium',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram has a stronger concentration of credentialed skincare professionals among its creator base than TikTok. Dermatologists, estheticians, and cosmetic chemists who have built followings on Instagram carry scientific credibility that significantly amplifies brand partnership value for clinical and evidence-based skincare brands. Being recommended by a dermatologist with 100,000 engaged Instagram followers carries more purchase influence per viewer than equivalent coverage from a general beauty creator with ten times the reach.",
+      },
+      {
+        type: 'h3',
+        content: 'Before and After Documentation',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram's feed format is uniquely suited for before-and-after skincare documentation. The ability to post consistent, high-quality comparison photography over time — using the same lighting, angle, and timing — creates visual evidence of product efficacy that Instagram's format captures better than any other platform. For skincare brands with genuine product results, long-term Instagram documentation campaigns with credentialed creators produce the most commercially compelling content available in skincare marketing.",
+      },
+      {
+        type: 'h2',
+        content: 'Campaign Strategy for Instagram Skincare Creators',
+      },
+      {
+        type: 'h3',
+        content: 'Lead with Ingredient Education',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram skincare audiences are among the most scientifically literate on social media. They understand active ingredients, research formulations, and compare clinical evidence before purchasing. Creator content that leads with ingredient science — explaining what an active does, how your formulation delivers it, and what skin concerns it addresses — consistently outperforms content that focuses primarily on product aesthetics or benefits claims. Brief Instagram skincare creators to explain the science before advocating the product.",
+      },
+      {
+        type: 'h3',
+        content: 'Long Lead Times for Genuine Results',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Instagram skincare campaigns require the longest product lead times of any category. Genuine before-and-after documentation requires four to eight weeks of consistent product use under stable conditions (consistent lighting, no filter use, same time of day photography). Rushing this process produces content that Instagram skincare audiences immediately identify as staged, generating credibility-damaging responses for both creator and brand. Build eight to twelve weeks from product delivery to posting date into all Instagram skincare campaign timelines.",
+      },
+      {
+        type: 'h2',
+        content: 'Instagram Skincare Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Creator Type', 'Single Post', 'Education Campaign', 'Before/After Series'],
+        rows: [
+          ['50K–100K (general)', '$200–$600', '$600–$2,000', '$800–$3,000'],
+          ['100K–250K (general)', '$600–$1,800', '$2,000–$5,000', '$3,000–$8,000'],
+          ['Credentialed (any tier)', '+30–80% premium', '+30–80% premium', '+30–80% premium'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Credentialed skincare creators — dermatologists, estheticians, cosmetic chemists — command significant premiums over general skincare creators at equivalent follower counts, reflecting the higher trust and conversion rates their expertise generates. For clinical skincare brands, this premium is typically justified: a dermatologist's recommendation converts at substantially higher rates than equivalent coverage from a non-credentialed creator. Usage rights for clinical skincare content in paid advertising and medical communications add 30–60% to base rates.",
+      },
+    ],
+  },
+
+  'tiktok-Tech': {
+    heading: 'TikTok Tech Creators: The Complete Brand Partnership Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why TikTok Tech Creators Are the Highest-Trust Purchase Influencers',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok tech creators have a unique commercial relationship with their audiences: followers subscribe specifically for trustworthy purchase guidance on complex, high-stakes buying decisions. A smartphone, laptop, or software subscription is not an impulse purchase — audiences research extensively before buying, and a trusted tech creator's recommendation can be the deciding factor. InfluenceIT's verified database of 102 mid-tier TikTok tech creators delivers a median engagement rate of 10.81% and an average of 532,302 views per post — confirming that tech content generates both high audience engagement and substantial organic reach.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Tech content on TikTok has found a format that no other platform matches for purchase influence: short-form demonstrations, quick comparison content, and 'is it worth it?' review formats that deliver actionable purchase guidance in under 60 seconds. TikTok tech audiences are time-efficient researchers — they want the essential purchase information delivered quickly and honestly, and they engage intensely with creators who provide it.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The tech creator category is one of the most review-oriented in the creator economy. Tech audiences do not just watch creator content passively — they research the creator's track record, compare their review to other sources, and factor their conclusions into actual purchasing decisions. This research-oriented engagement creates purchase influence that is unusually durable: a positive tech creator recommendation can drive sales weeks and months after the original posting date.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT TikTok Tech Creator Data: 102 Verified Creators Analysed',
+      },
+      {
+        type: 'h3',
+        content: 'Engagement Performance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The median engagement rate of 10.81% across our verified TikTok tech creators is exceptional — reflecting the intense audience investment in tech content. Tech audiences comment actively with technical questions, comparison requests, and purchase intent signals. They share tech content with friends facing similar purchasing decisions. They save review videos to reference when making their purchases. Each of these high-intent behaviours registers as engagement, driving tech content's strong interaction metrics.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Reach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "At an average of 532,302 views per post, TikTok tech creators deliver strong organic reach figures. TikTok's algorithm actively distributes tech review and comparison content to users who have previously engaged with technology topics, ensuring that tech content reaches audiences well beyond the creator's existing following. For tech brands, this algorithmic amplification means creator partnerships reach both existing tech enthusiasts and consumers actively entering tech purchase consideration.",
+      },
+      {
+        type: 'h2',
+        content: 'Why Authenticity Is Non-Negotiable in TikTok Tech',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Tech audiences are among the most analytically sophisticated on TikTok. They understand specifications, research competitive alternatives, and will fact-check creator claims in real time using search during the video. Creators who make inaccurate technical claims, exaggerate performance, or endorse products inconsistent with their documented usage lose audience trust immediately and irreversibly — and so does the brand associated with the inaccurate content.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Counterintuitively, tech creator content that includes genuine criticism — acknowledging limitations, noting where alternatives perform better for specific use cases, or flagging who the product is not suitable for — consistently drives higher conversion than purely positive reviews. Tech audiences trust balanced reviews because they recognise that only genuinely honest creators acknowledge product limitations. That trust transfers directly to the brand: if the creator is honest about the product's weaknesses, their endorsement of its strengths is credible.",
+      },
+      {
+        type: 'h2',
+        content: 'Campaign Formats That Drive Results for Tech Brands',
+      },
+      {
+        type: 'h3',
+        content: 'Hands-On Review Integration',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The most effective format for tech brand partnerships is genuine hands-on review integration — where a creator tests the product over one to two weeks of real use before posting. Tech audiences can detect first-impression content (product received today, review posted today) immediately, and they assign it significantly lower credibility than genuine extended-use reviews. Brief tech creators for honest reviews based on genuine product use, not same-day unboxing reactions.",
+      },
+      {
+        type: 'h3',
+        content: 'Comparison and Alternative Content',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "'Your product vs the alternative' comparison content is TikTok tech's highest-engagement format. Tech audiences are actively comparing options before purchasing, and content that directly addresses the comparison they are already making provides immediate value. For tech brands confident in their product's performance relative to specific alternatives, commissioning comparison content from trusted creators consistently drives strong purchase intent among in-market audiences.",
+      },
+      {
+        type: 'h3',
+        content: 'Use Case Demonstration',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Demonstrating your product solving a real problem in a creator's actual workflow is more persuasive than any specification comparison or feature list. When a creator shows how your software saves them time, how your gadget solves a specific frustration, or how your tech product integrates into their genuine daily use, the relevance is immediate and actionable for audiences facing similar problems. Brief tech creators for problem-solution demonstration rather than feature showcase.",
+      },
+      {
+        type: 'h2',
+        content: 'Tech Content Has Exceptional Long-Term ROI',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Tech content has a longer shelf life than almost any other TikTok category. A well-produced tech review remains relevant and continues driving traffic, profile visits, and purchase decisions for six to twelve months after posting — particularly for evergreen products that do not become obsolete quickly. For tech brands, this long shelf life means the cost-per-impression of creator partnerships improves significantly when amortised over the full traffic lifespan of quality review content.",
+      },
+      {
+        type: 'h2',
+        content: 'TikTok Tech Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Review', '3-Post Package'],
+        rows: [
+          ['50K–100K', '$200–$600', '$500–$1,500'],
+          ['100K–250K', '$600–$1,800', '$1,500–$4,500'],
+          ['250K–500K', '$1,800–$5,000', '$4,500–$12,000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Tech creator partnerships typically include product loans or permanent product provision rather than purely cash fees — many mid-tier tech creators work on product-plus-fee arrangements where the product forms part of the partnership value. For high-value tech products, negotiate whether the creator retains the product after review — retention creates an ongoing organic usage context that can generate additional earned content beyond the contracted deliverables.",
+      },
+    ],
+  },
+
+  'usecase-Travel Brands': {
+    heading: 'Finding the Right Influencers for Travel Brand Campaigns: A Complete Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Travel Brand Influencer Marketing Delivers Unique Commercial Value',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Travel brand influencer marketing delivers something traditional advertising rarely achieves: inspiration at the exact moment of purchase consideration. When a viewer watches a travel creator explore a hotel, experience an airline, or discover a destination, they are mentally placing themselves in that experience — and the commercial distance between inspiration and booking intent is shorter than in almost any other consumer category. Travel creator content captures the imagination and the wallet simultaneously.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's travel creator database spans both TikTok and Instagram with exceptional performance metrics across both platforms. TikTok travel creators deliver a median engagement rate of 11.63% and an average of 658,380 views per post — both the highest figures of any TikTok category in our database. Instagram travel creators deliver the highest average engagement of any Instagram category at 10.83% and average views of 119,161 per post. Travel content consistently outperforms all other creator categories on the metrics that matter most for brand partnerships.",
+      },
+      {
+        type: 'h2',
+        content: 'Platform Strategy for Travel Brands',
+      },
+      {
+        type: 'table',
+        headers: ['Campaign Objective', 'Platform', 'Why'],
+        rows: [
+          ['Destination discovery and viral reach', 'TikTok', '658K avg views, highest engagement category'],
+          ['Premium brand visual positioning', 'Instagram', 'Editorial quality, content longevity'],
+          ['Direct booking conversion', 'Instagram', 'Native shopping, swipe-up links, stronger CTA'],
+          ['Reaching 18–35 travellers', 'TikTok', 'Younger, spontaneous travel demographic'],
+          ['Reaching 30–55 travellers', 'Instagram', 'Higher spend, planned travel decision makers'],
+          ['Budget and adventure travel', 'TikTok', 'Younger audience, viral hack content'],
+          ['Luxury and premium travel', 'Instagram', 'Aspirational aesthetic, affluent demographic'],
+          ['Tourism board campaigns', 'TikTok', 'Maximum reach, destination virality potential'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Travel Brand Partnership Formats',
+      },
+      {
+        type: 'h3',
+        content: 'Press Trips',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Press trips — where travel brands sponsor creator travel in exchange for content — are the dominant format for hotel, airline, and tourism brand partnerships. The content produced is inherently authentic because the creator is genuinely experiencing the destination, property, or service. For maximum content value from a press trip investment, brief creators for multi-platform, multi-format output: TikTok videos for reach and discovery, Instagram Reels and posts for aspiration and saves, and Stories for immediacy and direct link access.",
+      },
+      {
+        type: 'h3',
+        content: 'Destination Campaign Coordination',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Tourism boards and destination marketing organisations achieve the strongest ROI from coordinated multi-creator destination campaigns — where several creators document the same destination simultaneously or within a short window, creating a volume of content that establishes the destination as a trending travel topic. When multiple creators a traveller follows all feature the same destination within weeks, the destination shifts from 'somewhere I noticed' to 'somewhere I need to go'. This social proof effect is uniquely powerful in travel decision-making.",
+      },
+      {
+        type: 'h3',
+        content: 'Product Integration in Travel Content',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For travel accessory brands — luggage, travel tech, packing tools, travel insurance, payment cards, language apps — integration into a creator's genuine travel content provides the most authentic placement available. A luggage brand featured in a creator's actual packing routine, a travel card mentioned in the context of real currency exchange challenges, or a language app demonstrated in genuine use abroad all benefit from the contextual credibility that travel content's real-world format provides.",
+      },
+      {
+        type: 'h2',
+        content: 'Travel Brand Creator Selection Strategy',
+      },
+      {
+        type: 'h3',
+        content: 'Match Travel Style to Brand Positioning',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Travel creator sub-niches have distinct audience demographics and brand alignment requirements. Luxury travel creators (business class reviews, five-star hotels, premium experiences) reach affluent audiences with high travel spending but require premium partnership investments. Budget travel creators reach younger audiences making their first independent travel decisions — high-growth market, accessible partnership costs. Adventure travel creators reach active, outdoor-oriented audiences suited to gear, activewear, and active tourism brands. Match your brand's category and price positioning to the creator's travel style before evaluating any other metric.",
+      },
+      {
+        type: 'h3',
+        content: 'Geographic Audience Alignment',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For destination campaigns, the geographic distribution of a creator's audience is more important than their follower count. A travel creator with 80,000 followers whose audience is concentrated in high-value outbound tourism markets (UK, US, Germany, Australia) is more commercially valuable for a destination campaign than a creator with 200,000 followers whose audience is primarily from markets with lower travel frequency. Request audience geography data before booking destination campaign creators.",
+      },
+      {
+        type: 'h2',
+        content: 'Travel Brand Campaign Investment Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Campaign Type', 'TikTok Cost Range', 'Instagram Cost Range'],
+        rows: [
+          ['Single creator post', '$200–$5,000', '$300–$7,000'],
+          ['Press trip (creator fee only)', '$500–$8,000', '$800–$12,000'],
+          ['Press trip (total incl. travel)', '$2,000–$25,000', '$3,000–$40,000'],
+          ['Destination campaign (5 creators)', '$15,000–$80,000', '$20,000–$120,000'],
+          ['Annual ambassador programme', '$8,000–$60,000/yr', '$12,000–$90,000/yr'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Travel brand campaigns require more lead time than any other category — three to four months minimum for international press trips. Despite higher investment levels than other creator categories, travel creator partnerships consistently deliver strong ROI when evaluated against the full content lifespan. A well-produced travel creator campaign generates content that remains commercially active for one to two years, dramatically improving the cost-per-impression calculation when amortised over the full content life.",
+      },
+    ],
+  },
+
 };

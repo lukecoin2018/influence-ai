@@ -2111,6 +2111,90 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'instagram-Skincare': [
+    {
+      question: 'What engagement rate do Instagram skincare creators achieve?',
+      answer:
+        "InfluenceIT's verified database of 30 mid-tier Instagram skincare creators shows an average engagement rate of 2.67% with a median of 0.95%. Instagram skincare content generates high save rates — audiences bookmark ingredient education carousels and routine guides for ongoing reference, creating sustained brand impressions beyond the initial viewing. Our Instagram skincare creator database is actively growing, particularly adding credentialed creators from dermatology and esthetics communities.",
+    },
+    {
+      question: 'How much do Instagram skincare creators charge for brand partnerships?',
+      answer:
+        "Instagram skincare creators in the mid-tier range (50,000–500,000 followers) typically charge $200–$5,000 per post. Credentialed creators — dermatologists, estheticians, cosmetic chemists — command 30–80% premiums over general skincare creators at equivalent follower counts, reflecting their higher trust and conversion rates. Before-and-after documentation series range from $800–$8,000 depending on follower tier and documentation duration. Usage rights for clinical content in paid advertising add 30–60% to base rates.",
+    },
+    {
+      question: 'Why choose Instagram over TikTok for skincare brand partnerships?',
+      answer:
+        "Instagram skincare reaches the 25–45 demographic who spend more on skincare per year than younger demographics, respond to clinical and scientific positioning, and make considered purchase decisions through sustained brand exposure. Instagram's carousel format is ideal for ingredient education — the highest-save skincare content format. Content shelf life on Instagram is months to years versus TikTok's days. For premium and clinical skincare brands, Instagram's demographic and content format alignment consistently outperforms TikTok for conversion, while TikTok excels for discovery with younger audiences.",
+    },
+    {
+      question: 'What content formats work best for skincare brand partnerships on Instagram?',
+      answer:
+        "Ingredient education carousels — explaining what an active does, how your formulation delivers it, and which skin concerns it addresses — are Instagram skincare's highest-save format. Genuine before-and-after documentation series over four to eight weeks builds the deepest purchase conviction. Reels deliver the highest organic reach. Stories with product links drive direct conversion. Educational content that leads with science before advocacy consistently outperforms promotional content for skincare brands on Instagram.",
+    },
+    {
+      question: 'How long should skincare product lead times be for Instagram campaigns?',
+      answer:
+        "Instagram skincare campaigns require the longest product lead times of any category — eight to twelve weeks from product delivery to posting date for before-and-after campaigns. Genuine documentation requires four to eight weeks of consistent use under stable conditions (consistent lighting, no filters, same time of day photography). Rushing this process produces staged content that Instagram skincare audiences detect immediately, damaging both creator and brand credibility. Build lead time requirements explicitly into skincare creator briefs and contracts.",
+    },
+  ],
+
+  'tiktok-Tech': [
+    {
+      question: 'What engagement rate do TikTok tech creators achieve?',
+      answer:
+        "InfluenceIT's verified database of 102 mid-tier TikTok tech creators shows a median engagement rate of 10.81% and an average of 532,302 views per post. Tech content generates intense audience engagement because followers are making real purchasing decisions based on creator reviews — they comment with technical questions, compare with alternatives, save reviews for purchase reference, and share with others facing similar buying decisions. The 10.81% median is among the highest of any tech category on TikTok.",
+    },
+    {
+      question: 'How much do TikTok tech creators charge for brand partnerships?',
+      answer:
+        "TikTok tech creators in the mid-tier range (50,000–500,000 followers) typically charge $200–$5,000 per review post. Many tech creator partnerships include product provision as part of the partnership value — negotiate whether creators retain products after review, as ongoing use generates additional organic content beyond contracted deliverables. Three-post packages range from $500–$12,000 depending on follower tier. Usage rights for repurposing tech review content in paid advertising add 20–40% to base rates.",
+    },
+    {
+      question: 'Why is authenticity so critical in TikTok tech creator partnerships?',
+      answer:
+        "Tech audiences are among TikTok's most analytically sophisticated — they research creator track records, compare reviews with other sources, and fact-check technical claims in real time. Inaccurate or exaggerated claims damage both creator and brand credibility irreversibly with tech communities. Counterintuitively, content that includes genuine criticism and acknowledged limitations consistently drives higher conversion than purely positive reviews, because tech audiences only trust balanced reviews — and that trust transfers to the brand.",
+    },
+    {
+      question: 'What content formats work best for tech brand partnerships on TikTok?',
+      answer:
+        "Genuine hands-on review integration after one to two weeks of real use outperforms same-day unboxing content significantly — tech audiences assign much lower credibility to first-impression reviews. 'Your product vs the alternative' comparison content is the highest-engagement format in tech. Use case demonstration showing your product solving a real problem in the creator's actual workflow drives the strongest purchase intent. Tech content has a shelf life of six to twelve months — budget for quality production to maximise long-term ROI.",
+    },
+    {
+      question: 'How do I find the right TikTok tech creator for my brand?',
+      answer:
+        "Verify engagement against InfluenceIT's 10.81% median benchmark for TikTok tech. Check factual accuracy in recent review content — tech audiences hold brands accountable for creator inaccuracies. Review the creator's existing brand partnerships for evidence of genuine product use rather than staged endorsements. Match the creator's tech focus area to your specific product category. Look for creators whose review style balances honest criticism with genuine enthusiasm — this balance is what builds the trust that converts tech audiences. InfluenceIT provides verified engagement from each creator's 15 most recent posts.",
+    },
+  ],
+
+  'usecase-Travel Brands': [
+    {
+      question: 'What engagement metrics do travel influencers achieve?',
+      answer:
+        "Travel creators achieve the highest engagement metrics of any creator category in InfluenceIT's database across both platforms. TikTok travel creators deliver a median engagement rate of 11.63% and an average of 658,380 views per post — both the highest figures of any TikTok category we track. Instagram travel creators achieve an average engagement rate of 10.83% and average views of 119,161 — the highest average engagement of any Instagram category in our database. Travel content consistently outperforms all other categories on the metrics that matter most for brand partnerships.",
+    },
+    {
+      question: 'Should travel brands use TikTok or Instagram creators?',
+      answer:
+        "Both platforms serve distinct roles. TikTok delivers higher reach per post (658K average views), stronger viral discovery potential, and better performance for reaching 18–35 travellers making spontaneous or first-time independent travel decisions. Instagram delivers aspirational visual quality, content longevity (months to years), native booking links, and better reach into the 30–55 demographic with higher travel spending power. Most travel brands benefit from both: TikTok for destination discovery and viral awareness, Instagram for aspiration, conversion, and long-term brand positioning.",
+    },
+    {
+      question: 'What campaign formats work best for travel brand influencer partnerships?',
+      answer:
+        "Press trips — where travel brands sponsor creator travel in exchange for multi-format content — are the dominant format for hotels, airlines, and tourism brands. They generate authentic destination documentation that feels genuinely exploratory. Coordinated destination campaigns using multiple creators simultaneously create trending topic momentum for tourism boards. Product integration in genuine travel content is most effective for luggage, tech, and travel accessory brands. Brief creators for multi-platform, multi-format output from every press trip investment to maximise content value.",
+    },
+    {
+      question: 'How much lead time do travel brand influencer campaigns need?',
+      answer:
+        "Travel creator partnerships require three to four months minimum lead time for international press trips — allowing for visa arrangements, flight booking, accommodation coordination, and content planning. For seasonal campaigns, add additional lead time to ensure content posts during the relevant booking window: summer content should publish by March–April, ski season by October–November. Tourism board campaigns coordinating multiple creators need four to six months planning lead time for logistics coordination.",
+    },
+    {
+      question: 'How much should travel brands budget for influencer campaigns?',
+      answer:
+        "Travel creator partnerships include both creator fees and travel costs. Single TikTok posts range from $200–$5,000; Instagram posts $300–$7,000. Press trip total costs (creator fee plus travel) range from $2,000–$40,000 per creator depending on destination and tier. A destination campaign coordinating five creators across both platforms typically requires $35,000–$200,000 total investment. Despite higher upfront costs than other categories, travel creator content's exceptional engagement metrics and one to two year content longevity deliver strong long-term ROI.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
