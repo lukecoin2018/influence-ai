@@ -2830,4 +2830,331 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'location-tiktok-the United States': {
+    heading: 'Top TikTok Creators in the United States: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why US TikTok Creators Dominate Global Influencer Marketing',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The United States is the world's most influential TikTok creator market. American creators set the trends, content formats, and cultural conversations that shape TikTok globally — what performs in the US consistently predicts what goes mainstream everywhere else within weeks. For brands seeking both domestic impact and global cultural relevance, US TikTok creators offer unmatched reach and influence.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database includes 165 verified US-based TikTok creators in the 50,000–500,000 follower range, with a median engagement rate of 6.58% and an average of 398,247 views per post. Beauty and fashion dominate the US TikTok creator landscape — 85 beauty creators and 68 fashion creators represent the two largest category concentrations in our US database, reflecting America's outsized influence on global beauty and fashion trends.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "US TikTok audiences are characterised by high purchasing power, brand awareness, and cultural influence. American consumers are early adopters who discover new brands, trial products quickly, and influence their networks — both domestically and globally. For brands entering or growing in the US market, TikTok creator partnerships provide the most direct access to this commercially powerful demographic.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT US TikTok Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'US TikTok Creators'],
+        rows: [
+          ['Total verified creators (50K–500K)', '165'],
+          ['Median engagement rate', '6.58%'],
+          ['Average views per post', '398,247'],
+          ['Top niche', 'Beauty (85 creators)'],
+          ['Second niche', 'Fashion (68 creators)'],
+          ['Platform', 'TikTok'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The 6.58% median engagement rate across US TikTok creators reflects genuine audience activity — American TikTok communities are highly interactive, with comment sections that function as real cultural conversations rather than passive reactions. This interactivity is commercially valuable: brands partnering with US TikTok creators benefit not just from direct audience reach but from the secondary conversations their content generates.",
+      },
+      {
+        type: 'h2',
+        content: 'US TikTok Creator Niches: Where the Opportunity Is',
+      },
+      {
+        type: 'h3',
+        content: 'Beauty — The Dominant Category',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "With 85 verified beauty creators, the US is the strongest beauty TikTok market in InfluenceIT's database. American beauty creators drive the BeautyTok trends that define global beauty purchasing — viral product sell-outs, ingredient education movements, and tutorial formats that originate on US TikTok before spreading globally. Beauty brands entering or expanding in the US market have an exceptional creator partner pool to draw from.",
+      },
+      {
+        type: 'h3',
+        content: 'Fashion — Trend Creation at Scale',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "68 verified US fashion creators represent America's TikTok fashion influence. US fashion creators set the aesthetic directions — from coastal grandmother to dark academia to quiet luxury — that shape global fashion consumption. For fashion brands seeking to create rather than follow trends, US TikTok creator partnerships provide direct access to the trend creation ecosystem.",
+      },
+      {
+        type: 'h2',
+        content: 'Campaign Strategy for US TikTok Creator Partnerships',
+      },
+      {
+        type: 'h3',
+        content: 'Leverage the Cultural Amplification Effect',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "US TikTok content has a global reach multiplier that no other market matches. When US creators generate viral content featuring a brand, that content spreads to TikTok audiences in the UK, Australia, Canada, and other English-speaking markets organically. Brands investing in US TikTok creator partnerships are effectively buying global cultural reach at domestic rates — a significant multiplier on campaign ROI.",
+      },
+      {
+        type: 'h3',
+        content: 'Coordinate Around Cultural Moments',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "US TikTok is acutely responsive to cultural moments — seasonal peaks, cultural events, and platform-specific trends all create windows of amplified content performance. Back to school (August), the holiday season (October–December), and New Year (January) are the three highest-value commercial windows for US TikTok campaigns. Brands that book US creators 8–10 weeks ahead of these windows consistently outperform those that respond reactively.",
+      },
+      {
+        type: 'h3',
+        content: 'FTC Compliance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "All paid US creator partnerships must comply with FTC (Federal Trade Commission) disclosure requirements — creators must clearly disclose sponsored content using #ad, #sponsored, or equivalent labelling. Brief US creators explicitly on disclosure requirements and ensure all partnership content includes appropriate disclosures before posting. Non-compliance carries reputational and regulatory risk for both brands and creators.",
+      },
+      {
+        type: 'h2',
+        content: 'US TikTok Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', '$200–$600', '$500–$1,500'],
+          ['100K–250K', '$600–$1,500', '$1,500–$3,800'],
+          ['250K–500K', '$1,500–$4,000', '$3,800–$10,000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "US TikTok creators typically command rates at the higher end of global benchmarks, reflecting the market's influence, audience purchasing power, and creator professionalism. The US creator market is the most developed in the world — US creators have established legal agreements, professional production standards, and sophisticated brand partnership management that reduces operational complexity for brands.",
+      },
+    ],
+  },
+
+  'location-instagram-the United States': {
+    heading: 'Top Instagram Creators in the United States: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: 'The US Instagram Creator Market: Scale, Diversity and Commercial Power',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The United States is the world's largest Instagram creator market by both volume and commercial value. American Instagram creators have defined the visual language of influencer marketing — the aesthetic standards, content formats, and brand partnership practices that the global industry follows originated in the US market. For brands seeking premium visual content, direct-response campaigns, or access to high-purchasing-power demographics, US Instagram creators represent the gold standard.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database includes 74 verified US-based Instagram creators in the 50,000–500,000 follower range, with an average engagement rate of 4.92% and an average of 78,693 views per post. While the creator count reflects our current database coverage — which is actively growing — the verified pool already represents a curated selection of high-performing US Instagram creators across beauty, fashion, lifestyle, and fitness categories.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "US Instagram audiences are among the most commercially sophisticated in the world. They are familiar with branded content, make comparisons actively, and respond strongly to authentic product recommendations from creators they trust. The combination of high audience purchasing power and sophisticated brand awareness makes US Instagram creator partnerships particularly valuable for premium and aspirational brand positioning.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT US Instagram Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'US Instagram Creators'],
+        rows: [
+          ['Total verified creators (50K–500K)', '74'],
+          ['Average engagement rate', '4.92%'],
+          ['Median engagement rate', '0.59%'],
+          ['Average views per post', '78,693'],
+          ['Platform', 'Instagram'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The 4.92% average engagement rate — well above Instagram's typical category averages — reflects the quality of US creators in our verified database. The gap between average (4.92%) and median (0.59%) indicates the presence of standout creators with exceptional engagement communities alongside typical Instagram performers. InfluenceIT's verified data allows brands to identify which US Instagram creators fall into each category.",
+      },
+      {
+        type: 'h2',
+        content: 'Why US Instagram Is Unmatched for Brand Partnership Value',
+      },
+      {
+        type: 'h3',
+        content: 'Premium Visual Content',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "US Instagram creators invest heavily in content production quality — professional photography, high-end editing, and aesthetic coherence that meets the elevated visual standards American audiences expect. This production investment means brand partnerships generate premium visual assets that brands can repurpose across paid media, e-commerce, and owned channels with appropriate usage rights. The content quality of US Instagram creators consistently exceeds equivalent-follower-count creators in most other markets.",
+      },
+      {
+        type: 'h3',
+        content: 'Instagram Shopping Integration',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The US is Instagram Shopping's primary market — American consumers have the highest adoption rate of Instagram's native shopping features globally. US creators who use product tags in their posts and Stories drive direct purchase attribution that brands can measure with precision. For brands with established Instagram Shops, US creator partnerships deliver the strongest direct-response results available on the platform.",
+      },
+      {
+        type: 'h3',
+        content: 'Multi-Platform Creator Networks',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Many US Instagram creators maintain simultaneous presences on TikTok, YouTube, and Pinterest — creating multi-platform amplification opportunities for brand partnerships. A US Instagram creator with 150,000 followers may also have 80,000 TikTok followers and a YouTube channel, enabling brands to negotiate multi-platform packages that deliver total reach significantly exceeding any individual platform's numbers.",
+      },
+      {
+        type: 'h2',
+        content: 'US Instagram Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Reel/Post', 'Multi-Format Package'],
+        rows: [
+          ['50K–100K', '$300–$800', '$800–$2,000'],
+          ['100K–250K', '$800–$2,000', '$2,000–$5,000'],
+          ['250K–500K', '$2,000–$6,000', '$5,000–$15,000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "US Instagram creators command premium rates that reflect their market's global influence, audience purchasing power, and production quality. Usage rights for paid advertising add 25–50% to base rates. US creators are experienced with professional contract terms, usage rights negotiation, and FTC compliance — working with them involves less operational complexity than equivalent partnerships in less developed creator markets.",
+      },
+    ],
+  },
+
+  'location-instagram-the United Kingdom': {
+    heading: 'Top Instagram Creators in the UK: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: "Why the UK Instagram Creator Market Is Europe's Most Valuable",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The United Kingdom is Europe's most mature and commercially sophisticated Instagram creator market. British creators have built internationally recognised voices in fashion, beauty, lifestyle, and food — and their content travels exceptionally well across English-speaking markets globally. For brands seeking simultaneous reach in the UK, US, Australia, and Canada, British Instagram creators deliver the most efficient multi-market content strategy available from a single creator investment.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's database includes 20 verified UK-based Instagram creators in the 50,000–500,000 follower range — a growing pool that already delivers strong engagement data with a median engagement rate of 2.68% and average views of 55,835 per post. Our UK Instagram creator database is actively expanding, and the current verified creators represent a curated selection of high-performing British creators across key lifestyle categories.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "British Instagram audiences apply high standards of authenticity to creator content. UK consumers are culturally attuned to commercial messaging and respond significantly better to honest, nuanced recommendations than to enthusiastic endorsements. This means UK creator partnerships, when executed well, generate exceptionally high-quality trust signals — and when executed poorly (overly scripted, visibly inauthentic), they generate notable negative audience response.",
+      },
+      {
+        type: 'h2',
+        content: 'InfluenceIT UK Instagram Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'UK Instagram Creators'],
+        rows: [
+          ['Total verified creators (50K–500K)', '20 (growing)'],
+          ['Average engagement rate', '4.50%'],
+          ['Median engagement rate', '2.68%'],
+          ['Average views per post', '55,835'],
+          ['Platform', 'Instagram'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The 2.68% median engagement rate for UK Instagram creators is the highest national median in InfluenceIT's Instagram location database — significantly above the overall Instagram beauty median (0.80%) and fashion median (0.66%). This above-average engagement reflects British creator culture's emphasis on genuine audience relationships over follower count growth — UK creators tend to build smaller but more loyal communities.",
+      },
+      {
+        type: 'h2',
+        content: 'What Makes British Instagram Creators Uniquely Valuable',
+      },
+      {
+        type: 'h3',
+        content: 'Multi-Market English Language Reach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "British Instagram creators have built followings that extend well beyond the UK's 67 million population. Their content resonates with audiences in the US, Australia, Canada, Ireland, and other English-speaking markets — often because British aesthetic sensibility carries aspirational appeal that transcends local cultural context. For brands seeking to reach multiple English-speaking markets simultaneously, a single UK creator partnership can deliver meaningful reach across four to five markets at once.",
+      },
+      {
+        type: 'h3',
+        content: 'Authentic, Trustworthy Content Style',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "British content culture values wit, restraint, and genuine honesty in ways that produce consistently trustworthy creator content. British audiences are among the most skeptical of over-enthusiastic endorsements globally — which means British creators have evolved a content style that is inherently more believable than markets where promotional enthusiasm is culturally expected. Brands that allow UK creators to speak candidly about products consistently outperform those that demand purely positive messaging.",
+      },
+      {
+        type: 'h3',
+        content: 'Strong Editorial and Media Connections',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The UK has a strong tradition of editorial and broadcasting that has shaped its creator culture. Many UK Instagram creators have connections to fashion media, lifestyle publications, and broadcast networks that amplify brand partnership value beyond direct social reach. A product featured by a well-connected UK Instagram creator may generate earned media coverage in British lifestyle press, multiplying campaign value in ways that direct follower reach alone does not capture.",
+      },
+      {
+        type: 'h2',
+        content: 'Campaign Strategy for UK Instagram Creators',
+      },
+      {
+        type: 'h3',
+        content: 'Align with the British Cultural Calendar',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The UK has a rich calendar of cultural and fashion events that create high-value content moments for brand integrations: London Fashion Week (February and September), Glastonbury and festival season (June–July), Chelsea Flower Show (May), and the extensive British awards season calendar all provide contexts where brand-integrated content feels editorially relevant rather than purely promotional. Timing campaigns around these moments amplifies reach and adds credibility through cultural association.",
+      },
+      {
+        type: 'h3',
+        content: 'Brief for British Sensibility',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Briefs that work well in US or Australian markets sometimes underperform in the UK because they ask for enthusiasm levels that feel inauthentic to British audiences. Brief UK creators for honest integration rather than enthusiastic endorsement — allow them to acknowledge product limitations, express genuine personal opinions, and speak to their audience in the tone their community expects. The conversion impact of genuinely honest UK creator content consistently exceeds that of over-positive promotional content.",
+      },
+      {
+        type: 'h2',
+        content: 'UK Instagram Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Reel/Post', 'Multi-Format Package'],
+        rows: [
+          ['50K–100K', '£200–£600', '£500–£1,500'],
+          ['100K–250K', '£600–£1,800', '£1,500–£4,500'],
+          ['250K–500K', '£1,800–£5,000', '£4,500–£12,000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "UK Instagram creator rates are quoted in GBP and are broadly comparable to equivalent US rates when converted. ASA (Advertising Standards Authority) disclosure requirements apply to all paid UK creator partnerships — creators must clearly label sponsored content with #ad. UK creators are generally familiar with ASA guidelines and handle compliance professionally, but include disclosure requirements explicitly in your brief.",
+      },
+    ],
+  },
+
 };

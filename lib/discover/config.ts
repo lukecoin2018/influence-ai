@@ -1162,6 +1162,12 @@ export function getEducationalContent(config: AnyPageConfig): EduContentResult {
 
   if (config.type === 'location') {
     const cfg = config as LocationPageConfig;
+    if (cfg.platform) {
+      const locationKey = `location-${cfg.platform}-${cfg.locationLabel}`;
+      if (PLATFORM_NICHE_CONTENT[locationKey]) {
+        return PLATFORM_NICHE_CONTENT[locationKey];
+      }
+    }
     return LOCATION_CONTENT[cfg.locationLabel] ?? {
       heading: `Why Work with Influencers Based in ${cfg.locationLabel}?`,
       paragraphs: [
@@ -1489,6 +1495,90 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'location-tiktok-the United States': [
+    {
+      question: 'How many TikTok creators in the United States are on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes 165 verified US-based TikTok creators in the 50,000–500,000 follower range, with a median engagement rate of 6.58% and an average of 398,247 views per post. Beauty (85 creators) and fashion (68 creators) are the two strongest categories in our US TikTok database. All engagement metrics are calculated from each creator's 15 most recent posts.",
+    },
+    {
+      question: 'Why should brands partner with US TikTok creators?',
+      answer:
+        "US TikTok creators set the trends and content formats that shape TikTok globally — American creator content has a global cultural amplification effect that no other market matches. US creators generate an average of 398,247 views per post in InfluenceIT's database, with a 6.58% median engagement rate. They are also the most professionally developed creator market in the world, with established legal frameworks, FTC compliance experience, and production standards that reduce operational complexity for brands.",
+    },
+    {
+      question: 'What niches are strongest for US TikTok creator partnerships?',
+      answer:
+        "Beauty and fashion dominate the US TikTok creator landscape in InfluenceIT's database, with 85 verified beauty creators and 68 verified fashion creators. These categories reflect America's outsized global influence on beauty and fashion trends — viral product sell-outs and aesthetic movements that originate on US TikTok consistently shape global purchasing behaviour. Lifestyle, wellness, and food also have growing US TikTok creator communities.",
+    },
+    {
+      question: 'What do FTC disclosure rules mean for US TikTok creator campaigns?',
+      answer:
+        "All paid US TikTok creator partnerships must comply with FTC (Federal Trade Commission) disclosure requirements. Creators must clearly disclose sponsored content using #ad, #sponsored, or equivalent labelling that is immediately visible — not buried in hashtags or small print. Brief US creators explicitly on disclosure requirements before campaign launch. US creators are generally familiar with FTC guidelines, but explicit brief inclusion protects both brand and creator from compliance risk.",
+    },
+    {
+      question: 'How much do US TikTok creators charge for brand partnerships?',
+      answer:
+        "US TikTok creators in the mid-tier range (50,000–500,000 followers) typically charge $200–$4,000 per post depending on follower count and engagement rate. Creators with 50K–100K followers generally charge $200–$600, while those with 250K–500K followers charge $1,500–$4,000. US creators command rates at the higher end of global benchmarks, reflecting their market's influence and audience purchasing power.",
+    },
+  ],
+
+  'location-instagram-the United States': [
+    {
+      question: 'How many Instagram creators in the United States are on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes 74 verified US-based Instagram creators in the 50,000–500,000 follower range, with an average engagement rate of 4.92% and an average of 78,693 views per post. Our US Instagram creator database is actively growing. All metrics are calculated from each creator's 15 most recent posts, providing accurate current performance data.",
+    },
+    {
+      question: 'Why should brands partner with US Instagram creators?',
+      answer:
+        "The US is Instagram's most commercially developed market — American creators set the visual content standards and brand partnership practices the global industry follows. US Instagram audiences have the highest Instagram Shopping adoption rates globally, making US creator partnerships particularly strong for direct conversion campaigns. US creators also typically maintain multi-platform presences across TikTok and YouTube, enabling multi-platform partnership packages that amplify total reach.",
+    },
+    {
+      question: 'How does partnering with US Instagram creators compare to US TikTok creators?',
+      answer:
+        "US TikTok creators deliver higher engagement rates (6.58% median) and greater average reach per post (398,247 views) compared to US Instagram creators (4.92% average engagement, 78,693 views). However, US Instagram creators deliver stronger direct conversion through native Shopping integration, longer content shelf life, and better reach into the 25–45 demographic. The most effective US campaigns use both platforms with distinct creative approaches.",
+    },
+    {
+      question: 'What content formats work best for US Instagram creator campaigns?',
+      answer:
+        "Reels deliver the highest organic reach for US Instagram creator campaigns. Carousels generate the most saves — valuable for tutorial and styling content where audiences bookmark for future reference. Stories with product tags drive the highest direct conversion for brands with Instagram Shopping enabled. Multi-format packages combining all three consistently outperform single-format campaigns. US creators are experienced with all formats and can advise on optimal format mix for specific campaign objectives.",
+    },
+    {
+      question: 'How much do US Instagram creators charge for brand partnerships?',
+      answer:
+        "US Instagram creators in the mid-tier range typically charge $300–$6,000 per post depending on follower count and format. Creators with 50K–100K followers generally charge $300–$800, while those with 250K–500K followers charge $2,000–$6,000. Multi-format packages range from $800 to $15,000. Usage rights for paid advertising add 25–50% to base rates. US creators are experienced with professional contract terms and usage rights negotiation.",
+    },
+  ],
+
+  'location-instagram-the United Kingdom': [
+    {
+      question: 'How many Instagram creators in the UK are on InfluenceIT?',
+      answer:
+        "InfluenceIT currently has 20 verified UK-based Instagram creators in the 50,000–500,000 follower range — a growing pool with an average engagement rate of 4.50% and a median of 2.68%, the highest national median in our Instagram location database. All metrics are calculated from each creator's 15 most recent posts. Our UK Instagram creator database is actively expanding.",
+    },
+    {
+      question: 'Why should brands partner with UK Instagram creators?',
+      answer:
+        "UK Instagram creators deliver multi-market reach across English-speaking markets — their content resonates with audiences in the US, Australia, Canada, and Ireland simultaneously. The UK's 2.68% median Instagram engagement rate is the highest national median in InfluenceIT's location database, reflecting British creator culture's emphasis on genuine audience relationships. British content style — honest, witty, and restrained — builds audience trust that translates into strong purchase influence.",
+    },
+    {
+      question: 'What makes British Instagram content style different from US creators?',
+      answer:
+        "British creator content is characterised by honesty, restraint, and wit that reflects UK consumer culture's skepticism of over-enthusiastic endorsements. British audiences respond significantly better to candid, nuanced recommendations than to promotional enthusiasm — which means UK creators naturally produce more credible-sounding content. Brands that allow UK creators to speak authentically, including acknowledging product limitations, consistently see higher conversion than those demanding purely positive messaging.",
+    },
+    {
+      question: 'What disclosure rules apply to UK Instagram creator campaigns?',
+      answer:
+        "All paid UK Instagram creator partnerships must comply with ASA (Advertising Standards Authority) requirements. Creators must label sponsored content with #ad in a clear, immediately visible position. The ASA requires disclosure to be upfront — not buried in hashtags at the end of a caption. UK creators are generally familiar with ASA guidelines. Include disclosure requirements explicitly in your brief and review content before posting to confirm compliance.",
+    },
+    {
+      question: 'How much do UK Instagram creators charge for brand partnerships?',
+      answer:
+        "UK Instagram creators in the mid-tier range typically charge £200–£5,000 per post depending on follower count and format. Creators with 50K–100K followers generally charge £200–£600, while those with 250K–500K followers charge £1,800–£5,000. Multi-format packages range from £500 to £12,000. Rates are broadly comparable to equivalent US rates when converted to USD. Usage rights for paid advertising add 25–50% to base rates.",
+    },
+  ],
+
   'tier-micro-Beauty': [
     {
       question: 'Why do beauty micro-influencers have higher engagement than larger accounts?',
@@ -1532,6 +1622,13 @@ export function getFAQContent(config: AnyPageConfig): FAQItem[] {
   if (config.type === 'tier') {
     const cfg = config as TierPageConfig;
     return NICHE_FAQ[`tier-${cfg.tier}-${cfg.category}`] ?? [];
+  }
+  if (config.type === 'location') {
+    const cfg = config as LocationPageConfig;
+    if (cfg.platform) {
+      return NICHE_FAQ[`location-${cfg.platform}-${cfg.locationLabel}`] ?? [];
+    }
+    return [];
   }
   return [];
 }
