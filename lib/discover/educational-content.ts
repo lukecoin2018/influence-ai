@@ -2283,4 +2283,164 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'usecase-Beauty Brands': {
+    heading: 'Finding the Right Influencers for Beauty Brand Campaigns: A Complete Guide',
+    sections: [
+
+      // ── Section 1: Overview ──────────────────────────────────
+      {
+        type: 'h2',
+        content: 'How to Match Your Beauty Brand with the Right Creators',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Beauty brand influencer marketing works best when creator selection is driven by data rather than instinct. InfluenceIT's database includes over 914 verified beauty creators across TikTok and Instagram — 651 TikTok beauty creators with a median engagement rate of 8.54%, and 263 Instagram beauty creators with an average engagement rate of 3.67%. Every engagement metric is calculated from each creator's 15 most recent posts, giving beauty brands an accurate picture of current performance rather than historical averages.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The right creator for a beauty brand depends on campaign objective, product type, target demographic, and budget. A mass-market mascara launch requires a different creator strategy than a premium skincare serum or a sustainable beauty brand repositioning. Getting the match right before committing to partnerships is the single most important factor in beauty campaign performance — and it requires more than follower count.",
+      },
+
+      // ── Section 2: Platform selection ───────────────────────
+      {
+        type: 'h2',
+        content: 'Choosing Between TikTok and Instagram for Your Beauty Campaign',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok and Instagram serve different roles in the beauty marketing funnel. Understanding which platform serves your campaign objective prevents misallocated budget and underperforming campaigns.",
+      },
+      {
+        type: 'table',
+        headers: ['Campaign Objective', 'Recommended Platform', 'Why'],
+        rows: [
+          ['New product launch awareness', 'TikTok', 'Higher reach per post (523K avg views), viral potential'],
+          ['Direct sales conversion', 'Instagram', 'Native shopping, product tags, direct checkout'],
+          ['Premium brand positioning', 'Instagram', 'Editorial aesthetic, longer content shelf life'],
+          ['Reaching 18–30 demographic', 'TikTok', 'Younger audience skew, higher daily engagement'],
+          ['Reaching 25–45 demographic', 'Instagram', 'Older, higher-income audience'],
+          ['Tutorial and education content', 'TikTok', 'Higher save rates for tutorial formats'],
+          ['Long-term brand building', 'Instagram', 'Persistent content, grid aesthetic association'],
+          ['Maximum budget efficiency', 'TikTok', 'Higher engagement rates at comparable costs'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The most effective beauty brand campaigns run on both platforms simultaneously with platform-specific creative. A coordinated launch using TikTok for reach and viral awareness alongside Instagram for conversion and brand positioning consistently outperforms single-platform strategies at equivalent total budget.",
+      },
+
+      // ── Section 3: Creator tier selection ───────────────────
+      {
+        type: 'h2',
+        content: 'Choosing the Right Creator Tier for Your Beauty Brand Budget',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier beauty creators — those with 50,000 to 500,000 followers — represent the optimal partnership tier for most beauty brands. They have built substantial enough audiences to deliver meaningful reach while maintaining the authentic engagement that drives purchase decisions. InfluenceIT's entire verified beauty creator database sits within this tier, reflecting our focus on the follower range that consistently delivers the best brand partnership value.",
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Best For', 'Typical TikTok Rate'],
+        rows: [
+          ['50K–100K', 'Niche targeting, high engagement, limited budgets', '$150–$400/post'],
+          ['100K–250K', 'Balanced reach and engagement, mid-range budgets', '$400–$1,000/post'],
+          ['250K–500K', 'Maximum mid-tier reach, hero campaigns', '$1,000–$3,000/post'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For beauty brands with limited budgets, micro-tier creators (50K–100K) consistently deliver the strongest engagement rates and the most cost-efficient partnerships. A campaign distributing budget across 8–10 micro creators in the beauty niche will typically outperform the same budget spent on a single mid-tier creator — generating more total content, more audience touchpoints, and higher aggregate engagement.",
+      },
+
+      // ── Section 4: Campaign formats ─────────────────────────
+      {
+        type: 'h2',
+        content: 'Campaign Formats That Work for Beauty Brands',
+      },
+      {
+        type: 'h3',
+        content: 'Product Launch Campaigns',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For new product launches, coordinate 5–10 beauty creators to post within the same 72-hour window. On TikTok, this volume creates a trend signal that amplifies all related content algorithmically — making the product feel ubiquitous within the beauty community simultaneously. On Instagram, coordinated launch content creates a moment of social proof where multiple creators a follower trusts are all featuring the same product at the same time.",
+      },
+      {
+        type: 'h3',
+        content: 'Ambassador Programmes',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For beauty brands building sustained market presence, long-term ambassador programmes — typically 3–6 months with monthly posting commitments — consistently outperform equivalent spend on multiple one-off partnerships. Beauty audiences trust creators who use products consistently over time. A creator mentioning your product once is a paid placement; a creator featuring it in their routine every month for six months is a genuine recommendation. Ambassador programmes also build a library of authentic content that brands can repurpose across paid media with appropriate usage rights.",
+      },
+      {
+        type: 'h3',
+        content: 'Gifting Programmes',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For beauty brands with limited budgets or seeking organic coverage, gifting programmes — sending products to creators without payment in exchange for potential (not guaranteed) coverage — can generate authentic unboxing and first-impression content at minimal cost. Gifting works best for lower-priced beauty products where the cost of goods is low and for brands with strong product quality that earns genuine creator enthusiasm. For higher-priced or more established brands, paid partnerships produce more reliable and higher-quality coverage.",
+      },
+
+      // ── Section 5: Briefing beauty creators ─────────────────
+      {
+        type: 'h2',
+        content: 'How to Brief Beauty Creators for Maximum Campaign Performance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The quality of a creator brief directly determines campaign performance. Beauty brands that provide clear, respectful briefs that preserve creator authenticity consistently outperform those that restrict creative freedom with detailed scripts and mandatory messaging.",
+      },
+      {
+        type: 'bullets',
+        items: [
+          "Share your brand story and values — not just product features. Creators who understand your brand's positioning integrate products more authentically.",
+          "Lead with ingredients and formulation — beauty audiences want to know what is in the product and why it works, not marketing language.",
+          "Specify must-haves (disclosure language, product mention, key benefit) and nice-to-haves separately — keep the must-have list short.",
+          "Avoid mandatory scripts — brief for authentic use within the creator's existing content style.",
+          "Ship products 3–4 weeks before posting date minimum — 6 weeks for skincare products requiring genuine use time.",
+          "Specify your target audience clearly so creators can tailor their messaging to the right demographic.",
+          "Include usage instructions and any claims that cannot be made (particularly important for skincare and cosmetics under FTC and ASA guidelines).",
+        ],
+      },
+
+      // ── Section 6: Measuring success ────────────────────────
+      {
+        type: 'h2',
+        content: 'Measuring Beauty Campaign Performance',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Beauty brand campaign measurement should go beyond reach and impressions to capture metrics that predict commercial impact. The following metrics, in order of predictive value for beauty brand partnerships:",
+      },
+      {
+        type: 'bullets',
+        items: [
+          "Save rate — the strongest predictor of purchase intent in beauty. High saves indicate audiences bookmarking content for future shopping reference.",
+          "Engagement rate — verified against InfluenceIT's category benchmarks (8.54% median for TikTok beauty, 3.67% average for Instagram beauty).",
+          "Website traffic from creator's link — direct attribution for brands with trackable links or affiliate codes.",
+          "Comment quality — genuine product questions and purchase intent signals in comments indicate high commercial consideration.",
+          "Profile visits — audiences visiting the creator's profile after seeing sponsored content signals interest in following up.",
+          "Reach and impressions — important for awareness objectives but a lagging indicator of commercial impact.",
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Request post-campaign data reports from creators covering saves, reach, impressions, and profile visits in addition to likes and comments. Brands that collect this data consistently across campaigns develop benchmarks for their specific products and audiences that improve creator selection and brief quality over time.",
+      },
+    ],
+  },
+
 };

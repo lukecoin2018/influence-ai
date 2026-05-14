@@ -1186,6 +1186,14 @@ export function getEducationalContent(config: AnyPageConfig): EduContentResult {
     };
   }
 
+  if (config.type === 'usecase') {
+    const cfg = config as UseCasePageConfig;
+    const usecaseKey = `usecase-${cfg.label}`;
+    if (PLATFORM_NICHE_CONTENT[usecaseKey]) {
+      return PLATFORM_NICHE_CONTENT[usecaseKey];
+    }
+  }
+
   return { heading: '', paragraphs: [] };
 }
 
@@ -1393,6 +1401,34 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'usecase-Beauty Brands': [
+    {
+      question: 'How many beauty influencers are available on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes over 914 verified beauty creators across TikTok and Instagram in the 50,000–500,000 follower range — 651 TikTok beauty creators with a median engagement rate of 8.54%, and 263 Instagram beauty creators with an average engagement rate of 3.67%. All engagement metrics are calculated from each creator's 15 most recent posts, providing accurate current performance data rather than historical averages.",
+    },
+    {
+      question: 'Should beauty brands use TikTok or Instagram creators?',
+      answer:
+        "Both platforms serve different roles in the beauty marketing funnel. TikTok delivers higher engagement rates (8.54% median for beauty), greater average reach per post (523,561 views on average), and stronger performance with the 18–30 demographic. Instagram delivers native shopping integration with product tags and direct checkout, longer content shelf life, and better reach into the 25–45 demographic. The most effective beauty brand campaigns run on both platforms simultaneously with platform-specific creative — TikTok for reach and awareness, Instagram for conversion and brand positioning.",
+    },
+    {
+      question: 'What follower range is best for beauty brand influencer campaigns?',
+      answer:
+        "Mid-tier beauty creators with 50,000–500,000 followers consistently deliver the best value for beauty brands. Within this range, creators with 50K–100K followers offer the highest engagement rates and most cost-efficient partnerships — ideal for brands with limited budgets or those targeting niche beauty audiences. Creators with 100K–250K provide the best balance of reach and engagement for most campaign objectives. The 250K–500K tier delivers maximum reach for hero campaigns and product launches requiring wide market penetration.",
+    },
+    {
+      question: 'How much should beauty brands budget for influencer campaigns?',
+      answer:
+        "TikTok beauty creator partnerships in the mid-tier range typically cost $150–$3,000 per post depending on follower count and engagement rate. Instagram beauty creators typically charge $200–$4,000 per post. For a meaningful product launch campaign using 5–8 creators across both platforms, budget $5,000–$25,000 for content costs, plus usage rights if you plan to repurpose content in paid advertising (add 25–50% to base rates). Long-term ambassador programmes (3–6 months) typically deliver better ROI than equivalent one-off campaign spend.",
+    },
+    {
+      question: 'What content formats work best for beauty brand influencer campaigns?',
+      answer:
+        "GRWM (Get Ready With Me) and tutorial content consistently performs best across both platforms for beauty brands — these formats integrate products naturally into genuine use contexts. On TikTok, before-and-after content and ingredient education videos drive high engagement and saves. On Instagram, Reels deliver the highest reach while carousels generate the most saves for tutorial content. Coordinating multiple creators to post within the same 72-hour window for product launches creates trend momentum that single-creator campaigns cannot replicate.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
@@ -1400,6 +1436,10 @@ export function getFAQContent(config: AnyPageConfig): FAQItem[] {
     const cfg = config as DiscoverPageConfig;
     const platformKey = `${cfg.platform}-${cfg.category}`;
     return NICHE_FAQ[platformKey] ?? [];
+  }
+  if (config.type === 'usecase') {
+    const cfg = config as UseCasePageConfig;
+    return NICHE_FAQ[`usecase-${cfg.label}`] ?? [];
   }
   return [];
 }
