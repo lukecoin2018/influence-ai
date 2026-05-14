@@ -1775,6 +1775,90 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'usecase-Food & Beverage Brands': [
+    {
+      question: 'What types of creators work best for food and beverage brand campaigns?',
+      answer:
+        "The best creator type depends on your product category. Recipe creators and home cooks work best for ingredients and grocery products. Food reviewers suit restaurant, delivery, and packaged food brands. Wellness and nutrition creators are ideal for health foods and supplements. Lifestyle creators suit beverages and snack brands that integrate into daily routines. Cultural and heritage creators work exceptionally well for international or ethnic food brands where authentic cultural context adds credibility. InfluenceIT's database includes verified food and lifestyle creators across all these sub-types.",
+    },
+    {
+      question: 'Should food brands use TikTok or Instagram creators?',
+      answer:
+        "Both platforms serve different roles. TikTok excels for recipe virality and discovery — food content spreads organically to new audiences and reaches home cooks aged 18–35 who use TikTok as their primary recipe discovery platform. Instagram excels for premium brand visual positioning, direct conversion through shopping integration, and reaching food enthusiasts aged 30–50 with established grocery spending. Most food brands benefit from both platforms: TikTok for discovery and reach, Instagram for brand positioning and conversion.",
+    },
+    {
+      question: 'What content formats work best for food brand influencer campaigns?',
+      answer:
+        "Recipe integration — where a creator develops an original recipe using your product — consistently outperforms promotional product mention by three to five times in engagement. Honest taste test and first-impression content generates strong purchase intent for new product launches. 'What I eat in a day' content is the highest-reach format for health food and nutrition brands. Seasonal recipe content (holiday recipes, summer entertaining, New Year health) generates peak engagement when timed eight to twelve weeks ahead of the seasonal moment.",
+    },
+    {
+      question: 'When is the best time to run food brand influencer campaigns?',
+      answer:
+        "Seasonal timing is critical for food brands. The highest-value windows are Thanksgiving and Christmas (October–December) for comfort food, ingredients, and gifting; New Year (January) for health foods and nutrition; summer entertaining (May–July) for drinks, grilling, and outdoor food; and back to school (August–September) for meal prep and convenient foods. Book food creators eight to twelve weeks ahead of seasonal moments — late-arriving content misses the organic momentum that makes seasonal food content perform.",
+    },
+    {
+      question: 'How much do food and beverage influencers charge for brand partnerships?',
+      answer:
+        "Food creator partnerships in the mid-tier range (50,000–500,000 followers) typically cost $150–$3,500 per TikTok post and $200–$5,000 per Instagram post. Budget additionally for product provision — food creators need multiple product units for recipe testing and reshoots. For recipe-focused campaigns, generous product provision prevents delayed or lower-quality content. A meaningful food brand campaign using five to eight creators across both platforms typically requires $5,000–$20,000 in creator fees plus product costs.",
+    },
+  ],
+
+  'tier-mid-tier-Fashion': [
+    {
+      question: 'What follower range counts as a mid-tier fashion creator?',
+      answer:
+        "InfluenceIT defines mid-tier fashion creators as those with 100,000 to 250,000 followers — the sweet spot between micro-tier community depth and top-tier scale. At this follower range, fashion creators have built substantial style communities while maintaining the personal connection that makes fashion influence commercially effective. TikTok fashion creators in our database deliver a category median engagement rate of 7.95% and an average of 504,854 views per post, with mid-tier creators consistently performing at or above these benchmarks.",
+    },
+    {
+      question: 'Why are mid-tier fashion creators the most cost-efficient partnership tier?',
+      answer:
+        "Mid-tier fashion creators (100K–250K) combine professional content quality, genuine audience engagement, and accessible rates — a combination that neither micro nor top-tier creators can match simultaneously. They are professional enough to deliver reliably on briefs, established enough to have durable audience loyalty, and cost-effective enough that brands can activate multiple creators simultaneously. For fashion brands running regular campaigns, mid-tier partnerships consistently deliver the best cost-per-engagement and cost-per-conversion of any follower tier.",
+    },
+    {
+      question: 'How much do mid-tier fashion creators charge for brand partnerships?',
+      answer:
+        "Mid-tier fashion creators with 100,000–250,000 followers typically charge $500–$1,200 per TikTok post and $700–$1,800 per Instagram post. Three-post packages range from $1,200–$3,000 on TikTok and $1,800–$4,500 on Instagram. Monthly ambassador programmes range from $1,500–$3,500 per month on TikTok and $2,000–$5,500 on Instagram. Usage rights for paid advertising add 25–40% to base rates.",
+    },
+    {
+      question: 'What campaign structures work best with mid-tier fashion creators?',
+      answer:
+        "The most effective mid-tier fashion campaign structure activates three to five creators simultaneously for collection launches — creating coordinated market presence across multiple style communities. For sustained brand building, ambassador programmes with two to three mid-tier creators posting monthly build compounding social proof over time. Mid-tier creators are also ideal as core partners in hybrid campaigns that combine their reach with micro creator niche targeting — mid-tier for broad style community awareness, micro for precise aesthetic community alignment.",
+    },
+    {
+      question: 'How do I evaluate a mid-tier fashion creator before partnering?',
+      answer:
+        "Start with aesthetic alignment across the last 30 posts — confirm consistent style that genuinely matches your brand positioning. Verify engagement rate against InfluenceIT's 7.95% TikTok fashion median and 3.23% Instagram fashion average. Review existing brand partnerships for aesthetic fit and exclusivity signals. Check content production quality for consistency. Assess comment section quality for active style community engagement rather than passive reactions. InfluenceIT provides verified engagement data calculated from each creator's 15 most recent posts.",
+    },
+  ],
+
+  'tier-top-Fitness': [
+    {
+      question: 'What follower range counts as a top fitness influencer?',
+      answer:
+        "InfluenceIT defines top-tier fitness influencers as creators with 250,000 to 500,000 followers — the upper mid-tier range that combines genuine fitness authority with market-impact scale. TikTok fitness creators in our database deliver a median engagement rate of 6.86% and an average of 574,944 views per post — the highest average views per post of any category in our database. Top-tier fitness creators at this scale drive both meaningful audience reach and genuine fitness community authority.",
+    },
+    {
+      question: 'Why are top-tier fitness influencers worth the premium investment?',
+      answer:
+        "Top-tier fitness influencers (250K–500K) deliver three forms of value that lower tiers cannot: direct audience reach at meaningful market-impact scale, industry authority that signals brand quality to the fitness community beyond the creator's direct following, and the compounding effect of long-term ambassador relationships that build sustained social proof over months and years. For fitness brands with genuine product quality, the ROI of top-tier creator partnerships — particularly in January campaigns and long-term ambassador structures — consistently justifies the premium.",
+    },
+    {
+      question: 'How much do top fitness influencers charge for brand partnerships?',
+      answer:
+        "Top-tier fitness influencers with 250,000–500,000 followers typically charge $1,500–$4,000 per TikTok post and $1,800–$5,000 per Instagram post. Three-post packages range from $3,500–$9,500 on TikTok and $4,500–$12,000 on Instagram. Monthly ambassador programmes range from $4,500–$11,000 per month on TikTok and $5,500–$14,000 on Instagram. Exclusivity clauses add 30–50% to base rates — standard and recommended for supplement and nutrition brands.",
+    },
+    {
+      question: 'What is the best campaign structure for top-tier fitness influencers?',
+      answer:
+        "Long-term ambassador programmes deliver the highest ROI with top-tier fitness creators. A six to twelve month programme with one or two top-tier creators builds a narrative of authentic endorsement that short-term campaigns cannot replicate. Annual ambassador agreements often deliver better total ROI than multiple shorter campaigns at equivalent spend. For product launches, combining one top-tier creator as a flagship partner with four to six mid-tier creators posting simultaneously creates maximum launch impact across different fitness communities.",
+    },
+    {
+      question: 'How do I evaluate a top-tier fitness influencer before partnering?',
+      answer:
+        "Verify engagement against InfluenceIT's 6.86% TikTok fitness median — at the top tier, maintain this standard. Check for documented personal fitness journey content that demonstrates genuine product use over time. Review existing brand partnerships for exclusivity conflicts and authentic integration quality. Assess fitness sub-niche alignment with your product's specific use case. Confirm factual accuracy in existing educational content — fitness audiences fact-check claims and hold brands accountable for inaccuracies their partners make. InfluenceIT provides verified engagement data from each creator's 15 most recent posts.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
