@@ -6315,4 +6315,367 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'tier-top-Wellness': {
+    heading: 'Top Wellness Influencers (250K–500K): Authority at Scale',
+    sections: [
+
+      {
+        type: 'h2',
+        content: 'Why Top-Tier Wellness Influencers Carry Unique Commercial Authority',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Top-tier wellness influencers — those with 250,000 to 500,000 followers — have achieved something genuinely rare: meaningful scale without the authenticity erosion that affects larger accounts. They have built wellness communities of hundreds of thousands of people who follow them as trusted health guides — not celebrity entertainers. This combination of audience scale and personal credibility creates a commercial influence that no other creator tier and very few media channels can replicate.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's data for top-tier wellness creators is compelling. TikTok top wellness creators (250K–500K) achieve a median engagement of 4.00% and an extraordinary average of 569,957 views per post. Instagram top wellness creators deliver an average engagement of 5.57% — more than double the Instagram lifestyle average of 3.12% — with an impressive average of 214,019 views per post. Both figures confirm that top-tier wellness audiences remain deeply invested in creator guidance at this scale.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The wellness industry pays attention to top-tier creators. A sustained partnership with a 350,000-follower wellness creator who is known for honest, evidence-based content signals product quality to supplement retailers, health publications, and the wellness professional community who monitor what established voices endorse. The industry halo effect of top-tier wellness creator association extends well beyond direct audience reach.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Top-Tier Wellness Creator Data (250K–500K)',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'TikTok Top Wellness', 'Instagram Top Wellness'],
+        rows: [
+          ['Verified creators', '39', '14'],
+          ['Median engagement rate', '4.00%', '0.86%'],
+          ['Average engagement rate', '15.50%', '5.57%'],
+          ['Average views per post', '569,957', '214,019'],
+          ['Best for', 'Maximum wellness community reach', 'Premium positioning, conversion'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The Instagram top wellness average engagement of 5.57% is more than double the platform average for comparable lifestyle creators (3.12%), confirming that wellness audiences at the top tier remain genuinely invested in creator content. This above-average engagement at scale is the defining characteristic of top-tier wellness creators — they have grown their audiences without losing the personal connection that drives genuine commercial influence.",
+      },
+
+      {
+        type: 'h2',
+        content: 'What Top-Tier Wellness Creators Deliver for Brands',
+      },
+      {
+        type: 'h3',
+        content: 'Category Leadership Positioning',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "When a top-tier wellness creator with 400,000 followers consistently integrates your product into their documented wellness practice, your brand achieves category association that shapes competitive positioning within the wellness community. Other creators notice. Wellness retailers take interest. Health publications pay attention. The sustained endorsement of an established wellness voice at this scale creates brand authority that paid advertising and micro-creator programmes cannot replicate — it is the difference between being known and being trusted by the wellness community.",
+      },
+      {
+        type: 'h3',
+        content: 'Long-Term Narrative Building',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Top-tier wellness creators have typically built their followings through personal wellness journeys documented over months and years. Their audiences have witnessed real transformation, real challenges, and real growth — and they trust the creator's recommendations because they have seen genuine results over time. For brands with genuinely effective products, securing a top-tier wellness creator who authentically believes in the product and documents genuine long-term use builds a commercial narrative that no campaign brief can manufacture.",
+      },
+      {
+        type: 'h3',
+        content: 'Cross-Platform Amplification',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Many top-tier wellness creators maintain simultaneous presences on TikTok, Instagram, YouTube, and newsletters — creating multi-platform amplification opportunities that compound campaign value significantly. A top-tier wellness partnership that includes TikTok reach (569,957 average views), Instagram depth (5.57% average engagement), and newsletter touchpoints reaches the same wellness audience across multiple contexts and decision points simultaneously. Negotiate multi-platform packages with top-tier wellness creators to maximise total campaign reach.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Campaign Strategy for Top-Tier Wellness Influencers',
+      },
+      {
+        type: 'h3',
+        content: 'Long-Term Ambassador Programmes',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Long-term ambassador programmes deliver the highest ROI at the top tier in wellness. A 12-month programme with one top-tier wellness creator builds a sustained narrative of genuine product integration that no short-term campaign can replicate. Annual ambassador agreements — where the creator consistently features the product across their content for a full year — build the compounding social proof that is the most powerful force in wellness brand marketing. Brands that invest in top-tier wellness ambassador relationships consistently report it as their highest-ROI marketing channel.",
+      },
+      {
+        type: 'h3',
+        content: 'New Category Entry',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For wellness brands entering new product categories or demographic segments, a top-tier creator partnership provides the fastest credibility pathway. Being endorsed by an established wellness voice with 400,000 engaged followers immediately signals legitimacy to new audiences who do not yet know the brand. The top-tier creator's established trust transfers partially to the new product category, dramatically shortening the awareness-to-consideration journey that new products typically require.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Top-Tier Wellness Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Platform', 'Single Post', '3-Post Package', 'Monthly Ambassador'],
+        rows: [
+          ['TikTok', '$1,200–$3,500', '$3,000–$8,500', '$3,500–$10,000/month'],
+          ['Instagram', '$1,800–$5,500', '$4,500–$13,000', '$5,500–$16,000/month'],
+          ['Both platforms', '$2,800–$8,000', '$7,000–$19,000', '$8,500–$24,000/month'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Top-tier wellness creator rates reflect their market authority, audience quality, and proven commercial influence. Exclusivity clauses — preventing the creator from endorsing competing wellness products — are standard practice and add 30–50% to base rates. For brands investing in annual ambassador agreements, negotiate bundled exclusivity at a discount compared to campaign-by-campaign exclusivity purchases. The compounding commercial value of sustained top-tier wellness creator association consistently justifies premium investment for brands with genuine product quality.",
+      },
+    ],
+  },
+
+  'tier-top-Lifestyle': {
+    heading: 'Top Lifestyle Influencers (250K–500K): Maximum Reach with Authentic Engagement',
+    sections: [
+
+      {
+        type: 'h2',
+        content: 'Why Top-Tier Lifestyle Influencers Deliver the Highest Absolute Reach of Any Category',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Top-tier lifestyle influencers — those with 250,000 to 500,000 followers — deliver the highest average views per post of any category tier in InfluenceIT's database. TikTok top lifestyle creators average an extraordinary 714,401 views per post — surpassing travel (658,380), food (739,674 — comparable), comedy (697,737), and all other categories at this tier. This exceptional reach reflects lifestyle content's universal appeal: daily life, home, food, and routines resonate with audiences across every demographic and interest category simultaneously.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT tracks 257 verified TikTok and 74 Instagram top-tier lifestyle creators in the 250K–500K range — the largest top-tier creator pool in our database. This scale gives brands exceptional partner choice: the ability to find top-tier lifestyle creators who align precisely with their aesthetic positioning, demographic targeting, and geographic market requirements across a pool large enough to be genuinely selective.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For brands seeking maximum single-campaign reach combined with authentic lifestyle integration, top-tier lifestyle creators represent the most efficient combination of scale and credibility available in the creator ecosystem. Their audiences have grown to 300,000+ followers because people genuinely want to follow their life — and that genuine audience interest is what makes product integration commercially powerful at this scale.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Top-Tier Lifestyle Creator Data (250K–500K)',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'TikTok Top Lifestyle', 'Instagram Top Lifestyle'],
+        rows: [
+          ['Verified creators', '257', '74'],
+          ['Median engagement rate', '5.03%', '0.68%'],
+          ['Average engagement rate', '22.06%', '3.12%'],
+          ['Average views per post', '714,401', '129,431'],
+          ['Posts per week', '3–5', '8–12 (multi-format)'],
+          ['Best for', 'Maximum awareness reach', 'Sustained brand positioning'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The 714,401 average TikTok views per post is the highest average of any category tier in InfluenceIT's database. This exceptional reach reflects the combination of top-tier follower scale and lifestyle content's broad algorithmic distribution — TikTok actively serves everyday life, home, and routine content to users across all interest categories, giving top-tier lifestyle creators the widest organic distribution available on the platform.",
+      },
+
+      {
+        type: 'h2',
+        content: 'The Commercial Case for Top-Tier Lifestyle Creator Partnerships',
+      },
+      {
+        type: 'h3',
+        content: 'Versatility Across Brand Categories',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Top-tier lifestyle creators are the most versatile brand partners at the top tier. Their content spans home, food, fashion, wellness, travel, and productivity — making them relevant to a wider range of brand categories than any niche creator at equivalent follower counts. A single top-tier lifestyle creator partnership can deliver contextually authentic integration for brands across multiple product categories over a long-term ambassador period, without the audience-brand mismatch that would occur with niche top-tier creators covering product categories outside their expertise.",
+      },
+      {
+        type: 'h3',
+        content: 'Aspirational Aesthetic Association',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Top-tier lifestyle creators have developed distinctive aesthetic identities that hundreds of thousands of followers aspire to. The specific home aesthetic, morning routine, wardrobe choices, and daily practices of an established top-tier lifestyle creator become reference points for their audience's own aspirations. Brands that are consistently featured within this aspirational context absorb the aesthetic association — becoming part of the lifestyle their audience aspires to, rather than just a product being advertised.",
+      },
+      {
+        type: 'h3',
+        content: 'Premium Content Asset Creation',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Top-tier lifestyle creators produce consistently premium content — the production quality, compositional skill, and aesthetic coherence that audiences of 300,000+ demand. With appropriate usage rights, this content serves as premium brand imagery across paid advertising, e-commerce, owned social channels, and marketing materials. Brands that negotiate usage rights upfront commission premium creative assets at creator rates rather than production agency rates — typically delivering 60–80% cost savings against equivalent agency-produced content.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Campaign Strategy for Top-Tier Lifestyle Influencers',
+      },
+      {
+        type: 'h3',
+        content: 'Maximum Awareness Campaigns',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For campaigns where maximum reach is the primary objective — new product launches, brand awareness drives, or seasonal campaign moments — top-tier lifestyle creators provide the highest single-partnership reach available outside mega-influencer and celebrity tiers. Two to three top-tier lifestyle creators posting within the same week can collectively reach 600,000–1,500,000 genuinely engaged lifestyle audience members simultaneously — creating meaningful market awareness at a fraction of the cost of equivalent traditional advertising.",
+      },
+      {
+        type: 'h3',
+        content: 'Brand Repositioning',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "When brands seek to reposition — entering premium lifestyle territory, targeting a different demographic, or building association with a new aesthetic — top-tier lifestyle creator partnerships are the most credible vehicle. The creator's established lifestyle identity, aspirational aesthetic, and audience trust all transfer partially to the brand through sustained partnership. Select top-tier lifestyle creators whose existing positioning aligns with your target destination, not your current brand position.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Top-Tier Lifestyle Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Platform', 'Single Post', '3-Post Package', 'Monthly Ambassador'],
+        rows: [
+          ['TikTok', '$1,100–$3,000', '$2,800–$7,500', '$3,200–$9,000/month'],
+          ['Instagram', '$1,500–$4,500', '$3,800–$11,000', '$4,500–$13,000/month'],
+          ['Both platforms', '$2,400–$6,500', '$6,000–$16,000', '$7,500–$20,000/month'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Top-tier lifestyle creator rates deliver exceptional value relative to the reach they provide. The 714,401 average TikTok views per post means brands paying $2,000–$3,000 for a top-tier lifestyle post are achieving costs of less than $0.01 per genuine view — dramatically more cost-efficient than equivalent paid advertising at comparable audience quality. Usage rights for repurposing top-tier lifestyle content add 25–50% to base rates and are strongly recommended given the premium quality of content produced.",
+      },
+    ],
+  },
+
+  'tier-mid-tier-Fitness': {
+    heading: 'Mid-Tier Fitness Creators (100K–250K): The Brand Partnership Sweet Spot',
+    sections: [
+
+      {
+        type: 'h2',
+        content: 'Why Mid-Tier Fitness Creators Are the Most Reliable Campaign Partners',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier fitness creators — those with 100,000 to 250,000 followers — occupy the most commercially reliable position in the fitness creator ecosystem. They have built fitness communities large enough to deliver meaningful brand reach while maintaining the personal credibility and sub-niche focus that makes fitness influence commercially effective. Their audiences have grown beyond the micro-tier intimacy threshold while remaining well below the scale at which fitness authority dilutes — creating the ideal balance of reach and genuine community trust.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's data for mid-tier fitness creators is strong. TikTok mid-tier fitness creators (100K–250K) achieve a median engagement of 3.01% and an average of 381,859 views per post — solid reach figures with genuine fitness community engagement. Instagram mid-tier fitness creators deliver an impressive average engagement rate of 14.10% and an average of 201,429 views per post — the Instagram average engagement figure being among the highest of any Instagram tier-category combination in our database.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier fitness creators are typically full-time creators who have invested in professional content production — high-quality video, consistent training documentation, and systematic audience relationship management. This professionalism translates directly into brand partnership reliability: they deliver on briefs, meet posting deadlines, handle disclosure appropriately, and produce content that meets brand quality standards consistently.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Mid-Tier Fitness Creator Data (100K–250K)',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'TikTok Mid-Tier Fitness', 'Instagram Mid-Tier Fitness'],
+        rows: [
+          ['Verified creators', '30', '19'],
+          ['Median engagement rate', '3.01%', '0.60%'],
+          ['Average engagement rate', '17.18%', '14.10%'],
+          ['Average views per post', '381,859', '201,429'],
+          ['Typical posting frequency', '4–7x/week', '7–14x/week (multi-format)'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The Instagram mid-tier fitness average engagement of 14.10% is exceptional — nearly four times the Instagram lifestyle average of 4.32% at the same follower tier. This reflects the intense audience engagement that fitness content generates among followers who are actively using the creator's training guidance, supplement recommendations, and workout advice in their daily fitness practice. Mid-tier fitness audiences on Instagram are not passive content consumers — they are active practitioners who treat creator recommendations as training investment guidance.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Mid-Tier Fitness Creators Across Sub-Niches',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The mid-tier is where fitness sub-niche specialisation reaches its commercial peak. At 100K–250K followers, fitness creators have built their audiences specifically around a defined training focus — and those audiences are self-selected practitioners of that discipline. This sub-niche precision is commercially critical for fitness brands whose products serve specific fitness activities.",
+      },
+      {
+        type: 'table',
+        headers: ['Fitness Sub-Niche', 'Mid-Tier Audience Profile', 'Best Brand Match'],
+        rows: [
+          ['Strength / powerlifting', 'Serious lifters, supplement buyers', 'Protein, creatine, gym equipment'],
+          ['Home fitness', 'Busy professionals, parents', 'Home equipment, convenience nutrition'],
+          ['Running / endurance', 'Active athletes, gear-focused', 'Running gear, electrolytes, recovery'],
+          ['Yoga / flexibility', 'Wellness-oriented, female-skewing', 'Yoga apparel, supplements, apps'],
+          ['HIIT / functional', 'Results-focused, broad demo', 'Pre-workout, activewear, all fitness'],
+          ['Bodybuilding', 'Physique-focused, supplement-heavy', 'Protein, supplements, gym clothing'],
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'Campaign Strategy for Mid-Tier Fitness Creators',
+      },
+      {
+        type: 'h3',
+        content: 'Core Campaign Partners',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier fitness creators are the ideal core partners for regular fitness brand campaigns. Their audience scale provides meaningful reach, their engagement quality drives genuine consideration, their professional operation makes them reliable deliverers, and their partnership costs allow brands to activate multiple creators simultaneously. A campaign using three to five mid-tier fitness creators across complementary sub-niches creates broad fitness community awareness while maintaining the sub-niche precision that conversion requires.",
+      },
+      {
+        type: 'h3',
+        content: 'January Campaign Anchors',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "January is the highest-value fitness campaign window, and mid-tier creators are its most important partners. Their audiences of 100,000–250,000 engaged fitness consumers represent the highest-intent fitness purchasing group during the January motivation peak. Booking mid-tier fitness creators for January campaigns requires confirming availability by October — they fill their most valuable posting windows in advance. A January campaign using four to six mid-tier fitness creators across TikTok and Instagram can reach 400,000–1,500,000 motivated fitness consumers during the single most commercially valuable fitness month.",
+      },
+      {
+        type: 'h3',
+        content: 'Ambassador Programme Partners',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier fitness creators are the optimal tier for long-term ambassador programmes. They are professional enough for reliable multi-month commitment, engaged enough with their audience for sustained social proof to build meaningfully, and cost-accessible enough that brands can sustain 6–12 month ambassador relationships without exhausting campaign budgets. The compounding trust effect of a mid-tier fitness creator consistently featuring your product over six months delivers purchase influence that no short-term campaign can replicate.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Mid-Tier Fitness Creator Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Platform', 'Single Post', '3-Post Package', 'Monthly Ambassador'],
+        rows: [
+          ['TikTok', '$500–$1,500', '$1,200–$3,800', '$1,500–$4,500/month'],
+          ['Instagram', '$600–$1,800', '$1,500–$4,500', '$1,800–$5,500/month'],
+          ['Both platforms', '$1,000–$3,000', '$2,500–$7,500', '$3,000–$9,000/month'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Exclusivity clauses — preventing the creator from endorsing competing fitness brands during the campaign period — are standard practice at mid-tier level, particularly for supplement and nutrition brands. Add 30–50% to base rates for exclusivity. For January campaigns, the competition for mid-tier fitness creators is high — premium booking rates apply for the highest-performing creators during this window. Usage rights for repurposing mid-tier fitness creator content in paid advertising add 25–40% to base rates and are typically worthwhile given the production quality mid-tier fitness creators deliver.",
+      },
+    ],
+  },
+
 };

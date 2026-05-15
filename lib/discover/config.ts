@@ -2363,6 +2363,90 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'tier-top-Wellness': [
+    {
+      question: 'What follower range counts as a top wellness influencer?',
+      answer:
+        "InfluenceIT defines top-tier wellness influencers as creators with 250,000 to 500,000 followers — the range where wellness authority combines with meaningful market scale. TikTok top wellness creators in our database achieve a median engagement of 4.00% and an average of 569,957 views per post. Instagram top wellness creators deliver an average engagement of 5.57% — more than double the Instagram lifestyle average — confirming that top-tier wellness audiences remain deeply invested in creator guidance despite their larger scale.",
+    },
+    {
+      question: 'Why are top-tier wellness creators worth the premium investment?',
+      answer:
+        "Top-tier wellness influencers deliver three distinct forms of value: direct audience reach at meaningful market scale (569,957 average TikTok views per post), industry authority that signals brand quality to supplement retailers, health publications, and wellness professionals beyond direct audience reach, and the compounding effect of long-term ambassador relationships that build sustained social proof impossible to replicate with short-term campaigns. Annual ambassador programmes with top-tier wellness creators consistently represent the highest ROI marketing investment for wellness brands with genuine product quality.",
+    },
+    {
+      question: 'How much do top wellness influencers charge for brand partnerships?',
+      answer:
+        "Top-tier wellness influencers with 250,000–500,000 followers typically charge $1,200–$3,500 per TikTok post and $1,800–$5,500 per Instagram post. Three-post packages range from $3,000–$8,500 on TikTok and $4,500–$13,000 on Instagram. Monthly ambassador programmes range from $3,500–$10,000 on TikTok and $5,500–$16,000 on Instagram. Exclusivity clauses add 30–50% to base rates — standard for supplement and health product brands.",
+    },
+    {
+      question: 'What campaign structure works best with top-tier wellness influencers?',
+      answer:
+        "Long-term ambassador programmes deliver the highest ROI at the top tier — 12-month programmes build the sustained narrative of genuine product integration that no short-term campaign can replicate. For product launches, two to three top-tier wellness creators posting within the same week creates meaningful category awareness with combined audiences of 500K–1.5M engaged wellness consumers. Multi-platform partnerships covering TikTok and Instagram simultaneously are particularly valuable at this tier, as many top wellness creators maintain engaged audiences on both platforms.",
+    },
+    {
+      question: 'How do I evaluate a top-tier wellness influencer before partnering?',
+      answer:
+        "Verify TikTok engagement against InfluenceIT's 4.00% median benchmark and Instagram engagement against the 5.57% average. Check content accuracy and scientific credibility — wellness audiences hold brands accountable for inaccurate health claims made by their creator partners. Review long-term content history for evidence of genuine wellness practice rather than commercial posting. Assess existing brand partnership quality for authentic integration. Check for existing exclusivity conflicts in your product category. InfluenceIT provides verified engagement from each creator's 15 most recent posts.",
+    },
+  ],
+
+  'tier-top-Lifestyle': [
+    {
+      question: 'What follower range counts as a top lifestyle influencer?',
+      answer:
+        "InfluenceIT defines top-tier lifestyle influencers as creators with 250,000 to 500,000 followers — the range combining aspirational scale with maintained audience engagement. TikTok top lifestyle creators in our database deliver a median engagement of 5.03% and an extraordinary average of 714,401 views per post — the highest average views of any category tier in InfluenceIT's database. With 257 verified TikTok and 74 Instagram creators in this bracket, the pool is the largest top-tier category in our database.",
+    },
+    {
+      question: 'Why do TikTok top lifestyle influencers have the highest average views in our database?',
+      answer:
+        "TikTok top lifestyle creators achieve 714,401 average views per post — the highest of any category tier in InfluenceIT's database — because lifestyle content combines universal relevance with TikTok's most active algorithmic distribution. Daily life, home, food, and routine content resonates across every demographic simultaneously, and TikTok's algorithm actively serves this content to users across all interest categories. At top-tier scale (250K–500K followers), the combination of established audience base and broad algorithmic distribution creates exceptional reach per post.",
+    },
+    {
+      question: 'How much do top lifestyle influencers charge for brand partnerships?',
+      answer:
+        "Top-tier lifestyle influencers with 250,000–500,000 followers typically charge $1,100–$3,000 per TikTok post and $1,500–$4,500 per Instagram post. Three-post packages range from $2,800–$7,500 on TikTok and $3,800–$11,000 on Instagram. Monthly ambassador programmes range from $3,200–$9,000 per month on TikTok and $4,500–$13,000 on Instagram. At these rates, TikTok top lifestyle partnerships deliver costs well below $0.01 per genuine view — exceptional value compared to equivalent paid advertising.",
+    },
+    {
+      question: 'What brands benefit most from top-tier lifestyle influencer partnerships?',
+      answer:
+        "Top-tier lifestyle creators are the most versatile top-tier partners — their content spans home, food, fashion, wellness, travel, and daily routines, making them relevant to a wider range of brand categories than any niche creator at equivalent scale. Brands seeking maximum awareness reach benefit most. Brands repositioning aesthetically or demographically benefit from the aspirational lifestyle association. Brands investing in premium content assets benefit from the editorial-quality content that top-tier lifestyle creators produce with appropriate usage rights.",
+    },
+    {
+      question: 'How do I find the right top-tier lifestyle influencer for my brand?',
+      answer:
+        "Verify TikTok engagement against InfluenceIT's 5.03% median benchmark and Instagram engagement against the 3.12% average. Confirm aesthetic alignment across the last 30 posts — top-tier lifestyle creators have established visual identities that brands inherit through association. Review existing brand partnerships for quality of integration and category fit. Assess audience demographic data for geographic and age alignment with your target market. InfluenceIT provides verified engagement from each creator's 15 most recent posts across 331 verified top-tier lifestyle creators.",
+    },
+  ],
+
+  'tier-mid-tier-Fitness': [
+    {
+      question: 'What follower range counts as a mid-tier fitness creator?',
+      answer:
+        "InfluenceIT defines mid-tier fitness creators as those with 100,000 to 250,000 followers — the sweet spot where fitness authority meets reliable market reach. TikTok mid-tier fitness creators in our database achieve a median engagement of 3.01% and an average of 381,859 views per post. Instagram mid-tier fitness creators deliver an exceptional average engagement rate of 14.10% — nearly four times the Instagram lifestyle average — reflecting the intense audience investment in fitness creator guidance among followers at this scale.",
+    },
+    {
+      question: 'Why are mid-tier fitness creators the most reliable campaign partners?',
+      answer:
+        "Mid-tier fitness creators (100K–250K) are typically full-time creators who have invested in professional production, systematic audience management, and reliable campaign execution. They understand FTC disclosure requirements, meet posting deadlines, and deliver content that consistently meets brand quality standards. The Instagram average engagement of 14.10% across our verified mid-tier fitness creators confirms that audiences at this scale remain deeply invested in creator training guidance — driving the genuine purchase intent that makes mid-tier fitness partnerships commercially effective.",
+    },
+    {
+      question: 'How much do mid-tier fitness creators charge for brand partnerships?',
+      answer:
+        "Mid-tier fitness creators with 100,000–250,000 followers typically charge $500–$1,500 per TikTok post and $600–$1,800 per Instagram post. Three-post packages range from $1,200–$3,800 on TikTok and $1,500–$4,500 on Instagram. Monthly ambassador programmes range from $1,500–$4,500 per month on TikTok and $1,800–$5,500 on Instagram. Exclusivity clauses add 30–50% to base rates — standard practice for supplement and nutrition brands.",
+    },
+    {
+      question: 'What campaign structures work best with mid-tier fitness creators?',
+      answer:
+        "Three to five mid-tier fitness creators across complementary sub-niches create the optimal launch campaign structure — broad fitness community awareness with sub-niche precision. Long-term ambassador programmes with two to three mid-tier creators consistently outperform equivalent spend on multiple shorter campaigns. January campaigns anchored by mid-tier fitness creators require October booking — they fill their highest-value posting windows well in advance. Multi-platform packages covering both TikTok and Instagram are particularly efficient at mid-tier scale.",
+    },
+    {
+      question: 'How important is fitness sub-niche alignment with mid-tier creators?',
+      answer:
+        "Sub-niche alignment is critical at every tier but most commercially impactful at mid-tier scale. Mid-tier fitness creators have built audiences precisely around a specific training focus — strength, yoga, HIIT, running, or home fitness — and those audiences are self-selected practitioners of that discipline. A supplement brand targeting strength training audiences partnering with a yoga creator wastes the majority of the partnership's commercial potential. Always match product use case to creator sub-niche before evaluating any other selection metric. InfluenceIT provides verified engagement from each creator's 15 most recent posts.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
