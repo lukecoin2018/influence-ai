@@ -2587,6 +2587,174 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'location-tiktok-the United Kingdom': [
+    {
+      question: 'How many TikTok creators in the UK are on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes 23 verified UK-based TikTok creators in the 50,000–500,000 follower range — a growing pool delivering exceptional performance metrics. UK TikTok creators achieve a median engagement rate of 9.65% and an extraordinary average of 939,754 views per post — the highest average views per post of any national location in our database. All metrics are calculated from each creator's 15 most recent posts.",
+    },
+    {
+      question: "Why do UK TikTok creators have the highest average views in InfluenceIT's database?",
+      answer:
+        "UK TikTok creators achieve 939,754 average views per post — the highest national average in our database — because British English-language content distributes organically across all major English-speaking TikTok markets simultaneously. US, Australian, Canadian, and Irish audiences receive UK content through TikTok's shared language distribution, giving UK creators a multi-market reach multiplier that amplifies their content well beyond the UK's domestic audience. Combined with the authenticity and wit of British content style, UK TikTok posts consistently generate above-average algorithmic amplification.",
+    },
+    {
+      question: 'What ASA disclosure rules apply to UK TikTok creator campaigns?',
+      answer:
+        "All paid UK TikTok creator partnerships must comply with ASA (Advertising Standards Authority) requirements. Creators must label sponsored content with #ad in a clear, immediately visible position at the start of captions — not buried in hashtags. The ASA requires disclosure to be upfront and prominent. UK creators are generally familiar with ASA guidelines. Include disclosure requirements explicitly in your brief and review content before posting to confirm compliance.",
+    },
+    {
+      question: 'How much do UK TikTok creators charge for brand partnerships?',
+      answer:
+        "UK TikTok creators in the mid-tier range (50,000–500,000 followers) typically charge £150–£4,500 per post depending on follower count. Creators with 50K–100K followers charge £150–£500, while those with 250K–500K followers charge £1,500–£4,500. The exceptional average views per post (939,754) makes UK TikTok partnerships among the most cost-efficient reach investments available — cost-per-view figures are remarkably competitive relative to partnership investment.",
+    },
+    {
+      question: 'Why should brands partner with UK TikTok creators specifically?',
+      answer:
+        "UK TikTok creators provide three advantages no other market matches: multi-market English-language reach (UK content distributes across US, Australia, Canada, and Ireland organically), a distinctive authentic British content style that resonates with audiences resistant to over-produced or overly enthusiastic content, and strong creator professionalism with established ASA compliance experience. For brands targeting pan-English-speaking audiences, UK TikTok creator partnerships deliver the broadest geographic reach per investment of any single market.",
+    },
+  ],
+
+  'location-tiktok-Spain': [
+    {
+      question: 'How many TikTok creators in Spain are on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes 23 verified Spain-based TikTok creators in the 50,000–500,000 follower range, with a median engagement rate of 6.01% and an average of 475,487 views per post. Our Spanish TikTok creator database is actively growing as we expand coverage across Madrid, Barcelona, and regional Spanish creator communities. All metrics are calculated from each creator's 15 most recent posts.",
+    },
+    {
+      question: 'Why should brands partner with Spanish TikTok creators?',
+      answer:
+        "Spanish TikTok creators provide access to Spain's 47 million consumers while simultaneously reaching Spanish-speaking audiences across Latin America, the US Hispanic market, and 500+ million Spanish speakers globally through TikTok's shared language distribution. Spain is TikTok's most important continental European market for Spanish-language content, and Spanish creators set the aesthetic and content trends that influence TikTok in the Spanish-speaking world. For brands seeking Spanish-language market presence, Spanish creators deliver exceptional multi-market reach efficiency.",
+    },
+    {
+      question: 'How much do Spanish TikTok creators charge for brand partnerships?',
+      answer:
+        "Spanish TikTok creators in the mid-tier range typically charge €120–€3,500 per post. Creators with 50K–100K followers charge €120–€400, while those with 250K–500K followers charge €1,200–€3,500. Spanish creator rates are typically lower than equivalent US or UK creator rates, reflecting the market's commercial development stage while delivering comparable or superior engagement metrics — making Spanish partnerships among the best value-for-reach investments in European creator marketing.",
+    },
+    {
+      question: 'What categories perform best with Spanish TikTok creators?',
+      answer:
+        "Fashion, beauty, food, and lifestyle are the strongest performing creator categories in Spain's TikTok creator community. Spanish creators in these categories deliver content that resonates both domestically and across Latin American markets. Food and culinary content benefits particularly from Spain's extraordinary gastronomic culture. Fashion content benefits from Spain's strong retail fashion heritage. Beauty content has a thriving creator community producing content that performs well across both European and Latin American audiences.",
+    },
+    {
+      question: 'How do Spanish TikTok creator campaigns reach Latin American markets?',
+      answer:
+        "Spanish TikTok content distributes organically to Latin American audiences through TikTok's shared language and cultural interest signals. Spanish creators' content appears naturally in feeds of Mexican, Colombian, Argentinian, and broader Latin American users who engage with Spanish-language content — without additional targeting or budget. For brands with pan-Spanish-speaking market objectives, a single Spanish creator partnership can deliver meaningful reach across multiple Latin American markets simultaneously.",
+    },
+  ],
+
+  'location-tiktok-Colombia': [
+    {
+      question: 'How many TikTok creators in Colombia are on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes 14 verified Colombia-based TikTok creators in the 50,000–500,000 follower range, with a median engagement rate of 7.01% and an average of 382,070 views per post. Our Colombian TikTok creator database is growing rapidly as we expand coverage across Bogotá, Medellín, and Cali creator communities. All metrics are calculated from each creator's 15 most recent posts.",
+    },
+    {
+      question: 'Why is the engagement rate so high for Colombian TikTok creators?',
+      answer:
+        "Colombian TikTok creators achieve a 7.01% median engagement rate — among the highest national medians in InfluenceIT's database — because Colombian social media culture is characterised by warm, participatory community engagement. Colombian audiences form deeply loyal followings around creators they connect with, generating comment sections that function as genuine community conversations. This participatory culture drives interaction rates that most other markets cannot approach, making Colombian creator partnerships commercially effective per viewer reached.",
+    },
+    {
+      question: 'How much do Colombian TikTok creators charge for brand partnerships?',
+      answer:
+        "Colombian TikTok creators in the mid-tier range typically charge $80–$2,000 per post (USD) depending on follower count. Creators with 50K–100K followers charge $80–$250, while those with 250K–500K followers charge $700–$2,000. Colombian creator rates represent excellent value relative to the engagement they deliver — the 7.01% median engagement at these investment levels makes Colombian partnerships among the most cost-efficient in Latin American creator marketing.",
+    },
+    {
+      question: 'Which markets can Colombian TikTok creators reach?',
+      answer:
+        "Colombian TikTok content distributes organically across Spanish-speaking Latin American markets — Venezuela, Ecuador, Peru, and broader Andean markets naturally through shared language and cultural affinity. Many Colombian creators also have significant US Hispanic audience reach, particularly among Colombian-American communities. Colombia's growing cultural influence in fashion, beauty, and entertainment means Colombian creator content increasingly reaches broader international audiences beyond Spanish-speaking markets.",
+    },
+    {
+      question: 'What makes Colombian creators valuable for Latin American market entry?',
+      answer:
+        "Colombian creators provide authentic cultural entry into Latin American markets at more accessible investment levels than equivalent Mexican or Brazilian creator pools. Colombia's creator economy is in a high-growth phase — brands that build Colombian creator relationships now establish first-mover advantage and genuine cultural credibility in a market rapidly increasing in commercial value. Colombian creator content carries authentic Latin American cultural legitimacy that adapted international content cannot replicate.",
+    },
+  ],
+
+  'location-tiktok-Mexico': [
+    {
+      question: 'How many TikTok creators in Mexico are on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes 11 verified Mexico-based TikTok creators in the 50,000–500,000 follower range, with a median engagement rate of 9.08% — one of the highest national medians in our location database. Our Mexican TikTok creator database is growing rapidly as we expand coverage across Mexico City, Guadalajara, and Monterrey creator communities.",
+    },
+    {
+      question: 'Why are Mexican TikTok creators important for US brands?',
+      answer:
+        "Many Mexican TikTok creators have substantial followings among the 62 million Hispanic Americans in the United States — making a single Mexican creator partnership capable of delivering meaningful reach in both the Mexican domestic market and the US Hispanic market simultaneously. Mexican content also distributes naturally across broader Latin American markets through shared language signals. For US brands targeting Hispanic demographics, Mexican creator partnerships provide the most authentic and geographically efficient reach available.",
+    },
+    {
+      question: 'How much do Mexican TikTok creators charge?',
+      answer:
+        "Mexican TikTok creators typically charge $80–$2,200 per post (USD) depending on follower count. Creators with 50K–100K followers charge $80–$250, while those with 250K–500K followers charge $750–$2,200. Mexican creator rates represent excellent value relative to their multi-market reach potential — domestic Mexican reach plus US Hispanic distribution plus broader Latin American distribution makes Mexican partnerships highly cost-efficient for brands with pan-Spanish-speaking objectives.",
+    },
+    {
+      question: 'What categories are strongest for Mexican TikTok creator partnerships?',
+      answer:
+        "Food and culinary content is Mexico's strongest creator category — reflecting the country's extraordinary culinary heritage and the global appeal of Mexican food culture. Fashion and beauty are strong second and third categories. Lifestyle and entertainment content benefits from Mexico's rich cultural diversity. For food brands particularly, Mexican TikTok creators provide authentic cultural context for culinary content that resonates across Latin America and with Hispanic audiences in the US.",
+    },
+    {
+      question: 'How do Mexican TikTok creators connect to Latin American markets?',
+      answer:
+        "Mexican TikTok content distributes organically to Colombian, Argentinian, Spanish, and Central American audiences through TikTok's shared language distribution. Mexico's cultural influence — through music, food, television, and social media — means Mexican content resonates naturally across the Spanish-speaking world in ways that other national creator communities cannot replicate. For brands seeking the broadest pan-Latin American Spanish-language reach from a single country's creator pool, Mexico offers the largest and most culturally influential creator base.",
+    },
+  ],
+
+  'location-tiktok-Brazil': [
+    {
+      question: 'How many TikTok creators in Brazil are on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes 12 verified Brazil-based TikTok creators in the 50,000–500,000 follower range, with a median engagement rate of 16.96% — one of the highest national medians in our database. Our Brazilian TikTok creator database is growing rapidly as we expand coverage across São Paulo, Rio de Janeiro, and regional Brazilian creator communities.",
+    },
+    {
+      question: 'Why do Brazilian TikTok creators have such high engagement rates?',
+      answer:
+        "Brazilian TikTok creators achieve a 16.96% median engagement rate because Brazilian social media culture is characterised by extraordinary community participation. Brazilian audiences invest genuinely in the creators they follow — commenting actively, sharing enthusiastically, and treating creator communities as genuine social spaces. Brazil consistently ranks among the world's highest social media engagement markets, and TikTok's interactive format is particularly well-suited to Brazilian digital culture.",
+    },
+    {
+      question: 'How much do Brazilian TikTok creators charge for brand partnerships?',
+      answer:
+        "Brazilian TikTok creator rates range from approximately R$600–R$15,000 per post (BRL) depending on follower count, equivalent to roughly $110–$2,700 USD. Creator rates reflect a market where the creator economy is maturing rapidly. The 16.96% median engagement means brands achieve extraordinary per-viewer interaction at investment levels significantly below equivalent US or European markets — making Brazilian partnerships exceptionally cost-efficient for brands prioritising engagement depth.",
+    },
+    {
+      question: 'Why is creator marketing particularly important for brands entering Brazil?',
+      answer:
+        "For brands entering Brazil, creator partnerships are the primary discovery channel for how young Brazilian consumers find new brands. Traditional advertising reaches Brazilian consumers with lower effectiveness than most developed markets; TikTok and Instagram creator content is where Brazilian brand discovery happens. Brazilian audiences are highly resistant to content that feels internationally adapted rather than authentically Brazilian — genuine Brazilian creator partnerships provide cultural credibility that dubbed or translated content cannot replicate.",
+    },
+    {
+      question: 'What makes Brazilian Portuguese important for creator content?',
+      answer:
+        "Brazilian Portuguese is linguistically and culturally distinct from European Portuguese — vocabulary, accent, cultural references, and humour differ significantly. Brazilian TikTok audiences detect non-native Brazilian content immediately and engage with it at substantially lower rates than authentic Brazilian creator content. For brands targeting Brazilian consumers, partnering with Brazilian creators who produce content in natural Brazilian Portuguese is essential for achieving the engagement rates that make creator marketing in Brazil so commercially compelling.",
+    },
+  ],
+
+  'location-instagram-Spain': [
+    {
+      question: 'How many Instagram creators in Spain are on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes 13 verified Spain-based Instagram creators in the 50,000–500,000 follower range, with an average engagement rate of 1.28%. Our Spanish Instagram creator database is actively growing. All metrics are calculated from each creator's 15 most recent posts.",
+    },
+    {
+      question: 'What makes Spanish Instagram creators valuable for brand partnerships?',
+      answer:
+        "Spanish Instagram creators provide access to Spain's premium Instagram audience — fashion-conscious, brand-aware, and engaged with aspirational lifestyle content — while simultaneously reaching Spanish-language audiences across Latin America through Instagram's shared language distribution. Spain's strong fashion, beauty, and travel creator tradition produces high-quality visual content that performs well both domestically and internationally. For brands targeting both European and Latin American Spanish-language markets, Spanish Instagram creators deliver exceptional geographic reach efficiency.",
+    },
+    {
+      question: 'How does partnering with Spanish Instagram creators compare to TikTok?',
+      answer:
+        "Spanish TikTok creators deliver higher engagement rates (6.01% median vs 0.28%) and greater reach per post (475,487 vs estimated 40–80K). Spanish Instagram creators deliver premium visual brand positioning, content longevity of months to years, native shopping integration, and better reach into the 30–50 demographic with higher purchasing power. Most brands benefit from both: TikTok for discovery and viral reach, Instagram for premium brand positioning and conversion among established Spanish consumers.",
+    },
+    {
+      question: 'How much do Spanish Instagram creators charge for brand partnerships?',
+      answer:
+        "Spanish Instagram creators in the mid-tier range typically charge €150–€4,500 per post depending on follower count and format. Multi-format packages including Reels, Stories, and feed posts range from €400 to €11,000. Spanish Instagram creator rates are competitive with broader European market rates while providing Spanish-language multi-market reach that creates exceptional geographic efficiency for brands with pan-Spanish-speaking objectives.",
+    },
+    {
+      question: 'Which categories are strongest for Spanish Instagram creator partnerships?',
+      answer:
+        "Fashion, beauty, travel, and food are the strongest Instagram creator categories in Spain — reflecting both Spain's cultural strengths and the visual formats these categories suit best on Instagram. Spanish fashion creators have strong appeal in both European and Latin American markets. Spanish food and travel creators benefit from the country's exceptional culinary and tourism assets. Beauty creators serve both domestic Spanish audiences and Spanish-language audiences internationally through shared language distribution.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
