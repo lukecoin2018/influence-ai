@@ -2279,6 +2279,90 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'tier-mid-tier-Wellness': [
+    {
+      question: 'What follower range counts as a mid-tier wellness creator?',
+      answer:
+        "InfluenceIT defines mid-tier wellness creators as those with 100,000 to 250,000 followers — the range where wellness authority and commercial scale coexist most effectively. TikTok mid-tier wellness creators in our database achieve a median engagement of 5.64% and an average of 549,928 views per post. Instagram mid-tier wellness creators deliver an exceptional average engagement of 17.73% — the highest average of any Instagram tier-category combination in our database — confirming that mid-tier wellness audiences are among the most commercially invested on the platform.",
+    },
+    {
+      question: 'Why do mid-tier wellness creators outperform larger wellness accounts?',
+      answer:
+        "Mid-tier wellness creators (100K–250K) maintain established wellness authority while preserving the personal audience relationship that larger accounts inevitably lose. Their 100,000+ follower base confirms proven content quality and sustained audience loyalty, while their community size remains personal enough for genuine interaction. The 17.73% average Instagram engagement across our verified mid-tier wellness creators — more than four times the platform lifestyle average — confirms that audiences at this scale remain deeply invested in creator guidance in ways that macro account audiences do not.",
+    },
+    {
+      question: 'How much do mid-tier wellness creators charge for brand partnerships?',
+      answer:
+        "Mid-tier wellness creators with 100,000–250,000 followers typically charge $450–$1,200 per TikTok post and $600–$1,800 per Instagram post. Three-post packages range from $1,100–$3,000 on TikTok and $1,500–$4,500 on Instagram. Monthly ambassador programmes range from $1,400–$3,500 per month on TikTok and $1,800–$5,500 on Instagram. Budget for four to six weeks minimum product trial time for supplements and health products before the posting date.",
+    },
+    {
+      question: 'What campaign structures work best with mid-tier wellness creators?',
+      answer:
+        "Long-term ambassador programmes deliver the highest ROI with mid-tier wellness creators — six-month programmes consistently outperform equivalent spend on multiple shorter campaigns. For product launches, three to five mid-tier wellness creators posting within the same week create meaningful category awareness with combined audiences of 300K–1.25M engaged wellness consumers. Mid-tier wellness creators are also ideal as anchor partners in hybrid campaigns combining their established authority with micro creator niche targeting.",
+    },
+    {
+      question: 'How do I evaluate a mid-tier wellness creator before partnering?',
+      answer:
+        "Verify TikTok engagement against the 5.64% median benchmark and Instagram engagement against the 17.73% average benchmark from InfluenceIT's mid-tier wellness data. Check content accuracy — wellness audiences fact-check health claims and hold brands accountable for inaccuracies. Assess whether existing brand integrations feel like genuine wellness practice or staged endorsement. Review posting consistency over 30 days. Look for creators with documented expertise in the specific wellness domain relevant to your product. InfluenceIT provides verified engagement from each creator's 15 most recent posts.",
+    },
+  ],
+
+  'tier-mid-tier-Lifestyle': [
+    {
+      question: 'What follower range counts as a mid-tier lifestyle creator?',
+      answer:
+        "InfluenceIT defines mid-tier lifestyle creators as those with 100,000 to 250,000 followers. TikTok mid-tier lifestyle creators in our database achieve a median engagement rate of 10.20% and an average of 518,686 views per post — the highest TikTok mid-tier median of any category in our database. With 397 verified TikTok and 175 Instagram creators in this bracket, the mid-tier lifestyle pool is the largest in InfluenceIT's database, giving brands substantial choice across aesthetics, demographics, and geographic markets.",
+    },
+    {
+      question: 'Why are mid-tier lifestyle creators the most versatile brand partners?',
+      answer:
+        "Mid-tier lifestyle creators span home, food, fashion, wellness, travel, and daily routines in their content — making them the only creator category where a single partnership can deliver contextually relevant brand integration across multiple product categories simultaneously. Their audience opted in for life breadth rather than niche depth, which means diverse product integration feels natural rather than commercial. A mid-tier lifestyle creator can authentically feature a beauty product, food brand, home product, and wellness supplement within the same month without audience mismatch.",
+    },
+    {
+      question: 'How much do mid-tier lifestyle creators charge for brand partnerships?',
+      answer:
+        "Mid-tier lifestyle creators with 100,000–250,000 followers typically charge $450–$1,100 per TikTok post and $600–$1,500 per Instagram post. Three-post packages range from $1,100–$2,800 on TikTok and $1,500–$3,800 on Instagram. Monthly ambassador programmes range from $1,400–$3,200 per month on TikTok and $1,800–$4,500 on Instagram. Lifestyle rates are typically slightly lower than equivalent niche creators, reflecting the category's multi-brand integration norms.",
+    },
+    {
+      question: 'What campaign structures work best with mid-tier lifestyle creators?',
+      answer:
+        "Mid-tier lifestyle creators work best as anchor partners in hybrid campaigns: two to three mid-tier lifestyle creators provide broad reach and contextual versatility while four to six niche micro creators provide targeted community penetration. For seasonal campaigns, secure mid-tier lifestyle creators six to eight weeks ahead — they plan around seasonal content moments in advance. Long-term ambassador relationships are particularly effective because lifestyle content breadth provides multiple natural integration moments throughout the year without category fatigue.",
+    },
+    {
+      question: 'How do I find the right mid-tier lifestyle creator for my brand?',
+      answer:
+        "Look for lifestyle creators whose daily life context aligns naturally with your product's use case and aesthetic positioning. Verify TikTok engagement against the 10.20% median benchmark and Instagram engagement against the 4.32% average from InfluenceIT's mid-tier lifestyle data. Check that existing brand integrations feel natural within the creator's life content rather than visibly promotional. Assess aesthetic consistency over the last 30 posts. InfluenceIT provides verified engagement from each creator's 15 most recent posts across 572 verified mid-tier lifestyle creators.",
+    },
+  ],
+
+  'usecase-UGC & Brand Content': [
+    {
+      question: 'What is UGC creator content and how does it differ from influencer marketing?',
+      answer:
+        "UGC (user-generated content) creator partnerships produce authentic-feeling brand content that looks like real social media rather than advertising. Standard influencer partnerships involve a creator posting to their own audience for organic reach and social proof. Pure UGC arrangements involve a creator producing authentic-feeling content exclusively for the brand's paid advertising, owned channels, and marketing materials — without posting to their own audience. The brand pays for production skills and authentic aesthetic rather than audience reach. Both approaches generate content that outperforms brand-produced creative in paid advertising.",
+    },
+    {
+      question: 'Why does UGC perform better than brand-produced content in advertising?',
+      answer:
+        "UGC-style content outperforms brand-produced advertising because TikTok and Meta algorithms favour organic-looking content, audiences trust peer-feeling content over polished advertising, and UGC format matches the aesthetic of the organic feed content audiences choose to engage with. Across InfluenceIT's database of 2,133 creators who produce brand-integrated content, the cross-platform median engagement rate is 3.31% — confirming genuine audience engagement rather than passive viewership. This engagement quality is what makes UGC creator content convert better than agency-produced creative.",
+    },
+    {
+      question: 'How much does UGC creator content cost?',
+      answer:
+        "Pure UGC content (for brand use only, without creator posting to their audience) typically costs $100–$600 per video depending on creator quality and content complexity. Content libraries (5–8 variations from a single creator session) range from $400–$1,500. Monthly retainers covering four videos range from $500–$2,000. These rates are significantly lower than organic influencer post rates because the creator is providing production only rather than audience distribution. The most cost-efficient approach: negotiate usage rights on organic influencer posts to run the best performers as paid advertising.",
+    },
+    {
+      question: 'What makes a good UGC creator for brand content campaigns?',
+      answer:
+        "For pure UGC programmes, prioritise production quality and authentic aesthetic over follower count — the creator's audience size is irrelevant when the brand provides distribution. Select creators whose filming environment, personal style, and content aesthetic match the real-life context where your product is used. A skincare brand needs creators whose home environment looks like their target customer's bathroom; a fitness brand needs creators who film in genuine training environments. InfluenceIT's database of 2,000+ verified creators spans all lifestyle contexts and aesthetics.",
+    },
+    {
+      question: 'How should brands structure UGC content licensing agreements?',
+      answer:
+        "Standard UGC licences cover 6–12 months of use across brand-owned social channels and paid advertising. Longer durations, broadcast use, and out-of-home advertising require premium licensing fees. For pure UGC arrangements, category exclusivity during the content period (preventing the creator from producing content for competing brands) is standard practice. For organic influencer partnerships with usage rights, negotiate upfront before posting — post-campaign usage rights renegotiation is significantly more expensive and sometimes impossible if creators have since changed their rates or brand relationships.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {
