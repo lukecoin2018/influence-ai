@@ -7611,4 +7611,821 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'location-tiktok-France': {
+    heading: 'Top TikTok Creators in France: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: "Why French TikTok Creators Deliver Europe's Highest Reach Per Post",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "French TikTok creators achieve extraordinary performance metrics that make France one of the most commercially compelling creator markets in InfluenceIT's database. Our verified mid-tier French TikTok creators deliver a median engagement rate of 9.77% and an average of 1,598,251 views per post — the second highest average views per post of any national location in our database. French TikTok content achieves exceptional organic distribution through TikTok's algorithm, reflecting both the quality of French creator content and France's significant global cultural influence.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "France occupies a unique position in the creator economy: the country's global cultural authority in fashion, beauty, food, art, and lifestyle gives French creators a credibility premium that audiences worldwide associate with quality and sophistication. When French creators endorse a product, that endorsement carries an implicit association with French taste — an aspirational signifier that brands in premium categories leverage powerfully.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT France TikTok Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'France TikTok Creators'],
+        rows: [
+          ['Verified creators (50K–500K)', '9 (growing)'],
+          ['Median engagement rate', '9.77%'],
+          ['Average engagement rate', '69.52%'],
+          ['Average views per post', '1,598,251'],
+          ['Platform', 'TikTok'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The 1,598,251 average views per post makes French TikTok creators the second highest reach location in InfluenceIT's database. The 9.77% median engagement confirms genuine French audience investment in creator content. French TikTok has developed a distinctive content culture that blends French aesthetic sensibility with the platform's accessible, authentic format — creating content that resonates both domestically and internationally.",
+      },
+
+      {
+        type: 'h2',
+        content: "France's Global Cultural Authority as a Brand Asset",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For fashion, beauty, food, luxury, and lifestyle brands, being associated with French creator content carries a cultural endorsement that no other national creator market provides. French aesthetic authority — accumulated through centuries of excellence in fashion, cuisine, art, and savoir-vivre — transfers partially to brands featured in French creator content. This cultural association is commercially valuable in ways that raw engagement metrics cannot capture.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "French TikTok content distributes naturally across French-speaking markets — Belgium, Switzerland, Quebec, and French-speaking African markets — in addition to France's domestic audience of 68 million. For brands seeking Francophone market presence, French creator partnerships provide multi-market reach that individual country campaigns cannot efficiently replicate.",
+      },
+
+      {
+        type: 'h2',
+        content: 'France TikTok Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', '€150–€500', '€400–€1,200'],
+          ['100K–250K', '€500–€1,500', '€1,200–€3,800'],
+          ['250K–500K', '€1,500–€4,500', '€3,800–€11,000'],
+        ],
+      },
+    ],
+  },
+
+  'location-tiktok-Germany': {
+    heading: 'Top TikTok Creators in Germany: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why German TikTok Creators Deliver the Highest Average Views of Any Location',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "German TikTok creators achieve the most extraordinary reach metrics of any national location in InfluenceIT's database. Our verified mid-tier German TikTok creators deliver a median engagement rate of 22.20% and an average of 2,063,915 views per post — both the highest figures of any country in our location database. These exceptional numbers reflect the combination of Germany's large TikTok user base, the quality of German creator content, and the organic amplification that high-quality German content receives across both domestic and international European audiences.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Germany is Europe's largest economy and one of its most commercially important consumer markets. German TikTok creator partnerships provide brands with access to 84 million highly brand-literate consumers with above-average purchasing power, combined with reach into Austria, Switzerland, and German-speaking communities across Europe through shared language distribution.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Our German TikTok creator database is actively growing. The current verified pool's exceptional performance data — 2M+ average views per post, 22% median engagement — reflects a creator community producing high-quality, resonant content that TikTok's algorithm actively amplifies to broad European audiences.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Germany TikTok Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Germany TikTok Creators'],
+        rows: [
+          ['Verified creators (50K–500K)', '7 (growing)'],
+          ['Median engagement rate', '22.20%'],
+          ['Average engagement rate', '57.72%'],
+          ['Average views per post', '2,063,915'],
+          ['Platform', 'TikTok'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The 2,063,915 average views per post is the highest of any national location in InfluenceIT's database — higher than the United States (398,247), United Kingdom (939,754), and all other tracked markets. The 22.20% median engagement further confirms exceptional German TikTok creator performance. These figures will become more statistically robust as we add more German creators to our database.",
+      },
+
+      {
+        type: 'h2',
+        content: 'What German TikTok Creators Offer That Other Markets Cannot',
+      },
+      {
+        type: 'h3',
+        content: 'The German Quality Signal',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "German creator content carries a quality and thoroughness signal that reflects German cultural values. German audiences expect accuracy, depth, and genuine product substance — which means German creators have developed content standards that attract highly engaged, quality-oriented audiences. For brands with genuinely strong products, German creator partnerships deliver audiences predisposed to evaluate quality carefully and reward it with loyalty.",
+      },
+      {
+        type: 'h3',
+        content: 'Sustainability and Values-Driven Purchasing',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "German consumers factor sustainability, ethical production, and social responsibility into purchasing decisions at higher rates than most European markets. German creator audiences actively consider these factors — making German partnerships particularly effective for brands with genuine sustainability credentials, and requiring brand briefs to avoid sustainability claims that cannot be substantiated.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Germany TikTok Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', '€150–€500', '€400–€1,200'],
+          ['100K–250K', '€500–€1,600', '€1,200–€4,000'],
+          ['250K–500K', '€1,600–€5,000', '€4,000–€12,000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "At an average of 2,063,915 views per post, German TikTok partnerships represent some of the most cost-efficient reach investments in European creator marketing. Cost-per-view figures at these view levels and investment amounts are remarkably competitive compared to paid advertising in Germany's highly competitive digital advertising market.",
+      },
+    ],
+  },
+
+  'location-tiktok-Japan': {
+    heading: 'Top TikTok Creators in Japan: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Japanese TikTok Creators Have the Highest Engagement Median in Our Database',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Japanese TikTok creators achieve extraordinary engagement rates that make Japan one of the most commercially distinctive creator markets in InfluenceIT's database. Our 9 verified mid-tier Japanese TikTok creators deliver a median engagement rate of 23.60% and an average of 782,717 views per post. The 23.60% median engagement is the highest national median in our location database — reflecting Japan's culture of genuine community participation around creator content and the uniquely dedicated fandoms that Japanese creators build.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Japan sits at the intersection of East Asian and global culture in ways that give Japanese creators disproportionate international influence. Japanese aesthetics — in beauty, fashion, food, and lifestyle — consistently drive global trends, with K-beauty and J-beauty innovations regularly shaping Western purchasing behaviour through creator content. Japanese TikTok creators are often the first to showcase techniques and products that later achieve mainstream global adoption.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Japan TikTok Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Japan TikTok Creators'],
+        rows: [
+          ['Verified creators (50K–500K)', '9 (growing)'],
+          ['Median engagement rate', '23.60%'],
+          ['Average engagement rate', '30.80%'],
+          ['Average views per post', '782,717'],
+          ['Platform', 'TikTok'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The 23.60% median engagement rate is the highest national median in InfluenceIT's database — significantly above Japan's reputation as a reserved market. Japanese TikTok communities form around shared passions with extraordinary depth of engagement, creating creator-audience relationships of exceptional commercial intensity. When Japanese TikTok communities discover and endorse a product, the adoption can be rapid and self-reinforcing.",
+      },
+
+      {
+        type: 'h2',
+        content: "Japan's Unique Role in Global Trend Creation",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Japan is one of the few markets where trends originate domestically and then travel globally — particularly in beauty, fashion, food, and technology. Japanese skincare routines, aesthetic movements (wabi-sabi, kawaii, minimalism), culinary innovations, and tech adoption patterns consistently influence Western markets six to eighteen months after their Japanese peak. For brands seeking early access to the trends that will shape global consumer behaviour, Japanese TikTok creator partnerships provide the earliest intelligence available.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Japanese TikTok content has strong reach into South Korean, Taiwanese, and Southeast Asian markets through East Asian cultural interest networks on the platform. For brands targeting pan-Asian market presence, Japanese creator partnerships provide a credibility anchor in the market with the highest global cultural authority in the region.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Japan TikTok Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', '¥25,000–¥80,000 / $165–$530', '¥65,000–¥200,000 / $430–$1,320'],
+          ['100K–250K', '¥80,000–¥250,000 / $530–$1,650', '¥200,000–¥625,000 / $1,320–$4,130'],
+          ['250K–500K', '¥250,000–¥750,000 / $1,650–$5,000', '¥625,000–¥1,875,000 / $4,130–$12,400'],
+        ],
+      },
+    ],
+  },
+
+  'location-tiktok-Canada': {
+    heading: 'Top TikTok Creators in Canada: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Canadian TikTok Creators Are the Most Underutilised English-Speaking Market',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Canada is consistently the most overlooked major English-speaking creator market. Canadian TikTok creators share language and platform accessibility with US creators but serve a distinct market with its own consumer culture, retail landscape, and regional identities. InfluenceIT's 12 verified mid-tier Canadian TikTok creators deliver a median engagement rate of 6.03% and an average of 541,043 views per post — strong performance that positions Canada as a commercially viable and underserved creator market.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Canadian TikTok content distributes naturally to US audiences through shared language and cultural proximity — many Canadian creators have significant US followings that extend their effective reach well beyond Canada's 40 million domestic consumers. For brands targeting North American audiences, Canadian creator partnerships often provide better cost efficiency than equivalent US creator investments while still reaching substantial US audiences organically.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Canada TikTok Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Canada TikTok Creators'],
+        rows: [
+          ['Verified creators (50K–500K)', '12 (growing)'],
+          ['Median engagement rate', '6.03%'],
+          ['Average engagement rate', '71.80%'],
+          ['Average views per post', '541,043'],
+          ['Platform', 'TikTok'],
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'What Makes Canadian TikTok Creators Distinctive',
+      },
+      {
+        type: 'h3',
+        content: 'Multicultural Audience Representation',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Canada's multicultural population has produced a creator community that genuinely reflects diverse demographics — South Asian, East Asian, Black, Indigenous, and European backgrounds all have strong representation in Canadian TikTok. For brands seeking authentic diverse representation, Canadian creators provide genuine cultural diversity rather than performative inclusion.",
+      },
+      {
+        type: 'h3',
+        content: 'Environmental and Outdoor Content',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Canada's extraordinary natural landscapes — from the Rockies to the Maritime coastlines to the boreal forest — give Canadian creators access to outdoor content backdrops of exceptional visual quality. For outdoor, adventure, sustainability, and nature-connected brands, Canadian creator content provides authenticity that urban-market creators cannot replicate.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Canada TikTok Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', 'CAD$180–$600 / USD$130–$445', 'CAD$450–$1,500 / USD$330–$1,110'],
+          ['100K–250K', 'CAD$600–$1,800 / USD$445–$1,330', 'CAD$1,500–$4,500 / USD$1,110–$3,330'],
+          ['250K–500K', 'CAD$1,800–$5,500 / USD$1,330–$4,070', 'CAD$4,500–$13,750 / USD$3,330–$10,175'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Canadian TikTok creator rates are typically 10–20% lower than equivalent US creator rates, reflecting the market's commercial development stage while delivering comparable performance metrics. For brands targeting North American audiences, Canadian partnerships provide strong value with both domestic Canadian reach and significant US audience spillover.",
+      },
+    ],
+  },
+
+  'location-tiktok-Peru': {
+    heading: 'Top TikTok Creators in Peru: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: "Why Peru Is One of TikTok's Most Exciting Emerging Creator Markets",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Peru has one of Latin America's most rapidly growing TikTok creator communities. InfluenceIT's 12 verified mid-tier Peruvian TikTok creators deliver an average of 281,172 views per post — solid reach figures from a market whose creator economy is in an early high-growth phase. Peru's young, digitally enthusiastic population has embraced TikTok with particular energy, building a creator community that is authentic, culturally distinctive, and rapidly growing in regional influence.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Peru occupies a strategically interesting position in Latin American creator marketing — it is a culturally distinct market with strong national identity (built around extraordinary cuisine, history, and regional cultural diversity) while simultaneously being deeply connected to broader Andean and Latin American cultural networks. Peruvian creator content travels naturally to Ecuador, Bolivia, and broader Spanish-speaking Latin American audiences through shared language and cultural affinity.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Peru TikTok Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Peru TikTok Creators'],
+        rows: [
+          ['Verified creators (50K–500K)', '12 (growing)'],
+          ['Median engagement rate', '1.72%'],
+          ['Average engagement rate', '8.42%'],
+          ['Average views per post', '281,172'],
+          ['Platform', 'TikTok'],
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: "Peru's Culinary and Cultural Assets for Creator Content",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Peru possesses one of the world's great culinary traditions — Lima has been named South America's best food destination for over a decade. Peruvian food creators have unique access to ingredients, techniques, and cultural contexts that generate international curiosity and engagement. For food brands seeking Latin American market entry with strong cultural storytelling, Peruvian creators provide narrative depth that few other Latin American markets can match.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Peru TikTok Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', '$60–$200', '$150–$500'],
+          ['100K–250K', '$200–$600', '$500–$1,500'],
+          ['250K–500K', '$600–$1,800', '$1,500–$4,500'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Peruvian TikTok creator rates represent some of the most cost-efficient partnerships available in Latin American creator marketing. Brands that invest early in Peruvian creator relationships build loyalty and first-mover advantage in a market rapidly growing in both creator quality and commercial value.",
+      },
+    ],
+  },
+
+  'location-tiktok-Chile': {
+    heading: 'Top TikTok Creators in Chile: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: "Why Chile Is Latin America's Premium Creator Market",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Chile is Latin America's most economically developed market and consistently ranks as the continent's highest-income consumer economy. InfluenceIT's verified mid-tier Chilean TikTok creators deliver an average of 428,264 views per post — strong reach figures from a market whose small but sophisticated creator community is growing rapidly. Chilean consumers are brand-aware, quality-conscious, and make purchasing decisions that reflect the country's higher-than-regional-average income levels.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Chile's creator community is concentrated primarily in Santiago but increasingly represents regional voices from Valparaíso, the wine regions, Patagonia, and the Atacama — giving Chilean creators access to some of the world's most spectacular natural backdrops for content production. This geographic diversity provides travel, outdoor, and lifestyle brands with authentic Chilean content contexts unavailable anywhere else.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Chile TikTok Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Chile TikTok Creators'],
+        rows: [
+          ['Verified creators (50K–500K)', '7 (growing)'],
+          ['Average views per post', '428,264'],
+          ['Platform', 'TikTok'],
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'The Southern Cone Market Gateway',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Chile's cultural and economic position as the leading country in South America's Southern Cone makes Chilean creators effective gateways to Argentina, Uruguay, and Paraguay. Chilean creator content distributes across the Southern Cone through shared cultural affinity and language patterns, enabling brands to reach multiple sophisticated South American markets through single-country investment.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Chile TikTok Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', 'CLP$60,000–$200,000 / $65–$215', '$165–$540'],
+          ['100K–250K', 'CLP$200,000–$600,000 / $215–$645', '$540–$1,615'],
+          ['250K–500K', 'CLP$600,000–$1,800,000 / $645–$1,935', '$1,615–$4,840'],
+        ],
+      },
+    ],
+  },
+
+  'location-tiktok-Australia': {
+    heading: 'Top TikTok Creators in Australia: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Australian TikTok Creators Punch Above Their Population Weight',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Australia's TikTok creator community is small relative to its population but globally influential. Australian creators produce English-language content that distributes naturally across the UK, US, Canada, and New Zealand through shared language networks — giving Australian TikTok partnerships a multi-market reach efficiency that significantly exceeds the domestic audience of 26 million. InfluenceIT's verified mid-tier Australian TikTok creators deliver an average of 207,295 views per post.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Australia's lifestyle aesthetic — outdoor living, beach culture, active wellness, and relaxed sophistication — has significant global appeal. Australian creators in fitness, outdoor, travel, food, and lifestyle categories have built international followings that extend well beyond domestic audiences, particularly resonating with audiences in Northern Hemisphere markets seeking aspirational outdoor and wellness content during their winter months.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Australia TikTok Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Australia TikTok Creators'],
+        rows: [
+          ['Verified creators (50K–500K)', '5 (growing)'],
+          ['Average views per post', '207,295'],
+          ['Platform', 'TikTok'],
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'Australian Creator Strengths for Brand Partnerships',
+      },
+      {
+        type: 'bullets',
+        items: [
+          "Outdoor and fitness content — Australia's climate and outdoor culture produce naturally compelling outdoor lifestyle and fitness content.",
+          "Food and culinary — Australia's multicultural food scene (influenced by Asian, Mediterranean, and Pacific cuisines) produces innovative culinary content with international appeal.",
+          "Travel — Australian travel creators have built international followings documenting both domestic destinations and international travel.",
+          "Sustainability — Australian consumers and creators have strong environmental awareness that resonates with global sustainability-oriented audiences.",
+          "Multi-market reach — Australian English-language content distributes to UK, US, Canada, and New Zealand audiences organically.",
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'Australia TikTok Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single TikTok Post', '3-Post Package'],
+        rows: [
+          ['50K–100K', 'AUD$225–$750 / USD$145–$480', 'AUD$565–$1,875 / USD$360–$1,200'],
+          ['100K–250K', 'AUD$750–$2,250 / USD$480–$1,440', 'AUD$1,875–$5,625 / USD$1,200–$3,600'],
+          ['250K–500K', 'AUD$2,250–$6,750 / USD$1,440–$4,320', 'AUD$5,625–$16,875 / USD$3,600–$10,800'],
+        ],
+      },
+    ],
+  },
+
+  'location-instagram-France': {
+    heading: 'Top Instagram Creators in France: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: "Why French Instagram Creators Carry the World's Most Aspirational Brand Association",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "France is the global capital of fashion, beauty, and lifestyle aspiration — and French Instagram creators carry the cultural authority of that positioning into every brand partnership. InfluenceIT's 9 verified mid-tier French Instagram creators deliver an average engagement rate of 0.93% with an above-average median of 0.69% — consistent Instagram performance from a market whose primary creator influence operates through aspirational association rather than engagement volume alone.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "French Instagram content is characterised by effortless elegance, understated luxury, and visual refinement that sets the aesthetic standard for premium brand associations globally. For fashion, beauty, food, luxury, and lifestyle brands, being featured in French creator content communicates European cultural credentials that no other national creator market can provide. Parisian aesthetics, French culinary authority, and French fashion credibility are globally recognised quality signals that transfer to brands through creator association.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT France Instagram Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'France Instagram', 'France TikTok'],
+        rows: [
+          ['Verified creators (50K–500K)', '9', '9'],
+          ['Average engagement rate', '0.93%', '69.52%'],
+          ['Median engagement rate', '0.69%', '9.77%'],
+          ['Avg views per post', '—', '1,598,251'],
+          ['Best for', 'Premium positioning, aspirational brand association', 'High reach, discovery'],
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'The French Creator Aesthetic Premium',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "French Instagram creators invest in a distinctive visual aesthetic — natural light, editorial composition, understated styling — that produces content of genuine aspirational quality. For brands where visual brand equity is strategically important, French Instagram creator content provides premium visual assets that serve both as genuine audience-facing content and as repurposable brand imagery for advertising and marketing materials.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "French creator content distributes naturally across French-speaking markets — Belgium, Switzerland, Quebec, and Francophone African markets — through Instagram's shared language distribution. For brands targeting multiple French-language markets simultaneously, French Instagram creator partnerships provide the most geographically efficient Francophone reach available.",
+      },
+
+      {
+        type: 'h2',
+        content: 'France Instagram Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Reel/Post', 'Multi-Format Package'],
+        rows: [
+          ['50K–100K', '€200–€600', '€500–€1,500'],
+          ['100K–250K', '€600–€1,800', '€1,500–€4,500'],
+          ['250K–500K', '€1,800–€5,500', '€4,500–€13,500'],
+        ],
+      },
+    ],
+  },
+
+  'location-instagram-Germany': {
+    heading: 'Top Instagram Creators in Germany: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: "Why German Instagram Creators Access Europe's Most Quality-Oriented Audience",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Germany is Europe's largest economy and one of its most commercially sophisticated consumer markets. InfluenceIT's 11 verified mid-tier German Instagram creators deliver an average engagement rate of 1.91% — above average for Instagram — with a median of 1.21%. German Instagram audiences apply high quality standards to both content and the brands it features, making Germany particularly valuable for brands with genuine product excellence and sustainability credentials.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "German Instagram content reflects the country's reputation for precision, quality, and substance. German creators have developed content formats that provide more detailed product information, more honest assessments, and more research-backed claims than most other European markets — which builds audience trust levels that translate into strong purchase conversion when content recommends genuinely good products.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Germany Instagram Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Germany Instagram', 'Germany TikTok'],
+        rows: [
+          ['Verified creators (50K–500K)', '11', '7'],
+          ['Average engagement rate', '1.91%', '57.72%'],
+          ['Median engagement rate', '1.21%', '22.20%'],
+          ['Avg views per post', '—', '2,063,915'],
+          ['Best for', 'Quality-conscious audience, conversion', 'Exceptional reach, discovery'],
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'Key Considerations for German Instagram Campaigns',
+      },
+      {
+        type: 'h3',
+        content: 'Sustainability and Ethics',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "German consumers factor environmental and social responsibility into purchasing decisions more actively than most European markets. German Instagram audiences expect creators to reflect these values — and they apply scrutiny to brand sustainability claims. Brands with genuine sustainability credentials should brief German creators to communicate these clearly; brands without genuine sustainability positioning should avoid the topic entirely to prevent German audience skepticism.",
+      },
+      {
+        type: 'h3',
+        content: 'Honest, Detailed Content',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "German Instagram audiences respond strongly to detailed, accurate product information. Long captions with specific product details, ingredient lists, or technical specifications consistently outperform short aspirational captions in Germany. Brief German creators to provide substantive product information rather than purely aesthetic content — German audiences reward creators who help them make informed decisions.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Germany Instagram Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Reel/Post', 'Multi-Format Package'],
+        rows: [
+          ['50K–100K', '€200–€650', '€500–€1,600'],
+          ['100K–250K', '€650–€2,000', '€1,600–€5,000'],
+          ['250K–500K', '€2,000–€6,000', '€5,000–€15,000'],
+        ],
+      },
+    ],
+  },
+
+  'location-instagram-Canada': {
+    heading: 'Top Instagram Creators in Canada: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: "Why Canadian Instagram Creators Are North America's Best-Value Partnership",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Canada is consistently overlooked in Instagram creator marketing despite offering exceptional commercial value. InfluenceIT's 6 verified mid-tier Canadian Instagram creators deliver an average engagement rate of 0.78% — with a median of 0.55% consistent with Instagram platform norms. Canadian Instagram content distributes naturally to US audiences through shared language and cultural proximity, giving Canadian creator partnerships multi-market reach at typically lower investment than equivalent US creators.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Canadian Instagram audiences reflect the country's multicultural character — diverse, environmentally conscious, and brand-aware in ways that make them particularly receptive to sustainability messaging, inclusive brand representation, and quality-oriented product positioning. For brands targeting progressive North American consumers, Canadian Instagram creators provide authentic alignment that US creators sometimes cannot deliver at equivalent authenticity levels.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Canada Instagram Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Canada Instagram'],
+        rows: [
+          ['Verified creators (50K–500K)', '6 (growing)'],
+          ['Average engagement rate', '0.78%'],
+          ['Median engagement rate', '0.55%'],
+          ['Platform', 'Instagram'],
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'What Makes Canadian Instagram Creators Valuable',
+      },
+      {
+        type: 'bullets',
+        items: [
+          "Bilingual reach — many Canadian creators produce content accessible to both English and French-speaking audiences, providing Quebec and Francophone market access alongside pan-Canadian English reach.",
+          "Outdoor and nature content — Canada's extraordinary natural landscapes provide content backdrops of genuine visual quality for outdoor, travel, and lifestyle brands.",
+          "Multicultural representation — Canada's diverse population creates genuine diversity representation in creator content rather than performative inclusion.",
+          "US market spillover — Canadian Instagram content reaches US audiences organically, providing additional North American reach beyond the domestic Canadian market.",
+          "Cost efficiency — Canadian creator rates are typically 10–20% lower than equivalent US creator rates with comparable content quality and audience purchasing power.",
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'Canada Instagram Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Reel/Post', 'Multi-Format Package'],
+        rows: [
+          ['50K–100K', 'CAD$250–$800 / USD$185–$590', 'CAD$625–$2,000 / USD$460–$1,480'],
+          ['100K–250K', 'CAD$800–$2,400 / USD$590–$1,775', 'CAD$2,000–$6,000 / USD$1,480–$4,440'],
+          ['250K–500K', 'CAD$2,400–$7,200 / USD$1,775–$5,330', 'CAD$6,000–$18,000 / USD$4,440–$13,320'],
+        ],
+      },
+    ],
+  },
+
+  'location-instagram-Colombia': {
+    heading: 'Top Instagram Creators in Colombia: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: "Why Colombian Instagram Creators Are Latin America's Rising Star",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Colombia has experienced one of Latin America's most rapid creator economy development trajectories, and Instagram remains an important platform for Colombian brand partnerships alongside TikTok's explosive growth. InfluenceIT's 8 verified mid-tier Colombian Instagram creators deliver engagement metrics reflecting the early stage of the market's commercial development, with the pool actively growing as Colombia's creator economy matures.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Colombia's young, brand-aware population has developed a sophisticated Instagram creator community with strong aesthetics in fashion, beauty, and lifestyle. Colombian Instagram creators bring a distinctive cultural warmth and visual confidence to their content — reflecting Colombia's growing influence in Latin American fashion and lifestyle trends. Medellín in particular has established itself as a design and creative capital whose creator community produces content of genuine international quality.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Colombia Instagram Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Colombia Instagram', 'Colombia TikTok'],
+        rows: [
+          ['Verified creators (50K–500K)', '8', '14'],
+          ['Average engagement rate', '0.39%', '15.00%'],
+          ['Median engagement rate', '0.06%', '7.01%'],
+          ['Best for', 'Visual brand positioning', 'High engagement, discovery'],
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'Colombian Instagram Content Strengths',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Colombia's fashion, beauty, and lifestyle creator community on Instagram is growing rapidly in both quality and international reach. Colombian creators are known for warmth, expressive personal style, and a cultural confidence that produces content standing out within the competitive Latin American Instagram landscape. For brands entering Colombian and broader Latin American markets, Colombian Instagram creators provide authentic cultural access at accessible investment levels.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Colombia Instagram Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Reel/Post', 'Multi-Format Package'],
+        rows: [
+          ['50K–100K', '$100–$350', '$250–$875'],
+          ['100K–250K', '$350–$1,000', '$875–$2,500'],
+          ['250K–500K', '$1,000–$3,000', '$2,500–$7,500'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Colombian Instagram creator rates represent strong value for brands seeking Latin American market entry. The combination of accessible investment levels, growing content quality, and authentic Latin American cultural credibility makes Colombian Instagram partnerships increasingly attractive as the market develops.",
+      },
+    ],
+  },
+
+  'location-instagram-Brazil': {
+    heading: 'Top Instagram Creators in Brazil: Data, Strategy and Partnerships',
+    sections: [
+      {
+        type: 'h2',
+        content: "Why Brazil's Instagram Creator Market Is Latin America's Largest",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Brazil has one of the world's most active Instagram communities — the country consistently ranks among the top three global Instagram markets by user count. InfluenceIT's 10 verified mid-tier Brazilian Instagram creators deliver solid platform performance in a market where Instagram and TikTok have different and complementary roles. Instagram in Brazil serves primarily as the premium visual platform for fashion, beauty, and aspirational lifestyle content — while TikTok delivers Brazil's extraordinary viral engagement rates.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Brazilian Instagram content reflects the country's extraordinary visual culture — fashion, beauty, carnival aesthetics, beach lifestyle, and urban sophistication all produce content of compelling visual quality. Brazilian creators have developed distinctive Instagram aesthetics that blend vibrant colour, expressive personal style, and genuine cultural pride in ways that resonate both domestically and internationally.",
+      },
+
+      {
+        type: 'h2',
+        content: 'InfluenceIT Brazil Instagram Creator Data',
+      },
+      {
+        type: 'table',
+        headers: ['Metric', 'Brazil Instagram', 'Brazil TikTok'],
+        rows: [
+          ['Verified creators (50K–500K)', '10', '12'],
+          ['Average engagement rate', '2.93%', '63.09%'],
+          ['Median engagement rate', '0.07%', '16.96%'],
+          ['Best for', 'Premium visual positioning', 'Extraordinary engagement, viral reach'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The Instagram average engagement of 2.93% — above Instagram platform norms — reflects the genuine audience investment Brazilian Instagram communities bring to creator content. While TikTok delivers Brazil's extraordinary viral engagement rates, Instagram serves a distinct role as the platform for premium brand visual association and conversion among Brazil's growing middle and upper-middle class with established purchasing power.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Brazil Instagram Creator Partnership Rates',
+      },
+      {
+        type: 'table',
+        headers: ['Follower Range', 'Single Reel/Post', 'Multi-Format Package'],
+        rows: [
+          ['50K–100K', 'R$750–$2,500 / $135–$455', 'R$1,875–$6,250 / $340–$1,140'],
+          ['100K–250K', 'R$2,500–$7,500 / $455–$1,365', 'R$6,250–$18,750 / $1,140–$3,415'],
+          ['250K–500K', 'R$7,500–$22,500 / $1,365–$4,090', 'R$18,750–$56,250 / $3,415–$10,225'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Brazilian Instagram creator rates represent good value relative to the quality of content produced and the size of the domestic audience reached. For brands investing in Brazilian market presence, combining Instagram partnerships (for premium positioning) with TikTok partnerships (for viral reach and extraordinary engagement) delivers the most complete Brazilian creator marketing strategy available.",
+      },
+    ],
+  },
+
 };
