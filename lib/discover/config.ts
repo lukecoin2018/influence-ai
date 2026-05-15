@@ -2447,6 +2447,146 @@ export const NICHE_FAQ: Record<string, FAQItem[]> = {
     },
   ],
 
+  'tier-micro-Wellness': [
+    {
+      question: 'Why do wellness micro-influencers carry more trust than larger wellness accounts?',
+      answer:
+        "Wellness micro-influencers (50K–100K) maintain intimate audience relationships that larger wellness accounts inevitably lose at scale. At micro level, creators respond personally to health questions, remember community members' ongoing journeys, and document their own wellness challenges with the vulnerability that builds genuine trust. Their recommendations feel like personal health guidance rather than brand endorsement — the most commercially powerful dynamic in wellness marketing. This intimacy drives purchase conviction that follower counts and engagement metrics alone cannot capture.",
+    },
+    {
+      question: 'How much do wellness micro-influencers charge?',
+      answer:
+        "Wellness micro-influencers with 50,000–100,000 followers typically charge $150–$450 per TikTok post and $200–$600 per Instagram post. Three-post packages range from $400–$1,100 on TikTok and $500–$1,500 on Instagram. Monthly ambassador programmes range from $500–$1,300 per month. Budget for four to six weeks of genuine product trial time for supplements and health products — mandatory for authentic wellness content that converts.",
+    },
+    {
+      question: 'What types of wellness brands benefit most from micro-influencer partnerships?',
+      answer:
+        "Supplement and functional health product brands benefit most — micro wellness audiences respond to trusted peer product recommendations with the highest purchase intent of any wellness tier. Mental health app brands benefit from micro creators' authentic personal documentation. Niche wellness sub-categories (gut health, sleep protocols, specific supplement stacks) benefit from creators whose audiences share the exact concern the product addresses. Early-stage wellness brands benefit from micro creators who discover and champion them before mainstream awareness, becoming long-term advocates.",
+    },
+    {
+      question: 'How should wellness micro-influencer campaigns be structured?',
+      answer:
+        "Coordinating six to ten micro wellness creators across complementary sub-niches simultaneously creates community ubiquity effects impossible with single-creator campaigns. Always-on ambassador programmes with two to four micro creators posting monthly deliver sustained brand presence year-round at accessible costs. Gifting programmes identify which creators genuinely love your product before transitioning to paid partnerships — the most authentic and ultimately most effective approach for wellness brands building genuine community advocacy.",
+    },
+    {
+      question: 'How do I evaluate a wellness micro-influencer before partnering?',
+      answer:
+        "At micro scale, prioritise content authenticity and scientific accuracy over engagement metrics. Check that the creator's documented wellness focus aligns with your product's specific benefit. Verify health claims for scientific accuracy — wellness audiences fact-check and hold brands accountable for inaccurate creator content. Look for genuine ongoing product documentation in existing partnerships rather than single sponsored posts. Check comment quality for authentic health community discussions indicating genuine audience investment in the creator's wellness guidance.",
+    },
+  ],
+
+  'tier-micro-Lifestyle': [
+    {
+      question: 'Why do lifestyle micro-influencers deliver better product integration than larger accounts?',
+      answer:
+        "Lifestyle micro-influencers (50K–100K) represent lives their audiences see as genuinely achievable rather than aspirationally distant. Products integrated into a micro creator's genuine daily routines feel like peer recommendations from someone living a relatable life — not aspirational showcases from a lifestyle far removed from the viewer's reality. This achievable aspiration dynamic is the most effective emotional trigger for lifestyle purchase decisions, and it is uniquely available at micro scale where creators maintain the personal daily-life documentation that larger accounts inevitably move away from.",
+    },
+    {
+      question: 'How much do lifestyle micro-influencers charge?',
+      answer:
+        "Lifestyle micro-influencers with 50,000–100,000 followers typically charge $150–$450 per TikTok post and $200–$600 per Instagram post. Three-post packages range from $400–$1,100 on TikTok and $500–$1,500 on Instagram. Monthly ambassador programmes range from $500–$1,300 per month. A budget of $3,000–$5,000 can activate eight to twelve lifestyle micro creators simultaneously — generating twelve to thirty-six content pieces across multiple lifestyle communities.",
+    },
+    {
+      question: 'What campaign structures work best with lifestyle micro-influencers?',
+      answer:
+        "Multi-creator programmes activating six to twelve micro lifestyle creators simultaneously across different aesthetic communities (morning routine, home organisation, slow living, city lifestyle) generate broad lifestyle brand awareness while testing which community contexts resonate best. Always-on monthly programmes maintain year-round brand presence at accessible costs. Gifting programmes identifying micro creators who genuinely integrate products into their lives create the most authentic advocacy before transitioning to paid partnerships.",
+    },
+    {
+      question: 'What makes lifestyle micro-influencer content effective for brands?',
+      answer:
+        "Products integrated into genuine daily routines — morning rituals, home organisation, cooking, evening wind-down — benefit from the contextual authenticity of real life use rather than staged product placement. Lifestyle micro audiences are active savers of content they plan to act on: they bookmark morning routine videos to build their own rituals, save home organisation content to implement when they redecorate, and refer back to lifestyle content as practical guides. These save behaviours create sustained brand impressions that view metrics significantly understate.",
+    },
+    {
+      question: 'How do I find the right lifestyle micro-influencer for my brand?',
+      answer:
+        "Match the creator's specific lifestyle sub-type to your product's natural use context — a cleaning brand needs a 'clean with me' creator, a food brand needs a 'what I eat' creator, a productivity brand needs a morning routine creator. Check that the creator's filming environment and life context matches the reality your target audience lives rather than aspires to. Verify posting consistency over 30 days. Review existing brand integration quality for genuine daily-life feel. InfluenceIT provides verified engagement data from each creator's 15 most recent posts.",
+    },
+  ],
+
+  'usecase-Skincare Brands': [
+    {
+      question: 'How many skincare influencers are available on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes verified skincare creators across TikTok and Instagram in the 50,000–500,000 follower range. TikTok skincare creators deliver a median engagement rate of 8.84% and an average of 646,882 views per post — both the highest figures of any skincare-specific category in our database. Instagram skincare creators deliver an average engagement of 2.67%. All metrics are calculated from each creator's 15 most recent posts. Our skincare creator database is actively growing, with a particular focus on adding credentialed dermatology and esthetics professionals.",
+    },
+    {
+      question: 'Should skincare brands use TikTok or Instagram creators?',
+      answer:
+        "Both platforms serve distinct roles. TikTok delivers superior discovery reach (646K average views, 8.84% median engagement) and reaches the 18–30 skincare audience who use it as their primary product discovery platform. Instagram reaches the 30–50 demographic who spend more on skincare per year, delivers premium visual brand positioning, and offers content longevity of months to years. The most effective skincare brand campaigns use both: TikTok for viral discovery and ingredient education reach, Instagram for clinical positioning, before/after documentation, and conversion.",
+    },
+    {
+      question: 'What are the most important factors in selecting skincare creator partners?',
+      answer:
+        "Skin type and concern alignment is the most critical factor — a creator's audience has opted in because they share specific skin concerns, and products that address different concerns convert poorly regardless of the creator's engagement metrics. Content scientific accuracy is non-negotiable — skincare audiences fact-check claims and hold brands accountable for inaccuracies. Genuine long-term product use history is essential — skincare audiences detect staged endorsements. Credentialed creators (dermatologists, estheticians) command premiums but deliver significantly higher trust and conversion for clinical brands.",
+    },
+    {
+      question: 'How long should skincare campaign lead times be?',
+      answer:
+        "Skincare campaigns require the longest lead times of any creator category. Standard skincare reviews need four to six weeks of genuine product use before posting. Before-and-after documentation campaigns need eight to twelve weeks for treatments addressing hyperpigmentation, acne, or ageing. Press product four to six weeks ahead of the desired posting window — not days. Build lead time requirements explicitly into creator agreements to prevent rushed content that skincare audiences immediately identify as inauthentic.",
+    },
+    {
+      question: 'How much should skincare brands budget for influencer campaigns?',
+      answer:
+        "TikTok skincare creator partnerships typically cost $150–$4,000 per post in the mid-tier range. Instagram skincare creators typically charge $200–$5,000 per post. Credentialed creators add 30–80% premiums. A meaningful product launch using 5–8 creators across both platforms typically requires $7,000–$28,000 in creator fees. Long-term ambassador programmes with three creators over six months range from $20,000–$60,000 total. Budget for generous product provision separately — skincare creators need multiple units for testing, variations, and documentation.",
+    },
+  ],
+
+  'usecase-Lifestyle Brands': [
+    {
+      question: 'How many lifestyle influencers are available on InfluenceIT?',
+      answer:
+        "InfluenceIT's database includes over 1,600 verified lifestyle creators across TikTok and Instagram in the 50,000–500,000 follower range — the largest single creator category in our database. TikTok lifestyle creators deliver a 9.08% overall median engagement rate and an average of 535,380 views per post. Top-tier TikTok lifestyle creators (250K–500K) average 714,401 views per post — the highest of any category tier in our database. All metrics are calculated from each creator's 15 most recent posts.",
+    },
+    {
+      question: 'What makes lifestyle creators valuable for brand partnerships?',
+      answer:
+        "Lifestyle creators are the most commercially versatile brand partners — their content spans home, food, fashion, wellness, travel, and daily routines, allowing authentic product integration across multiple contexts simultaneously. A single mid-tier lifestyle creator can feature your product naturally across morning routine, home, food, and fashion content within a single month. This breadth is uniquely valuable for brands that don't fit a single niche and for brands seeking to reach consumers across multiple life moments throughout the year.",
+    },
+    {
+      question: 'Should lifestyle brands use TikTok or Instagram creators?',
+      answer:
+        "Both platforms serve distinct roles. TikTok delivers higher engagement (9.08% median), greater reach (714K average views at top tier), and better performance with 18–35 demographics making everyday purchasing decisions. Instagram delivers content longevity (months versus days), native shopping integration, premium aesthetic brand association, and better reach into the 30–50 demographic with established household spending. Most lifestyle brands benefit from both platforms: TikTok for awareness and discovery, Instagram for sustained brand positioning and conversion.",
+    },
+    {
+      question: 'What campaign structure works best for lifestyle brand partnerships?',
+      answer:
+        "Always-on programmes maintaining four to eight micro and mid-tier creators posting monthly consistently outperform campaign bursts for lifestyle brands. Seasonal integration — aligning partnerships with January reset, spring refresh, summer entertaining, and autumn cosy content moments — achieves peak audience receptiveness. Multi-creator programmes across different lifestyle sub-types (morning routine, home, food, slow living) test which contexts resonate best and build broad lifestyle brand awareness simultaneously. InfluenceIT's database of 1,600+ verified lifestyle creators spans all sub-types and tiers.",
+    },
+    {
+      question: 'How much should lifestyle brands budget for influencer campaigns?',
+      answer:
+        "Micro lifestyle always-on programmes (4–6 creators) cost $1,200–$3,600 per month. Mid-tier always-on programmes (3–4 creators) cost $2,700–$6,000 per month. Hybrid programmes combining micro and mid-tier creators cost $3,500–$8,000 per month. Top-tier quarterly campaigns cost $4,500–$12,000 per campaign per creator. Always-on programmes consistently deliver better annual ROI than equivalent budget spent on campaign bursts — the compounding effect of sustained lifestyle presence builds brand familiarity that single campaign spikes cannot replicate.",
+    },
+  ],
+
+  'usecase-Luxury Brands': [
+    {
+      question: 'How should luxury brands approach influencer marketing differently?',
+      answer:
+        "Luxury brand influencer marketing prioritises aesthetic alignment, exclusivity, and brand elevation over reach metrics. Creator selection should begin with portfolio review — the brands a creator has previously partnered with, the visual quality of their content, and the income demographic their lifestyle appeals to all matter more than follower count. The wrong creator partnership can damage luxury positioning; the right one creates aspirational cultural associations that paid advertising cannot manufacture. Mid-tier creators (100K–300K) with curated aesthetic positioning frequently outperform celebrities for luxury brand conversion.",
+    },
+    {
+      question: 'What follower range works best for luxury brand creator partnerships?',
+      answer:
+        "Luxury brands should prioritise mid-tier creators (100K–300K followers) with precisely curated aesthetic positioning over larger creators with broader appeal. A fashion creator with 150,000 followers whose content consistently communicates premium aesthetic values will deliver better luxury brand alignment and genuine audience consideration than a creator with 1.5M followers whose content spans multiple price tiers. Audience income demographics matter more than audience size — request audience demographic data to verify income alignment with luxury purchasing capacity.",
+    },
+    {
+      question: 'What content formats work best for luxury brand creator partnerships?',
+      answer:
+        "Editorial-style content that feels like luxury magazine photography — the brand appearing as a natural component of an aspirational lifestyle rather than a product being promoted — is the gold standard for luxury creator partnerships. Brief creators with mood boards, aesthetic references, and lifestyle themes rather than product features or scripted messages. Event and experience integration — fashion week attendance, private viewings, destination travel — generates contextually premium content that product placement alone cannot achieve. Never allow luxury brand content to feel commercial.",
+    },
+    {
+      question: 'How important is exclusivity in luxury creator partnerships?',
+      answer:
+        "Exclusivity is essential. A luxury brand appearing alongside competing luxury or mass-market brands in the same creator's content within a short period creates positioning dilution that undermines premium association. Negotiate category exclusivity — preventing work with directly competing luxury brands during the partnership period — as a standard component of all luxury creator agreements. For annual ambassador programmes, broader aesthetic exclusivity preventing partnerships with mass-market brands in the same category may be warranted depending on brand positioning.",
+    },
+    {
+      question: 'How much do luxury creator partnerships cost?',
+      answer:
+        "Luxury creator partnerships range from gifting-plus-organic-coverage for micro aesthetic creators (product cost only) to $2,500–$10,000 per post for established luxury mid-tier creators (250K–500K followers with verified premium positioning). Annual luxury ambassador programmes range from $15,000–$120,000 depending on creator tier, exclusivity scope, and content volume. Content usage rights — particularly valuable for luxury photography — add 30–60% to base rates and are strongly recommended given the two to three year usable lifespan of premium luxury creator content.",
+    },
+  ],
+
 };
 
 export function getFAQContent(config: AnyPageConfig): FAQItem[] {

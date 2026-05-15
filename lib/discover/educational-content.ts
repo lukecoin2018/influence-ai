@@ -6678,4 +6678,447 @@ export const PLATFORM_NICHE_CONTENT: Record<string, RichEduContent> = {
     ],
   },
 
+  'tier-micro-Wellness': {
+    heading: 'Wellness Micro-Influencers (50K–100K): The Highest-Trust Tier in Wellness',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Wellness Micro-Influencers Carry the Most Personal Trust',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Wellness micro-influencers — those with 50,000 to 100,000 followers — maintain the most personally invested audience relationships in the wellness creator ecosystem. Their communities are small enough that the creator can respond to individual messages, remember recurring commenters' health journeys, and produce content that directly addresses their specific community's wellness challenges. This intimate relationship is the source of micro wellness creators' extraordinary commercial influence: their recommendations feel like personal health guidance from a trusted friend rather than sponsored content from a brand ambassador.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "At micro scale, wellness creators are often still in the early stages of their wellness journey themselves — documenting real challenges, genuine setbacks, and authentic progress in ways that larger creators, whose personal journeys have become more polished and aspirational, can no longer replicate. This relatability is commercially powerful: wellness audiences who see themselves in a creator's experience trust that creator's product recommendations as genuinely applicable to their own situation.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The cost efficiency of wellness micro partnerships is significant. Partnership rates at the 50K–100K tier are three to five times lower than mid-tier rates, enabling wellness brands to activate multiple micro creators simultaneously — testing different wellness sub-niches, building community advocacy across multiple health communities, and maintaining consistent brand presence at accessible budget levels.",
+      },
+      {
+        type: 'h2',
+        content: 'When Wellness Micro-Influencers Are the Right Choice',
+      },
+      {
+        type: 'bullets',
+        items: [
+          "Supplement and functional health product brands needing deeply trusted communities — wellness micro audiences respond to product recommendations with the highest purchase intent per viewer of any wellness tier.",
+          "Mental health and mindfulness brands where personal authenticity is the primary trust signal — micro creators' genuine documented journeys are more persuasive than top-tier creators' polished narratives.",
+          "Niche wellness sub-categories (gut health, specific supplement stacks, sleep protocols) where the creator's documented personal experience with the exact concern is the primary credential.",
+          "Early-stage wellness brands building initial community advocacy — micro creators who discover and champion a new brand before mainstream awareness become long-term advocates whose early endorsement compounds in value.",
+          "Always-on content programmes requiring consistent monthly posting — micro rates make sustained year-round wellness presence financially viable for brands of all sizes.",
+          "Gifting programmes where genuine product enthusiasm from micro wellness creators generates organic content at cost-of-goods only.",
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'The Multi-Creator Micro Wellness Strategy',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Coordinating six to ten wellness micro creators across complementary sub-niches simultaneously creates a market presence effect that single-creator campaigns cannot achieve. When multiple wellness creators a consumer follows all integrate the same supplement, app, or wellness product within a short window, the product shifts from 'something one creator mentioned' to 'something everyone I trust in wellness is using'. This community ubiquity effect is disproportionately powerful in wellness, where peer validation from multiple trusted voices drives more purchase conviction than any single endorsement.",
+      },
+      {
+        type: 'h2',
+        content: 'Wellness Micro-Influencer Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Platform', 'Single Post', '3-Post Package', 'Monthly Ambassador'],
+        rows: [
+          ['TikTok', '$150–$450', '$400–$1,100', '$500–$1,300/month'],
+          ['Instagram', '$200–$600', '$500–$1,500', '$600–$1,800/month'],
+          ['Both platforms', '$300–$900', '$800–$2,300', '$1,000–$2,800/month'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Wellness micro partnerships require adequate product trial time — a non-negotiable minimum of four weeks for supplements and health products, six to eight weeks for treatments addressing longer-term concerns. Rushing micro wellness creators produces content that wellness audiences identify as inauthentic, generating skepticism rather than purchase intent. The investment in genuine trial time consistently produces higher-performing content than expedited campaigns.",
+      },
+    ],
+  },
+
+  'tier-micro-Lifestyle': {
+    heading: 'Lifestyle Micro-Influencers (50K–100K): Authentic Daily Life at its Most Relatable',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Lifestyle Micro-Influencers Are the Most Relatable Brand Partners',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Lifestyle micro-influencers — those with 50,000 to 100,000 followers — have built communities around a specific daily life aesthetic and routine that their audiences see as genuinely achievable. Unlike aspirational top-tier lifestyle creators whose lives feel like a reference point rather than a reality, micro lifestyle creators represent lives that followers can genuinely picture themselves living. This achievable aspiration is the specific emotional trigger that drives the strongest lifestyle purchase decisions.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The diversity of lifestyle micro-influencers provides brands with the ability to access very specific audience demographics and lifestyle contexts. A morning routine micro creator with 70,000 followers reaches a distinctly different audience to a home organisation micro creator with 85,000 followers or a budget lifestyle creator with 60,000 followers — each community has a specific context, income level, and product receptiveness that allows brands to target audience sub-segments with precision impossible at larger creator tiers.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The cost efficiency of lifestyle micro partnerships makes always-on content programmes financially viable. Maintaining brand presence in multiple micro lifestyle creator communities year-round — at the cost of a single mid-tier campaign burst — delivers sustained brand awareness that compounds through repeated audience exposure rather than the single spike and fade of campaign-driven approaches.",
+      },
+      {
+        type: 'h2',
+        content: 'Lifestyle Micro-Influencer Sub-Types and Brand Alignment',
+      },
+      {
+        type: 'table',
+        headers: ['Micro Lifestyle Sub-Type', 'Audience Profile', 'Best Brand Match'],
+        rows: [
+          ['Morning routine', 'Goal-oriented, productivity-focused', 'Wellness, productivity apps, breakfast foods'],
+          ['Home organisation', 'Home-focused, nesting demographic', 'Home products, storage, cleaning brands'],
+          ['Budget lifestyle', 'Value-conscious, practical', 'Affordable brands, grocery, everyday products'],
+          ['Slow living', 'Intentional consumers, sustainability-oriented', 'Sustainable brands, quality goods, wellness'],
+          ['City lifestyle', 'Urban professionals, 25-35', 'Fashion, food delivery, tech, experiences'],
+          ['Family lifestyle', 'Parents, family-focused', "Family products, food, home, children's goods"],
+          ['Aesthetic/cottagecore', 'Visual, creative audience', 'Home décor, fashion, artisan food, candles'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'When Lifestyle Micro-Influencers Are the Right Choice',
+      },
+      {
+        type: 'bullets',
+        items: [
+          "Brands needing contextual product placement — lifestyle micro creators integrate products into genuine daily-life contexts that feel natural rather than staged.",
+          "Products that benefit from routine demonstration — showing genuine daily use in a morning, evening, or weekly routine context builds authentic product familiarity.",
+          "Brands targeting specific life stages — micro lifestyle creators build communities around specific life moments (new home, new city, new routine) that create concentrated audiences at key purchase decision points.",
+          "Always-on brand presence programmes — accessible rates enable year-round presence across multiple micro lifestyle communities simultaneously.",
+          "Gifting programmes — micro lifestyle creators who genuinely love a product integrate it organically into their documented life at cost-of-goods only.",
+          "Test campaigns — partnering with five to eight micro lifestyle creators across different aesthetic communities tests which lifestyle contexts resonate best with your target audience.",
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Lifestyle Micro-Influencer Pricing Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Platform', 'Single Post', '3-Post Package', 'Monthly Ambassador'],
+        rows: [
+          ['TikTok', '$150–$450', '$400–$1,100', '$500–$1,300/month'],
+          ['Instagram', '$200–$600', '$500–$1,500', '$600–$1,800/month'],
+          ['Both platforms', '$300–$900', '$800–$2,300', '$1,000–$2,800/month'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Lifestyle micro campaigns generate more total content per budget dollar than any other creator category — a budget of $3,000–$5,000 can activate eight to twelve micro lifestyle creators simultaneously, generating twelve to thirty-six content pieces across multiple aesthetic communities. This content volume tests creative approaches, builds multi-community brand awareness, and provides data on which lifestyle contexts generate the strongest audience response for future campaign optimisation.",
+      },
+    ],
+  },
+
+  'usecase-Skincare Brands': {
+    heading: 'Finding the Right Influencers for Skincare Brand Campaigns: A Complete Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Skincare Brand Influencer Marketing Requires a Distinct Approach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Skincare is the creator marketing category where authenticity, scientific accuracy, and long-term product demonstration matter more than in any other consumer category. Skincare audiences are among social media's most analytically sophisticated consumers — they research ingredients, compare formulations, and evaluate clinical evidence before purchasing. Creator partnerships that respect this sophistication consistently outperform those that treat skincare like a standard lifestyle product. The approach that works in skincare is fundamentally different from fashion, food, or fitness marketing.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's skincare creator database spans both TikTok and Instagram. TikTok skincare creators deliver a median engagement rate of 8.84% and an average of 646,882 views per post — both the highest figures for any skincare-specific creator category. Instagram skincare creators deliver an average engagement of 2.67% with 47,666 views per post. SkincareTok in particular has become the primary discovery platform for new skincare brands and products — a single viral skincare video can drive product sell-outs within days.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Platform Strategy for Skincare Brands',
+      },
+      {
+        type: 'table',
+        headers: ['Objective', 'Platform', 'Why'],
+        rows: [
+          ['New product discovery', 'TikTok', '646K avg views, highest skincare category engagement'],
+          ['Premium brand positioning', 'Instagram', 'Editorial aesthetic, clinical photography'],
+          ['Reaching 18–30 skincare audience', 'TikTok', 'Primary skincare discovery platform for younger demographic'],
+          ['Reaching 30–50 skincare audience', 'Instagram', 'Higher-income, clinical skincare consumer'],
+          ['Ingredient education campaigns', 'TikTok', 'Short-form education format performs exceptionally'],
+          ['Before/after documentation', 'Instagram', 'Higher-quality photography, longer shelf life'],
+          ['Dermatologist / expert creators', 'Instagram', 'Stronger professional creator presence'],
+          ['Viral launch moments', 'TikTok', 'Higher organic amplification potential'],
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'Skincare Creator Selection: The Non-Negotiables',
+      },
+      {
+        type: 'h3',
+        content: 'Skin Type and Concern Alignment',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Skin type and concern alignment is more important in skincare than product-audience alignment in any other category. Skincare audiences follow creators because they share their specific skin concerns — acne, hyperpigmentation, sensitivity, ageing, or dryness. A creator's audience has opted in specifically because of their shared skin experience. Partnering a hydration-focused product with an acne creator reaches an audience whose primary skin concern is different — the recommendation lands with lower relevance and converts at significantly lower rates regardless of the creator's engagement metrics.",
+      },
+      {
+        type: 'h3',
+        content: 'Content Accuracy and Credibility',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Skincare audiences fact-check creator claims in real time. Creators who make inaccurate ingredient interaction claims, misstate clinical evidence, or exaggerate efficacy lose audience trust irreversibly — and the brand associated with those claims loses credibility simultaneously. Before partnering, review a creator's scientific accuracy in recent educational content. Creators who acknowledge limitations, individual variation, and genuine caveats in their recommendations build more purchase-driving trust than those who make uniformly positive claims.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Campaign Formats That Drive Results for Skincare Brands',
+      },
+      {
+        type: 'h3',
+        content: 'Ingredient Education',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Ingredient education content — explaining what an active does, why the formulation matters, and which skin concerns it addresses — is the highest-performing format for skincare brand partnerships. This format respects audience sophistication, provides genuine value, and positions the brand as science-backed rather than marketing-driven. Skincare audiences who understand why a product works are more likely to purchase, more likely to use it correctly, and more likely to repurchase — creating better customer lifetime value than impulse-driven conversion.",
+      },
+      {
+        type: 'h3',
+        content: 'Genuine Long-Term Documentation',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Genuine before-and-after documentation over four to eight weeks of consistent use produces the most commercially powerful skincare content available. Brief creators with adequate product lead time — a minimum of six weeks, eight to twelve for treatments addressing hyperpigmentation, acne, or ageing. Rushed documentation that compresses genuine results into a shorter timeframe is detectable to skincare audiences and generates skepticism rather than purchase intent.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Skincare Brand Creator Campaign Budget Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Campaign Type', 'TikTok Cost', 'Instagram Cost', 'Total Budget'],
+        rows: [
+          ['New product launch (5–8 creators)', '$3,000–$12,000', '$4,000–$16,000', '$7,000–$28,000'],
+          ['Ambassador programme (3 creators, 6mo)', '$8,000–$25,000', '$12,000–$35,000', '$20,000–$60,000'],
+          ['Credentialed creator campaign', '+30–80% premium', '+30–80% premium', 'Budget accordingly'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Skincare campaigns require the longest lead times of any category — build eight to twelve weeks from product delivery to posting date for documentation campaigns. Provide generous product supply for recipe testing and reshoots. For credentialed creators (dermatologists, estheticians), budget for premium rates and longer briefing processes — they require more accuracy verification and often have specific claim restrictions based on their professional obligations.",
+      },
+    ],
+  },
+
+  'usecase-Lifestyle Brands': {
+    heading: 'Finding the Right Influencers for Lifestyle Brand Campaigns: A Complete Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Lifestyle Creator Partnerships Are the Most Versatile Brand Investment',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Lifestyle brands have access to the most commercially versatile creator category in the ecosystem. Lifestyle creators naturally integrate home, food, fashion, wellness, travel, and daily routines into their content — meaning a single creator partnership can deliver contextually authentic brand placement across multiple life moments simultaneously. For brands that don't fit a single niche, or that want to reach consumers across multiple lifestyle contexts, the lifestyle creator category provides unmatched integration breadth.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's lifestyle creator database is the largest in our platform. TikTok lifestyle creators deliver a median engagement of 9.08% overall and an average of 535,380 views per post. Mid-tier TikTok lifestyle creators (100K–250K) achieve a 10.20% median, while top-tier creators (250K–500K) average an extraordinary 714,401 views per post. With over 1,600 verified lifestyle creators across all tiers and both platforms, lifestyle brand partners have the widest creator selection available.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Lifestyle Brand Creator Selection by Brand Type',
+      },
+      {
+        type: 'table',
+        headers: ['Brand Category', 'Best Creator Sub-Type', 'Key Content Format'],
+        rows: [
+          ['Home décor / furniture', 'Home aesthetic, organisation', 'Apartment tours, home styling'],
+          ['Food and beverage', 'Morning routine, what I eat', 'Daily routine, meal prep'],
+          ['Candles / fragrance / home scent', 'Cosy lifestyle, slow living', 'Evening routine, home ambiance'],
+          ['Productivity / planners', 'Morning routine, work from home', 'Daily schedule, desk setup'],
+          ['Subscription boxes', 'Unboxing, lifestyle haul', 'Unboxing, monthly favourites'],
+          ['Cleaning products', 'Home organisation, clean with me', 'Clean with me, routine content'],
+          ['Personal care', 'Morning/evening routine', 'Routine integration'],
+          ['Sustainable living', 'Slow living, conscious lifestyle', 'Lifestyle documentation'],
+        ],
+      },
+
+      {
+        type: 'h2',
+        content: 'Platform Strategy for Lifestyle Brands',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "TikTok and Instagram serve complementary roles in lifestyle brand marketing. TikTok delivers maximum reach (714,401 average views for top-tier creators), higher engagement rates (9.08% lifestyle median), and stronger performance with 18–35 demographics. Instagram delivers content longevity, native shopping integration, premium aesthetic brand association, and better reach into the 30–50 demographic with established household spending. Most lifestyle brands benefit from both platforms with distinct creative objectives.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Campaign Structures for Lifestyle Brands',
+      },
+      {
+        type: 'h3',
+        content: 'Seasonal Integration Strategy',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Lifestyle content is among the most seasonally sensitive creator categories. January reset content, spring home refresh, summer entertaining, autumn cosy content, and holiday home content all represent peak engagement windows with natural product integration moments. Lifestyle brands that align campaign timing with these seasonal content peaks — booking creators six to eight weeks ahead — achieve significantly higher audience receptiveness than those that insert products into off-season content contexts.",
+      },
+      {
+        type: 'h3',
+        content: 'Always-On Multi-Creator Programme',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The most effective lifestyle brand creator strategy maintains sustained presence through an always-on programme of four to eight micro and mid-tier creators posting monthly across complementary lifestyle sub-types. This approach builds the ambient brand awareness that makes a lifestyle brand feel like a natural part of the consumer's world — not a product they saw once in an ad, but a brand they have encountered across multiple trusted lifestyle contexts over time.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Lifestyle Brand Creator Campaign Budget Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Programme Type', 'Creator Count', 'Monthly Cost', 'Annual Cost'],
+        rows: [
+          ['Micro always-on (50K–100K)', '4–6 creators', '$1,200–$3,600/month', '$14,000–$43,000/year'],
+          ['Mid-tier always-on (100K–250K)', '3–4 creators', '$2,700–$6,000/month', '$32,000–$72,000/year'],
+          ['Hybrid (micro + mid-tier)', '6–8 creators', '$3,500–$8,000/month', '$42,000–$96,000/year'],
+          ['Top-tier campaign (quarterly)', '2–3 creators', '$4,500–$12,000/quarter', '$18,000–$48,000/year'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Always-on lifestyle programmes consistently deliver better annual ROI than equivalent budget spent on campaign bursts, because lifestyle audiences build brand familiarity through repeated exposure across trusted creator contexts — a compounding effect that single campaigns cannot replicate. Start with micro creators to test which lifestyle contexts resonate best, then scale investment into the sub-types that demonstrate strongest engagement with your target audience.",
+      },
+    ],
+  },
+
+  'usecase-Luxury Brands': {
+    heading: 'Finding the Right Influencers for Luxury Brand Campaigns: A Complete Guide',
+    sections: [
+      {
+        type: 'h2',
+        content: 'Why Luxury Brand Influencer Marketing Requires a Fundamentally Different Approach',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Luxury brand influencer marketing requires a different set of priorities than mass-market campaigns. The goal is not reach — it is exclusivity, aspiration, and brand elevation. Creator selection, aesthetic alignment, and partnership exclusivity matter more than follower counts and engagement rate benchmarks. The wrong creator partnership can genuinely damage a luxury brand's positioning, while the right one creates lasting cultural associations that no paid advertising can manufacture.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Mid-tier creators in the 100K–300K range frequently outperform celebrity partnerships for luxury brands. Their audiences are curated around specific aesthetic points of view — precisely the self-selection dynamic that luxury brand associations require. A fashion creator with 150,000 followers who consistently posts aspirational, quality-oriented lifestyle content will deliver better brand alignment and genuine audience consideration for a luxury product than a celebrity with 5M followers whose audience spans every demographic.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "InfluenceIT's creator database includes verified mid-tier creators across fashion, lifestyle, travel, and beauty categories whose aesthetic positioning and audience demographics make them natural luxury brand partners. The key is identifying creators whose existing brand associations, visual style, and audience income demographics align with luxury positioning — criteria that require careful evaluation beyond standard engagement metrics.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Luxury Creator Selection: What Matters Most',
+      },
+      {
+        type: 'h3',
+        content: 'Aesthetic Coherence Over Follower Count',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "For luxury brands, a creator with 80,000 followers whose content communicates consistent premium aesthetic values is more valuable than a creator with 800,000 followers whose aesthetic is inconsistent or mass-market. Luxury audiences notice when a brand appears in content that conflicts with premium positioning — the association is damaging rather than amplifying. Review the last 90 days of a creator's content: their visual quality, the brands they associate with, the lifestyle they portray, and the income demographic their content appeals to should all align naturally with luxury brand positioning.",
+      },
+      {
+        type: 'h3',
+        content: 'Existing Brand Portfolio',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "The brands a creator has previously worked with communicate their market positioning as clearly as their content aesthetic. A creator who has partnered with premium hotels, designer fashion brands, and high-end beauty consistently occupies luxury positioning in their audience's perception. A creator who mixes luxury partnerships with fast-fashion or mass-market collaborations sends mixed positioning signals that dilute the luxury association you are investing in. Curated brand partnership history is a prerequisite for luxury creator consideration.",
+      },
+      {
+        type: 'h3',
+        content: 'Audience Demographics and Income Profile',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Luxury brand partnerships require creators whose audiences have the income and purchasing inclination to act on luxury recommendations. Request audience demographic data — age, income tier, geographic distribution — before finalising luxury creator partnerships. A creator with 200,000 followers whose audience is primarily 18–22 year old students is less commercially valuable for luxury brand partnership than a creator with 90,000 followers whose audience is 30–50 professionals with established luxury spending.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Campaign Formats That Work for Luxury Brands',
+      },
+      {
+        type: 'h3',
+        content: 'Editorial-Style Campaign Content',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Luxury brand creator content should feel editorial — photographed and produced to the standard of luxury magazine content, with the brand appearing as a natural component of an aspirational lifestyle rather than a product being promoted. Brief luxury creators with themes, moods, and aesthetic references rather than product feature lists or scripted messaging. The most commercially powerful luxury creator content is indistinguishable from editorial lifestyle photography that happens to feature your product.",
+      },
+      {
+        type: 'h3',
+        content: 'Event and Experience Integration',
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Luxury brand creator partnerships work particularly well when connected to genuine experiences — fashion weeks, gallery openings, private events, travel to significant destinations, and cultural moments that the creator documents authentically. The brand appearing within these contextually premium moments inherits the aspirational quality of the experience. Brands that create exclusive experiences for their creator partners — private viewings, behind-the-scenes access, artisan workshops — generate content with aspirational depth that product placement alone cannot achieve.",
+      },
+
+      {
+        type: 'h2',
+        content: 'Luxury Creator Partnership Investment Guide',
+      },
+      {
+        type: 'table',
+        headers: ['Creator Tier', 'Partnership Type', 'Typical Investment'],
+        rows: [
+          ['80K–150K (curated aesthetic)', 'Gifting + organic coverage', 'Product cost only'],
+          ['100K–250K (mid-tier luxury)', 'Paid partnership', '$800–$4,000/post'],
+          ['250K–500K (established luxury)', 'Paid partnership + exclusivity', '$2,500–$10,000/post'],
+          ['Any tier, annual ambassador', 'Long-term exclusive partnership', '$15,000–$120,000/year'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Exclusivity is essential in luxury creator partnerships. A luxury brand appearing alongside competing luxury or mass-market brands in the same creator's feed within a short period creates positioning dilution that undermines the premium association being invested in. Negotiate category exclusivity — preventing the creator from working with directly competing luxury brands during the partnership period — as a standard component of luxury creator agreements. For annual ambassador programmes, broader lifestyle category exclusivity may be warranted depending on brand positioning.",
+      },
+      {
+        type: 'paragraph',
+        content:
+          "Content usage rights are particularly valuable for luxury creator partnerships. High-quality luxury lifestyle photography from established creators can serve as hero brand imagery across websites, advertising campaigns, and marketing materials for two to three years. Negotiate comprehensive usage rights covering digital advertising, owned media, and print where relevant — at rates that reflect the long-term commercial value of premium visual assets.",
+      },
+    ],
+  },
+
 };
