@@ -154,6 +154,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Para el éxito de la campaña, proporciona los productos 3–4 semanas antes de la fecha de publicación, haz briefings para uso auténtico en lugar de endorsement, y considera campañas de múltiples publicaciones — las audiencias de belleza confían en los creadores que usan los productos a lo largo del tiempo.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Por qué los influencers de belleza de nivel medio convierten mejor que los macro influencers?',
+        answer:
+          'Los creadores con 50K–500K seguidores tienen audiencias genuinamente interesadas en contenido de belleza, no en cultura de celebridades. Esto se traduce en tasas de engagement 2–4× más altas que las cuentas por encima del millón de seguidores y en recomendaciones de producto que las audiencias perciben como personales y de confianza, no como publicidad de famosos.',
+      },
+      {
+        question: '¿Qué formatos de contenido de belleza generan más engagement en Instagram?',
+        answer:
+          'Los Reels en formato tutorial, las Stories de comparación de productos y las reseñas honestas son los formatos de mayor rendimiento. Estos formatos impulsan las guardadas y los compartidos, que amplían el alcance orgánico más allá de los seguidores directos del creador.',
+      },
+      {
+        question: '¿Con cuánta antelación debo enviar los productos antes de la fecha de publicación?',
+        answer:
+          'Lo ideal es entregar los productos 3–4 semanas antes de la fecha de publicación. Esto da al creador tiempo suficiente para un uso auténtico, lo que produce contenido más creíble y mejores resultados de conversión que las reseñas de una sola sesión.',
+      },
+      {
+        question: '¿Qué debo evitar al hacer el briefing a un creador de belleza?',
+        answer:
+          'Evita los mensajes guionizados y las instrucciones de endorsement explícito. Las marcas que dan libertad creativa y piden contenido de uso auténtico ven un engagement un 40–60% mayor que las que imponen textos estrictos.',
+      },
+    ],
   },
 
   'belleza-tiktok-es': {
@@ -175,6 +197,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Las colaboraciones más efectivas en belleza en TikTok dan a los creadores libertad para integrar el producto en su formato de contenido natural. Evita los guiones estrictos — el contenido de belleza en TikTok que parece genuino supera al contenido claramente publicitario en una proporción de 3 a 1 en términos de engagement y conversión.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Por qué TikTok supera a Instagram para campañas de belleza en el mercado hispanohablante?',
+        answer:
+          'Las tasas de engagement en TikTok para creadores de belleza oscilan entre el 5% y el 12%, muy superiores a Instagram. El formato de vídeo corto es ideal para demostraciones en tiempo real — antes y después, aplicaciones completas y transformaciones — exactamente los formatos que convierten espectadores en compradores.',
+      },
+      {
+        question: '¿Qué alcance real tiene un creador de belleza hispanohablante en TikTok?',
+        answer:
+          'El contenido de TikTok en español tiene acceso potencial a más de 500 millones de hispanohablantes en todo el mundo. Un creador basado en España puede alcanzar simultáneamente audiencias en México, Colombia, Argentina y la comunidad hispana de Estados Unidos, convirtiendo cada colaboración en una oportunidad de alcance genuinamente global.',
+      },
+      {
+        question: '¿Qué formatos de contenido de belleza funcionan mejor en TikTok?',
+        answer:
+          'Los tutoriales de maquillaje, las rutinas de skincare y las reseñas de productos virales son los formatos de mayor rendimiento. El contenido que parece genuino supera al contenido claramente publicitario en una proporción de 3 a 1 en términos de engagement y conversión, por lo que dar libertad creativa al creador es fundamental.',
+      },
+      {
+        question: '¿Cómo debo estructurar una colaboración de belleza en TikTok para maximizar resultados?',
+        answer:
+          'Da a los creadores libertad para integrar el producto en su formato de contenido natural y evita los guiones estrictos. Las colaboraciones más efectivas posicionan el producto dentro de una rutina existente del creador, permitiendo que la demostración sea orgánica y que la audiencia la perciba como una recomendación personal.',
+      },
+    ],
   },
 
   'moda-instagram-es': {
@@ -196,6 +240,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Las campañas de gifting funcionan bien para accesorios y artículos de precio más bajo, pero para moda de lujo o lanzamientos de productos significativos, las asociaciones pagadas generan mejores resultados. Presupuesta 6–10 semanas para los plazos de producción.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Qué tasas de engagement son realistas para influencers de moda en Instagram?',
+        answer:
+          'Espera tasas de engagement del 2,5–5% para creadores de moda en Instagram, con los Reels y las publicaciones en carrusel generando la mayor interacción. Los creadores de nivel medio son percibidos como iguales por sus audiencias, lo que hace que sus recomendaciones de compra tengan un impacto significativamente mayor que las de los macro influencers.',
+      },
+      {
+        question: '¿Qué formatos de contenido de moda funcionan mejor en el mercado hispanohablante?',
+        answer:
+          'Los desafíos de estilo, las integraciones de temporada y los carruseles de outfits son los formatos de mayor rendimiento. El contenido que conecta tendencias con el estilo cotidiano hispanohablante — no solo replica tendencias europeas o norteamericanas — genera un engagement consistentemente superior.',
+      },
+      {
+        question: '¿Cuándo debo usar gifting y cuándo asociaciones pagadas para campañas de moda?',
+        answer:
+          'El gifting funciona bien para accesorios y artículos de precio más bajo. Para moda de lujo o lanzamientos de producto significativos, las asociaciones pagadas generan mejores resultados porque el creador tiene un incentivo real para producir contenido de alta calidad y priorizar la colaboración.',
+      },
+      {
+        question: '¿Cuánto tiempo necesito para planificar una campaña de moda en Instagram?',
+        answer:
+          'Presupuesta 6–10 semanas para los plazos de producción. Esto incluye el acuerdo de colaboración, el envío de productos, la creación del contenido, las revisiones del briefing y la programación de publicaciones alineada con tu calendario de marketing estacional.',
+      },
+    ],
   },
 
   'moda-tiktok-es': {
@@ -217,6 +283,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de moda que buscan presencia en el mercado hispanohablante, TikTok ofrece el camino de entrada más eficiente en coste. Los costes de asociación con creadores hispanohablantes de TikTok son significativamente más bajos que los equivalentes norteamericanos o europeos, con tasas de engagement igualmente altas o superiores.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Qué formatos de moda generan más visualizaciones en TikTok en español?',
+        answer:
+          'Los vídeos "Get The Look", los fashion hauls, los desafíos de estilo y las integraciones de temporada son los formatos más virales. Los creadores que conectan tendencias globales con contextos culturales hispanohablantes locales superan consistentemente a los que replican contenido de tendencias internacionales sin adaptación.',
+      },
+      {
+        question: '¿Cómo puede un creador con 100K seguidores alcanzar millones de visualizaciones?',
+        answer:
+          'El algoritmo de TikTok amplifica el contenido más allá del seguidor base cuando genera engagement temprano. Un creador de moda hispanohablante con 100K seguidores puede generar 2–5 millones de visualizaciones en un solo vídeo cuando el algoritmo lo distribuye — haciendo que el alcance potencial supere con creces el tamaño de su audiencia habitual.',
+      },
+      {
+        question: '¿Qué ventaja de coste ofrecen los creadores de moda hispanohablantes en TikTok?',
+        answer:
+          'Los costes de asociación con creadores hispanohablantes de TikTok son significativamente más bajos que los equivalentes norteamericanos o europeos, con tasas de engagement igualmente altas o superiores. Esto convierte a TikTok hispanohablante en el canal de entrada más eficiente en coste para marcas que buscan presencia en el mercado de habla española.',
+      },
+      {
+        question: '¿Por qué es importante que el contenido de moda refleje tendencias locales y no solo globales?',
+        answer:
+          'Las audiencias de moda hispanohablantes en TikTok son especialmente receptivas al contenido que refleja tendencias locales y estilos adaptados a sus climas y culturas. El contenido nativo hispanohablante supera consistentemente al contenido adaptado o traducido, porque las audiencias valoran a los creadores que hablan su idioma cultural, no solo su idioma literal.',
+      },
+    ],
   },
 
   'fitness-instagram-es': {
@@ -238,6 +326,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Los picos estacionales son enero, primavera y septiembre. Reservar creadores con 8–12 semanas de antelación es esencial durante estos periodos.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Por qué las audiencias de fitness tienen una intención de compra tan alta?',
+        answer:
+          'Los seguidores de creadores de fitness están invirtiendo activamente en su salud — suplementos, equipamiento, ropa deportiva y apps convierten extremadamente bien porque ya tienen una mentalidad de gasto activa en esta categoría. Sus tasas de engagement del 4–9% reflejan comunidades que buscan activamente inspiración y guía, no consumo pasivo de contenido.',
+      },
+      {
+        question: '¿Qué formatos de contenido de fitness generan más guardadas en Instagram?',
+        answer:
+          'Los tutoriales de entrenamiento, las historias de transformación y el contenido "lo que como en un día" tienen las mayores tasas de guardado del nicho. Las guardadas indican que el usuario volverá al contenido para actuar — ideal para marcas de suplementos y equipamiento.',
+      },
+      {
+        question: '¿Cómo debo integrar mi producto en contenido de fitness de forma auténtica?',
+        answer:
+          'Las campañas que mejor funcionan posicionan el producto en contenido de entrenamiento real: el creador usa tu suplemento antes del gym, tu ropa deportiva durante el entrenamiento o tu app para registrar su progreso. La narrativa de estilo atlético que presenta al creador como alguien que genuinamente usa tu producto genera significativamente más conversiones que las publicaciones de reseña independientes.',
+      },
+      {
+        question: '¿Cuáles son los momentos estacionales clave para campañas de fitness?',
+        answer:
+          'Los picos principales son enero (año nuevo), primavera (pre-verano) y septiembre (vuelta a la rutina). Reservar creadores con 8–12 semanas de antelación es esencial durante estos periodos, ya que la demanda de colaboraciones de fitness se dispara y los mejores creadores se reservan con rapidez.',
+      },
+    ],
   },
 
   'fitness-tiktok-es': {
@@ -259,6 +369,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'La estacionalidad del fitness en el mercado hispanohablante sigue patrones similares al global — enero, vuelta al cole en septiembre y pre-verano son los picos principales. Planifica las campañas con 8–12 semanas de antelación para estos momentos clave.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Qué tasas de engagement puedo esperar de influencers de fitness en TikTok?',
+        answer:
+          'Los creadores de fitness hispanohablantes en TikTok tienen tasas de engagement entre el 6% y el 15%, algunas de las más altas en redes sociales. El formato de vídeo corto es perfecto para demostraciones de ejercicios y rutinas de entrenamiento que impulsan la acción inmediata de las audiencias.',
+      },
+      {
+        question: '¿Qué categorías de productos funcionan mejor con creadores de fitness en TikTok?',
+        answer:
+          'Suplementos deportivos, ropa de entrenamiento, equipamiento para casa y apps de fitness convierten excepcionalmente bien. Las marcas que integran sus productos en formatos de entrenamiento naturales — no en reseñas publicitarias — ven tasas de conversión 3–5× superiores a los anuncios tradicionales.',
+      },
+      {
+        question: '¿Qué formatos de contenido de fitness generan más alcance orgánico en TikTok?',
+        answer:
+          'Las rutinas de entrenamiento en casa, las recetas de comidas saludables, las transformaciones de 30 días y los consejos de nutrición son los formatos de mayor rendimiento. El contenido de entrenamiento en casa sigue siendo uno de los formatos con más búsqueda orgánica en la plataforma.',
+      },
+      {
+        question: '¿Con cuánta antelación debo planificar campañas de fitness para enero o septiembre?',
+        answer:
+          'Planifica con 8–12 semanas de antelación para los picos estacionales clave: enero, la vuelta al cole en septiembre y el pre-verano. Los mejores creadores de fitness se reservan con rapidez durante estos periodos y los briefings necesitan tiempo para que el creador integre el producto de forma auténtica.',
+      },
+    ],
   },
 
   'lifestyle-instagram-es': {
@@ -280,6 +412,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Los creadores de lifestyle suelen trabajar con múltiples marcas — verifica conflictos antes de firmar y considera cláusulas de exclusividad para tu categoría de producto.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Por qué los creadores de lifestyle son los socios más versátiles para colaboraciones de marca?',
+        answer:
+          'El contenido de lifestyle abarca naturalmente el hogar, el bienestar, la moda, la gastronomía y los viajes — lo que los hace ideales para marcas que no encajan perfectamente en un solo nicho. Un solo creador de lifestyle puede integrar tu producto en múltiples contextos a lo largo del año, generando exposición sostenida en lugar de publicaciones puntuales.',
+      },
+      {
+        question: '¿Qué tipos de contenido de lifestyle generan más guardadas en Instagram?',
+        answer:
+          'El contenido "Un día en mi vida" y las publicaciones sobre decoración del hogar generan tasas de guardado inusualmente altas. Las guardadas indican que las audiencias valoran el contenido como referencia — señal de que el producto integrado queda asociado con una aspiración real del usuario.',
+      },
+      {
+        question: '¿Cómo funcionan las integraciones de marca más efectivas en contenido de lifestyle?',
+        answer:
+          'Las integraciones más efectivas se sienten como adiciones naturales a la vida del creador. Los productos en contenido de "rutina matutina" o "actividades del fin de semana" tienen un 2–3× mejor recuerdo de marca que las publicaciones de reseña independientes, porque el producto aparece en un contexto de uso real en lugar de en un entorno de presentación artificial.',
+      },
+      {
+        question: '¿Debo incluir cláusulas de exclusividad en contratos con creadores de lifestyle?',
+        answer:
+          'Sí, es recomendable. Los creadores de lifestyle suelen trabajar con múltiples marcas simultáneamente, por lo que verificar conflictos de categoría antes de firmar y negociar exclusividad para tu categoría de producto protege la inversión y evita que la asociación de marca se diluya con competidores directos.',
+      },
+    ],
   },
 
   'lifestyle-tiktok-es': {
@@ -301,6 +455,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Los creadores de lifestyle en TikTok que tienen entre 50K y 500K seguidores ofrecen el mejor equilibrio entre alcance y autenticidad para campañas en el mercado hispanohablante. Sus audiencias son lo suficientemente grandes para impulsar resultados medibles, pero lo suficientemente íntimas para que las recomendaciones de productos tengan un impacto genuino.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Qué tipos de productos encajan mejor con creadores de lifestyle en TikTok?',
+        answer:
+          'Los productos que mejoran la calidad de vida cotidiana convierten especialmente bien: organización del hogar, tecnología inteligente, cuidado personal, alimentación saludable y viajes. Si tu producto puede integrarse naturalmente en una rutina diaria, los creadores de lifestyle hispanohablantes en TikTok son los socios más efectivos disponibles.',
+      },
+      {
+        question: '¿Por qué el contenido de lifestyle en TikTok se percibe como más auténtico que la publicidad tradicional?',
+        answer:
+          'Los formatos "Un día en mi vida" y las rutinas matutinas presentan el producto en contexto de uso real, no en un entorno de presentación artificial. Las integraciones de marca en estos formatos se perciben como recomendaciones genuinas — la diferencia en tasas de conversión respecto a la publicidad tradicional puede ser de 3 a 5×.',
+      },
+      {
+        question: '¿Qué rango de seguidores ofrece el mejor equilibrio para campañas de lifestyle en TikTok?',
+        answer:
+          'Los creadores entre 50K y 500K seguidores ofrecen el mejor equilibrio entre alcance y autenticidad. Sus audiencias son lo suficientemente grandes para impulsar resultados medibles, pero lo suficientemente íntimas para que las recomendaciones de producto tengan un impacto genuino y no se pierdan en el ruido de cuentas masivas.',
+      },
+      {
+        question: '¿Cómo puede un creador de lifestyle integrar mi producto en múltiples contextos?',
+        answer:
+          'Un solo creador de lifestyle puede mostrar tu producto en su rutina matutina, en el trabajo, durante el tiempo libre y en viajes — generando una variedad de contenido que refuerza el mensaje de marca desde múltiples ángulos. Esta versatilidad es la mayor ventaja del nicho de lifestyle frente a categorías más especializadas.',
+      },
+    ],
   },
 
   'skincare-instagram-es': {
@@ -322,6 +498,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Las mejores estructuras de campaña para marcas de skincare: integración de rutina (el creador añade tu producto a su rutina existente con comentarios honestos), inmersiones profundas en ingredientes y contenido de comparación. Evita las afirmaciones guionizadas — las directrices regulatorias son especialmente estrictas en el espacio del skincare y los cosméticos.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Por qué las audiencias de skincare en Instagram son más exigentes que las de otros nichos de belleza?',
+        answer:
+          'El público hispanohablante de skincare está altamente educado y es escéptico con las afirmaciones vagas. Buscan creadores que expliquen la ciencia detrás de los productos — ingredientes activos, diferencias de formulación, compatibilidad con tipos de piel — y responden con mucho más escepticismo al contenido puramente estético que no aporta información técnica.',
+      },
+      {
+        question: '¿Cuánto tiempo debe usar un creador mi producto antes de publicar una reseña?',
+        answer:
+          'Lo ideal es un período de uso real de 4–6 semanas, no comparaciones de una sola sesión. Las rutinas auténticas de 30 días superan ampliamente a las transformaciones de un día en términos de credibilidad y conversión. Los briefings deben pedir documentación genuina durante semanas, no resultados inmediatos.',
+      },
+      {
+        question: '¿Qué estructuras de campaña de skincare generan mejores resultados?',
+        answer:
+          'Las tres estructuras más efectivas son: integración de rutina (el creador añade tu producto a su rutina existente con comentarios honestos), inmersiones profundas en ingredientes activos, y contenido de comparación. Evita las afirmaciones guionizadas — las directrices regulatorias son especialmente estrictas en el espacio de cosmética y skincare.',
+      },
+      {
+        question: '¿Qué tipo de creadores de skincare generan más conversiones para marcas?',
+        answer:
+          'Los creadores especializados — esteticistas, entusiastas de la dermatología, revisores centrados en ingredientes — generan significativamente más conversiones que los creadores de belleza generalistas. Sus audiencias buscan activamente recomendaciones de producto y actúan en consecuencia, lo que los convierte en uno de los nichos con mayor retorno por inversión de toda la categoría de belleza.',
+      },
+    ],
   },
 
   'skincare-tiktok-es': {
@@ -343,6 +541,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de skincare que buscan penetración en el mercado hispanohablante, TikTok ofrece la ruta más eficiente. Los costes de asociación son accesibles, el alcance potencial es masivo y la naturaleza educativa del contenido de skincare alinea perfectamente con el formato de vídeo corto de la plataforma.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Qué es #SkincareTok en español y por qué es relevante para mi marca?',
+        answer:
+          '#SkincareTok en español es una de las comunidades más activas y comprometidas de TikTok. Los creadores hispanohablantes de skincare producen contenido que combina ciencia dermatológica con storytelling personal — generando vídeos que se vuelven virales mientras educan genuinamente a sus audiencias. Para marcas de skincare, es el canal de discovery más eficiente del mercado hispano.',
+      },
+      {
+        question: '¿Qué sofisticación tiene el público hispanohablante de skincare en TikTok?',
+        answer:
+          'El público hispanohablante de skincare en TikTok está cada vez más formado. Buscan activamente información sobre ingredientes como el retinol, el ácido hialurónico y la vitamina C, y confían en creadores que hablan con conocimiento genuino sobre formulaciones. Los mensajes vagos de marketing no funcionan — la información técnica sí.',
+      },
+      {
+        question: '¿Qué tasas de engagement debo esperar de creadores de skincare en TikTok?',
+        answer:
+          'Las tasas de engagement para creadores de skincare en TikTok en español oscilan entre el 6% y el 15%. El formato de vídeo corto es ideal para demostraciones de rutinas, reseñas de ingredientes y transformaciones de piel — exactamente el tipo de contenido que convierte espectadores en compradores con alta intención de búsqueda.',
+      },
+      {
+        question: '¿Por qué TikTok es la ruta más eficiente para entrar en el mercado hispanohablante de skincare?',
+        answer:
+          'Los costes de asociación son accesibles, el alcance potencial es masivo gracias a los 500 millones de hispanohablantes en todo el mundo, y la naturaleza educativa del contenido de skincare alinea perfectamente con el formato de vídeo corto de la plataforma. La combinación de bajo coste, alto alcance y alto engagement hace de TikTok la opción de mejor ROI disponible.',
+      },
+    ],
   },
 
   'wellness-instagram-es': {
@@ -364,6 +584,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Las asociaciones de embajador a largo plazo superan consistentemente a las publicaciones patrocinadas puntuales en el espacio del wellness. Una relación de 6–12 meses con un creador de wellness de nivel medio construye una prueba social sostenida que convierte nuevos clientes y retiene a los existentes.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Por qué los creadores de wellness generan más confianza que los medios de salud tradicionales?',
+        answer:
+          'Los seguidores perciben a los creadores de wellness de nivel medio como guías accesibles y cercanos en lugar de expertos distantes. Esta cercanía percibida genera una confianza significativamente mayor — las audiencias de wellness comparten experiencias personales, hacen preguntas detalladas sobre productos y forman comunidades de apoyo genuinas que amplifican el impacto de cada recomendación.',
+      },
+      {
+        question: '¿Qué formatos de contenido de wellness tienen el mayor impacto en Instagram?',
+        answer:
+          'Los formatos de "rutina matutina" y "lo que tomo cada día" generan la mayor consideración de producto de cualquier tipo de contenido en la categoría. Estos formatos presentan el producto en el contexto de uso diario real, lo que activa la intención de compra de forma más efectiva que las publicaciones de reseña independientes.',
+      },
+      {
+        question: '¿Por qué las asociaciones de embajador a largo plazo funcionan mejor en wellness que las publicaciones puntuales?',
+        answer:
+          'Una relación de 6–12 meses con un creador de wellness de nivel medio construye una prueba social sostenida que convierte nuevos clientes y retiene a los existentes. Las audiencias de wellness son de las más escépticas con el contenido claramente publicitario — una presencia continua y genuina supera consistentemente a las publicaciones patrocinadas puntuales.',
+      },
+      {
+        question: '¿Cómo debo posicionar mi producto de wellness para evitar el rechazo de la audiencia?',
+        answer:
+          'Evita los mensajes excesivamente comerciales. Haz briefings para contenido de integración en rutinas auténticas y permite al creador comentar el producto con honestidad, incluyendo cómo encaja en su estilo de vida real. Las audiencias de wellness detectan y rechazan activamente el contenido que parece publicitario — la autenticidad no es opcional en este nicho.',
+      },
+    ],
   },
 
   'wellness-tiktok-es': {
@@ -385,6 +627,28 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de suplementos, apps de meditación, productos de yoga y herramientas de bienestar, los creadores de wellness hispanohablantes en TikTok ofrecen el canal de marketing más eficiente disponible. Sus audiencias son activamente receptivas a recomendaciones de productos que apoyan genuinamente su viaje de salud.',
       ],
     },
+    faqs: [
+      {
+        question: '¿Qué ha impulsado el crecimiento explosivo del wellness hispanohablante en TikTok?',
+        answer:
+          'Los creadores de salud mental, meditación, yoga y nutrición producen contenido que combina información práctica con historias personales — generando comunidades de seguidores profundamente comprometidas. El formato de vídeo corto de TikTok encaja perfectamente con hábitos diarios de wellness: rutinas matutinas, consejos de mindfulness y recetas saludables se consumen y comparten de forma natural en la plataforma.',
+      },
+      {
+        question: '¿Qué formatos de contenido de wellness tienen más engagement en TikTok en español?',
+        answer:
+          'Las rutinas matutinas, los hábitos de salud diarios y el contenido educativo sobre bienestar son los formatos de mayor rendimiento. Estos contextos son también donde las integraciones de producto se sienten más naturales y auténticas, lo que maximiza tanto el engagement del vídeo como la intención de compra de la audiencia.',
+      },
+      {
+        question: '¿Cómo influye la cultura mediterránea y latinoamericana en el contenido de wellness?',
+        answer:
+          'La cultura familiar mediterránea y latinoamericana valora profundamente el bienestar colectivo, no solo el individual. Los creadores que enmarcan los productos de wellness en el contexto del cuidado familiar y comunitario generan resonancia cultural adicional que los enfoques puramente individualistas no capturan — un factor diferenciador clave respecto al marketing de wellness anglosajón.',
+      },
+      {
+        question: '¿Qué categorías de productos de wellness convierten mejor con creadores en TikTok?',
+        answer:
+          'Suplementos, apps de meditación, productos de yoga y herramientas de bienestar son las categorías de mayor rendimiento. Sus audiencias son activamente receptivas a recomendaciones de productos que apoyan genuinamente su viaje de salud, con tasas de engagement del 6% al 14% que reflejan comunidades con alta intención de acción, no consumo pasivo.',
+      },
+    ],
   },
 };
 
