@@ -8,6 +8,7 @@ import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { getEsPageConfig, getAllEsSlugs, SPANISH_COUNTRIES } from '@/lib/discover/es-config';
 import { toSafeCreator, type SafeCreator } from '@/lib/discover/config';
 import CreatorCard from '@/app/discover/_components/CreatorCard';
+import EducationalContent from '@/app/discover/_components/EducationalContent';
 
 export const revalidate = 86400;
 
@@ -283,16 +284,23 @@ export default async function EsEsDiscoverPage({
         )}
 
         {/* Educational Content */}
-        <div className="mt-16 rounded-2xl bg-gray-50 border border-gray-100 px-8 py-10">
-          <h2 className="text-2xl font-extrabold text-gray-900 mb-6">
-            {config.educational.heading}
-          </h2>
-          <div className="space-y-4">
-            {config.educational.paragraphs.map((p, i) => (
-              <p key={i} className="text-gray-600 leading-relaxed">{p}</p>
-            ))}
+        {config.sections && config.sections.length > 0 ? (
+          <EducationalContent
+            heading={config.educational.heading}
+            sections={config.sections}
+          />
+        ) : (
+          <div className="mt-16 rounded-2xl bg-gray-50 border border-gray-100 px-8 py-10">
+            <h2 className="text-2xl font-extrabold text-gray-900 mb-6">
+              {config.educational.heading}
+            </h2>
+            <div className="space-y-4">
+              {config.educational.paragraphs.map((p, i) => (
+                <p key={i} className="text-gray-600 leading-relaxed">{p}</p>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* FAQ Section */}
         {config.faqs && config.faqs.length > 0 && (

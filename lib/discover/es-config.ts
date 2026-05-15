@@ -8,6 +8,13 @@
 export type EsVariant = 'es' | 'es-ES';
 export type EsPageType = 'location' | 'niche';
 
+export type ContentSection =
+  | { type: 'h2'; content: string }
+  | { type: 'h3'; content: string }
+  | { type: 'paragraph'; content: string }
+  | { type: 'table'; headers: string[]; rows: string[][] }
+  | { type: 'bullets'; items: string[] };
+
 export interface EsPageConfig {
   variant: EsVariant;
   type: EsPageType;
@@ -27,6 +34,7 @@ export interface EsPageConfig {
     heading: string;
     paragraphs: string[];
   };
+  sections?: ContentSection[];
   faqs?: Array<{
     question: string;
     answer: string;
