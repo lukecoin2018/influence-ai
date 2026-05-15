@@ -27,6 +27,10 @@ export interface EsPageConfig {
     heading: string;
     paragraphs: string[];
   };
+  faqs?: Array<{
+    question: string;
+    answer: string;
+  }>;
 }
 
 // Spanish-speaking countries to filter niche pages by

@@ -33,8 +33,10 @@ export async function generateMetadata({
     alternates: {
       canonical: url,
       languages: {
+        'x-default': `https://influenceit.app/discover/${config.englishSlug}`,
         'en': `https://influenceit.app/discover/${config.englishSlug}`,
         'es-ES': url,
+        'es': `https://influenceit.app/es/discover/${slug}`,
       },
     },
     openGraph: {
@@ -152,9 +154,42 @@ export default async function EsEsDiscoverPage({
     ],
   };
 
+  const collectionPageJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: config.title,
+    description: config.description,
+    url: `https://influenceit.app/es-es/discover/${slug}`,
+    numberOfItems: totalCreators,
+    provider: {
+      '@type': 'Organization',
+      name: 'InfluenceIT',
+      url: 'https://influenceit.app',
+    },
+  };
+
+  const faqJsonLd = config.faqs && config.faqs.length > 0
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: config.faqs.map((faq) => ({
+          '@type': 'Question',
+          name: faq.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: faq.answer,
+          },
+        })),
+      }
+    : null;
+
   return (
     <div className="min-h-screen bg-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionPageJsonLd) }} />
+      {faqJsonLd && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      )}
 
       {/* Hero */}
       <div className="bg-gray-50 border-b border-gray-200">
@@ -258,6 +293,30 @@ export default async function EsEsDiscoverPage({
             ))}
           </div>
         </div>
+
+        {/* FAQ Section */}
+        {config.faqs && config.faqs.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-2xl font-extrabold text-gray-900 mb-6">
+              Preguntas Frecuentes
+            </h2>
+            <div className="space-y-4">
+              {config.faqs.map((faq, i) => (
+                <div
+                  key={i}
+                  className="rounded-2xl border border-gray-100 bg-white px-6 py-5"
+                >
+                  <h3 className="text-base font-bold text-gray-900 mb-2">
+                    {faq.question}
+                  </h3>
+                  <p className="text-gray-600 leading-relaxed text-[15px]">
+                    {faq.answer}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Related pages */}
         {config.related.length > 0 && (
