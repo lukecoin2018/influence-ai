@@ -637,26 +637,131 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Los picos estacionales son enero, primavera y septiembre. Reservar creadores con 8–12 semanas de antelación es esencial durante estos periodos.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Fitness en Instagram: Engagement Excepcional en el Nicho',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores de fitness de nivel medio en Instagram generan una tasa de engagement media del 14,10% — una de las más altas de cualquier nicho en la plataforma. Con una media de 201.429 visualizaciones por publicación en formato vídeo, el fitness en Instagram combina audiencias de alta intención de compra con un alcance por publicación muy superior a la media de la plataforma.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Tasa de engagement media (nivel medio)', '14,10%'],
+          ['Media de visualizaciones por publicación (vídeo)', '201.429'],
+          ['Rango de seguidores objetivo', '50.000 – 500.000'],
+          ['Categorías principales del nicho', 'Gym, entrenamiento en casa, yoga, nutrición deportiva'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué las Audiencias de Fitness Tienen la Mayor Intención de Compra',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los seguidores de creadores de fitness están en un modo de inversión activa en su salud. Compran suplementos, ropa deportiva, equipamiento para casa y apps de entrenamiento de forma regular — lo que los convierte en una audiencia con una predisposición de gasto activa que pocas otras categorías pueden igualar. Esta intención de compra alta se refleja directamente en el 14,10% de engagement que los creadores de fitness de nivel medio generan en Instagram.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Contenido de Fitness con Mayor Conversión',
+      },
+      {
+        type: 'h3',
+        content: 'Tutoriales de Entrenamiento: Las Mayores Tasas de Guardado del Nicho',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los tutoriales de ejercicios — rutinas de gym, entrenamientos en casa, series con instrucción técnica — generan las tasas de guardado más altas del nicho de fitness. Los usuarios guardan rutinas para seguirlas más tarde, lo que crea exposición repetida de los productos integrados sin coste adicional para la marca.',
+      },
+      {
+        type: 'h3',
+        content: '"Lo Que Como en un Día": Conversión Directa para Marcas de Nutrición',
+      },
+      {
+        type: 'paragraph',
+        content: 'El formato "lo que como en un día" es uno de los de mayor conversión para marcas de suplementos, proteínas, snacks saludables y apps de nutrición. Las audiencias de fitness buscan activamente este tipo de contenido y actúan sobre los consejos nutricionales de los creadores que admiran, creando un contexto de compra de alta confianza.',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Tutoriales de ejercicios: mayores tasas de guardado, exposición de marca repetida',
+          '"Lo que como en un día": conversión directa para suplementos y nutrición',
+          'Transformaciones de 30 días: máxima credibilidad para suplementos y programas',
+          'Reseñas de equipamiento: alta intención de compra, audiencia buscando activamente opciones',
+          'Rutinas de yoga y movilidad: alto engagement, ideal para ropa deportiva y wellness',
+          'Desafíos 30-day challenge: participación de comunidad y contenido generado por usuarios',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Estrategia de Campaña por Categoría de Producto',
+      },
+      {
+        type: 'table',
+        headers: ['Categoría de producto', 'Formato óptimo', 'Temporada principal'],
+        rows: [
+          ['Suplementos y proteínas', '"Lo que como en un día", integración pre/post-entreno', 'Enero, septiembre'],
+          ['Ropa deportiva', 'Rutina de entrenamiento, OOTD fitness', 'Pre-verano, septiembre'],
+          ['Equipamiento para casa', 'Rutina home workout, setup de gym en casa', 'Enero'],
+          ['Apps de fitness y nutrición', 'Transformación de 30 días, seguimiento de progreso', 'Enero, pre-verano'],
+          ['Alimentación saludable', 'Meal prep, "lo que como", recetas fitness', 'Todo el año'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Fitness en Instagram, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post / Reel (€)', 'Pack 3 publicaciones (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '200 – 700', '500 – 1.800'],
+          ['Medio bajo', '50K – 150K', '700 – 2.200', '1.800 – 5.500'],
+          ['Medio alto', '150K – 500K', '2.200 – 6.500', '5.500 – 16.000'],
+          ['Macro', '500K+', '6.500 – 20.000+', '16.000 – 50.000+'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Picos Estacionales del Fitness en España: Cuándo Planificar',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Enero: Mayor pico del año — propósitos de nuevo año, matrículas de gimnasio, suplementos',
+          'Abril–Junio: Pre-verano — alta demanda de ropa deportiva, suplementos y apps',
+          'Septiembre: Segunda ola del año — vuelta a la rutina post-vacaciones',
+          'Noviembre: Black Friday fitness — equipamiento, suplementos a granel',
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: 'Reserva los creadores con 8–12 semanas de antelación para enero y septiembre. La demanda de colaboraciones de fitness se dispara en estos periodos y los mejores perfiles se ocupan con rapidez.',
+      },
+    ],
     faqs: [
       {
-        question: '¿Por qué las audiencias de fitness tienen una intención de compra tan alta?',
-        answer:
-          'Los seguidores de creadores de fitness están invirtiendo activamente en su salud — suplementos, equipamiento, ropa deportiva y apps convierten extremadamente bien porque ya tienen una mentalidad de gasto activa en esta categoría. Sus tasas de engagement del 4–9% reflejan comunidades que buscan activamente inspiración y guía, no consumo pasivo de contenido.',
+        question: '¿Qué tasa de engagement tienen los influencers de fitness de nivel medio en Instagram?',
+        answer: 'Los creadores de fitness de nivel medio en Instagram alcanzan una tasa de engagement media del 14,10% según los datos verificados de InfluenceIT — una de las más altas de cualquier nicho en la plataforma. Con 201.429 visualizaciones de media por publicación en vídeo, el fitness en Instagram combina engagement excepcional con un alcance sólido por publicación.',
       },
       {
-        question: '¿Qué formatos de contenido de fitness generan más guardadas en Instagram?',
-        answer:
-          'Los tutoriales de entrenamiento, las historias de transformación y el contenido "lo que como en un día" tienen las mayores tasas de guardado del nicho. Las guardadas indican que el usuario volverá al contenido para actuar — ideal para marcas de suplementos y equipamiento.',
+        question: '¿Por qué el nicho de fitness tiene tanta intención de compra?',
+        answer: 'Las audiencias de fitness están en un modo de inversión activa en su salud: compran suplementos, ropa deportiva, equipamiento y apps de entrenamiento regularmente. Esta predisposición de gasto activa hace que las recomendaciones de los creadores de fitness se traduzcan directamente en ventas con una tasa de conversión superior a la mayoría de otros nichos en Instagram.',
       },
       {
-        question: '¿Cómo debo integrar mi producto en contenido de fitness de forma auténtica?',
-        answer:
-          'Las campañas que mejor funcionan posicionan el producto en contenido de entrenamiento real: el creador usa tu suplemento antes del gym, tu ropa deportiva durante el entrenamiento o tu app para registrar su progreso. La narrativa de estilo atlético que presenta al creador como alguien que genuinamente usa tu producto genera significativamente más conversiones que las publicaciones de reseña independientes.',
+        question: '¿Qué formatos de contenido de fitness generan más conversiones para marcas?',
+        answer: 'Los tutoriales de entrenamiento (para suplementos y ropa) y el formato "lo que como en un día" (para nutrición) son los de mayor conversión. Ambos generan altas tasas de guardado e integran el producto en contexto de uso real, lo que aumenta significativamente la credibilidad y la tasa de actuación de la audiencia.',
       },
       {
-        question: '¿Cuáles son los momentos estacionales clave para campañas de fitness?',
-        answer:
-          'Los picos principales son enero (año nuevo), primavera (pre-verano) y septiembre (vuelta a la rutina). Reservar creadores con 8–12 semanas de antelación es esencial durante estos periodos, ya que la demanda de colaboraciones de fitness se dispara y los mejores creadores se reservan con rapidez.',
+        question: '¿Cuándo es el mejor momento para lanzar una campaña con influencers de fitness en España?',
+        answer: 'Enero es el pico de mayor demanda del año — matrículas de gimnasio y venta de suplementos alcanzan su máximo en el primer trimestre. El segundo pico es septiembre (vuelta a la rutina post-vacaciones). Reserva los creadores con 8–12 semanas de antelación para estos periodos, ya que los mejores perfiles se ocupan rápidamente.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un influencer de fitness en Instagram en España?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre 700€ y 6.500€ por publicación. Los packs de 3+ publicaciones son más eficientes en coste y generan mejores resultados porque las audiencias de fitness confían más en los creadores que usan los productos de forma continuada a lo largo del tiempo.',
       },
     ],
   },
@@ -680,26 +785,105 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'La estacionalidad del fitness en el mercado hispanohablante sigue patrones similares al global — enero, vuelta al cole en septiembre y pre-verano son los picos principales. Planifica las campañas con 8–12 semanas de antelación para estos momentos clave.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Fitness en TikTok: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 196 creadores de fitness verificados en TikTok, con una tasa de engagement mediana del 6,86% y una media de 574.944 visualizaciones por vídeo — uno de los promedios de visualización más altos de cualquier categoría de la base de datos. El fitness en TikTok combina audiencias de alta intención de compra con el mayor alcance por publicación disponible en redes sociales.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de fitness verificados en TikTok', '196'],
+          ['Tasa de engagement mediana', '6,86%'],
+          ['Media de visualizaciones por vídeo', '574.944'],
+          ['Comparativa: fitness Instagram mid-tier', '14,10% engagement / 201.429 vistas medias'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'TikTok vs. Instagram para Fitness: Cuándo Usar Cada Plataforma',
+      },
+      {
+        type: 'paragraph',
+        content: 'Fitness en TikTok e Instagram tienen perfiles complementarios. Instagram fitness ofrece un engagement del 14,10% de nivel medio — ideal para conversión directa y audiencias de alta confianza. TikTok fitness genera 574.944 visualizaciones de media por vídeo — ideal para descubrimiento masivo de marca y captación de nuevas audiencias. La estrategia más efectiva combina ambas plataformas: TikTok para alcance, Instagram para conversión.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Fitness que Dominan TikTok',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Rutinas de entrenamiento en casa: el formato de mayor búsqueda orgánica en fitness TikTok',
+          'Recetas fitness y meal prep: altamente compartible, ideal para marcas de nutrición',
+          'Transformaciones de 30/60 días: máxima credibilidad, viral por su factor motivacional',
+          'Ejercicios rápidos de 5–10 minutos: alto engagement por su aplicabilidad inmediata',
+          '"Pre-workout routine": integración natural de suplementos en contexto de uso real',
+          'Consejos de nutrición y suplementación: audiencia buscando activamente esta información',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué TikTok Convierte: El Factor Receptividad',
+      },
+      {
+        type: 'paragraph',
+        content: 'Las marcas de fitness que integran sus productos en formatos de entrenamiento naturales en TikTok ven tasas de conversión 3–5 veces superiores a los anuncios de display tradicionales. La razón es estructural: el usuario que ve una rutina de entrenamiento en TikTok y observa cómo el creador usa un suplemento específico está en un estado de alta receptividad — está pensando en fitness, está motivado, y acaba de recibir una recomendación de alguien en quien confía.',
+      },
+      {
+        type: 'h2',
+        content: 'Estacionalidad del Fitness en España: Cuándo Planificar Campañas',
+      },
+      {
+        type: 'table',
+        headers: ['Periodo', 'Oportunidad de campaña', 'Categorías prioritarias'],
+        rows: [
+          ['Enero', 'Propósitos de año nuevo', 'Suplementos, membresías, apps de entrenamiento'],
+          ['Marzo–Junio', 'Pre-verano, operación bikini', 'Ropa deportiva, proteínas, apps'],
+          ['Septiembre', 'Vuelta a la rutina post-vacaciones', 'Equipamiento, apps, suplementos'],
+          ['Noviembre', 'Black Friday fitness', 'Equipamiento, suplementos a granel'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Fitness en TikTok, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado (€)', 'Mención en rutina (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '200 – 750', '100 – 400'],
+          ['Medio bajo', '50K – 150K', '750 – 2.500', '400 – 1.300'],
+          ['Medio alto', '150K – 500K', '2.500 – 7.000', '1.300 – 3.500'],
+          ['Macro', '500K+', '7.000 – 22.000+', '3.500 – 11.000+'],
+        ],
+      },
+    ],
     faqs: [
       {
-        question: '¿Qué tasas de engagement puedo esperar de influencers de fitness en TikTok?',
-        answer:
-          'Los creadores de fitness hispanohablantes en TikTok tienen tasas de engagement entre el 6% y el 15%, algunas de las más altas en redes sociales. El formato de vídeo corto es perfecto para demostraciones de ejercicios y rutinas de entrenamiento que impulsan la acción inmediata de las audiencias.',
+        question: '¿Cuántos influencers de fitness verificados hay en TikTok en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 196 creadores de fitness verificados en TikTok, con una tasa de engagement mediana del 6,86% y una media de 574.944 visualizaciones por vídeo — uno de los promedios de visualización más altos de cualquier categoría de la base de datos.',
       },
       {
-        question: '¿Qué categorías de productos funcionan mejor con creadores de fitness en TikTok?',
-        answer:
-          'Suplementos deportivos, ropa de entrenamiento, equipamiento para casa y apps de fitness convierten excepcionalmente bien. Las marcas que integran sus productos en formatos de entrenamiento naturales — no en reseñas publicitarias — ven tasas de conversión 3–5× superiores a los anuncios tradicionales.',
+        question: '¿Qué media de visualizaciones genera un creador de fitness en TikTok?',
+        answer: 'La media verificada de visualizaciones por vídeo para creadores de fitness en TikTok es de 574.944. Una sola colaboración con un creador de nivel medio puede generar más de medio millón de impresiones — un alcance difícilmente replicable con publicidad de pago convencional al mismo coste.',
       },
       {
-        question: '¿Qué formatos de contenido de fitness generan más alcance orgánico en TikTok?',
-        answer:
-          'Las rutinas de entrenamiento en casa, las recetas de comidas saludables, las transformaciones de 30 días y los consejos de nutrición son los formatos de mayor rendimiento. El contenido de entrenamiento en casa sigue siendo uno de los formatos con más búsqueda orgánica en la plataforma.',
+        question: '¿Qué tipos de productos de fitness funcionan mejor en TikTok?',
+        answer: 'Suplementos deportivos y proteínas, ropa de entrenamiento, equipamiento para casa y apps de fitness son las categorías con mejor rendimiento. Los productos integrados naturalmente en una rutina de entrenamiento — como un suplemento pre-workout o una prenda durante el ejercicio — generan tasas de conversión 3–5× superiores a los formatos de reseña independiente.',
       },
       {
-        question: '¿Con cuánta antelación debo planificar campañas de fitness para enero o septiembre?',
-        answer:
-          'Planifica con 8–12 semanas de antelación para los picos estacionales clave: enero, la vuelta al cole en septiembre y el pre-verano. Los mejores creadores de fitness se reservan con rapidez durante estos periodos y los briefings necesitan tiempo para que el creador integre el producto de forma auténtica.',
+        question: '¿Con cuánta antelación debo planificar una campaña de fitness en TikTok para enero?',
+        answer: 'Enero es el pico de mayor demanda del mercado fitness. Para asegurar los mejores creadores, inicia la selección y negociación en octubre-noviembre, con contratos firmados en noviembre-diciembre. La producción de contenido debe arrancar a principios de enero para capturar el pico de búsqueda de propósitos de año nuevo.',
+      },
+      {
+        question: '¿Cuánto cuesta una colaboración de fitness en TikTok en España?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre 750€ y 7.000€ por vídeo dedicado. Las menciones integradas en rutinas de entrenamiento son más accesibles (400€–3.500€) y en muchos casos generan mayor credibilidad precisamente por su naturalidad dentro del contenido.',
       },
     ],
   },
@@ -723,26 +907,121 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Los creadores de lifestyle suelen trabajar con múltiples marcas — verifica conflictos antes de firmar y considera cláusulas de exclusividad para tu categoría de producto.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Lifestyle en Instagram: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 419 creadores de lifestyle verificados en Instagram, con una tasa de engagement media del 3,64% y una media de 64.416 visualizaciones por publicación en formato vídeo. El lifestyle ofrece la mayor versatilidad de categorías — desde hogar y decoración hasta viajes, alimentación y bienestar — lo que lo convierte en el segmento más flexible para integraciones de marca a lo largo del año.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de lifestyle verificados en Instagram', '419'],
+          ['Tasa de engagement media', '3,64%'],
+          ['Media de visualizaciones por publicación (vídeo)', '64.416'],
+          ['Categorías que abarca', 'Hogar, viajes, alimentación, bienestar, productividad'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'La Ventaja del Lifestyle: Un Creador, Múltiples Contextos de Producto',
+      },
+      {
+        type: 'paragraph',
+        content: 'A diferencia de los creadores especializados, los creadores de lifestyle pueden integrar tu producto en múltiples contextos a lo largo del año: en una rutina matutina, en el trabajo desde casa, en un fin de semana de viaje o en la decoración del hogar. Esta versatilidad produce una variedad de contenido que refuerza el mensaje de marca desde múltiples ángulos sin que la audiencia perciba saturación publicitaria.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Lifestyle con Mayores Tasas de Guardado',
+      },
+      {
+        type: 'h3',
+        content: '"Un Día en Mi Vida": El Formato de Mayor Confianza de Audiencia',
+      },
+      {
+        type: 'paragraph',
+        content: 'El formato "un día en mi vida" — documentación de una jornada completa en vídeo o carrusel — es el que genera mayor confianza de audiencia en el nicho de lifestyle. La integración de un producto en el contexto de una jornada real elimina la percepción de publicidad y crea la sensación de una recomendación genuina, no de un endorsement planificado.',
+      },
+      {
+        type: 'h3',
+        content: 'Decoración del Hogar: Las Tasas de Guardado Más Altas del Nicho',
+      },
+      {
+        type: 'paragraph',
+        content: 'El contenido de decoración del hogar — tour de habitación, antes y después, "cómo organicé mi espacio" — genera las tasas de guardado más altas del nicho de lifestyle en Instagram. Los usuarios guardan este tipo de contenido como referencia para sus propios proyectos, creando exposición de marca repetida sin coste adicional.',
+      },
+      {
+        type: 'bullets',
+        items: [
+          '"Un día en mi vida": máxima confianza de audiencia, integración de producto más natural',
+          'Rutinas matutinas: exposición del producto en contexto de alta receptividad',
+          'Decoración del hogar before/after: las tasas de guardado más altas del nicho',
+          'Organización y productividad: audiencia de alta motivación, receptiva a recomendaciones',
+          'Contenido de viaje: alcance ampliado, aspiracional para la audiencia española',
+          '"Lo que hay en mi nevera / despensa": integración natural de productos de alimentación',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Integraciones de Marca que Funcionan: Lo Natural Supera a lo Publicitario',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los productos que aparecen en uso durante una rutina documentada o se mencionan como parte de la jornada tienen un recuerdo de marca 2–3 veces superior a los posts de reseña independiente. Las audiencias de lifestyle son especialmente sensibles al contenido que parece forzado o ajeno al estilo del creador — un brief bien calibrado es la diferencia entre una integración que convierte y una que genera rechazo.',
+      },
+      {
+        type: 'h2',
+        content: 'Qué Revisar Antes de Firmar con un Creador de Lifestyle',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Verifica conflictos de categoría: los creadores de lifestyle trabajan con múltiples marcas simultáneamente',
+          'Negocia exclusividad de categoría si tu producto es sensible a la competencia directa',
+          'Revisa el historial de colaboraciones previas: ¿cómo ha integrado otras marcas?',
+          'Comprueba la coherencia estética: ¿encaja visualmente tu producto con el feed del creador?',
+          'Analiza los comentarios: ¿la audiencia pregunta y actúa sobre productos recomendados?',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Lifestyle en Instagram, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post / Reel (€)', 'Carrusel "día en mi vida" (€)', 'Pack Stories (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '120 – 450', '180 – 600', '80 – 250'],
+          ['Medio bajo', '50K – 150K', '450 – 1.300', '600 – 1.800', '250 – 700'],
+          ['Medio alto', '150K – 500K', '1.300 – 3.800', '1.800 – 5.000', '700 – 1.800'],
+          ['Macro', '500K+', '3.800 – 12.000+', '5.000 – 15.000+', '1.800 – 5.500+'],
+        ],
+      },
+    ],
     faqs: [
       {
-        question: '¿Por qué los creadores de lifestyle son los socios más versátiles para colaboraciones de marca?',
-        answer:
-          'El contenido de lifestyle abarca naturalmente el hogar, el bienestar, la moda, la gastronomía y los viajes — lo que los hace ideales para marcas que no encajan perfectamente en un solo nicho. Un solo creador de lifestyle puede integrar tu producto en múltiples contextos a lo largo del año, generando exposición sostenida en lugar de publicaciones puntuales.',
+        question: '¿Cuántos influencers de lifestyle verificados hay en Instagram en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 419 creadores de lifestyle verificados en Instagram con una tasa de engagement media del 3,64% y una media de 64.416 visualizaciones por publicación en formato vídeo.',
       },
       {
-        question: '¿Qué tipos de contenido de lifestyle generan más guardadas en Instagram?',
-        answer:
-          'El contenido "Un día en mi vida" y las publicaciones sobre decoración del hogar generan tasas de guardado inusualmente altas. Las guardadas indican que las audiencias valoran el contenido como referencia — señal de que el producto integrado queda asociado con una aspiración real del usuario.',
+        question: '¿Por qué los creadores de lifestyle son más versátiles que los especializados?',
+        answer: 'Los creadores de lifestyle pueden integrar tu producto en múltiples contextos a lo largo del año — rutinas matutinas, viajes, hogar, trabajo, alimentación — sin que la audiencia perciba saturación. Esta versatilidad produce una variedad de contenido que refuerza el mensaje de marca desde múltiples ángulos, algo que los creadores especializados en un único nicho no pueden ofrecer.',
       },
       {
-        question: '¿Cómo funcionan las integraciones de marca más efectivas en contenido de lifestyle?',
-        answer:
-          'Las integraciones más efectivas se sienten como adiciones naturales a la vida del creador. Los productos en contenido de "rutina matutina" o "actividades del fin de semana" tienen un 2–3× mejor recuerdo de marca que las publicaciones de reseña independientes, porque el producto aparece en un contexto de uso real en lugar de en un entorno de presentación artificial.',
+        question: '¿Qué formatos de lifestyle generan más guardadas en Instagram?',
+        answer: 'El contenido de decoración del hogar (before/after, tours, organización) genera las tasas de guardado más altas del nicho. El formato "un día en mi vida" es el de mayor confianza de audiencia. Ambos son especialmente eficaces para integrar productos porque los usuarios guardan el contenido como referencia y lo consultan repetidamente.',
       },
       {
-        question: '¿Debo incluir cláusulas de exclusividad en contratos con creadores de lifestyle?',
-        answer:
-          'Sí, es recomendable. Los creadores de lifestyle suelen trabajar con múltiples marcas simultáneamente, por lo que verificar conflictos de categoría antes de firmar y negociar exclusividad para tu categoría de producto protege la inversión y evita que la asociación de marca se diluya con competidores directos.',
+        question: '¿Debo negociar exclusividad con un creador de lifestyle?',
+        answer: 'Es recomendable para marcas con competidores directos en la misma categoría. Los creadores de lifestyle trabajan habitualmente con múltiples marcas de categorías diferentes, por lo que la exclusividad de categoría — no de toda la cuenta — es el estándar del mercado. Verifica siempre las colaboraciones activas antes de firmar para evitar conflictos de imagen.',
+      },
+      {
+        question: '¿Cuánto cuesta una colaboración con un influencer de lifestyle en Instagram en España?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre 450€ y 5.000€ dependiendo del formato. Los carruseles de "un día en mi vida" tienen un coste superior a los posts estáticos pero generan mayor confianza de audiencia e integración de producto más natural, lo que los hace más eficientes en términos de coste por conversión.',
       },
     ],
   },
@@ -766,26 +1045,107 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Los creadores de lifestyle en TikTok que tienen entre 50K y 500K seguidores ofrecen el mejor equilibrio entre alcance y autenticidad para campañas en el mercado hispanohablante. Sus audiencias son lo suficientemente grandes para impulsar resultados medibles, pero lo suficientemente íntimas para que las recomendaciones de productos tengan un impacto genuino.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Lifestyle en TikTok: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 963 creadores de lifestyle verificados en TikTok — la segunda categoría más grande de la plataforma, solo tras moda. La tasa de engagement mediana es del 9,08%, con una media de 535.380 visualizaciones por vídeo. El lifestyle en TikTok combina el mayor alcance de la plataforma con una versatilidad de integración de producto que ningún otro nicho puede igualar.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de lifestyle verificados en TikTok', '963'],
+          ['Tasa de engagement mediana', '9,08%'],
+          ['Media de visualizaciones por vídeo', '535.380'],
+          ['Posición en ranking de categorías TikTok', '2ª mayor categoría (moda: 1.317)'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'TikTok vs. Instagram para Lifestyle: Cómo Combinar Ambas Plataformas',
+      },
+      {
+        type: 'table',
+        headers: ['Objetivo de campaña', 'Plataforma óptima', 'Razón'],
+        rows: [
+          ['Alcance masivo y descubrimiento', 'TikTok', '535.380 vistas medias por vídeo'],
+          ['Construcción de comunidad fidelizada', 'Instagram', '419 creadores, 3,64% engagement sostenido'],
+          ['Lanzamiento de producto nuevo', 'TikTok', 'Distribución algorítmica a audiencias frías'],
+          ['Integración de rutina a largo plazo', 'Instagram', 'Mayor recuerdo de marca por guardadas'],
+          ['Campaña aspiracional accesible', 'TikTok', 'Lifestyle cotidiano viralizable'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Lifestyle con Mayor Rendimiento en TikTok',
+      },
+      {
+        type: 'bullets',
+        items: [
+          '"Un día en mi vida": el formato de mayor engagement y retención en lifestyle TikTok',
+          'Rutinas matutinas: alto consumo orgánico, integración de producto en contexto de alta receptividad',
+          'Organización del hogar y apartment tour: viral por aspiracionalidad accesible',
+          'Productividad y hábitos ("5 hábitos que cambiaron mi vida"): audiencia de alta motivación',
+          'Cooking y meal prep cotidiano: integración natural de alimentación y menaje',
+          '"Lo que compré esta semana": haul aplicado al lifestyle general, alta curiosidad de audiencia',
+          'Escapadas de fin de semana: aspiracionalidad más alcance ampliado por contexto de viaje',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'La Regla del Lifestyle en TikTok: Lo Aspiracional Accesible Convierte Más',
+      },
+      {
+        type: 'paragraph',
+        content: 'El contenido de lifestyle que mejor convierte en TikTok no es el que muestra vidas de lujo inalcanzables — es el que muestra vidas deseables pero posibles. Los creadores que muestran apartamentos bien decorados con presupuesto ajustado, rutinas de bienestar asequibles o pequeñas mejoras cotidianas generan más intención de compra que los que exhiben un estilo de vida de alto gasto. Esta característica es especialmente relevante en el mercado español, donde la practicidad y el valor percibido son criterios de compra importantes.',
+      },
+      {
+        type: 'h2',
+        content: 'Qué Productos Funcionan Mejor en Lifestyle TikTok',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los productos que mejoran la calidad de vida cotidiana convierten especialmente bien: organización del hogar, tecnología inteligente, cuidado personal, alimentación saludable y apps de productividad. La clave es que el producto pueda integrarse en el contexto diario del creador sin que parezca forzado — las audiencias de TikTok detectan con facilidad cuando una integración no es auténtica y el engagement cae de forma inmediata.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Lifestyle en TikTok, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado (€)', 'Integración en vlog / rutina (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '150 – 550', '80 – 300'],
+          ['Medio bajo', '50K – 150K', '550 – 1.700', '300 – 900'],
+          ['Medio alto', '150K – 500K', '1.700 – 5.000', '900 – 2.600'],
+          ['Macro', '500K+', '5.000 – 16.000+', '2.600 – 8.000+'],
+        ],
+      },
+    ],
     faqs: [
       {
-        question: '¿Qué tipos de productos encajan mejor con creadores de lifestyle en TikTok?',
-        answer:
-          'Los productos que mejoran la calidad de vida cotidiana convierten especialmente bien: organización del hogar, tecnología inteligente, cuidado personal, alimentación saludable y viajes. Si tu producto puede integrarse naturalmente en una rutina diaria, los creadores de lifestyle hispanohablantes en TikTok son los socios más efectivos disponibles.',
+        question: '¿Cuántos influencers de lifestyle hay en TikTok en la base de datos de InfluenceIT?',
+        answer: 'InfluenceIT tiene verificados 963 creadores de lifestyle en TikTok — la segunda categoría más grande tras moda. La tasa de engagement mediana es del 9,08% con una media de 535.380 visualizaciones por vídeo.',
       },
       {
-        question: '¿Por qué el contenido de lifestyle en TikTok se percibe como más auténtico que la publicidad tradicional?',
-        answer:
-          'Los formatos "Un día en mi vida" y las rutinas matutinas presentan el producto en contexto de uso real, no en un entorno de presentación artificial. Las integraciones de marca en estos formatos se perciben como recomendaciones genuinas — la diferencia en tasas de conversión respecto a la publicidad tradicional puede ser de 3 a 5×.',
+        question: '¿Qué engagement medio puedo esperar de una colaboración de lifestyle en TikTok?',
+        answer: 'La tasa de engagement mediana para creadores de lifestyle en TikTok es del 9,08%, con una media de 535.380 visualizaciones por vídeo. Este nivel, combinado con el tamaño de la base (963 creadores verificados), ofrece una combinación de escala y calidad de audiencia difícil de encontrar en otras plataformas o nichos.',
       },
       {
-        question: '¿Qué rango de seguidores ofrece el mejor equilibrio para campañas de lifestyle en TikTok?',
-        answer:
-          'Los creadores entre 50K y 500K seguidores ofrecen el mejor equilibrio entre alcance y autenticidad. Sus audiencias son lo suficientemente grandes para impulsar resultados medibles, pero lo suficientemente íntimas para que las recomendaciones de producto tengan un impacto genuino y no se pierdan en el ruido de cuentas masivas.',
+        question: '¿Qué tipos de productos se integran mejor en contenido de lifestyle en TikTok?',
+        answer: 'Los productos que mejoran la calidad de vida cotidiana convierten especialmente bien: organización del hogar, tecnología doméstica, alimentación saludable, cuidado personal y apps de productividad. La clave es que el producto pueda integrarse en el contexto diario del creador sin que parezca forzado — las audiencias de TikTok detectan con facilidad las integraciones no auténticas.',
       },
       {
-        question: '¿Cómo puede un creador de lifestyle integrar mi producto en múltiples contextos?',
-        answer:
-          'Un solo creador de lifestyle puede mostrar tu producto en su rutina matutina, en el trabajo, durante el tiempo libre y en viajes — generando una variedad de contenido que refuerza el mensaje de marca desde múltiples ángulos. Esta versatilidad es la mayor ventaja del nicho de lifestyle frente a categorías más especializadas.',
+        question: '¿Cuánto cuesta una colaboración de lifestyle en TikTok en España?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre 550€ y 5.000€ por vídeo dedicado. Las integraciones en formato vlog o rutina donde el producto aparece en contexto real son más accesibles (300€–2.600€) y suelen generar mayor confianza de audiencia precisamente por su naturalidad.',
+      },
+      {
+        question: '¿Por qué el contenido "aspiracional accesible" convierte mejor en el mercado español?',
+        answer: 'El mercado español valora la practicidad y el valor percibido. El contenido de lifestyle que muestra vidas deseables pero alcanzables — mejoras cotidianas concretas, rutinas asequibles, decoración de hogar con presupuesto real — genera mayor intención de compra que el lujo inalcanzable. Los creadores que conectan mejoras de calidad de vida con productos a precios razonables tienen tasas de conversión significativamente superiores en el mercado español.',
       },
     ],
   },
