@@ -2299,6 +2299,123 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de belleza que buscan penetración en América Latina, los creadores de Instagram son el canal de marketing más efectivo disponible. Las recomendaciones boca a boca digitales a través de creadores de confianza superan consistentemente a la publicidad tradicional en conversión y coste por adquisición en todos los mercados latinoamericanos principales.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Belleza en Instagram en América Latina: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 263 creadores de belleza verificados en Instagram con entre 50.000 y 500.000 seguidores, con una tasa de engagement media del 3,67% calculada a partir de las 15 publicaciones más recientes de cada perfil. América Latina representa uno de los mercados de belleza de más rápido crecimiento del mundo — y sus creadores de Instagram son el canal más eficaz para llegar a ese consumidor.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de belleza verificados en Instagram', '263'],
+          ['Tasa de engagement media', '3,67%'],
+          ['Rango de seguidores', '50.000 – 500.000'],
+          ['Mercados principales', 'Colombia, México, Perú, Chile, Argentina'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Mercado de Belleza Latinoamericano: Contexto y Oportunidad',
+      },
+      {
+        type: 'paragraph',
+        content: 'América Latina tiene uno de los mercados de belleza de más rápido crecimiento del mundo. Las consumidoras latinoamericanas tienen una relación profunda y activa con los productos de belleza — el cuidado del cabello, el maquillaje y el skincare son categorías de alta frecuencia de compra en todos los niveles socioeconómicos. Los creadores de belleza latinoamericanos en Instagram han construido comunidades altamente comprometidas que son pioneras en tendencias adoptadas globalmente, especialmente en cuidado del cabello y maquillaje vibrante.',
+      },
+      {
+        type: 'h2',
+        content: 'Características Únicas del Mercado de Belleza Latinoamericano',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Diversidad de tipos de piel y cabello: el contenido inclusivo tiene ventaja competitiva natural en LatAm',
+          'Clima tropical y subtropical: necesidades de skincare diferentes a los mercados europeos (SPF, control sebáceo)',
+          'Sensibilidad al precio: el formato dupe vs premium es el más viral en belleza latinoamericana',
+          'Fuerte cultura de recomendación boca a boca digital: las audiencias latinoamericanas comparten activamente',
+          'Mercados diferenciados: lo que funciona en Colombia no siempre funciona en Chile — diversifica geográficamente',
+          'Acceso a marcas locales fuertes: los creadores que mezclan marcas internacionales con locales generan más confianza',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Mayor Rendimiento en Belleza Instagram LatAm',
+      },
+      {
+        type: 'paragraph',
+        content: 'Las audiencias latinoamericanas de belleza en Instagram son especialmente activas en los comentarios — preguntan sobre productos, comparten alternativas y forman comunidades genuinas alrededor de los creadores. Los formatos que estimulan esta participación activa generan los mejores resultados: tutoriales que invitan a preguntas, comparativas que generan debate y reseñas honestas que incluyen el factor precio.',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Tutoriales adaptados al clima: skincare para humedad, maquillaje de larga duración en calor',
+          'Dupes latinoamericanos: alternativas accesibles a productos internacionales — altísima viralidad',
+          'Cuidado del cabello: una de las categorías de mayor engagement en belleza LatAm Instagram',
+          'Maquillaje adaptado a tones de piel latinoamericanos: audiencia que busca representación activa',
+          'Rutinas de noche accesibles: alto engagement, audiencia con intención de compra real',
+          'Antes y después con uso real de 4+ semanas: máxima credibilidad en el mercado latinoamericano',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Belleza en Instagram, América Latina (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post estático ($)', 'Reel ($)', 'Pack 3 Stories ($)'],
+        rows: [
+          ['Micro', '10K – 50K', '$80 – $350', '$150 – $600', '$60 – $200'],
+          ['Medio bajo', '50K – 150K', '$350 – $1.000', '$600 – $1.800', '$200 – $600'],
+          ['Medio alto', '150K – 500K', '$1.000 – $3.500', '$1.800 – $5.500', '$600 – $1.500'],
+          ['Macro', '500K+', '$3.500 – $12.000+', '$5.500 – $18.000+', '$1.500 – $5.000+'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: 'Los precios de colaboración con creadores latinoamericanos de Instagram son significativamente más accesibles que los equivalentes europeos o norteamericanos, con tasas de engagement igualmente altas o superiores. Esto convierte a los creadores de belleza latinoamericanos en uno de los activos de mayor retorno de inversión disponibles en el marketing de influencers global.',
+      },
+      {
+        type: 'h2',
+        content: 'Estrategia por País: Cómo Diversificar tu Campaña en LatAm',
+      },
+      {
+        type: 'table',
+        headers: ['País', 'Fortaleza de belleza', 'Audiencia objetivo'],
+        rows: [
+          ['Colombia', 'Maquillaje vibrante, cuidado del cabello rizado', 'Mercado colombiano + diaspora'],
+          ['México', 'Belleza mestiza, maquillaje artístico, skincare', 'México + comunidad hispana en EE.UU.'],
+          ['Perú', 'Cuidado de piel para clima variado, tonos andinos', 'Mercado peruano + región andina'],
+          ['Chile', 'Skincare europeo, belleza sofisticada', 'Chile + Cono Sur'],
+          ['Argentina', 'Tendencias europeas, moda + belleza fusionadas', 'Argentina + Cono Sur'],
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos influencers de belleza latinoamericanos verificados hay en Instagram en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 263 creadores de belleza verificados en Instagram con entre 50.000 y 500.000 seguidores y una tasa de engagement media del 3,67%, calculada a partir de las 15 publicaciones más recientes de cada perfil para garantizar datos actuales y representativos.',
+      },
+      {
+        question: '¿Por qué el mercado de belleza latinoamericano es una oportunidad prioritaria para marcas globales?',
+        answer: 'América Latina es uno de los mercados de belleza de más rápido crecimiento del mundo. Las consumidoras latinoamericanas tienen una relación profunda y frecuente con los productos de belleza, y los creadores de Instagram son el principal canal de descubrimiento de nuevas marcas. Los costes de colaboración son significativamente más accesibles que en mercados europeos o norteamericanos, con tasas de engagement igualmente altas o superiores.',
+      },
+      {
+        question: '¿Qué formatos de contenido de belleza funcionan mejor en el mercado latinoamericano?',
+        answer: 'Los dupes latinoamericanos (alternativas accesibles a productos internacionales), los tutoriales adaptados a tipos de piel y clima locales, y el cuidado del cabello son los formatos de mayor viralidad. Las audiencias latinoamericanas valoran especialmente el contenido que reconoce su diversidad de tonos de piel y las condiciones climáticas locales — un factor diferenciador clave respecto al contenido importado.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un influencer de belleza en Instagram en América Latina?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre $350 y $5.500 USD por pieza de contenido. Estos precios son significativamente más accesibles que los equivalentes europeos o norteamericanos, con tasas de engagement comparables o superiores, lo que convierte a los creadores latinoamericanos en uno de los activos de mayor ROI disponibles.',
+      },
+      {
+        question: '¿Debo trabajar con creadores de un solo país o diversificar geográficamente en LatAm?',
+        answer: 'Para marcas que buscan presencia regional en LatAm, la diversificación geográfica es más eficiente. Los mercados de Colombia, México, Perú, Chile y Argentina tienen características culturales, climáticas y socioeconómicas distintas — lo que funciona en un mercado no siempre resuena en otro. Una estrategia de 3–5 creadores de países diferentes genera mayor cobertura y relevancia cultural que concentrar el presupuesto en un único mercado.',
+      },
+    ],
   },
 
   'belleza-tiktok-latam': {
@@ -2320,6 +2437,101 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de belleza que buscan eficiencia máxima en América Latina, los creadores de TikTok ofrecen el mejor retorno de inversión disponible: costes de asociación accesibles, tasas de engagement excepcionales y alcance que se extiende orgánicamente más allá del país de origen del creador hacia todo el mercado hispanohablante.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Belleza en TikTok en América Latina: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 651 creadores de belleza verificados en TikTok — la categoría más grande de la plataforma en la base de datos. La tasa de engagement mediana es del 8,54%, con una media de 523.561 visualizaciones por vídeo. Los creadores de belleza latinoamericanos en TikTok son pioneros en tendencias que se adoptan en todo el mercado hispanohablante global.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de belleza verificados en TikTok', '651'],
+          ['Tasa de engagement mediana', '8,54%'],
+          ['Media de visualizaciones por vídeo', '523.561'],
+          ['Mercados principales', 'México, Colombia, Argentina, Perú, Chile'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'TikTok y el Mercado de Belleza Latinoamericano: Una Revolución en Marcha',
+      },
+      {
+        type: 'paragraph',
+        content: 'TikTok ha transformado el mercado de belleza latinoamericano de formas que ninguna otra plataforma había logrado. Los creadores de belleza de Colombia, México, Perú, Chile y Argentina producen contenido viral que establece tendencias en todo el mundo hispanohablante — y cada vez más, influye en tendencias de belleza globales. Una reseña positiva de un creador de belleza latinoamericano de confianza en TikTok puede agotar el stock de un producto en días en múltiples países.',
+      },
+      {
+        type: 'h2',
+        content: '#BeautyTok en Español: Alcance Global con Autenticidad Local',
+      },
+      {
+        type: 'paragraph',
+        content: 'El contenido de belleza en español en TikTok alcanza a más de 500 millones de hispanohablantes en todo el mundo. Un creador colombiano puede generar engagement en México, España y la comunidad hispana de Estados Unidos con un solo vídeo. Esta distribución orgánica automática es una ventaja estructural que los creadores de otros idiomas no tienen — y que las marcas que trabajan con creadores latinoamericanos aprovechan sin costo adicional.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Belleza TikTok con Mayor Rendimiento en LatAm',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Maquillaje para piel latinoamericana: tutoriales específicos para tonos medios y oscuros — alta demanda',
+          'Dupes latinoamericanos: alternativas locales a productos internacionales — formato más viral de belleza LatAm',
+          'Cuidado del cabello para climas tropicales: alta búsqueda orgánica en Colombia, México, Perú',
+          'Rutinas de skincare para clima húmedo: contenido muy buscado en mercados tropicales',
+          'Maquillaje artístico inspirado en cultura latinoamericana: alta viralidad internacional',
+          'Reseñas honestas con precio en moneda local: genera confianza y relevancia cultural inmediata',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué los Creadores Latinoamericanos de TikTok Ofrecen el Mejor ROI en Belleza',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los costes de asociación con creadores de belleza latinoamericanos en TikTok son significativamente más bajos que los equivalentes norteamericanos o europeos. Con tasas de engagement medianas del 8,54% y 523.561 visualizaciones de media por vídeo, el coste por impresión y el coste por engagement son de los más eficientes disponibles en el marketing de influencers global. Para marcas de belleza con objetivos en el mercado hispanohablante, esta combinación de alcance, engagement y coste no tiene equivalente.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Belleza en TikTok, América Latina (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado ($)', 'Mención integrada ($)', 'Pack 3 vídeos ($)'],
+        rows: [
+          ['Micro', '10K – 50K', '$100 – $500', '$50 – $250', '$280 – $1.200'],
+          ['Medio bajo', '50K – 150K', '$500 – $1.500', '$250 – $750', '$1.200 – $3.800'],
+          ['Medio alto', '150K – 500K', '$1.500 – $4.500', '$750 – $2.200', '$3.800 – $11.000'],
+          ['Macro', '500K+', '$4.500 – $15.000+', '$2.200 – $7.500+', '$11.000 – $38.000+'],
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos influencers de belleza latinoamericanos hay en TikTok en InfluenceIT?',
+        answer: 'InfluenceIT tiene verificados 651 creadores de belleza en TikTok — la categoría más grande de la plataforma en la base de datos. La tasa de engagement mediana es del 8,54% con una media de 523.561 visualizaciones por vídeo.',
+      },
+      {
+        question: '¿Qué ventaja tienen los creadores latinoamericanos de TikTok sobre los de otros mercados?',
+        answer: 'Los creadores latinoamericanos publican en español, accediendo automáticamente a más de 500 millones de hispanohablantes en todo el mundo. Sus costes de colaboración son significativamente más accesibles que los equivalentes norteamericanos o europeos, con tasas de engagement del 8,54% de mediana y 523.561 visualizaciones de media por vídeo — una combinación de alcance, engagement y coste difícilmente replicable en otros mercados.',
+      },
+      {
+        question: '¿Qué formatos de belleza funcionan mejor en TikTok para el mercado latinoamericano?',
+        answer: 'Los dupes latinoamericanos (alternativas locales a productos internacionales) son el formato más viral de belleza LatAm en TikTok. Los tutoriales de maquillaje para tonos de piel latinoamericanos y el cuidado del cabello para climas tropicales también generan altísimo engagement porque responden a necesidades específicas que el contenido importado de mercados anglosajones no cubre.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un influencer de belleza latinoamericano en TikTok?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre $500 y $4.500 USD por vídeo dedicado. Estos precios son considerablemente más accesibles que los equivalentes en mercados europeos o norteamericanos, con tasas de engagement igualmente altas o superiores.',
+      },
+      {
+        question: '¿Una reseña de un creador de belleza latinoamericano en TikTok puede impactar ventas en múltiples países?',
+        answer: 'Sí. El contenido en español en TikTok se distribuye orgánicamente a toda la comunidad hispanohablante global. Una reseña de un creador colombiano puede generar ventas en México, España, Argentina y la comunidad hispana de Estados Unidos simultáneamente — sin costo adicional para la marca. Esto convierte cada colaboración en una oportunidad de impacto multinacional.',
+      },
+    ],
   },
 
   'moda-instagram-latam': {
@@ -2341,6 +2553,109 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de moda que buscan presencia en América Latina, la estrategia más efectiva es trabajar con creadores de múltiples países simultáneamente — reflejando la diversidad del mercado y evitando la percepción de favoritismo regional que puede surgir de campañas concentradas en un solo país.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Moda en Instagram en América Latina: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 568 creadores de moda verificados en Instagram con una tasa de engagement media del 3,23%. El mercado de moda latinoamericano tiene una identidad visual propia — una fusión de influencias indígenas, europeas y contemporáneas que produce creadores con estilos genuinamente únicos, no simples imitaciones de tendencias importadas.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de moda verificados en Instagram', '568'],
+          ['Tasa de engagement media', '3,23%'],
+          ['Rango de seguidores', '50.000 – 500.000'],
+          ['Mercados más activos', 'México, Colombia, Argentina, Chile'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'La Identidad de la Moda Latinoamericana en Instagram: Auténtica, no Derivativa',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores de moda latinoamericanos han desarrollado estilos propios que son reconocibles e influyentes a nivel global. Los creadores mexicanos tienden hacia paletas vibrantes con influencias culturales locales; los colombianos destacan en moda urbana contemporánea con alto engagement; los argentinos tienen una fuerte tradición de moda con influencia europea; los chilenos combinan sofisticación con practicidad. Esta diversidad estética ofrece a las marcas contextos de contenido auténticos que pocas otras regiones del mundo pueden igualar.',
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué la Diversificación Geográfica es Clave en Campañas de Moda LatAm',
+      },
+      {
+        type: 'paragraph',
+        content: 'El mercado de moda latinoamericano no es un mercado homogéneo — es una colección de mercados nacionales con identidades estéticas, poderes adquisitivos y referencias culturales distintas. Las marcas que tratan LatAm como un mercado único producen campañas que resultan genéricas. Las que trabajan con creadores de múltiples países simultáneamente generan relevancia cultural local en cada mercado, evitando la percepción de favoritismo regional.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Moda con Mayor Rendimiento en Instagram LatAm',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Carruseles de "X looks con una prenda": tasas de guardado excepcionales, referencia repetida',
+          'Outfits para diferentes presupuestos: alta resonancia en mercados con diversidad de poder adquisitivo',
+          'Moda adaptada al clima local: contenido que refleja las condiciones reales del mercado objetivo',
+          'Reels de styling para ocasiones específicas: graduaciones, quinceañeras, eventos culturales latinoamericanos',
+          'Hauls de marcas locales mezcladas con internacionales: credibilidad + aspiracionalidad en balance',
+          'Tendencias globales reinterpretadas con identidad latinoamericana: alta viralidad regional',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Moda en Instagram, América Latina (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post estático ($)', 'Reel outfit ($)', 'Carrusel ($)'],
+        rows: [
+          ['Micro', '10K – 50K', '$60 – $300', '$120 – $500', '$100 – $400'],
+          ['Medio bajo', '50K – 150K', '$300 – $900', '$500 – $1.600', '$400 – $1.200'],
+          ['Medio alto', '150K – 500K', '$900 – $3.000', '$1.600 – $5.000', '$1.200 – $3.800'],
+          ['Macro', '500K+', '$3.000 – $10.000+', '$5.000 – $16.000+', '$3.800 – $12.000+'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Calendario de Moda en América Latina: Picos de Campaña por País',
+      },
+      {
+        type: 'table',
+        headers: ['Momento', 'Países relevantes', 'Oportunidad'],
+        rows: [
+          ['Enero', 'Todo LatAm', 'Temporada de verano en hemisferio sur, propósitos de año nuevo'],
+          ['Marzo–Abril', 'Todo LatAm', 'Otoño en hemisferio sur, preparación escolar y laboral'],
+          ['Junio–Julio', 'Todo LatAm', 'Invierno en hemisferio sur, lanzamientos de temporada fría'],
+          ['Septiembre–Octubre', 'Todo LatAm', 'Primavera en hemisferio sur, vuelta a la actividad social'],
+          ['Noviembre', 'Todo LatAm', 'Buen Fin (México), pre-temporada de verano, Black Friday'],
+          ['Diciembre', 'Todo LatAm', 'Navidad, fiestas de fin de año, graduaciones'],
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos influencers de moda latinoamericanos verificados hay en Instagram en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 568 creadores de moda verificados en Instagram con una tasa de engagement media del 3,23% calculada a partir de las 15 publicaciones más recientes de cada perfil.',
+      },
+      {
+        question: '¿Por qué la moda latinoamericana en Instagram tiene una identidad propia y no imita tendencias importadas?',
+        answer: 'Los creadores de moda latinoamericanos han desarrollado estilos genuinamente únicos que fusionan influencias culturales locales con referencias contemporáneas globales. Los creadores mexicanos, colombianos, argentinos y chilenos tienen estéticas diferenciadas que sus audiencias perciben como auténticas, lo que genera mayor engagement y conversión que el contenido que simplemente replica tendencias europeas o norteamericanas.',
+      },
+      {
+        question: '¿Por qué es importante diversificar geográficamente en campañas de moda en LatAm?',
+        answer: 'América Latina no es un mercado homogéneo. Colombia, México, Argentina, Perú y Chile tienen identidades estéticas, poderes adquisitivos y referencias culturales distintas. Las campañas que trabajan con creadores de múltiples países generan relevancia cultural local en cada mercado y evitan la percepción de favoritismo regional que puede surgir de campañas concentradas en un único país.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un influencer de moda latinoamericano en Instagram?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre $300 y $5.000 USD por pieza de contenido. Los costes de colaboración con creadores latinoamericanos son significativamente más accesibles que los equivalentes europeos o norteamericanos, con tasas de engagement comparables.',
+      },
+      {
+        question: '¿Cuál es el mejor momento del año para lanzar una campaña de moda en América Latina?',
+        answer: 'América Latina abarca ambos hemisferios, por lo que el calendario de moda difiere por país. Noviembre es estratégico para todo el continente (Buen Fin en México, Black Friday, pre-temporada de verano en hemisferio sur). Enero marca el inicio de la temporada de verano en el hemisferio sur y los propósitos de año nuevo en todo el continente. Planifica con 6–8 semanas de antelación.',
+      },
+    ],
   },
 
   'moda-tiktok-latam': {
@@ -2362,6 +2677,93 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas internacionales de moda que buscan entrar en América Latina, los creadores de TikTok ofrecen la ruta más eficiente y auténtica. El contenido nativo latinoamericano en TikTok supera consistentemente al contenido adaptado o traducido — las audiencias valoran a los creadores que hablan su idioma cultural, no solo su idioma literal.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Moda en TikTok en América Latina: La Mayor Base de Datos Verificada',
+      },
+      {
+        type: 'paragraph',
+        content: 'Con 1.317 creadores verificados, la moda en TikTok es la categoría más grande de toda la base de datos de InfluenceIT. La tasa de engagement mediana es del 7,95%, con una media de 504.854 visualizaciones por vídeo. TikTok ha democratizado la moda en América Latina de una manera sin precedentes — creadores de ciudades secundarias de Colombia, México y Perú construyen hoy audiencias millonarias que antes eran inaccesibles.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de moda verificados en TikTok', '1.317 (mayor categoría)'],
+          ['Tasa de engagement mediana', '7,95%'],
+          ['Media de visualizaciones por vídeo', '504.854'],
+          ['Comparativa: moda Instagram LatAm', '568 creadores / 3,23% engagement'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'TikTok ha Democratizado la Moda en América Latina',
+      },
+      {
+        type: 'paragraph',
+        content: 'Antes de TikTok, la influencia en moda latinoamericana estaba concentrada en grandes capitales y unos pocos medios de comunicación. TikTok ha roto ese monopolio: hoy, un creador de Medellín, Guadalajara, Lima o Valparaíso puede construir una audiencia regional de millones de personas con un smartphone y contenido auténtico. Esta democratización ha producido una diversidad de voces y estéticas en moda LatAm que no tiene precedente.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Moda TikTok con Mayor Alcance en América Latina',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Fashion hauls adaptados al presupuesto local: el formato más compartido en moda LatAm TikTok',
+          '"Get The Look" con precios en moneda local: viralidad garantizada por componente de accesibilidad',
+          'Tendencias globales reinterpretadas con identidad latinoamericana: mayor engagement que copias directas',
+          'Outfits para ocasiones culturales locales: graduaciones, XV años, fiestas nacionales',
+          'Try-on haul en mercados locales y centros comerciales: alta autenticidad de contexto',
+          'Moda sostenible y vintage: creciente en Argentina, Chile y México entre audiencia joven',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'La Ventaja de Coste-Eficiencia en Moda TikTok LatAm',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los costes de asociación con creadores de moda latinoamericanos en TikTok son sustancialmente más bajos que los equivalentes en Estados Unidos o Europa, con tasas de engagement de 7,95% de mediana y 504.854 visualizaciones de media por vídeo. Para marcas de moda que buscan presencia en el mercado hispanohablante con el mayor retorno de inversión posible, los creadores de moda latinoamericanos en TikTok representan el canal de mayor eficiencia disponible.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Moda en TikTok, América Latina (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado ($)', 'Mención en haul ($)', 'Pack 3 vídeos ($)'],
+        rows: [
+          ['Micro', '10K – 50K', '$80 – $400', '$40 – $200', '$220 – $1.000'],
+          ['Medio bajo', '50K – 150K', '$400 – $1.200', '$200 – $600', '$1.000 – $3.000'],
+          ['Medio alto', '150K – 500K', '$1.200 – $3.800', '$600 – $1.900', '$3.000 – $9.500'],
+          ['Macro', '500K+', '$3.800 – $13.000+', '$1.900 – $6.500+', '$9.500 – $32.000+'],
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos influencers de moda latinoamericanos hay en TikTok en InfluenceIT?',
+        answer: 'InfluenceIT tiene verificados 1.317 creadores de moda en TikTok — la categoría más grande de toda la base de datos. La tasa de engagement mediana es del 7,95% con una media de 504.854 visualizaciones por vídeo.',
+      },
+      {
+        question: '¿Cómo ha cambiado TikTok el panorama de la moda latinoamericana?',
+        answer: 'TikTok ha democratizado la influencia en moda latinoamericana, rompiendo el monopolio de las grandes capitales y los medios tradicionales. Hoy, creadores de ciudades secundarias de Colombia, México, Perú y otros países construyen audiencias millonarias con contenido auténtico. Esta democratización ha producido una diversidad de estilos y voces en moda LatAm que no tiene precedente histórico.',
+      },
+      {
+        question: '¿Qué formatos de moda generan más alcance orgánico en TikTok latinoamericano?',
+        answer: 'Los fashion hauls adaptados al presupuesto local y los "Get The Look" con precios en moneda local son los formatos más virales. El componente de accesibilidad — mostrar cómo replicar un look aspiracional a precio local — resuena especialmente en mercados con diversidad de poder adquisitivo, lo que incluye a prácticamente todo el continente latinoamericano.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un influencer de moda latinoamericano en TikTok?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre $400 y $3.800 USD por vídeo dedicado — sustancialmente más accesibles que los equivalentes en Estados Unidos o Europa, con tasas de engagement del 7,95% de mediana y 504.854 visualizaciones de media por vídeo.',
+      },
+      {
+        question: '¿Por qué el contenido de moda latinoamericano supera al contenido importado en TikTok?',
+        answer: 'Las audiencias latinoamericanas valoran a los creadores que hablan su idioma cultural — no solo su idioma literal. El contenido de moda que refleja tendencias locales, precios en moneda local, ocasiones culturales propias y estéticas latinoamericanas genera consistentemente más engagement que el contenido adaptado o traducido de mercados anglosajones. La autenticidad cultural es el factor determinante en moda TikTok LatAm.',
+      },
+    ],
   },
 
   'fitness-instagram-latam': {
@@ -2383,6 +2785,116 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de fitness que buscan presencia en América Latina, la estrategia de creadores es más efectiva cuando combina creadores de nivel micro (50K–100K) con presencia geográfica específica y creadores de nivel medio (100K–300K) con alcance regional más amplio. Esta combinación maximiza tanto la relevancia local como el alcance regional.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Fitness en Instagram en América Latina: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores de fitness de nivel medio en Instagram generan una tasa de engagement media del 14,10% — una de las más altas de cualquier nicho en la plataforma — con una media de 201.429 visualizaciones por publicación en formato vídeo. En América Latina, donde la conciencia sobre salud y bienestar físico está creciendo rápidamente, estos creadores son el canal de marketing más eficaz disponible para marcas de fitness, suplementos y ropa deportiva.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Tasa de engagement media (nivel medio)', '14,10%'],
+          ['Media de visualizaciones por publicación (vídeo)', '201.429'],
+          ['Mercados de mayor crecimiento', 'Colombia, México, Chile, Perú, Argentina'],
+          ['Categorías principales', 'Gym, entrenamiento en casa, yoga, nutrición deportiva'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Boom del Fitness en América Latina: Una Oportunidad de Mercado en Expansión',
+      },
+      {
+        type: 'paragraph',
+        content: 'El mercado de fitness latinoamericano está en plena expansión. La conciencia sobre salud y bienestar físico crece rápidamente en toda la región, impulsada por el aumento de la clase media, el acceso masivo a smartphones y la influencia de los creadores de fitness que documentan sus propios procesos de transformación. Los consumidores latinoamericanos están adoptando suplementos deportivos, ropa de entrenamiento y apps de fitness a un ritmo acelerado.',
+      },
+      {
+        type: 'h2',
+        content: 'Las Características Propias del Fitness Latinoamericano',
+      },
+      {
+        type: 'paragraph',
+        content: 'El fitness en América Latina combina disciplinas que tienen una presencia cultural propia en la región — fútbol, baile, artes marciales, boxeo — con el gym moderno occidental. Los creadores que abordan esta diversidad de disciplinas generan audiencias más amplias y comprometidas que los que se concentran exclusivamente en el gimnasio convencional. Para marcas de ropa deportiva y suplementos, este enfoque más amplio del fitness es una oportunidad de posicionamiento diferenciador.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Fitness con Mayor Conversión en Instagram LatAm',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Rutinas de entrenamiento en casa: altísima demanda post-pandemia, permanece como formato líder',
+          '"Lo que como en un día": conversión directa para suplementos y productos de nutrición',
+          'Transformaciones de 30–60 días: máxima credibilidad en un mercado que valora los resultados reales',
+          'Entrenamientos adaptados al calor: relevante para la mayoría de climas latinoamericanos',
+          'Fitness combinado con baile y deportes locales: conexión cultural que amplía la audiencia',
+          'Meal prep económico y saludable: alta resonancia en mercados con sensibilidad al precio',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Estrategia por Categoría de Producto: Qué Funciona en LatAm',
+      },
+      {
+        type: 'table',
+        headers: ['Categoría', 'Formato óptimo en LatAm', 'País de mayor oportunidad'],
+        rows: [
+          ['Suplementos y proteínas', '"Lo que como en un día", pre/post-entreno', 'México, Colombia, Argentina'],
+          ['Ropa deportiva', 'Rutina de entrenamiento, OOTD fitness', 'Colombia, Chile, Argentina'],
+          ['Equipamiento para casa', 'Home workout, "mi gym en casa"', 'Todo LatAm'],
+          ['Apps de fitness', 'Transformación de 30 días, seguimiento de progreso', 'México, Brasil, Colombia'],
+          ['Alimentación saludable', 'Meal prep económico, recetas fitness locales', 'Todo LatAm'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Fitness en Instagram, América Latina (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post / Reel ($)', 'Pack 3 publicaciones ($)'],
+        rows: [
+          ['Micro', '10K – 50K', '$100 – $450', '$280 – $1.100'],
+          ['Medio bajo', '50K – 150K', '$450 – $1.400', '$1.100 – $3.500'],
+          ['Medio alto', '150K – 500K', '$1.400 – $4.500', '$3.500 – $11.000'],
+          ['Macro', '500K+', '$4.500 – $15.000+', '$11.000 – $38.000+'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Estacionalidad del Fitness en América Latina',
+      },
+      {
+        type: 'paragraph',
+        content: 'América Latina abarca dos hemisferios, lo que crea dos calendarios de fitness paralelos. En el hemisferio norte (México, Colombia, Perú): el pico de enero coincide con el año nuevo, y la temporada pre-verano es mayo-junio. En el hemisferio sur (Chile, Argentina): el pico de enero es pre-verano, y agosto-septiembre es la vuelta a la rutina post-invierno. Para campañas regionales, noviembre-diciembre es el único momento en que todo el continente está simultáneamente en modo de preparación estacional.',
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Qué tasa de engagement tienen los influencers de fitness de nivel medio en Instagram en LatAm?',
+        answer: 'Los creadores de fitness de nivel medio en Instagram alcanzan una tasa de engagement media del 14,10% — una de las más altas de cualquier nicho en la plataforma — con 201.429 visualizaciones de media por publicación en vídeo. Este nivel de engagement refleja audiencias que buscan activamente guía e inspiración para sus propios objetivos de salud.',
+      },
+      {
+        question: '¿Por qué el mercado de fitness latinoamericano está creciendo tan rápido?',
+        answer: 'El crecimiento del mercado de fitness en LatAm está impulsado por el aumento de la clase media, el acceso masivo a smartphones y la influencia de los creadores de fitness que documentan sus procesos de transformación. Los consumidores latinoamericanos están adoptando suplementos, ropa deportiva y apps de fitness a un ritmo acelerado, creando una oportunidad de mercado de alto crecimiento para marcas del sector.',
+      },
+      {
+        question: '¿Qué hace único al fitness latinoamericano respecto al mercado europeo o norteamericano?',
+        answer: 'El fitness en LatAm integra disciplinas con arraigo cultural propio — fútbol, baile, artes marciales, boxeo — con el gym moderno occidental. Los creadores que abordan esta diversidad de disciplinas generan audiencias más amplias que los concentrados exclusivamente en el gimnasio convencional. Esta característica es una oportunidad de posicionamiento diferenciador para marcas que buscan relevancia cultural genuina en el mercado latinoamericano.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un influencer de fitness en Instagram en América Latina?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre $450 y $4.500 USD por publicación. Los packs de 3+ publicaciones son el formato más eficiente: las audiencias de fitness confían más en los creadores que usan los productos de forma continuada, y el precio por unidad en packs suele ser un 20–30% inferior al precio individual.',
+      },
+      {
+        question: '¿Cómo afecta la diferencia de hemisferios al calendario de campañas de fitness en LatAm?',
+        answer: 'América Latina abarca dos hemisferios con calendarios estacionales opuestos. Para campañas regionales que cubran todo el continente, noviembre-diciembre es el único momento en que todos los mercados están simultáneamente en modo de preparación estacional. Para campañas por país, ajusta el timing al hemisferio: enero es pre-verano en Chile y Argentina, pero inicio de propósitos de año nuevo en México y Colombia.',
+      },
+    ],
   },
 
   'fitness-tiktok-latam': {
