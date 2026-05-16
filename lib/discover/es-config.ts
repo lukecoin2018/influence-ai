@@ -1169,26 +1169,122 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Las mejores estructuras de campaña para marcas de skincare: integración de rutina (el creador añade tu producto a su rutina existente con comentarios honestos), inmersiones profundas en ingredientes y contenido de comparación. Evita las afirmaciones guionizadas — las directrices regulatorias son especialmente estrictas en el espacio del skincare y los cosméticos.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de Skincare en Instagram: Un Nicho Especializado de Alta Confianza',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 30 creadores de skincare verificados en Instagram, con una tasa de engagement media del 2,67% y una media de 47.666 visualizaciones por publicación. El tamaño reducido de esta categoría refleja los criterios exigentes de verificación de InfluenceIT: solo se incluyen creadores que producen contenido de skincare con fundamento técnico real — esteticistas, entusiastas de dermatología y revisores especializados en ingredientes activos.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de skincare verificados en Instagram', '30'],
+          ['Tasa de engagement media', '2,67%'],
+          ['Media de visualizaciones por publicación', '47.666'],
+          ['Perfil dominante', 'Esteticistas, entusiastas de dermatología, revisores de ingredientes'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Valor del Nicho de Skincare: Audiencias que Investigan y Actúan',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los 30 creadores de skincare verificados en InfluenceIT no son creadores de belleza generalistas que publican ocasionalmente sobre cuidado de la piel — son especialistas cuyas audiencias los siguen específicamente por su conocimiento técnico. Estos seguidores buscan activamente recomendaciones de producto y tienen una tasa de actuación sobre ellas muy superior a la media del mercado de belleza.',
+      },
+      {
+        type: 'paragraph',
+        content: 'El mercado de skincare en España está viviendo un auge de sofisticación sin precedentes. Los consumidores españoles investigan ingredientes activos, comparan formulaciones y buscan validación de expertos antes de comprar. Los creadores de skincare especializados son el canal de validación más eficaz disponible para marcas que quieren llegar a este consumidor informado.',
+      },
+      {
+        type: 'h2',
+        content: 'Qué Busca la Audiencia de Skincare: Ciencia, no Solo Estética',
+      },
+      {
+        type: 'paragraph',
+        content: 'La audiencia hispanohablante de skincare en Instagram no busca fotos bonitas de productos — busca información técnica: qué hace el retinol en la piel, qué concentración de ácido hialurónico es efectiva, qué ingredientes no pueden combinarse. Los creadores que explican la ciencia detrás de los productos generan significativamente más conversiones que los que se basan únicamente en contenido estético.',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Análisis de ingredientes activos: el contenido de mayor confianza en skincare Instagram',
+          'Rutinas de skincare documentadas con semanas de uso real: máxima credibilidad',
+          'Antes y después con contexto técnico (qué produjo el resultado): alta conversión',
+          'Comparativas de formulación producto A vs B: audiencia muy activa en comentarios',
+          'Reseñas honestas incluyendo lo que no funciona: genera la mayor confianza a largo plazo',
+          'Guías de ingredientes compatibles e incompatibles: muy guardadas y compartidas',
+          'Skincare para tipos de piel específicos: segmentación de audiencia de alta precisión',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Estructura de Campaña Óptima para Marcas de Skincare',
+      },
+      {
+        type: 'paragraph',
+        content: 'El skincare requiere una estructura de campaña diferente a la de la belleza decorativa. Los resultados del cuidado de la piel son acumulativos — una crema hidratante no transforma la piel en un día. Los briefings deben incluir un periodo de uso mínimo antes de cualquier publicación, y el contenido debe documentar la evolución honesta, no una transformación puntual sin respaldo de tiempo.',
+      },
+      {
+        type: 'table',
+        headers: ['Tipo de producto', 'Duración mínima de uso', 'Formato recomendado'],
+        rows: [
+          ['Hidratación y barrera cutánea', '3–4 semanas', 'Antes/después + análisis de ingredientes'],
+          ['Tratamiento de manchas', '8–12 semanas', 'Documentación de progreso semanal'],
+          ['Anti-edad y retinol', '8–16 semanas', 'Rutina documentada + reseña técnica'],
+          ['Limpiadores y sérum', '2–4 semanas', 'Rutina de uso + análisis de ingredientes'],
+          ['Protector solar', 'Sin acumulación necesaria', 'Educación sobre SPF + comparativa de textura'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Cumplimiento Regulatorio para Marcas de Skincare en España',
+      },
+      {
+        type: 'paragraph',
+        content: 'El espacio de skincare en España está sujeto al Reglamento Europeo de Cosméticos (CE 1223/2009) y a las directrices de AUTOCONTROL. Las afirmaciones como "elimina las arrugas" o "cura el acné" no están permitidas sin respaldo clínico. El brief debe especificar las afirmaciones regulatorias permitidas — tanto la marca como el creador son corresponsables del cumplimiento. Incluye siempre las afirmaciones aprobadas en el contrato y solicita revisión del contenido antes de publicar.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Skincare en Instagram, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post / Reel de reseña (€)', 'Serie 3+ piezas (€)'],
+        rows: [
+          ['Micro especializado', '10K – 50K', '300 – 900', '800 – 2.200'],
+          ['Medio bajo', '50K – 150K', '900 – 2.500', '2.200 – 6.000'],
+          ['Medio alto', '150K – 500K', '2.500 – 7.000', '6.000 – 17.000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores de skincare especializados cotizan en la parte alta del rango de belleza porque el valor de su audiencia es superior: un seguidor de una cuenta de skincare especializada tiene un valor de compra 2–3 veces mayor que el de una cuenta de belleza generalista, lo que justifica el premium en el coste de colaboración.',
+      },
+    ],
     faqs: [
       {
-        question: '¿Por qué las audiencias de skincare en Instagram son más exigentes que las de otros nichos de belleza?',
-        answer:
-          'El público hispanohablante de skincare está altamente educado y es escéptico con las afirmaciones vagas. Buscan creadores que expliquen la ciencia detrás de los productos — ingredientes activos, diferencias de formulación, compatibilidad con tipos de piel — y responden con mucho más escepticismo al contenido puramente estético que no aporta información técnica.',
+        question: '¿Cuántos creadores de skincare especializados hay verificados en Instagram en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 30 creadores de skincare verificados en Instagram, con una tasa de engagement media del 2,67% y una media de 47.666 visualizaciones por publicación. El tamaño reducido refleja los criterios estrictos de verificación: solo se incluyen creadores con conocimiento técnico real de skincare, no creadores de belleza generalistas.',
       },
       {
-        question: '¿Cuánto tiempo debe usar un creador mi producto antes de publicar una reseña?',
-        answer:
-          'Lo ideal es un período de uso real de 4–6 semanas, no comparaciones de una sola sesión. Las rutinas auténticas de 30 días superan ampliamente a las transformaciones de un día en términos de credibilidad y conversión. Los briefings deben pedir documentación genuina durante semanas, no resultados inmediatos.',
+        question: '¿Por qué las audiencias de skincare convierten mejor que las de belleza generalista?',
+        answer: 'Los seguidores de creadores especializados en skincare buscan activamente recomendaciones de producto con alta intención de compra. Investigan ingredientes, comparan formulaciones y confían en los creadores que explican la ciencia detrás de los productos. Esta audiencia tiene una tasa de actuación sobre las recomendaciones significativamente superior a la de las audiencias de belleza generalista.',
       },
       {
-        question: '¿Qué estructuras de campaña de skincare generan mejores resultados?',
-        answer:
-          'Las tres estructuras más efectivas son: integración de rutina (el creador añade tu producto a su rutina existente con comentarios honestos), inmersiones profundas en ingredientes activos, y contenido de comparación. Evita las afirmaciones guionizadas — las directrices regulatorias son especialmente estrictas en el espacio de cosmética y skincare.',
+        question: '¿Cuánto tiempo necesita mi producto antes de que el creador publique una reseña?',
+        answer: 'Para tratamientos de efecto acumulativo (hidratación, anti-edad, manchas), el periodo mínimo de uso real es de 4–6 semanas. Para retinol e hiperpigmentación, se recomiendan 8–12 semanas. Las audiencias de skincare distinguen perfectamente entre una reseña auténtica de semanas de uso y una reseña puntual sin respaldo de tiempo real.',
       },
       {
-        question: '¿Qué tipo de creadores de skincare generan más conversiones para marcas?',
-        answer:
-          'Los creadores especializados — esteticistas, entusiastas de la dermatología, revisores centrados en ingredientes — generan significativamente más conversiones que los creadores de belleza generalistas. Sus audiencias buscan activamente recomendaciones de producto y actúan en consecuencia, lo que los convierte en uno de los nichos con mayor retorno por inversión de toda la categoría de belleza.',
+        question: '¿Qué tipo de contenido de skincare genera más confianza en la audiencia?',
+        answer: 'El análisis de ingredientes y las rutinas documentadas durante semanas de uso real son los formatos de mayor confianza. Los creadores que explican qué hace un ingrediente en la piel, qué concentración es efectiva y cómo combinarlo con otros activos generan más conversiones que los que solo muestran el producto de forma estética. La honestidad sobre lo que no funciona también aumenta significativamente la confianza a largo plazo.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un creador de skincare especializado en Instagram en España?',
+        answer: 'Los creadores de skincare especializados cotizan entre 300€ y 7.000€ por pieza de contenido dependiendo del tamaño de la audiencia. Las series de 3+ piezas son el estándar del nicho — los resultados del skincare son acumulativos y la audiencia espera seguimiento real, no reseñas puntuales. El coste premium está justificado por el mayor valor de compra de su audiencia.',
       },
     ],
   },
@@ -1212,26 +1308,108 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de skincare que buscan penetración en el mercado hispanohablante, TikTok ofrece la ruta más eficiente. Los costes de asociación son accesibles, el alcance potencial es masivo y la naturaleza educativa del contenido de skincare alinea perfectamente con el formato de vídeo corto de la plataforma.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: '#SkincareTok en Español: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 94 creadores de skincare verificados en TikTok, con una tasa de engagement mediana del 8,84% y una media de 646.882 visualizaciones por vídeo. El promedio de visualización del skincare en TikTok es el más alto de todas las categorías de belleza de la base de datos — superando incluso a la belleza decorativa (523.561 vistas de media) gracias a la naturaleza educativa y altamente compartible de su contenido.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de skincare verificados en TikTok', '94'],
+          ['Tasa de engagement mediana', '8,84%'],
+          ['Media de visualizaciones por vídeo', '646.882'],
+          ['Comparativa: belleza TikTok', '651 creadores / 8,54% / 523.561 vistas'],
+          ['Comparativa: skincare Instagram', '30 creadores / 2,67% / 47.666 vistas'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué el Skincare Genera las Visualizaciones Más Altas en TikTok Belleza',
+      },
+      {
+        type: 'paragraph',
+        content: 'Con 646.882 visualizaciones de media por vídeo, el skincare supera a la belleza decorativa en alcance medio por pieza de contenido. La razón es su naturaleza educativa: los vídeos que explican qué hace un ingrediente activo, qué rutina seguir para un problema específico de piel o cómo combinar activos son altamente compartidos. Los usuarios los envían a amigos y familiares con los mismos problemas de piel — una distribución social orgánica que amplifica el alcance algorítmico de cada vídeo.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de #SkincareTok con Mayor Rendimiento',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Análisis de ingredientes en 60 segundos: viral por su utilidad directa e inmediata',
+          'Rutina de skincare paso a paso: alta retención de visualización, muy guardable',
+          '"Mi piel antes y después de X meses": transformaciones con contexto técnico, alta viralidad',
+          'Skincare para tipos de piel específicos: segmentación precisa, comentarios muy activos',
+          '"Ingredientes que no debes combinar": muy compartido por su factor de advertencia útil',
+          'Reseña honesta incluyendo lo negativo: genera el mayor nivel de confianza de audiencia',
+          'Dermatología accesible: explica diagnósticos de piel en lenguaje cotidiano comprensible',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'La Audiencia de #SkincareTok en España: Exigente e Informada',
+      },
+      {
+        type: 'paragraph',
+        content: 'El público hispanohablante de skincare en TikTok es el segmento más formado de cualquier nicho de belleza. Investiga activamente sobre retinol, ácido hialurónico, niacinamida, vitamina C y AHAs/BHAs. Conoce la diferencia entre un sérum y una crema, entre el SPF físico y el químico. Los mensajes vagos de marketing no consiguen resultados en este nicho — la información técnica específica sobre ingredientes y formulación es imprescindible en el brief.',
+      },
+      {
+        type: 'h2',
+        content: 'Comparativa TikTok vs. Instagram para Campañas de Skincare',
+      },
+      {
+        type: 'table',
+        headers: ['Criterio', 'Skincare TikTok', 'Skincare Instagram'],
+        rows: [
+          ['Creadores verificados', '94', '30'],
+          ['Engagement mediano', '8,84%', '2,67%'],
+          ['Visualizaciones medias', '646.882', '47.666'],
+          ['Mejor para', 'Descubrimiento masivo, educación viral', 'Confianza profunda, comunidad especializada'],
+          ['Formato dominante', 'Vídeo educativo corto, transformaciones', 'Carrusel técnico, reseña en profundidad'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Skincare en TikTok, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo de reseña / análisis (€)', 'Serie 3 vídeos (€)'],
+        rows: [
+          ['Micro especializado', '10K – 50K', '250 – 850', '650 – 2.200'],
+          ['Medio bajo', '50K – 150K', '850 – 2.800', '2.200 – 7.000'],
+          ['Medio alto', '150K – 500K', '2.800 – 8.000', '7.000 – 20.000'],
+          ['Macro', '500K+', '8.000 – 25.000+', '20.000 – 60.000+'],
+        ],
+      },
+    ],
     faqs: [
       {
-        question: '¿Qué es #SkincareTok en español y por qué es relevante para mi marca?',
-        answer:
-          '#SkincareTok en español es una de las comunidades más activas y comprometidas de TikTok. Los creadores hispanohablantes de skincare producen contenido que combina ciencia dermatológica con storytelling personal — generando vídeos que se vuelven virales mientras educan genuinamente a sus audiencias. Para marcas de skincare, es el canal de discovery más eficiente del mercado hispano.',
+        question: '¿Cuántos creadores de skincare hay en TikTok en la base de datos de InfluenceIT?',
+        answer: 'InfluenceIT tiene verificados 94 creadores de skincare en TikTok, con una tasa de engagement mediana del 8,84% y una media de 646.882 visualizaciones por vídeo — el promedio de visualización más alto de todas las categorías de belleza en la plataforma.',
       },
       {
-        question: '¿Qué sofisticación tiene el público hispanohablante de skincare en TikTok?',
-        answer:
-          'El público hispanohablante de skincare en TikTok está cada vez más formado. Buscan activamente información sobre ingredientes como el retinol, el ácido hialurónico y la vitamina C, y confían en creadores que hablan con conocimiento genuino sobre formulaciones. Los mensajes vagos de marketing no funcionan — la información técnica sí.',
+        question: '¿Por qué el skincare genera más visualizaciones en TikTok que la belleza decorativa?',
+        answer: 'El contenido educativo de skincare — análisis de ingredientes, rutinas técnicas, advertencias sobre combinaciones de activos — es altamente compartido porque los usuarios lo envían a personas con los mismos problemas de piel. Esta distribución social orgánica explica la media de 646.882 visualizaciones por vídeo en skincare, superior a la media de 523.561 de la belleza decorativa en TikTok.',
       },
       {
-        question: '¿Qué tasas de engagement debo esperar de creadores de skincare en TikTok?',
-        answer:
-          'Las tasas de engagement para creadores de skincare en TikTok en español oscilan entre el 6% y el 15%. El formato de vídeo corto es ideal para demostraciones de rutinas, reseñas de ingredientes y transformaciones de piel — exactamente el tipo de contenido que convierte espectadores en compradores con alta intención de búsqueda.',
+        question: '¿Qué información técnica necesito proporcionar a un creador de skincare para una colaboración efectiva?',
+        answer: 'Los creadores de skincare especializados necesitan el INCI completo, los ingredientes activos clave y sus concentraciones, el tipo de piel recomendado, las instrucciones de uso técnico y las afirmaciones regulatorias permitidas por AUTOCONTROL. Sin esta información, no pueden crear el contenido técnico que su audiencia espera y que genera conversiones reales.',
       },
       {
-        question: '¿Por qué TikTok es la ruta más eficiente para entrar en el mercado hispanohablante de skincare?',
-        answer:
-          'Los costes de asociación son accesibles, el alcance potencial es masivo gracias a los 500 millones de hispanohablantes en todo el mundo, y la naturaleza educativa del contenido de skincare alinea perfectamente con el formato de vídeo corto de la plataforma. La combinación de bajo coste, alto alcance y alto engagement hace de TikTok la opción de mejor ROI disponible.',
+        question: '¿Cuánto cuesta una colaboración con un creador de skincare en TikTok en España?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre 850€ y 8.000€ por vídeo de reseña o análisis. Las series de 3 vídeos son el formato más eficiente para skincare — un único vídeo no puede cubrir los diferentes ángulos (ingredientes, rutina, resultados) que la audiencia de #SkincareTok espera.',
+      },
+      {
+        question: '¿Cuáles son las obligaciones regulatorias para marcas de skincare en colaboraciones en España?',
+        answer: 'Las afirmaciones cosméticas en España están reguladas por AUTOCONTROL y el Reglamento Europeo de Cosméticos (CE 1223/2009). Las afirmaciones sobre resultados de piel deben estar respaldadas por estudios clínicos o basarse en mecanismos de ingredientes documentados. Todo contenido patrocinado debe identificarse como publicidad (#publi, #anuncio). Tanto la marca como el creador son corresponsables — incluye las afirmaciones permitidas en el contrato de colaboración.',
       },
     ],
   },
@@ -1255,26 +1433,104 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Las asociaciones de embajador a largo plazo superan consistentemente a las publicaciones patrocinadas puntuales en el espacio del wellness. Una relación de 6–12 meses con un creador de wellness de nivel medio construye una prueba social sostenida que convierte nuevos clientes y retiene a los existentes.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Wellness en Instagram: El Mayor Engagement de Todas las Categorías',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 61 creadores de wellness verificados en Instagram. La tasa de engagement media es del 9,26% — la más alta de todas las categorías de Instagram en la base de datos — con una media de 141.760 visualizaciones por publicación en vídeo. Con un 9,26% de engagement, el wellness en Instagram supera a todas las demás categorías de la plataforma, convirtiendo a los creadores de bienestar en los socios de marca de mayor confianza disponibles.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de wellness verificados en Instagram', '61'],
+          ['Tasa de engagement media', '9,26% (mayor de todas las categorías Instagram)'],
+          ['Media de visualizaciones por publicación (vídeo)', '141.760'],
+          ['Categorías principales', 'Salud mental, mindfulness, yoga, nutrición holística, autocuidado'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué el Wellness Tiene el Mayor Engagement de Instagram',
+      },
+      {
+        type: 'paragraph',
+        content: 'Un engagement del 9,26% en Instagram es extraordinario — la media de la plataforma para cuentas de nivel medio ronda el 3–4%. El wellness supera esta media en más del doble porque las audiencias de bienestar no son seguidores pasivos: son personas que están trabajando activamente en su salud, que buscan guía y que ven al creador que siguen como una referencia de confianza. Esta relación de orientación activa se refleja directamente en métricas que ningún otro nicho de la plataforma alcanza.',
+      },
+      {
+        type: 'h2',
+        content: 'El Mercado de Wellness en España: Crecimiento y Contexto Cultural',
+      },
+      {
+        type: 'paragraph',
+        content: 'España ha experimentado un crecimiento significativo en el sector del wellness, impulsado por el aumento de la conciencia sobre salud mental, la adopción masiva del yoga y la meditación, y el interés creciente por la nutrición holística. Los creadores de wellness españoles reflejan esta evolución cultural: abordan el bienestar integrando la tradición mediterránea — alimentación, vida al aire libre, comunidad — con las prácticas de wellness moderno, lo que produce contenido con una resonancia cultural única.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Wellness con Mayor Impacto en Instagram',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Rutinas matutinas de bienestar: el formato de mayor consideración de producto en el nicho',
+          '"Lo que tomo cada día" (suplementos, infusiones, hábitos): conversión directa para marcas',
+          'Yoga y meditación guiada: alto engagement de audiencia activamente comprometida',
+          'Contenido de salud mental y autocuidado: comunidad de alta confianza y lealtad excepcional',
+          'Alimentación consciente y recetas de bienestar: integración natural de productos alimenticios',
+          'Retos de hábitos de 30 días: engagement sostenido en el tiempo, seguimiento de comunidad',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué las Asociaciones a Largo Plazo Superan a las Colaboraciones Puntuales',
+      },
+      {
+        type: 'paragraph',
+        content: 'Las audiencias de wellness son de las más escépticas con el contenido claramente publicitario. Un creador que recomienda un producto en una única publicación patrocinada genera desconfianza — ¿usa realmente ese producto? ¿Lo ha integrado en su rutina? Las asociaciones de embajador de 6–12 meses resuelven este problema: la audiencia ve al creador usando el producto continuamente, en diferentes contextos y a lo largo del tiempo, construyendo una prueba social sostenida que ninguna publicación puntual puede replicar.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Wellness en Instagram, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tipo de colaboración', 'Duración', 'Coste orientativo (€)'],
+        rows: [
+          ['Post / Reel puntual (micro, 10K–50K)', 'Puntual', '250 – 900'],
+          ['Post / Reel puntual (medio, 50K–500K)', 'Puntual', '900 – 6.000'],
+          ['Embajador mensual (medio, 50K–500K)', '1 mes', '1.800 – 10.000'],
+          ['Embajador trimestral (medio, 50K–500K)', '3 meses', '4.500 – 25.000'],
+          ['Embajador anual (medio, 50K–500K)', '12 meses', '15.000 – 80.000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: 'Las asociaciones de embajador a largo plazo en wellness ofrecen un ahorro efectivo del 30–50% por unidad respecto al precio por publicación puntual, a la vez que generan resultados significativamente superiores. En el nicho de wellness, invertir en relaciones continuadas es siempre más eficiente que las colaboraciones puntuales.',
+      },
+    ],
     faqs: [
       {
-        question: '¿Por qué los creadores de wellness generan más confianza que los medios de salud tradicionales?',
-        answer:
-          'Los seguidores perciben a los creadores de wellness de nivel medio como guías accesibles y cercanos en lugar de expertos distantes. Esta cercanía percibida genera una confianza significativamente mayor — las audiencias de wellness comparten experiencias personales, hacen preguntas detalladas sobre productos y forman comunidades de apoyo genuinas que amplifican el impacto de cada recomendación.',
+        question: '¿Cuántos influencers de wellness verificados hay en Instagram en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 61 creadores de wellness verificados en Instagram, con una tasa de engagement media del 9,26% — la más alta de todas las categorías de Instagram en la base de datos — y una media de 141.760 visualizaciones por publicación en vídeo.',
       },
       {
-        question: '¿Qué formatos de contenido de wellness tienen el mayor impacto en Instagram?',
-        answer:
-          'Los formatos de "rutina matutina" y "lo que tomo cada día" generan la mayor consideración de producto de cualquier tipo de contenido en la categoría. Estos formatos presentan el producto en el contexto de uso diario real, lo que activa la intención de compra de forma más efectiva que las publicaciones de reseña independientes.',
+        question: '¿Por qué el nicho de wellness tiene el mayor engagement de Instagram?',
+        answer: 'El 9,26% de engagement medio en wellness refleja audiencias que buscan activamente guía en su proceso de bienestar — no son seguidores pasivos. Esta relación de orientación activa entre creador y audiencia produce métricas que más que doblan la media de la plataforma y se traducen en tasas de conversión superiores a cualquier otro nicho de Instagram.',
       },
       {
-        question: '¿Por qué las asociaciones de embajador a largo plazo funcionan mejor en wellness que las publicaciones puntuales?',
-        answer:
-          'Una relación de 6–12 meses con un creador de wellness de nivel medio construye una prueba social sostenida que convierte nuevos clientes y retiene a los existentes. Las audiencias de wellness son de las más escépticas con el contenido claramente publicitario — una presencia continua y genuina supera consistentemente a las publicaciones patrocinadas puntuales.',
+        question: '¿Por qué las colaboraciones puntuales no funcionan bien en wellness?',
+        answer: 'Las audiencias de wellness son especialmente escépticas con las colaboraciones puntuales. Una única publicación patrocinada genera desconfianza sobre si el creador usa realmente el producto. Las asociaciones de embajador de 6–12 meses construyen una prueba social sostenida: la audiencia ve al creador usando el producto en múltiples contextos y a lo largo del tiempo, algo que ninguna publicación puntual puede replicar.',
       },
       {
-        question: '¿Cómo debo posicionar mi producto de wellness para evitar el rechazo de la audiencia?',
-        answer:
-          'Evita los mensajes excesivamente comerciales. Haz briefings para contenido de integración en rutinas auténticas y permite al creador comentar el producto con honestidad, incluyendo cómo encaja en su estilo de vida real. Las audiencias de wellness detectan y rechazan activamente el contenido que parece publicitario — la autenticidad no es opcional en este nicho.',
+        question: '¿Qué categorías de producto funcionan mejor con creadores de wellness en Instagram?',
+        answer: 'Suplementos y vitaminas, apps de meditación y mindfulness, productos de yoga, alimentación saludable e infusiones son las categorías con mejor rendimiento. El formato "lo que tomo cada día" es especialmente efectivo para suplementos porque presenta el producto en el contexto de una rutina real, no en un contexto de endorsement explícito.',
+      },
+      {
+        question: '¿Cuánto cuesta una asociación de embajador de wellness en Instagram en España?',
+        answer: 'Las asociaciones de embajador de wellness oscilan entre 4.500€ y 25.000€ por trimestre para creadores de nivel medio (50.000–500.000 seguidores). Esto representa un ahorro efectivo del 30–50% respecto al precio por publicación puntual equivalente, con resultados significativamente superiores por la prueba social sostenida que genera la relación continuada.',
       },
     ],
   },
@@ -1298,26 +1554,107 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de suplementos, apps de meditación, productos de yoga y herramientas de bienestar, los creadores de wellness hispanohablantes en TikTok ofrecen el canal de marketing más eficiente disponible. Sus audiencias son activamente receptivas a recomendaciones de productos que apoyan genuinamente su viaje de salud.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Wellness en TikTok: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 137 creadores de wellness verificados en TikTok, con una tasa de engagement mediana del 5,64% y una media de 466.601 visualizaciones por vídeo. El wellness en TikTok ha experimentado un crecimiento sostenido, impulsado por la explosión del contenido de salud mental, yoga, meditación y nutrición holística en la plataforma.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de wellness verificados en TikTok', '137'],
+          ['Tasa de engagement mediana', '5,64%'],
+          ['Media de visualizaciones por vídeo', '466.601'],
+          ['Comparativa: wellness Instagram', '61 creadores / 9,26% engagement / 141.760 vistas'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'TikTok vs. Instagram para Campañas de Wellness: Perfiles Complementarios',
+      },
+      {
+        type: 'paragraph',
+        content: 'El wellness en TikTok y en Instagram tienen perfiles complementarios que los hacen ideales para objetivos diferentes. Instagram wellness ofrece un engagement del 9,26% con comunidades de alta confianza — ideal para embajadores a largo plazo y conversión profunda. TikTok wellness genera una media de 466.601 visualizaciones por vídeo — ideal para descubrimiento masivo, captación de nuevas audiencias y lanzamiento de producto.',
+      },
+      {
+        type: 'table',
+        headers: ['Objetivo', 'Plataforma óptima', 'Razón'],
+        rows: [
+          ['Descubrimiento y alcance masivo', 'TikTok', '466.601 vistas medias por vídeo'],
+          ['Construcción de confianza profunda', 'Instagram', '9,26% engagement medio'],
+          ['Lanzamiento de producto nuevo', 'TikTok', 'Distribución algorítmica a audiencias frías'],
+          ['Embajador a largo plazo', 'Instagram', 'Comunidad íntima, prueba social sostenida'],
+          ['Contenido educativo viral', 'TikTok', 'Algoritmo favorece contenido de bienestar útil'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Wellness Hispanohablante en TikTok: Dimensión Cultural Única',
+      },
+      {
+        type: 'paragraph',
+        content: 'El wellness en TikTok tiene una dimensión cultural específica en el mundo hispanohablante. La cultura mediterránea española valora profundamente el bienestar colectivo — el cuidado de la familia, los rituales comunitarios de salud, la conexión con la naturaleza y la tradición de la medicina natural. Los creadores de wellness españoles que integran estas referencias culturales generan una resonancia adicional que los enfoques de wellness anglosajones no capturan.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Wellness con Mayor Engagement en TikTok',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Rutinas matutinas de bienestar: el formato de mayor retención en wellness TikTok',
+          'Hábitos de salud diarios ("5 hábitos que cambiaron mi vida"): muy compartible',
+          'Yoga y estiramientos guiados: alto engagement por su componente de práctica en tiempo real',
+          'Meditación y mindfulness en formato corto: audiencia activamente buscando recursos',
+          'Nutrición holística y recetas de bienestar: integración natural de suplementos y alimentos',
+          '"Lo que tomo cada mañana": conversión directa para suplementos y superalimentos',
+          'Contenido de salud mental y autocuidado: comunidad de alta confianza, DMs activos',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Wellness en TikTok, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado (€)', 'Integración en rutina (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '200 – 750', '100 – 400'],
+          ['Medio bajo', '50K – 150K', '750 – 2.200', '400 – 1.200'],
+          ['Medio alto', '150K – 500K', '2.200 – 6.500', '1.200 – 3.300'],
+          ['Macro', '500K+', '6.500 – 20.000+', '3.300 – 10.000+'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: 'Al igual que en Instagram, las asociaciones de embajador a largo plazo superan consistentemente a las colaboraciones puntuales en wellness TikTok. Una presencia continuada del producto en el contenido del creador construye familiaridad y confianza que una publicación puntual no puede generar — especialmente en un nicho donde la autenticidad es el criterio más importante para la audiencia.',
+      },
+    ],
     faqs: [
       {
-        question: '¿Qué ha impulsado el crecimiento explosivo del wellness hispanohablante en TikTok?',
-        answer:
-          'Los creadores de salud mental, meditación, yoga y nutrición producen contenido que combina información práctica con historias personales — generando comunidades de seguidores profundamente comprometidas. El formato de vídeo corto de TikTok encaja perfectamente con hábitos diarios de wellness: rutinas matutinas, consejos de mindfulness y recetas saludables se consumen y comparten de forma natural en la plataforma.',
+        question: '¿Cuántos influencers de wellness verificados hay en TikTok en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 137 creadores de wellness verificados en TikTok, con una tasa de engagement mediana del 5,64% y una media de 466.601 visualizaciones por vídeo.',
       },
       {
-        question: '¿Qué formatos de contenido de wellness tienen más engagement en TikTok en español?',
-        answer:
-          'Las rutinas matutinas, los hábitos de salud diarios y el contenido educativo sobre bienestar son los formatos de mayor rendimiento. Estos contextos son también donde las integraciones de producto se sienten más naturales y auténticas, lo que maximiza tanto el engagement del vídeo como la intención de compra de la audiencia.',
+        question: '¿Cuándo es mejor usar TikTok y cuándo Instagram para una campaña de wellness?',
+        answer: 'TikTok wellness es ideal para descubrimiento masivo y lanzamiento de producto, con 466.601 visualizaciones de media por vídeo. Instagram wellness es ideal para construcción de confianza profunda y embajadores a largo plazo, con un engagement medio del 9,26%. La estrategia más efectiva combina ambas plataformas: TikTok para alcance e Instagram para conversión y fidelización.',
       },
       {
-        question: '¿Cómo influye la cultura mediterránea y latinoamericana en el contenido de wellness?',
-        answer:
-          'La cultura familiar mediterránea y latinoamericana valora profundamente el bienestar colectivo, no solo el individual. Los creadores que enmarcan los productos de wellness en el contexto del cuidado familiar y comunitario generan resonancia cultural adicional que los enfoques puramente individualistas no capturan — un factor diferenciador clave respecto al marketing de wellness anglosajón.',
+        question: '¿Qué formatos de wellness generan más engagement en TikTok?',
+        answer: 'Las rutinas matutinas de bienestar, los hábitos de salud diarios y el contenido educativo sobre bienestar son los formatos de mayor rendimiento. Las integraciones de producto en estos contextos se sienten más naturales y auténticas que en vídeos de reseña independiente, lo que maximiza tanto el engagement como la intención de compra de la audiencia.',
       },
       {
-        question: '¿Qué categorías de productos de wellness convierten mejor con creadores en TikTok?',
-        answer:
-          'Suplementos, apps de meditación, productos de yoga y herramientas de bienestar son las categorías de mayor rendimiento. Sus audiencias son activamente receptivas a recomendaciones de productos que apoyan genuinamente su viaje de salud, con tasas de engagement del 6% al 14% que reflejan comunidades con alta intención de acción, no consumo pasivo.',
+        question: '¿Qué categorías de producto de wellness convierten mejor en TikTok?',
+        answer: 'Suplementos, apps de meditación, productos de yoga y herramientas de bienestar son las categorías de mayor rendimiento. Sus audiencias son activamente receptivas a recomendaciones que apoyan genuinamente su proceso de salud. El formato "lo que tomo cada mañana" es especialmente efectivo para suplementos y superalimentos por su integración en el contexto de una rutina real.',
+      },
+      {
+        question: '¿Cuánto cuesta una colaboración de wellness en TikTok en España?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre 750€ y 6.500€ por vídeo dedicado. Las integraciones en rutinas de bienestar son más accesibles (400€–3.300€) y suelen generar mayor confianza de audiencia por su naturalidad dentro del contenido. Como en Instagram, las asociaciones de embajador a largo plazo ofrecen mejor retorno que las colaboraciones puntuales.',
       },
     ],
   },
