@@ -2916,6 +2916,117 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de suplementos, ropa deportiva y apps de fitness, los creadores latinoamericanos de TikTok ofrecen el canal de marketing con mejor relación coste-resultado disponible en el mercado. Sus audiencias tienen intención de compra activa y confían en las recomendaciones de los creadores que siguen.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Fitness en TikTok en América Latina: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 196 creadores de fitness verificados en TikTok con una tasa de engagement mediana del 6,86% y una media de 574.944 visualizaciones por vídeo — uno de los promedios de visualización más altos de cualquier categoría. En América Latina, donde la adopción de TikTok como plataforma de fitness es más reciente pero más acelerada que en otros mercados, estos números representan una oportunidad de primer orden para marcas del sector.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de fitness verificados en TikTok', '196'],
+          ['Tasa de engagement mediana', '6,86%'],
+          ['Media de visualizaciones por vídeo', '574.944'],
+          ['Comparativa: fitness Instagram mid-tier', '14,10% engagement / 201.429 vistas'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'TikTok Fitness en América Latina: Alcance Masivo con Audiencias de Alta Intención',
+      },
+      {
+        type: 'paragraph',
+        content: 'Con 574.944 visualizaciones de media por vídeo, una sola colaboración con un creador de fitness latinoamericano en TikTok puede generar más de medio millón de impresiones. Para marcas de suplementos, ropa deportiva y apps de fitness, este alcance representa un coste por impresión sustancialmente inferior al de cualquier formato publicitario tradicional — combinado con la confianza que genera una recomendación personal de un creador seguido activamente.',
+      },
+      {
+        type: 'h2',
+        content: 'TikTok vs. Instagram para Fitness en LatAm: Cuándo Usar Cada Plataforma',
+      },
+      {
+        type: 'table',
+        headers: ['Objetivo', 'Plataforma óptima', 'Razón'],
+        rows: [
+          ['Descubrimiento masivo de marca', 'TikTok', '574.944 vistas medias por vídeo'],
+          ['Conversión directa y alta confianza', 'Instagram', '14,10% engagement medio nivel medio'],
+          ['Lanzamiento de producto nuevo', 'TikTok', 'Distribución algorítmica a audiencias frías'],
+          ['Programa de transformación 30–60 días', 'Instagram', 'Seguimiento de comunidad comprometida'],
+          ['Contenido educativo de nutrición', 'Ambas', 'Alto engagement en fitness en ambas plataformas'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Fitness TikTok con Mayor Rendimiento en América Latina',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Rutinas de entrenamiento en casa: el formato de mayor búsqueda orgánica en fitness TikTok LatAm',
+          'Recetas fitness económicas y locales: muy compartible, especialmente en mercados con sensibilidad al precio',
+          'Transformaciones de 30–60 días: viral por su factor motivacional, ideal para suplementos',
+          'Ejercicios adaptados al calor y la humedad: contenido específico para climas tropicales latinoamericanos',
+          'Fitness combinado con danza y deportes latinoamericanos: amplía audiencia más allá del gym convencional',
+          '"Pre-workout routine": integración natural de suplementos en contexto de uso real',
+          'Consejos de nutrición con ingredientes locales y accesibles: alta resonancia cultural',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'La Ventaja del Clima Tropical en el Contenido de Fitness Latinoamericano',
+      },
+      {
+        type: 'paragraph',
+        content: 'La mayoría de los mercados latinoamericanos tiene climas tropicales o subtropicales que crean necesidades de fitness específicas: entrenamiento en exteriores durante todo el año, hidratación intensa, rutinas adaptadas al calor. Los creadores de fitness latinoamericanos que producen contenido adaptado a estas condiciones climáticas reales generan una relevancia cultural que el contenido de fitness importado de mercados de cuatro estaciones simplemente no puede replicar.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Fitness en TikTok, América Latina (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado ($)', 'Mención en rutina ($)', 'Pack 3 vídeos ($)'],
+        rows: [
+          ['Micro', '10K – 50K', '$100 – $480', '$50 – $240', '$280 – $1.200'],
+          ['Medio bajo', '50K – 150K', '$480 – $1.600', '$240 – $800', '$1.200 – $4.000'],
+          ['Medio alto', '150K – 500K', '$1.600 – $5.000', '$800 – $2.500', '$4.000 – $12.500'],
+          ['Macro', '500K+', '$5.000 – $16.000+', '$2.500 – $8.000+', '$12.500 – $40.000+'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Estacionalidad del Fitness en TikTok LatAm: Planificación por Mercado',
+      },
+      {
+        type: 'paragraph',
+        content: 'Para campañas regionales en todo el continente, noviembre-diciembre es el momento de mayor actividad simultánea en fitness — todos los mercados están en modo de preparación estacional, independientemente del hemisferio. Enero es el segundo pico universal: el año nuevo genera propósitos de fitness en todo el mundo hispanohablante. Para campañas por país, ajusta el timing al ciclo estacional local y reserva los creadores con 8–10 semanas de antelación para los picos de demanda.',
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos influencers de fitness latinoamericanos verificados hay en TikTok en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 196 creadores de fitness verificados en TikTok, con una tasa de engagement mediana del 6,86% y una media de 574.944 visualizaciones por vídeo — uno de los promedios de visualización más altos de cualquier categoría de la base de datos.',
+      },
+      {
+        question: '¿Qué media de visualizaciones genera un creador de fitness latinoamericano en TikTok?',
+        answer: 'La media verificada de visualizaciones por vídeo para creadores de fitness en TikTok es de 574.944. Una sola colaboración con un creador de nivel medio puede superar el medio millón de impresiones — un alcance que a ese coste no tiene equivalente en formatos publicitarios tradicionales en el mercado latinoamericano.',
+      },
+      {
+        question: '¿Qué hace que el contenido de fitness latinoamericano sea culturalmente único en TikTok?',
+        answer: 'Los creadores latinoamericanos de fitness producen contenido adaptado a las condiciones reales de sus mercados: climas tropicales, ingredientes locales en recetas, disciplinas con arraigo cultural como danza y fútbol, y presupuestos ajustados. Esta especificidad cultural genera mayor relevancia y engagement que el contenido de fitness importado de mercados de cuatro estaciones que no refleja la realidad latinoamericana.',
+      },
+      {
+        question: '¿Cuánto cuesta una colaboración de fitness en TikTok en América Latina?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre $480 y $5.000 USD por vídeo dedicado. Las menciones integradas en rutinas de entrenamiento son más accesibles ($240–$2.500) y suelen generar mayor credibilidad por su naturalidad dentro del contenido regular del creador.',
+      },
+      {
+        question: '¿Cuándo es el mejor momento para lanzar campañas de fitness en TikTok en toda la región latinoamericana?',
+        answer: 'Noviembre-diciembre y enero son los únicos momentos en que todos los mercados latinoamericanos están simultáneamente en modo de preparación estacional, independientemente del hemisferio. Para campañas de alcance regional completo, estas ventanas son las de mayor impacto garantizado. Planifica con 8–10 semanas de antelación para asegurar los mejores perfiles.',
+      },
+    ],
   },
 
   'lifestyle-instagram-latam': {
@@ -2937,6 +3048,109 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de hogar, tecnología doméstica, alimentación y viajes domésticos, los creadores de lifestyle latinoamericanos ofrecen acceso a consumidores que toman decisiones de compra complejas y de alto valor. Sus audiencias no solo guardan contenido — actúan en consecuencia.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Lifestyle en Instagram en América Latina: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 419 creadores de lifestyle verificados en Instagram con una tasa de engagement media del 3,64% y una media de 64.416 visualizaciones por publicación en formato vídeo. Los creadores de lifestyle latinoamericanos son los socios de marca más versátiles del ecosistema de Instagram en la región — su contenido abarca hogar, viajes, alimentación, bienestar y moda desde una perspectiva cultural latinoamericana auténtica.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de lifestyle verificados en Instagram', '419'],
+          ['Tasa de engagement media', '3,64%'],
+          ['Media de visualizaciones por publicación (vídeo)', '64.416'],
+          ['Mercados más activos', 'Colombia, México, Argentina, Chile, Perú'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Lifestyle Latinoamericano: Valores Culturales que Amplifican las Marcas',
+      },
+      {
+        type: 'paragraph',
+        content: 'El lifestyle latinoamericano tiene características culturales propias que las marcas deben integrar en sus briefings. La familia y la comunidad son valores centrales en toda la región — los productos posicionados en el contexto del bienestar familiar o de la mejora del hogar familiar tienen un recuerdo de marca 2–3 veces superior a los posicionados únicamente en el consumo individual. Los creadores de lifestyle latinoamericanos que reflejan estos valores generan una resonancia cultural adicional que los enfoques individualistas no capturan.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Lifestyle con Mayor Impacto en Instagram LatAm',
+      },
+      {
+        type: 'h3',
+        content: '"Un Día en Mi Vida": Autenticidad Cultural Latinoamericana',
+      },
+      {
+        type: 'paragraph',
+        content: 'El formato "un día en mi vida" es especialmente poderoso en el contexto latinoamericano porque permite mostrar la cotidianidad real del creador — desde el desayuno hasta la vida familiar, pasando por el trabajo y el tiempo libre. Las audiencias latinoamericanas conectan profundamente con este tipo de contenido porque refleja una vida reconocible y aspiracional a la vez.',
+      },
+      {
+        type: 'h3',
+        content: 'Hogar y Familia: El Mayor Driver de Guardadas en LatAm',
+      },
+      {
+        type: 'paragraph',
+        content: 'El contenido de organización del hogar, decoración con presupuesto ajustado y recetas familiares genera las tasas de guardado más altas del nicho de lifestyle en Instagram latinoamericano. Las audiencias guardan este contenido como referencia práctica — una señal de que el producto integrado en él tiene altas probabilidades de ser considerado activamente para compra.',
+      },
+      {
+        type: 'bullets',
+        items: [
+          '"Un día en mi vida": máxima confianza de audiencia, integración de producto más natural en LatAm',
+          'Organización del hogar con presupuesto real: altas tasas de guardado, audiencia con intención práctica',
+          'Recetas familiares accesibles: resonancia cultural latinoamericana, alto compartido',
+          'Rutinas matutinas: exposición del producto en contexto de alta receptividad',
+          'Escapadas de fin de semana dentro del país: aspiracionalidad accesible, alta identificación',
+          'Productividad desde casa: fuerte en Colombia, México y Argentina post-pandemia',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué lo "Aspiracional Accesible" Convierte Mejor en LatAm',
+      },
+      {
+        type: 'paragraph',
+        content: 'El mercado latinoamericano tiene una diversidad de poder adquisitivo que hace que el contenido de lujo inalcanzable genere admiración pero no conversión. Los creadores de lifestyle que muestran vidas deseables pero posibles — mejoras de hogar a precios reales, viajes dentro del continente, productos que genuinamente mejoran la calidad de vida cotidiana — generan tasas de conversión significativamente superiores. Esta característica es especialmente relevante para marcas que quieren construir volumen de ventas, no solo imagen de marca.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Lifestyle en Instagram, América Latina (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post / Reel ($)', 'Carrusel "día en mi vida" ($)', 'Pack Stories ($)'],
+        rows: [
+          ['Micro', '10K – 50K', '$70 – $300', '$100 – $450', '$50 – $180'],
+          ['Medio bajo', '50K – 150K', '$300 – $900', '$450 – $1.400', '$180 – $500'],
+          ['Medio alto', '150K – 500K', '$900 – $3.000', '$1.400 – $4.500', '$500 – $1.400'],
+          ['Macro', '500K+', '$3.000 – $10.000+', '$4.500 – $14.000+', '$1.400 – $4.500+'],
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos influencers de lifestyle latinoamericanos verificados hay en Instagram en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 419 creadores de lifestyle verificados en Instagram con una tasa de engagement media del 3,64% y una media de 64.416 visualizaciones por publicación en vídeo.',
+      },
+      {
+        question: '¿Por qué los valores familiares y comunitarios latinoamericanos son importantes para campañas de lifestyle?',
+        answer: 'En América Latina, la familia y la comunidad son valores centrales que influyen directamente en las decisiones de compra. Los productos posicionados en el contexto del bienestar familiar o la mejora del hogar familiar tienen un recuerdo de marca 2–3 veces superior a los posicionados únicamente en el consumo individual. Los briefings que ignoran esta dimensión colectiva del consumo latinoamericano pierden una ventaja cultural significativa.',
+      },
+      {
+        question: '¿Qué formatos de lifestyle generan más guardadas en Instagram en América Latina?',
+        answer: 'El contenido de organización del hogar, decoración con presupuesto real y recetas familiares accesibles genera las tasas de guardado más altas del nicho de lifestyle latinoamericano. El formato "un día en mi vida" es el de mayor confianza de audiencia. Ambos son especialmente eficaces porque las audiencias latinoamericanas guardan contenido como referencia práctica, no solo como inspiración.',
+      },
+      {
+        question: '¿Por qué el contenido "aspiracional accesible" convierte mejor en el mercado latinoamericano?',
+        answer: 'La diversidad de poder adquisitivo en América Latina hace que el contenido de lujo inalcanzable genere admiración pero escasa conversión. Los creadores que muestran vidas deseables pero posibles — mejoras de hogar a precios reales, productos que genuinamente mejoran la calidad de vida cotidiana — generan tasas de conversión significativamente superiores, especialmente para marcas que buscan volumen de ventas más que imagen de lujo.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un influencer de lifestyle latinoamericano en Instagram?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre $300 y $4.500 USD por pieza de contenido. Los carruseles de "un día en mi vida" tienen un coste superior a los posts estáticos pero generan mayor confianza de audiencia e integración de producto más natural, resultando en un coste por conversión más eficiente.',
+      },
+    ],
   },
 
   'lifestyle-tiktok-latam': {
@@ -2958,6 +3172,102 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de consumo masivo, tecnología del hogar, alimentación y cuidado personal, los creadores de lifestyle latinoamericanos en TikTok son los socios más naturales y efectivos del ecosistema.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Lifestyle en TikTok en América Latina: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 963 creadores de lifestyle verificados en TikTok — la segunda categoría más grande de la plataforma. La tasa de engagement mediana es del 9,08%, con una media de 535.380 visualizaciones por vídeo. En América Latina, el lifestyle en TikTok ha encontrado un formato especialmente efectivo: la documentación de vida cotidiana auténtica con un componente aspiracional accesible que resuena profundamente con las audiencias de la región.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de lifestyle verificados en TikTok', '963'],
+          ['Tasa de engagement mediana', '9,08%'],
+          ['Media de visualizaciones por vídeo', '535.380'],
+          ['Comparativa: lifestyle Instagram LatAm', '419 creadores / 3,64% / 64.416 vistas'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'TikTok Lifestyle LatAm: El Formato de Mayor Alcance con la Integración Más Natural',
+      },
+      {
+        type: 'paragraph',
+        content: 'El lifestyle en TikTok latinoamericano tiene una característica única: documenta la vida real con una autenticidad que resuena profundamente con sus audiencias, mientras genera 535.380 visualizaciones de media por vídeo. Las integraciones de marca en rutinas cotidianas, recetas familiares y escapadas locales se perciben como recomendaciones genuinas — la diferencia en tasas de conversión respecto a formatos publicitarios tradicionales puede ser de 3 a 5 veces.',
+      },
+      {
+        type: 'h2',
+        content: 'La Dimensión Comunitaria del Lifestyle Latinoamericano en TikTok',
+      },
+      {
+        type: 'paragraph',
+        content: 'El lifestyle latinoamericano en TikTok tiene una dimensión comunitaria que lo diferencia del lifestyle anglosajón. Los creadores que muestran la vida familiar, las reuniones con amigos, las tradiciones locales y el sentido de comunidad generan una resonancia cultural adicional que amplifica orgánicamente el alcance del contenido. Las marcas que entienden y aprovechan esta dimensión colectiva del consumo latinoamericano obtienen resultados significativamente superiores a las que aplican enfoques puramente individualistas.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Lifestyle TikTok con Mayor Rendimiento en LatAm',
+      },
+      {
+        type: 'bullets',
+        items: [
+          '"Un día en mi vida" latinoamericano: la autenticidad cultural amplifica el engagement',
+          'Rutinas matutinas adaptadas al clima y cultura local: alta retención de visualización',
+          'Organización del hogar con presupuesto real: aspiracionalidad accesible, muy compartible',
+          'Recetas familiares y tradiciones culinarias locales: conexión cultural profunda',
+          'Productividad y hábitos para el estilo de vida latinoamericano: alta motivación de audiencia',
+          'Escapadas de fin de semana dentro del país: viajes accesibles, alta identificación regional',
+          '"Lo que compré esta semana" con precios locales: transparencia que genera confianza',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Qué Productos Convierten Mejor en Lifestyle TikTok Latinoamericano',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los productos que mejoran la calidad de vida cotidiana de forma concreta y accesible son los de mayor conversión en lifestyle TikTok latinoamericano: organización del hogar, tecnología doméstica de gama media, cuidado personal accesible, alimentación saludable adaptada a presupuestos locales. La clave es que el producto pueda integrarse en el contexto diario real del creador sin elevar artificialmente el nivel de vida mostrado — las audiencias latinoamericanas son especialmente sensibles a la autenticidad del estilo de vida retratado.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Lifestyle en TikTok, América Latina (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado ($)', 'Integración en vlog / rutina ($)'],
+        rows: [
+          ['Micro', '10K – 50K', '$80 – $380', '$40 – $190'],
+          ['Medio bajo', '50K – 150K', '$380 – $1.100', '$190 – $550'],
+          ['Medio alto', '150K – 500K', '$1.100 – $3.500', '$550 – $1.750'],
+          ['Macro', '500K+', '$3.500 – $12.000+', '$1.750 – $6.000+'],
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos influencers de lifestyle latinoamericanos hay en TikTok en InfluenceIT?',
+        answer: 'InfluenceIT tiene verificados 963 creadores de lifestyle en TikTok — la segunda categoría más grande tras moda. La tasa de engagement mediana es del 9,08% con una media de 535.380 visualizaciones por vídeo.',
+      },
+      {
+        question: '¿Por qué la dimensión comunitaria del lifestyle latinoamericano amplifica el alcance en TikTok?',
+        answer: 'Los creadores latinoamericanos que muestran vida familiar, reuniones con amigos y tradiciones locales generan una resonancia cultural que el lifestyle anglosajón individualista no produce. Este contenido es altamente compartido porque las audiencias lo envían a familiares y amigos con quienes se identifican — ampliando el alcance orgánico más allá del seguidor base del creador.',
+      },
+      {
+        question: '¿Qué tipos de productos convierten mejor en lifestyle TikTok latinoamericano?',
+        answer: 'Los productos que mejoran la calidad de vida de forma concreta y accesible son los de mayor conversión: organización del hogar, tecnología doméstica de gama media, cuidado personal accesible y alimentación saludable adaptada a presupuestos locales. La accesibilidad del precio es un factor crítico — los productos percibidos como asequibles generan tasas de actuación significativamente superiores en el mercado latinoamericano.',
+      },
+      {
+        question: '¿Cuánto cuesta una colaboración de lifestyle en TikTok en América Latina?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre $380 y $3.500 USD por vídeo dedicado. Las integraciones en formato vlog o rutina cotidiana son más accesibles ($190–$1.750) y generan mayor confianza de audiencia por su naturalidad dentro del contenido habitual del creador.',
+      },
+      {
+        question: '¿Es TikTok o Instagram mejor para campañas de lifestyle en América Latina?',
+        answer: 'TikTok lifestyle LatAm ofrece 535.380 visualizaciones de media por vídeo y un engagement mediano del 9,08% — superior a Instagram en ambas métricas de alcance. Para descubrimiento masivo y captación de nuevas audiencias, TikTok es la opción clara. Para construcción de comunidad fidelizada y contenido de mayor profundidad editorial, Instagram complementa la estrategia. La combinación de ambas plataformas con creadores diferentes maximiza el alcance y la conversión simultáneamente.',
+      },
+    ],
   },
 
   'wellness-instagram-latam': {
@@ -2979,6 +3289,107 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de suplementos, productos naturales, apps de meditación y herramientas de bienestar, los creadores latinoamericanos de Instagram ofrecen acceso a un mercado de consumidores sofisticados que combinan el interés en prácticas de wellness modernas con el respeto por la sabiduría tradicional latinoamericana.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Wellness en Instagram en América Latina: El Mayor Engagement de la Plataforma',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 61 creadores de wellness verificados en Instagram con una tasa de engagement media del 9,26% — la más alta de todas las categorías de Instagram en la base de datos — y una media de 141.760 visualizaciones por publicación en vídeo. En América Latina, donde el wellness tiene raíces culturales profundas en la medicina natural y los rituales de bienestar colectivo, estos creadores representan el canal de mayor confianza disponible para marcas del sector.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de wellness verificados en Instagram', '61'],
+          ['Tasa de engagement media', '9,26% (mayor de todas las categorías Instagram)'],
+          ['Media de visualizaciones por publicación (vídeo)', '141.760'],
+          ['Mercados más activos', 'Colombia, México, Argentina, Chile, Perú'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Wellness Latinoamericano: Raíces Culturales que Amplifican la Autenticidad',
+      },
+      {
+        type: 'paragraph',
+        content: 'El wellness en América Latina tiene raíces culturales más profundas que en la mayoría de los mercados occidentales. Las tradiciones de medicina natural, los rituales de cuidado con plantas locales, la conexión con la naturaleza y el sentido comunitario del bienestar son parte intrínseca de las culturas latinoamericanas. Los creadores de wellness latinoamericanos que conectan estas tradiciones ancestrales con las prácticas de wellness moderno crean contenido con una autenticidad cultural única que los enfoques importados no pueden replicar.',
+      },
+      {
+        type: 'h2',
+        content: 'La Dimensión Colectiva del Wellness en América Latina',
+      },
+      {
+        type: 'paragraph',
+        content: 'A diferencia del wellness anglosajón, que suele centrarse en el desarrollo personal individual, el wellness latinoamericano tiene una dimensión colectiva fundamental. El bienestar de la familia, el cuidado de los mayores, la salud comunitaria y los rituales compartidos son parte central de la cultura del bienestar en la región. Los creadores y las marcas que enmarcan el wellness en este contexto familiar y comunitario generan una resonancia cultural adicional que las audiencias latinoamericanas reconocen y valoran.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Wellness con Mayor Impacto en Instagram LatAm',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Rutinas de bienestar con plantas y remedios locales: autenticidad cultural latinoamericana máxima',
+          '"Lo que tomo cada día": conversión directa para suplementos, infusiones y productos naturales',
+          'Yoga y meditación en contexto latinoamericano: adaptados al estilo de vida y los espacios locales',
+          'Salud mental accesible: especialmente relevante en mercados donde el tema está ganando apertura',
+          'Alimentación consciente con ingredientes locales: resonancia cultural y accesibilidad de precio',
+          'Bienestar familiar: el wellness posicionado en clave de cuidado de la familia convierte mejor en LatAm',
+          'Rituales de autocuidado adaptados al presupuesto local: alta identificación de audiencia',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Plantas y Medicina Natural Latinoamericana: Una Ventaja Competitiva de Contenido',
+      },
+      {
+        type: 'paragraph',
+        content: 'América Latina tiene una biodiversidad de plantas medicinales y una tradición de medicina natural sin equivalente en otros mercados. Los creadores de wellness latinoamericanos que integran estas referencias culturales — remedios naturales de la abuela, plantas medicinales locales, rituales de cuidado ancestrales — generan un contenido con identidad cultural propia que tiene altísima demanda de búsqueda orgánica en toda la región.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Wellness en Instagram, América Latina (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tipo de colaboración', 'Duración', 'Coste orientativo ($)'],
+        rows: [
+          ['Post / Reel puntual (micro, 10K–50K)', 'Puntual', '$150 – $600'],
+          ['Post / Reel puntual (medio, 50K–500K)', 'Puntual', '$600 – $4.500'],
+          ['Embajador mensual (medio, 50K–500K)', '1 mes', '$1.200 – $7.500'],
+          ['Embajador trimestral (medio, 50K–500K)', '3 meses', '$3.000 – $18.000'],
+          ['Embajador anual (medio, 50K–500K)', '12 meses', '$10.000 – $60.000'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: 'Las asociaciones de embajador a largo plazo en wellness latinoamericano ofrecen un ahorro efectivo del 30–50% por unidad respecto al precio puntual, con resultados significativamente superiores. Las audiencias de wellness latinoamericanas son especialmente escépticas con las colaboraciones puntuales — una presencia continua es la única forma de construir la confianza que convierte en esta categoría.',
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos influencers de wellness latinoamericanos verificados hay en Instagram en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 61 creadores de wellness verificados en Instagram con una tasa de engagement media del 9,26% — la más alta de todas las categorías de Instagram en la base de datos — y una media de 141.760 visualizaciones por publicación en vídeo.',
+      },
+      {
+        question: '¿Por qué el wellness latinoamericano tiene raíces culturales más profundas que en otros mercados?',
+        answer: 'América Latina tiene una biodiversidad de plantas medicinales, tradiciones de medicina natural y rituales de cuidado ancestrales que forman parte intrínseca de la cultura cotidiana. El bienestar en LatAm no es una tendencia reciente — es una práctica cultural transmitida generacionalmente. Los creadores que conectan estas tradiciones con el wellness moderno crean contenido con una autenticidad que los enfoques importados no pueden replicar.',
+      },
+      {
+        question: '¿Por qué las marcas deben enfocar el wellness en clave familiar y comunitaria en LatAm?',
+        answer: 'A diferencia del wellness anglosajón centrado en el desarrollo individual, el wellness latinoamericano tiene una dimensión colectiva fundamental. Los productos posicionados en el contexto del bienestar familiar o comunitario generan un recuerdo de marca 2–3 veces superior a los posicionados únicamente en el consumo individual. Esta característica cultural es un multiplicador de impacto que las marcas que operan en LatAm no pueden ignorar.',
+      },
+      {
+        question: '¿Cuánto cuesta una asociación de embajador de wellness en Instagram en América Latina?',
+        answer: 'Las asociaciones de embajador trimestral oscilan entre $3.000 y $18.000 USD para creadores de nivel medio (50.000–500.000 seguidores). Esto representa un ahorro del 30–50% respecto al precio por publicación puntual equivalente, con resultados significativamente superiores por la prueba social sostenida que genera la relación continuada en el tiempo.',
+      },
+      {
+        question: '¿Qué categorías de producto de wellness funcionan mejor con creadores latinoamericanos en Instagram?',
+        answer: 'Suplementos y productos naturales, infusiones y plantas medicinales, apps de meditación adaptadas al español, productos de yoga y herramientas de bienestar accesibles son las categorías de mayor rendimiento. Los productos que pueden integrarse en el formato "lo que tomo cada día" o en una rutina de bienestar documentada generan las mayores tasas de conversión en este nicho.',
+      },
+    ],
   },
 
   'wellness-tiktok-latam': {
@@ -3000,6 +3411,114 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de suplementos, apps de meditación, productos de yoga y herramientas de bienestar, los creadores latinoamericanos de TikTok ofrecen el canal de marketing más eficiente en el mercado hispanohablante.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Wellness en TikTok en América Latina: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 137 creadores de wellness verificados en TikTok con una tasa de engagement mediana del 5,64% y una media de 466.601 visualizaciones por vídeo. El wellness latinoamericano en TikTok ha experimentado un crecimiento explosivo impulsado por la apertura a hablar de salud mental, la adopción masiva del yoga y la meditación, y el interés creciente por la medicina natural y los hábitos de vida saludable.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de wellness verificados en TikTok', '137'],
+          ['Tasa de engagement mediana', '5,64%'],
+          ['Media de visualizaciones por vídeo', '466.601'],
+          ['Comparativa: wellness Instagram LatAm', '61 creadores / 9,26% / 141.760 vistas'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'TikTok vs. Instagram para Wellness en LatAm: La Estrategia Combinada',
+      },
+      {
+        type: 'table',
+        headers: ['Objetivo', 'Plataforma óptima', 'Razón'],
+        rows: [
+          ['Alcance masivo y descubrimiento', 'TikTok', '466.601 vistas medias por vídeo'],
+          ['Construcción de confianza profunda', 'Instagram', '9,26% engagement medio'],
+          ['Lanzamiento de producto nuevo', 'TikTok', 'Distribución algorítmica masiva'],
+          ['Embajador a largo plazo', 'Instagram', 'Comunidad íntima, prueba social sostenida'],
+          ['Contenido educativo de bienestar', 'TikTok', 'Formato vídeo corto ideal para wellness educativo'],
+          ['Conversión de audiencia ya convencida', 'Instagram', 'Mayor intención de compra por seguidor fidelizado'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Wellness Latinoamericano en TikTok: Tradición y Modernidad Fusionadas',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores de wellness latinoamericanos en TikTok han encontrado una fórmula poderosa: combinar el conocimiento ancestral latinoamericano — plantas medicinales, remedios naturales, rituales de bienestar comunitarios — con las prácticas de wellness moderno como yoga, meditación y nutrición basada en evidencia. Este contenido es altamente compartido porque responde a una búsqueda profunda de autenticidad cultural en el mercado de wellness latinoamericano.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Wellness TikTok con Mayor Engagement en América Latina',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Remedios naturales latinoamericanos: altísima búsqueda orgánica, viral por identidad cultural',
+          'Rutinas matutinas de bienestar adaptadas al clima y estilo de vida local: alta retención',
+          'Yoga y estiramientos en exteriores latinoamericanos: autenticidad de contexto natural',
+          'Salud mental en español: uno de los temas de mayor crecimiento en TikTok LatAm',
+          'Nutrición con ingredientes locales y accesibles: alta resonancia cultural y económica',
+          '"Lo que tomo cada mañana" con precios locales: conversión directa para suplementos naturales',
+          'Bienestar familiar: rituales compartidos y hábitos saludables en clave de comunidad',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'La Salud Mental en LatAm: El Segmento de Mayor Crecimiento en Wellness TikTok',
+      },
+      {
+        type: 'paragraph',
+        content: 'El contenido de salud mental en español en TikTok latinoamericano ha experimentado el mayor crecimiento de cualquier subcategoría de wellness en los últimos dos años. La apertura cultural a hablar de ansiedad, depresión, burnout y autocuidado emocional — especialmente entre las generaciones más jóvenes — ha creado una demanda masiva de contenido accesible y destigmatizador. Las marcas de apps de meditación, suplementos de bienestar y herramientas de autocuidado tienen en este segmento una oportunidad de primer orden.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Wellness en TikTok, América Latina (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado ($)', 'Integración en rutina ($)', 'Pack 3 vídeos ($)'],
+        rows: [
+          ['Micro', '10K – 50K', '$100 – $500', '$50 – $250', '$280 – $1.250'],
+          ['Medio bajo', '50K – 150K', '$500 – $1.500', '$250 – $750', '$1.250 – $3.750'],
+          ['Medio alto', '150K – 500K', '$1.500 – $4.800', '$750 – $2.400', '$3.750 – $12.000'],
+          ['Macro', '500K+', '$4.800 – $16.000+', '$2.400 – $8.000+', '$12.000 – $40.000+'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: 'Al igual que en Instagram, las asociaciones de embajador a largo plazo superan consistentemente a las colaboraciones puntuales en wellness TikTok latinoamericano. Una presencia continuada del producto en el contenido del creador construye la familiaridad y confianza que las audiencias latinoamericanas de wellness requieren antes de actuar sobre una recomendación.',
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos influencers de wellness latinoamericanos verificados hay en TikTok en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 137 creadores de wellness verificados en TikTok, con una tasa de engagement mediana del 5,64% y una media de 466.601 visualizaciones por vídeo.',
+      },
+      {
+        question: '¿Por qué el contenido que fusiona wellness moderno con tradición latinoamericana es el más efectivo?',
+        answer: 'Las audiencias latinoamericanas de wellness buscan autenticidad cultural, no solo información técnica. Los creadores que integran plantas medicinales locales, remedios naturales ancestrales y rituales comunitarios de bienestar con prácticas modernas como yoga y nutrición basada en evidencia generan contenido que resuena profundamente con la identidad cultural de su audiencia — produciendo mayor engagement y compartido orgánico.',
+      },
+      {
+        question: '¿Por qué la salud mental es el segmento de mayor crecimiento en wellness TikTok latinoamericano?',
+        answer: 'La apertura cultural a hablar de ansiedad, depresión, burnout y autocuidado emocional está creciendo rápidamente entre las generaciones más jóvenes latinoamericanas. TikTok es la plataforma donde esta conversación se está produciendo con mayor naturalidad, creando una demanda masiva de contenido accesible y destigmatizador. Para marcas de apps de meditación y productos de bienestar, este es el segmento de mayor crecimiento y menor saturación competitiva.',
+      },
+      {
+        question: '¿Cuándo es mejor usar TikTok y cuándo Instagram para wellness en América Latina?',
+        answer: 'TikTok wellness LatAm es ideal para descubrimiento masivo y lanzamiento de producto, con 466.601 visualizaciones de media por vídeo. Instagram wellness LatAm es ideal para construcción de confianza profunda y embajadores a largo plazo, con un engagement medio del 9,26%. La estrategia óptima combina TikTok para alcance e Instagram para conversión y fidelización a largo plazo.',
+      },
+      {
+        question: '¿Cuánto cuesta una colaboración de wellness en TikTok en América Latina?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre $500 y $4.800 USD por vídeo dedicado. Los packs de 3 vídeos ofrecen eficiencia adicional ($1.250–$12.000) y son el formato más recomendado en wellness, ya que una sola publicación raramente es suficiente para construir la confianza que este nicho requiere antes de la conversión.',
+      },
+    ],
   },
 };
 
