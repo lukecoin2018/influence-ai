@@ -2660,6 +2660,117 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas que buscan establecerse en el mercado peruano, los creadores peruanos ofrecen un punto de entrada coste-eficiente con alcance cultural que se extiende a Bolivia, Ecuador y las comunidades andinas de otros países latinoamericanos.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de Instagram en Perú: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 2 creadores de Instagram verificados con ubicación en Perú, con una tasa de engagement media del 0,32% y una media de 1.994 visualizaciones por publicación en el conjunto verificado. Estas cifras reflejan el subconjunto específico con ubicación geográfica confirmada. Perú es uno de los mercados emergentes más emocionantes para creadores en América Latina — con una gastronomía internacionalmente reconocida y una diversidad cultural única que produce contenido con una identidad visual propia.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores verificados en Perú (Instagram)', '2'],
+          ['Tasa de engagement media (conjunto verificado)', '0,32%'],
+          ['Media de visualizaciones por publicación', '1.994'],
+          ['Ciudades principales', 'Lima, Arequipa, Cusco, Trujillo'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Perú: Un Mercado Emergente con Identidad Cultural Propia',
+      },
+      {
+        type: 'paragraph',
+        content: 'Perú es uno de los mercados emergentes más emocionantes para el marketing de creadores en América Latina. La gastronomía peruana — reconocida internacionalmente con restaurantes en el top 10 mundial — ha creado una categoría de creadores de contenido gastronómico excepcionalmente fuerte. La diversidad cultural peruana — costa, sierra y selva — produce estilos de vida, estéticas y contenidos radicalmente diferentes que ofrecen a las marcas contextos auténticos únicos.',
+      },
+      {
+        type: 'h2',
+        content: 'La Gastronomía Peruana: El Mayor Activo de Contenido en Instagram',
+      },
+      {
+        type: 'paragraph',
+        content: 'La cocina peruana es uno de los fenómenos culturales más globalmente reconocidos de América Latina. Restaurantes peruanos han encabezado repetidamente los rankings de mejores restaurantes del mundo. Los creadores peruanos de gastronomía en Instagram producen contenido con un alcance internacional desproporcionado — platos como el ceviche, el lomo saltado y el pisco sour generan una curiosidad global que amplifica el alcance orgánico de cada publicación más allá del mercado local.',
+      },
+      {
+        type: 'h2',
+        content: 'La Diversidad Geográfica de Perú: Tres Mundos de Contenido',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Lima (costa): gastronomía de alta cocina, lifestyle urbano, moda contemporánea, belleza',
+          'Cusco y región andina (sierra): turismo cultural, tradiciones ancestrales, artesanía, moda étnica',
+          'Amazonía (selva): naturaleza, biodiversidad, plantas medicinales, turismo sostenible',
+          'Machu Picchu y circuito Inca: contenido de viaje con alcance internacional excepcional',
+          'Mercados y gastronomía local: autenticidad cultural que genera enorme curiosidad internacional',
+          'Surf y deportes de playa en costa norte: lifestyle activo, audiencia joven de alto engagement',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué Perú es una Oportunidad de Coste-Eficiencia para Marcas',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los costes de colaboración con creadores peruanos de Instagram son de los más accesibles de América Latina, mientras que la calidad de producción ha mejorado significativamente con la profesionalización del ecosistema creativo peruano. Para marcas que buscan entrar en el mercado peruano o usarlo como punto de partida para la región andina, los creadores peruanos ofrecen una eficiencia de inversión excepcional con alcance potencial hacia Bolivia, Ecuador y las comunidades andinas de Colombia.',
+      },
+      {
+        type: 'h2',
+        content: 'Momentos Clave del Calendario Peruano para Campañas',
+      },
+      {
+        type: 'table',
+        headers: ['Momento', 'Mes', 'Oportunidad de marca'],
+        rows: [
+          ['Año Nuevo', 'Enero', 'Propósitos, fitness, bienestar, renovación'],
+          ['Semana Santa', 'Marzo–Abril', 'Viajes, gastronomía, turismo en Cusco'],
+          ['Día de la Madre', 'Mayo', 'Belleza, moda, lifestyle, regalos'],
+          ['Fiestas Patrias', 'Julio', 'El mayor pico de consumo y gastronomía del año'],
+          ['Mistura (Feria gastronómica)', 'Septiembre', 'Gastronomía, lifestyle, turismo gastronómico'],
+          ['Navidad', 'Diciembre', 'Temporada de mayor gasto, moda festiva, regalos'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de Instagram en Perú (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post estático ($)', 'Reel ($)', 'Pack Stories ($)'],
+        rows: [
+          ['Nano', '5K – 20K', '$30 – $150', '$60 – $250', '$25 – $100'],
+          ['Micro', '20K – 100K', '$150 – $500', '$250 – $900', '$100 – $300'],
+          ['Medio', '100K – 500K', '$500 – $2.200', '$900 – $3.500', '$300 – $1.000'],
+          ['Macro', '500K+', '$2.200 – $7.500+', '$3.500 – $12.000+', '$1.000 – $3.500+'],
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos creadores de Instagram verificados con ubicación en Perú hay en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 2 creadores de Instagram verificados con ubicación en Perú en el conjunto con ubicación geográfica confirmada. Perú es un mercado emergente con un ecosistema de creadores en rápido crecimiento, especialmente fuerte en gastronomía, turismo cultural y lifestyle.',
+      },
+      {
+        question: '¿Por qué la gastronomía peruana genera un alcance internacional desproporcionado en Instagram?',
+        answer: 'La cocina peruana tiene reconocimiento internacional de primer nivel — restaurantes peruanos encabezan regularmente los rankings de mejores restaurantes del mundo. Platos como el ceviche, el lomo saltado y el pisco sour generan curiosidad global que amplifica el alcance orgánico de cada publicación más allá del mercado peruano. Para marcas de alimentación, menaje y lifestyle gastronómico, Perú ofrece un contexto de contenido con viralidad internacional sin equivalente en la región andina.',
+      },
+      {
+        question: '¿Cómo aprovecha una marca la diversidad geográfica de Perú en campañas de Instagram?',
+        answer: 'Perú ofrece tres mundos de contenido completamente distintos: la costa (gastronomía urbana, lifestyle, belleza), la sierra (turismo cultural, tradiciones ancestrales, Machu Picchu) y la selva (naturaleza, biodiversidad, turismo sostenible). Esta diversidad permite a las marcas crear campañas con múltiples contextos visuales auténticos que no tienen equivalente en ningún otro mercado latinoamericano.',
+      },
+      {
+        question: '¿Cuándo es el mejor momento para lanzar campañas con creadores peruanos de Instagram?',
+        answer: 'Las Fiestas Patrias (julio) son el mayor pico de consumo y gastronomía del año en Perú. Mistura, la feria gastronómica de septiembre, genera el mayor alcance para contenido de alimentación. El Día de la Madre (mayo) y la Navidad (diciembre) son los otros picos principales de consumo. Para turismo, Semana Santa y julio son los momentos de mayor flujo hacia Cusco y Machu Picchu.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un creador de Instagram en Perú?',
+        answer: 'Para creadores de nivel medio (100.000–500.000 seguidores), los precios orientativos oscilan entre $500 y $3.500 USD por pieza de contenido. Los costes de colaboración con creadores peruanos son de los más accesibles de América Latina, ofreciendo una eficiencia de inversión excepcional para marcas que buscan entrada al mercado peruano y la región andina.',
+      },
+    ],
   },
 
   'creadores-tiktok-peru': {
@@ -2681,6 +2792,120 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'El coste-eficiencia de las colaboraciones con creadores peruanos de TikTok es una ventaja competitiva significativa. Los mejores creadores peruanos producen contenido de alta calidad a costes que reflejan un mercado en desarrollo.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de TikTok en Perú: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 12 creadores de TikTok verificados con ubicación en Perú, con una tasa de engagement mediana del 8,42% y una media de 281.172 visualizaciones por vídeo. Perú tiene una comunidad de TikTok en rápido crecimiento — los creadores peruanos han encontrado en la plataforma un espacio donde la riqueza cultural del país, especialmente su gastronomía, música y tradiciones regionales, se convierte en contenido viral con alcance internacional.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores verificados en Perú (TikTok)', '12'],
+          ['Tasa de engagement mediana', '8,42%'],
+          ['Media de visualizaciones por vídeo', '281.172'],
+          ['Ciudades principales', 'Lima, Arequipa, Cusco, Trujillo'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué el TikTok Peruano Tiene un Engagement Mediano del 8,42%',
+      },
+      {
+        type: 'paragraph',
+        content: 'Con un engagement mediano del 8,42% y 281.172 visualizaciones de media por vídeo, los creadores peruanos de TikTok se sitúan entre los de mejor rendimiento de la región andina. La razón es la riqueza cultural del contenido: la gastronomía peruana internacionalmente reconocida, las tradiciones andinas con proyección global y la diversidad geográfica del país producen contenido con una autenticidad cultural que las audiencias reconocen y comparten activamente.',
+      },
+      {
+        type: 'h2',
+        content: 'La Gastronomía Peruana en TikTok: Viralidad Internacional Garantizada',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los vídeos de cocina peruana en TikTok tienen un alcance global desproporcionado. El ceviche, el lomo saltado, el ají de gallina y la causa limeña generan curiosidad de audiencias en todo el mundo — incluyendo mercados europeos, norteamericanos y asiáticos que buscan activamente contenido de gastronomía peruana. Para marcas de alimentación, menaje de cocina y turismo, el contenido gastronómico peruano en TikTok es uno de los formatos de mayor alcance orgánico internacional disponibles.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de TikTok con Mayor Rendimiento en Perú',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Recetas de cocina peruana: el formato de mayor viralidad internacional del TikTok peruano',
+          'Tours de mercados locales (Surquillo, San Pedro de Cusco): alta autenticidad cultural',
+          'Tradiciones andinas y festividades regionales: proyección internacional única',
+          'Machu Picchu y destinos turísticos: alcance global garantizado por el reconocimiento del destino',
+          'Música peruana y marinera: identidad cultural con proyección latinoamericana',
+          'Moda con influencia andina reinterpretada: nicho de alto engagement y audiencia especializada',
+          'Lifestyle en Lima: ciudad cosmopolita con escena gastronómica y cultural de primer nivel',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Perú como Puerta de Entrada a la Región Andina',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores peruanos de TikTok tienen influencia natural en Bolivia, Ecuador y las comunidades andinas de Colombia y Argentina por afinidad cultural, geográfica y lingüística. Para marcas que quieren presencia en la región andina, Perú es el punto de entrada más eficiente: los creadores peruanos tienen el mayor reconocimiento cultural regional de todos los países andinos, amplificado por el fenómeno gastronómico que ha puesto a Perú en el mapa cultural mundial.',
+      },
+      {
+        type: 'h2',
+        content: 'Perú en la Comparativa Regional: TikTok Andino',
+      },
+      {
+        type: 'table',
+        headers: ['País', 'Creadores TikTok', 'Engagement mediano', 'Vistas medias', 'Fortaleza de contenido'],
+        rows: [
+          ['Perú', '12', '8,42%', '281.172', 'Gastronomía, turismo cultural, tradiciones andinas'],
+          ['Colombia', '14', '7,01%', '382.070', 'Moda, entretenimiento, lifestyle urbano'],
+          ['México', '15', '31,80%*', '373.718', 'Gastronomía, humor, música regional'],
+          ['Chile', '8', '38,88%*', '409.231', 'Lifestyle premium, gastronomía sofisticada'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: '* Engagement influido por perfiles con rendimiento viral excepcional en el conjunto verificado pequeño. Perú y Colombia ofrecen referentes más representativos del rendimiento típico del mercado para planificación de campañas.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de TikTok en Perú (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado ($)', 'Mención integrada ($)', 'Pack 3 vídeos ($)'],
+        rows: [
+          ['Nano', '5K – 20K', '$25 – $130', '$12 – $65', '$65 – $325'],
+          ['Micro', '20K – 100K', '$130 – $550', '$65 – $275', '$325 – $1.375'],
+          ['Medio', '100K – 500K', '$550 – $2.500', '$275 – $1.250', '$1.375 – $6.250'],
+          ['Macro', '500K+', '$2.500 – $8.000+', '$1.250 – $4.000+', '$6.250 – $20.000+'],
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos creadores de TikTok verificados con ubicación en Perú hay en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 12 creadores de TikTok verificados con ubicación en Perú, con una tasa de engagement mediana del 8,42% y una media de 281.172 visualizaciones por vídeo.',
+      },
+      {
+        question: '¿Por qué el contenido gastronómico peruano tiene viralidad internacional en TikTok?',
+        answer: 'La gastronomía peruana tiene reconocimiento mundial de primer nivel — restaurantes peruanos encabezan regularmente los rankings globales. Platos como el ceviche y el lomo saltado generan curiosidad de audiencias en Europa, Norteamérica y Asia que buscan activamente este contenido en TikTok. Para marcas de alimentación y turismo, el contenido gastronómico peruano es uno de los formatos de mayor alcance orgánico internacional disponibles en la plataforma.',
+      },
+      {
+        question: '¿Qué tipo de marcas se benefician más de trabajar con creadores peruanos de TikTok?',
+        answer: 'Marcas de alimentación y gastronomía, turismo y hospitalidad, menaje de cocina, productos naturales y medicina herbal, moda con influencia andina y lifestyle cultural son las categorías de mayor rendimiento. La diversidad geográfica de Perú (costa, sierra, selva) ofrece contextos de contenido únicos para prácticamente cualquier categoría de producto.',
+      },
+      {
+        question: '¿Cómo aprovecha una marca la posición de Perú como puerta de entrada a la región andina?',
+        answer: 'Los creadores peruanos de TikTok tienen influencia natural en Bolivia, Ecuador y las comunidades andinas de Colombia y Argentina por afinidad cultural y geográfica. Para marcas que buscan presencia en la región andina, una campaña con creadores peruanos genera alcance en múltiples mercados simultáneamente — con el reconocimiento cultural adicional que el fenómeno gastronómico peruano aporta a nivel global.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un creador de TikTok en Perú?',
+        answer: 'Para creadores de nivel medio (100.000–500.000 seguidores), los precios orientativos oscilan entre $550 y $2.500 USD por vídeo dedicado. Los costes de colaboración con creadores peruanos son de los más accesibles de América Latina, con niveles de engagement del 8,42% de mediana que superan a muchos mercados más desarrollados.',
+      },
+    ],
   },
 
   'creadores-instagram-chile': {
@@ -2702,6 +2927,124 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Chile tiene sólidas relaciones comerciales internacionales. Los creadores chilenos son especialmente efectivos para marcas internacionales que buscan un punto de entrada sofisticado en el mercado latinoamericano.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de Instagram en Chile: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 2 creadores de Instagram verificados con ubicación en Chile, con una tasa de engagement media del 0,39% y una media de 3.048 visualizaciones por publicación en el conjunto verificado. Chile es el mercado de consumo más desarrollado de América Latina — con el nivel de ingreso per cápita más alto de la región y un consumidor sofisticado orientado a la calidad que valora las marcas internacionales y los estándares europeos.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores verificados en Chile (Instagram)', '2'],
+          ['Tasa de engagement media (conjunto verificado)', '0,39%'],
+          ['Media de visualizaciones por publicación', '3.048'],
+          ['Ciudades principales', 'Santiago, Valparaíso, Concepción'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Chile: El Mercado Premium de América Latina',
+      },
+      {
+        type: 'paragraph',
+        content: 'Chile es el mercado de consumo más desarrollado y sofisticado de América Latina. El consumidor chileno tiene el mayor poder adquisitivo de la región, altas expectativas de calidad y una fuerte orientación hacia marcas internacionales y estándares europeos. Para marcas premium que buscan un punto de entrada sofisticado en el mercado latinoamericano, Chile ofrece el perfil de consumidor más alineado con los estándares de mercados desarrollados.',
+      },
+      {
+        type: 'h2',
+        content: 'La Audiencia Chilena: El Consumidor Más Sofisticado de América Latina',
+      },
+      {
+        type: 'paragraph',
+        content: 'Las audiencias de los creadores chilenos de Instagram tienen características demográficas únicas en el contexto latinoamericano: mayor poder adquisitivo, mayor nivel educativo, mayor orientación hacia la calidad sobre el precio y mayor familiaridad con marcas europeas y norteamericanas. Este perfil es especialmente valioso para marcas premium, tecnología de consumo, moda de gama media-alta, vino y gastronomía sofisticada.',
+      },
+      {
+        type: 'h2',
+        content: 'Las Categorías de Mayor Rendimiento en Instagram Chile',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Gastronomía y vino: Chile tiene la escena vinícola más reconocida de América Latina',
+          'Lifestyle premium: calidad de vida, diseño de interiores, viajes al exterior',
+          'Moda con influencia europea: el consumidor chileno valora la sofisticación sobre la expresividad',
+          'Tecnología y productos digitales: alta adopción en todos los segmentos de edad',
+          'Outdoor y aventura: Patagonia, desierto de Atacama y lagos del sur generan contenido de viaje único',
+          'Fitness y wellness: alta conciencia de salud, gym culture bien establecida en Santiago',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'La Geografía de Chile como Ventaja de Contenido Única',
+      },
+      {
+        type: 'paragraph',
+        content: 'Chile tiene una de las geografías más diversas y visualmente espectaculares del mundo — en menos de 4.000 km de longitud concentra el desierto más árido del mundo (Atacama), viñedos de clase mundial, lagos patagónicos, glaciares y costas de surf. Esta diversidad geográfica ofrece a los creadores chilenos backdrops de contenido con proyección internacional que generan curiosidad y aspiracionalidad en audiencias globales.',
+      },
+      {
+        type: 'h2',
+        content: 'Chile como Puerta de Entrada al Cono Sur',
+      },
+      {
+        type: 'paragraph',
+        content: 'Chile tiene sólidas relaciones comerciales y culturales con Argentina, Uruguay y Paraguay. Los creadores chilenos tienen influencia natural en estos mercados por proximidad y afinidad cultural. Para marcas que buscan presencia en el Cono Sur, Chile es el punto de entrada más estratégico: la sofisticación del mercado chileno y la fortaleza del peso chileno relativa a la región hacen de Chile el mercado de anclaje ideal para campañas regionales.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de Instagram en Chile (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post estático ($)', 'Reel ($)', 'Pack Stories ($)'],
+        rows: [
+          ['Nano', '5K – 20K', '$50 – $200', '$100 – $350', '$40 – $150'],
+          ['Micro', '20K – 100K', '$200 – $750', '$350 – $1.300', '$150 – $450'],
+          ['Medio', '100K – 500K', '$750 – $3.200', '$1.300 – $5.500', '$450 – $1.600'],
+          ['Macro', '500K+', '$3.200 – $11.000+', '$5.500 – $18.000+', '$1.600 – $5.500+'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Momentos Clave del Calendario Chileno para Campañas de Instagram',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Enero–Febrero: Verano chileno — la temporada más activa del año, playas, vacaciones',
+          'Marzo–Abril: Vendimia — temporada de cosecha de uva, contenido de vino y gastronomía',
+          'Septiembre: Fiestas Patrias (18 de septiembre) — el mayor pico cultural del año',
+          'Octubre–Noviembre: Pre-temporada de verano, vuelta a la actividad social y fitness',
+          'Noviembre: Black Friday Chile — pico de retail de mayor crecimiento en el mercado',
+          'Diciembre: Navidad, Año Nuevo, temporada alta de turismo en la Patagonia',
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos creadores de Instagram verificados con ubicación en Chile hay en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 2 creadores de Instagram verificados con ubicación en Chile en el conjunto con ubicación geográfica confirmada. Chile es el mercado de consumo más sofisticado de América Latina, con el mayor poder adquisitivo per cápita de la región.',
+      },
+      {
+        question: '¿Por qué Chile es el mercado más estratégico para marcas premium en América Latina?',
+        answer: 'Chile tiene el nivel de ingreso per cápita más alto de América Latina, un consumidor con altas expectativas de calidad y fuerte orientación hacia marcas internacionales y estándares europeos. Para marcas premium en moda, tecnología, vino, gastronomía sofisticada y lifestyle, Chile ofrece el perfil de consumidor más alineado con los estándares de mercados desarrollados en toda la región.',
+      },
+      {
+        question: '¿Qué categorías de contenido tienen mayor rendimiento con creadores chilenos de Instagram?',
+        answer: 'Gastronomía y vino (Chile tiene la escena vinícola más reconocida de LatAm), lifestyle premium, moda con influencia europea, tecnología, outdoor y aventura (Patagonia, Atacama) y fitness son las categorías de mayor rendimiento. El consumidor chileno valora la calidad sobre el precio — el contenido aspiracional pero sofisticado funciona mejor que el puramente accesible.',
+      },
+      {
+        question: '¿Cuándo es el mejor momento para lanzar campañas con creadores chilenos de Instagram?',
+        answer: 'El verano chileno (enero-febrero) es la temporada más activa del año. Las Fiestas Patrias (18 de septiembre) son el mayor pico cultural con fuerte componente gastronómico. La vendimia (marzo-abril) es ideal para vino y gastronomía. El Black Friday Chile (noviembre) crece año a año como pico de retail. Para turismo en Patagonia, diciembre-febrero es la temporada alta.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un creador de Instagram en Chile?',
+        answer: 'Para creadores de nivel medio (100.000–500.000 seguidores), los precios orientativos oscilan entre $750 y $5.500 USD por pieza de contenido. Los creadores chilenos cotizan en la parte alta del rango latinoamericano por el mayor poder adquisitivo del mercado y la demanda de sus perfiles entre marcas internacionales que usan Chile como punto de entrada premium al Cono Sur.',
+      },
+    ],
   },
 
   'creadores-tiktok-chile': {
@@ -2723,6 +3066,113 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'La posición de Chile en el Cono Sur lo convierte en un mercado estratégico para marcas que buscan expandirse por América del Sur hacia Argentina, Uruguay y Paraguay.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de TikTok en Chile: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 8 creadores de TikTok verificados con ubicación en Chile. La tasa de engagement mediana del conjunto verificado es del 38,88% y la media de visualizaciones por vídeo es de 409.231. La tasa de engagement excepcionalmente alta refleja el perfil del conjunto específico de creadores verificados — un grupo que incluye perfiles con rendimiento viral destacado. El dato más representativo para planificación de campañas es el alcance medio de 409.231 visualizaciones por vídeo, que posiciona a los creadores chilenos entre los de mayor alcance por publicación de América Latina.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores verificados en Chile (TikTok)', '8'],
+          ['Tasa de engagement mediana (conjunto verificado)', '38,88%*'],
+          ['Media de visualizaciones por vídeo', '409.231'],
+          ['Ciudades principales', 'Santiago, Valparaíso, Concepción'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: '* La tasa de engagement del 38,88% refleja el promedio del conjunto verificado de 8 creadores, influido por perfiles con rendimiento viral excepcional. Al evaluar creadores individuales para tu campaña, verifica siempre el engagement específico de cada perfil — el alcance medio de 409.231 vistas por vídeo es el referente más representativo para planificación.',
+      },
+      {
+        type: 'h2',
+        content: 'El TikTok Chileno: Calidad Europea con Identidad Latinoamericana',
+      },
+      {
+        type: 'paragraph',
+        content: 'Chile tiene una de las tasas de penetración de internet más altas de América Latina y estándares de producción de contenido que se acercan a los mercados europeos. Con 409.231 visualizaciones de media por vídeo, los creadores chilenos de TikTok generan un alcance excepcional para un mercado de su tamaño. La escena de TikTok chilena se distingue por la calidad de producción, la sofisticación de los temas abordados y una audiencia con alto poder adquisitivo y expectativas de contenido elevadas.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de TikTok con Mayor Rendimiento en Chile',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Gastronomía chilena y vino: la escena gastronómica de Santiago tiene proyección internacional creciente',
+          'Aventura y naturaleza: Patagonia, Atacama, Lagos del Sur — alcance internacional garantizado',
+          'Lifestyle premium de Santiago: ciudad aspiracional con estética urbana de calidad',
+          'Moda con influencia europea: el consumidor chileno valora la sofisticación estética',
+          'Fitness y vida activa al aire libre: cultura outdoor muy arraigada en Chile',
+          'Fiestas Patrias y cultura chilena: el 18 de septiembre genera contenido masivamente compartido',
+          'Surf y deportes de playa en Iquique y Pichilemu: nicho de alto engagement y audiencia específica',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Chile como Hub Estratégico para el Cono Sur en TikTok',
+      },
+      {
+        type: 'paragraph',
+        content: 'La posición de Chile en el Cono Sur lo convierte en un mercado estratégico para marcas que buscan expandirse por América del Sur. Los creadores chilenos de TikTok tienen influencia natural en Argentina, Uruguay y Paraguay por proximidad cultural y geográfica. Para marcas que planifican una expansión regional en el sur del continente, Chile es el punto de partida más eficiente: combina el mayor poder adquisitivo de la subregión con la mayor sofisticación de consumidor y producción de contenido.',
+      },
+      {
+        type: 'h2',
+        content: 'TikTok vs. Instagram para Creadores en Chile: La Comparativa',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'TikTok Chile', 'Instagram Chile'],
+        rows: [
+          ['Creadores verificados', '8', '2'],
+          ['Engagement mediano / medio', '38,88%*', '0,39%'],
+          ['Visualizaciones medias por publicación', '409.231', '3.048'],
+          ['Mejor para', 'Alcance masivo, descubrimiento, viralidad', 'Comunidad sofisticada, contenido editorial'],
+          ['Perfil de audiencia', 'Amplio, mayor joven', 'Más segmentado, mayor poder adquisitivo medio'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de TikTok en Chile (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado ($)', 'Mención integrada ($)', 'Pack 3 vídeos ($)'],
+        rows: [
+          ['Nano', '5K – 20K', '$45 – $200', '$22 – $100', '$112 – $500'],
+          ['Micro', '20K – 100K', '$200 – $750', '$100 – $375', '$500 – $1.875'],
+          ['Medio', '100K – 500K', '$750 – $3.500', '$375 – $1.750', '$1.875 – $8.750'],
+          ['Macro', '500K+', '$3.500 – $12.000+', '$1.750 – $6.000+', '$8.750 – $30.000+'],
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos creadores de TikTok verificados con ubicación en Chile hay en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 8 creadores de TikTok verificados con ubicación en Chile, con una media de 409.231 visualizaciones por vídeo. La tasa de engagement mediana del conjunto verificado es del 38,88%, influida por perfiles con rendimiento viral excepcional — al evaluar creadores individuales, verifica siempre el engagement específico de cada perfil.',
+      },
+      {
+        question: '¿Qué distingue al TikTok chileno del resto de los mercados latinoamericanos?',
+        answer: 'El TikTok chileno se distingue por la calidad de producción — estándares que se acercan a los mercados europeos — y una audiencia con alto poder adquisitivo y expectativas de contenido elevadas. Con 409.231 visualizaciones de media por vídeo, los creadores chilenos generan un alcance excepcional para un mercado de su tamaño, combinado con el mayor poder adquisitivo per cápita de América Latina.',
+      },
+      {
+        question: '¿Qué tipos de contenido chileno tienen mayor proyección internacional en TikTok?',
+        answer: 'El contenido de naturaleza y aventura (Patagonia, Atacama, Lagos del Sur) tiene alcance internacional garantizado por el reconocimiento global de estos destinos. La gastronomía chilena y el vino también generan curiosidad internacional creciente. Las Fiestas Patrias (18 de septiembre) producen contenido cultural masivamente compartido en todo el Cono Sur y la comunidad latinoamericana global.',
+      },
+      {
+        question: '¿Por qué Chile es el hub estratégico para campañas de TikTok en el Cono Sur?',
+        answer: 'Chile combina el mayor poder adquisitivo de América del Sur, la mayor sofisticación de consumidor de la subregión y los estándares de producción de contenido más cercanos a los mercados europeos. Los creadores chilenos tienen influencia natural en Argentina, Uruguay y Paraguay. Para marcas que planifican expansión en el sur del continente, Chile como punto de partida garantiza la mayor calidad de asociación de marca y el mayor alcance regional simultáneo.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un creador de TikTok en Chile?',
+        answer: 'Para creadores de nivel medio (100.000–500.000 seguidores), los precios orientativos oscilan entre $750 y $3.500 USD por vídeo dedicado. Los creadores chilenos cotizan en la parte alta del rango latinoamericano por el mayor poder adquisitivo del mercado y la calidad de producción superior. Los packs de 3 vídeos ofrecen eficiencia adicional del 20–25% respecto al precio por unidad.',
+      },
+    ],
   },
 
   // ── Niche pages (LatAm) ───────────────────────────────────────────────────
