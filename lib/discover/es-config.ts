@@ -76,6 +76,136 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas que buscan entrar en el mercado español o ampliar su presencia en Europa, los creadores españoles ofrecen una eficiencia de coste excelente combinada con un alcance potencial que se extiende más allá de España hacia los 500 millones de hispanohablantes en todo el mundo.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de Instagram en España: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 13 creadores de Instagram verificados con ubicación en España, con una tasa de engagement media del 1,28%. Esta cifra refleja el segmento de creadores españoles de Instagram con ubicación geográfica verificada en la base de datos — un subconjunto de alta fiabilidad dentro del ecosistema de creadores hispanohablantes disponibles en la plataforma.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores verificados en España (Instagram)', '13'],
+          ['Tasa de engagement media', '1,28%'],
+          ['Plataforma', 'Instagram'],
+          ['Ciudades principales', 'Madrid, Barcelona, Valencia, Sevilla'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Ecosistema de Creadores de Instagram en España: Contexto de Mercado',
+      },
+      {
+        type: 'paragraph',
+        content: 'España cuenta con uno de los ecosistemas de creadores de contenido más activos de Europa. Los creadores españoles de Instagram han construido comunidades altamente comprometidas en categorías como moda, belleza, gastronomía y lifestyle. Su contenido tiene un alcance internacional significativo — especialmente en América Latina y entre las comunidades hispanohablantes de Estados Unidos — lo que convierte cada colaboración en una oportunidad de presencia en el mercado hispanohablante global, no solo en España.',
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué los Creadores Españoles de Instagram Son Estratégicos para Marcas Europeas',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Alcance dual: audiencias en España y proyección natural hacia América Latina por el idioma compartido',
+          'Calidad de producción europea con coste inferior a los mercados de Reino Unido, Francia o Alemania',
+          'Acceso a momentos culturales de alto valor: MBFWM, San Isidro, festivales de verano, Navidad española',
+          'Familiaridad con marcas internacionales: los creadores españoles tienen amplia experiencia en colaboraciones de marca',
+          'Marco regulatorio claro: AUTOCONTROL proporciona directrices precisas para publicidad en redes sociales',
+          'Puerta de entrada al mercado hispanohablante de 500 millones de personas',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Las Categorías de Mayor Rendimiento en Instagram España',
+      },
+      {
+        type: 'table',
+        headers: ['Categoría', 'Fortaleza en España', 'Mejor plataforma complementaria'],
+        rows: [
+          ['Moda', 'MBFWM, marcas locales (Zara, Mango), estilo mediterráneo', 'TikTok para viralidad'],
+          ['Belleza', 'Influencia europea + acceso a marcas de lujo francesas e italianas', 'TikTok para tutoriales'],
+          ['Gastronomía', 'Cocina española internacionalmente reconocida, restaurantes Michelin', 'Instagram para editorial'],
+          ['Lifestyle', 'Calidad de vida mediterránea, arquitectura, escapadas de fin de semana', 'Ambas plataformas'],
+          ['Fitness', 'Clima favorable, cultura al aire libre, gyms urbanos de calidad', 'TikTok para alcance'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Cómo Trabajar con Creadores Españoles de Instagram: Guía Práctica',
+      },
+      {
+        type: 'h3',
+        content: 'Briefing Adaptado al Mercado Español',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores españoles responden mejor a briefs que dan libertad creativa y respetan su estética establecida. Proporciona el objetivo de comunicación, los puntos de diferenciación del producto y las afirmaciones permitidas — y deja la narrativa y el formato al creador. Los briefs excesivamente prescriptivos producen contenido que la audiencia española detecta inmediatamente como publicitario.',
+      },
+      {
+        type: 'h3',
+        content: 'Cumplimiento Legal: AUTOCONTROL y Publicidad en España',
+      },
+      {
+        type: 'paragraph',
+        content: 'En España, toda colaboración de marca en redes sociales debe cumplir con las directrices de AUTOCONTROL y la Ley General de Publicidad. El contenido patrocinado debe identificarse claramente con #publi, #anuncio o #colaboración. La marca y el creador son corresponsables del cumplimiento — inclúyelo siempre en el contrato de colaboración y solicita revisión del contenido antes de la publicación.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de Instagram en España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post estático (€)', 'Reel (€)', 'Pack Stories (€)'],
+        rows: [
+          ['Nano', '5K – 20K', '80 – 300', '150 – 500', '50 – 150'],
+          ['Micro', '20K – 100K', '300 – 1.000', '500 – 2.000', '150 – 500'],
+          ['Medio', '100K – 500K', '1.000 – 5.000', '2.000 – 8.000', '500 – 2.000'],
+          ['Macro', '500K – 1M', '5.000 – 15.000', '8.000 – 25.000', '2.000 – 6.000'],
+          ['Mega', '1M+', '15.000 – 50.000+', '25.000 – 80.000+', '6.000 – 20.000+'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Momentos Clave del Calendario Español para Campañas de Instagram',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Enero–Febrero: Rebajas de invierno, San Valentín, nuevas colecciones primavera-verano',
+          'Marzo–Abril: Semana Santa (moda festiva, viajes, gastronomía), Fallas de Valencia',
+          'Mayo–Junio: Preparación de verano, festivales de música, bodas y comuniones',
+          'Septiembre: MBFWM, vuelta al cole y al trabajo, relanzamientos de otoño',
+          'Octubre–Noviembre: Halloween (emergente en España), Black Friday, colecciones invernales',
+          'Diciembre: Navidad española, Nochevieja, preparación de Reyes Magos (6 de enero)',
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos creadores de Instagram verificados con ubicación en España hay en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 13 creadores de Instagram verificados con ubicación en España, con una tasa de engagement media del 1,28%. Este es el subconjunto de creadores españoles con ubicación geográfica verificada — una garantía de autenticidad y relevancia geográfica para campañas dirigidas al mercado español.',
+      },
+      {
+        question: '¿Por qué los creadores españoles de Instagram son estratégicos para marcas europeas?',
+        answer: 'Los creadores españoles ofrecen una combinación única: calidad de producción europea con costes inferiores a los mercados de Reino Unido, Francia o Alemania, más proyección natural hacia América Latina por el idioma compartido. Una colaboración con un creador español puede alcanzar simultáneamente el mercado europeo y los 500 millones de hispanohablantes en todo el mundo.',
+      },
+      {
+        question: '¿Qué categorías de contenido tienen mayor rendimiento con creadores españoles de Instagram?',
+        answer: 'Moda (amplificada por la MBFWM), belleza, gastronomía (con la cocina española como referente internacional), lifestyle mediterráneo y fitness son las categorías de mayor rendimiento. Los creadores españoles tienen especial fortaleza en contenido de estilo de vida que combina la calidad europea con la autenticidad cultural mediterránea.',
+      },
+      {
+        question: '¿Qué obligaciones legales tiene mi marca al colaborar con creadores de Instagram en España?',
+        answer: 'En España, toda colaboración de marca en redes sociales debe cumplir con AUTOCONTROL y la Ley General de Publicidad. El contenido patrocinado debe identificarse claramente con #publi, #anuncio o #colaboración. La marca y el creador son corresponsables del cumplimiento — inclúyelo en el contrato y solicita revisión del contenido antes de publicar.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un creador de Instagram en España?',
+        answer: 'Los precios orientativos para creadores de nivel medio (100.000–500.000 seguidores) en España oscilan entre 1.000€ y 8.000€ por pieza de contenido dependiendo del formato. Los Reels tienen un coste superior a los posts estáticos por su mayor alcance orgánico. Para campañas de múltiples publicaciones, negocia un pack que suele ofrecer un descuento del 20–30% respecto al precio unitario.',
+      },
+    ],
   },
 
   'creadores-instagram-madrid': {
@@ -97,6 +227,111 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Las colaboraciones con creadores madrileños funcionan especialmente bien para marcas que buscan posicionamiento premium en el mercado español. La asociación con la capital cultural y económica de España transmite credibilidad y aspiración que refuerza el posicionamiento de marca en todo el territorio nacional.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de Instagram en Madrid: El Epicentro del Ecosistema Creativo Español',
+      },
+      {
+        type: 'paragraph',
+        content: 'Madrid concentra la mayor densidad de creadores de Instagram profesionales de España. La capital atrae talento creativo de todo el país — y de América Latina — resultando en una comunidad de creadores diversa y sofisticada con amplia experiencia en colaboraciones de marca internacionales. Los creadores de Instagram madrileños están incluidos dentro del conjunto de creadores verificados con ubicación en España en la base de datos de InfluenceIT.',
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué Madrid es el Mercado Premium para Colaboraciones de Instagram en España',
+      },
+      {
+        type: 'paragraph',
+        content: 'Madrid es el centro neurálgico de la industria de medios, moda y entretenimiento en España. La concentración de agencias de comunicación, marcas de lujo, estudios de producción y empresas digitales en la capital ha producido una comunidad de creadores con estándares de producción excepcionales y una profunda comprensión de las expectativas de marca. Lo que funciona en Madrid tiende a establecer las tendencias que se adoptan en el resto de España semanas después.',
+      },
+      {
+        type: 'h2',
+        content: 'El Perfil de la Audiencia Madrileña: Urbana, Profesional y con Poder Adquisitivo',
+      },
+      {
+        type: 'paragraph',
+        content: 'El público de los creadores madrileños tiende a ser urbano, profesional y con un poder adquisitivo superior a la media nacional. Este perfil demográfico es especialmente valioso para marcas premium, tecnología, moda de gama media-alta y lifestyle. Madrid tiene la renta per cápita más alta de España — una característica que se refleja en las audiencias de sus creadores de Instagram.',
+      },
+      {
+        type: 'h2',
+        content: 'Los Barrios de Madrid como Contexto de Contenido: Una Ventaja Única',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Malasaña y Chueca: epicentro de moda alternativa, gastronomía independiente y lifestyle creativo',
+          'Salamanca: moda de lujo, lifestyle premium, restauración de alta gama',
+          'La Latina: gastronomía tradicional española, mercados de barrio, contenido cultural auténtico',
+          'Retiro y Paseo del Prado: backdrops icónicos, museos de clase mundial, lifestyle cultural',
+          'Madrid Río y Casa de Campo: fitness al aire libre, lifestyle activo, naturaleza urbana',
+          'Centro histórico: turismo, gastronomía de tapas, arquitectura como fondo editorial',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Momentos de Mayor Impacto para Campañas en Madrid',
+      },
+      {
+        type: 'table',
+        headers: ['Evento / Momento', 'Mes', 'Categorías que se benefician'],
+        rows: [
+          ['Mercedes-Benz Fashion Week Madrid', 'Enero y Septiembre', 'Moda, belleza, lifestyle'],
+          ['ARCO (Feria Internacional de Arte)', 'Febrero', 'Arte, lifestyle, lujo'],
+          ['San Isidro', 'Mayo', 'Gastronomía, moda tradicional, lifestyle'],
+          ['Veranos de la Villa', 'Julio–Agosto', 'Entretenimiento, lifestyle, gastronomía'],
+          ['Apertura de nuevas temporadas de restaurantes', 'Septiembre', 'Gastronomía, lifestyle'],
+          ['Navidad en Madrid (luces, Cortylandia)', 'Noviembre–Diciembre', 'Lifestyle, moda, regalo'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Cómo Seleccionar al Creador Madrileño Correcto para tu Marca',
+      },
+      {
+        type: 'paragraph',
+        content: 'La densidad de creadores en Madrid significa que tienes opciones para prácticamente cualquier categoría y perfil de audiencia. El criterio más importante no es el número de seguidores — es la coherencia entre la estética del creador, el barrio y los contextos de contenido que usa habitualmente, y la identidad visual de tu marca. Un Reel filmado en el barrio de Salamanca transmite un posicionamiento diferente al mismo contenido filmado en Malasaña, incluso con el mismo producto.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de Instagram en Madrid (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post estático (€)', 'Reel (€)', 'Carrusel (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '200 – 600', '400 – 1.000', '300 – 800'],
+          ['Medio bajo', '50K – 150K', '600 – 1.800', '1.000 – 3.000', '800 – 2.200'],
+          ['Medio alto', '150K – 500K', '1.800 – 5.500', '3.000 – 9.000', '2.200 – 7.000'],
+          ['Macro', '500K+', '5.500 – 18.000+', '9.000 – 30.000+', '7.000 – 22.000+'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores madrileños cotizan en la parte alta del rango español por los costes de vida de la capital y la mayor demanda de sus perfiles. El premium está justificado: las audiencias madrileñas tienen mayor poder adquisitivo y las colaboraciones en Madrid generan credibilidad de posicionamiento premium que se extiende a todo el mercado nacional.',
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Por qué Madrid es el mercado prioritario para colaboraciones de Instagram en España?',
+        answer: 'Madrid concentra la mayor densidad de creadores profesionales de España, las audiencias con mayor poder adquisitivo del país y el ecosistema de agencias, marcas y estudios de producción más desarrollado. Las tendencias que funcionan en Madrid se adoptan en el resto de España semanas después — lo que convierte una campaña madrileña en una inversión con efecto multiplicador nacional.',
+      },
+      {
+        question: '¿Qué perfil demográfico tienen las audiencias de los creadores de Instagram en Madrid?',
+        answer: 'Las audiencias madrileñas de Instagram tienden a ser urbanas, profesionales y con poder adquisitivo superior a la media nacional. Madrid tiene la renta per cápita más alta de España, lo que se refleja en el perfil de consumidor de sus creadores — especialmente valioso para marcas premium, tecnología, moda de gama media-alta y lifestyle.',
+      },
+      {
+        question: '¿Qué barrios de Madrid ofrecen los mejores backdrops de contenido para cada tipo de marca?',
+        answer: 'Salamanca para moda de lujo y lifestyle premium; Malasaña y Chueca para moda alternativa y gastronomía independiente; La Latina para contenido gastronómico auténtico y cultura española; Retiro y Paseo del Prado para contenido cultural y editorial de alta gama. La elección del barrio es una decisión de posicionamiento tan importante como la elección del creador.',
+      },
+      {
+        question: '¿Cuándo es el mejor momento para lanzar una campaña con creadores de Instagram en Madrid?',
+        answer: 'Los momentos de mayor impacto son la MBFWM (enero y septiembre), ARCO en febrero, San Isidro en mayo y la temporada navideña (noviembre-diciembre). Estas fechas amplifican el alcance orgánico del contenido porque el algoritmo favorece el contenido contextualmente relevante con los momentos culturales de mayor conversación.',
+      },
+      {
+        question: '¿Cuánto más caro es colaborar con un creador de Instagram en Madrid respecto al resto de España?',
+        answer: 'Los creadores madrileños cotizan entre un 20% y un 40% por encima de la media nacional para perfiles equivalentes, reflejo de los mayores costes de vida de la capital y la mayor demanda de sus perfiles. El premium está justificado: las audiencias madrileñas tienen mayor poder adquisitivo y una colaboración en Madrid genera credibilidad de posicionamiento premium que se extiende a todo el mercado nacional.',
+      },
+    ],
   },
 
   'creadores-tiktok-espana': {
@@ -118,6 +353,116 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas que buscan lanzar campañas en el mercado hispanohablante, los creadores españoles de TikTok ofrecen un punto de partida estratégico: producen contenido con la calidad y el estilo europeo mientras hablan el idioma de todos los mercados hispanohablantes globalmente.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de TikTok en España: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 23 creadores de TikTok verificados con ubicación en España, con una tasa de engagement mediana del 6,01% y una media de 475.487 visualizaciones por vídeo. España tiene una de las tasas de penetración de TikTok más altas de Europa occidental, y su comunidad de creadores ha crecido exponencialmente, produciendo talento con proyección tanto nacional como internacional en el mercado hispanohablante.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores verificados en España (TikTok)', '23'],
+          ['Tasa de engagement mediana', '6,01%'],
+          ['Media de visualizaciones por vídeo', '475.487'],
+          ['Plataforma', 'TikTok'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Alcance Global del TikTok Español: Una Oportunidad Única',
+      },
+      {
+        type: 'paragraph',
+        content: 'Con una media de 475.487 visualizaciones por vídeo, los creadores de TikTok basados en España generan un alcance por publicación que ningún otro canal de marketing puede igualar al mismo coste. Y a diferencia de los creadores de otros países europeos, los creadores españoles de TikTok publican en español — lo que significa que su contenido llega orgánicamente a más de 500 millones de hispanohablantes en todo el mundo, no solo a la audiencia española.',
+      },
+      {
+        type: 'h2',
+        content: 'TikTok vs. Instagram para Creadores en España: La Comparativa',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'TikTok España', 'Instagram España'],
+        rows: [
+          ['Creadores verificados', '23', '13'],
+          ['Engagement mediano / medio', '6,01%', '1,28%'],
+          ['Visualizaciones medias por publicación', '475.487', 'N/D'],
+          ['Alcance de idioma', 'Global hispanohablante', 'Global hispanohablante'],
+          ['Mejor para', 'Alcance masivo, descubrimiento, viralidad', 'Comunidad, confianza, contenido editorial'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué los Creadores Españoles de TikTok Tienen Ventaja Competitiva',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores españoles de TikTok combinan tres ventajas únicas. Primero, producen contenido con los estándares de calidad del mercado europeo. Segundo, publican en español, accediendo automáticamente al mercado hispanohablante global. Tercero, tienen familiaridad con marcas internacionales y la experiencia en colaboraciones que el mercado español exige. Esta combinación los convierte en el punto de entrada más eficiente para marcas que quieren presencia en el mercado hispanohablante con garantías de calidad europea.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Mayor Rendimiento en TikTok España por Categoría',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Moda: fashion hauls, "Get The Look", outfit transitions — amplificados por la MBFWM',
+          'Belleza: tutoriales en tiempo real, GRWM, dupes vs originales — alto engagement en #BeautyTok',
+          'Gastronomía: recetas de cocina española, restaurantes de nueva apertura, tapas culture — alta viralidad internacional',
+          'Lifestyle: "Un día en Madrid/Barcelona", rutinas matutinas, organización del hogar — aspiracional accesible',
+          'Viajes: escapadas por España, destinos menos conocidos, road trips — muy compartible internacionalmente',
+          'Fitness: rutinas al aire libre, gym culture española, nutrición mediterránea',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de TikTok en España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado (€)', 'Mención integrada (€)', 'Pack 3 vídeos (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '200 – 700', '100 – 350', '500 – 1.800'],
+          ['Medio bajo', '50K – 150K', '700 – 2.200', '350 – 1.100', '1.800 – 5.500'],
+          ['Medio alto', '150K – 500K', '2.200 – 6.500', '1.100 – 3.200', '5.500 – 16.000'],
+          ['Macro', '500K+', '6.500 – 20.000+', '3.200 – 10.000+', '16.000 – 50.000+'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Cumplimiento Legal: TikTok y Publicidad en España',
+      },
+      {
+        type: 'paragraph',
+        content: 'En España, el contenido patrocinado en TikTok debe identificarse claramente con #publi, #anuncio o #colaboración, y activar el toggle de branded content de TikTok. Tanto la marca como el creador son corresponsables del cumplimiento con AUTOCONTROL y la Ley General de Publicidad. Incluye las obligaciones de identificación y las afirmaciones permitidas en el contrato de colaboración.',
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos creadores de TikTok verificados con ubicación en España hay en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 23 creadores de TikTok verificados con ubicación en España, con una tasa de engagement mediana del 6,01% y una media de 475.487 visualizaciones por vídeo.',
+      },
+      {
+        question: '¿Qué engagement y alcance puedo esperar de un creador de TikTok basado en España?',
+        answer: 'Los creadores de TikTok verificados en España tienen una tasa de engagement mediana del 6,01% y generan una media de 475.487 visualizaciones por vídeo. Esto significa que una sola colaboración puede generar casi medio millón de impresiones — con el alcance adicional del idioma español, que distribuye el contenido orgánicamente a más de 500 millones de hispanohablantes en todo el mundo.',
+      },
+      {
+        question: '¿Por qué elegir un creador de TikTok basado en España en lugar de uno de otro país hispanohablante?',
+        answer: 'Los creadores españoles de TikTok combinan estándares de producción europeos, experiencia con marcas internacionales y publicación en español para un alcance global hispanohablante. Para marcas que buscan entrada al mercado hispanohablante con garantías de calidad europea y familiaridad con colaboraciones de marca de nivel internacional, España es el punto de partida más estratégico.',
+      },
+      {
+        question: '¿Es mejor TikTok o Instagram para trabajar con creadores en España?',
+        answer: 'TikTok España ofrece un engagement mediano del 6,01% y 475.487 visualizaciones de media por vídeo — muy superior al 1,28% de engagement de Instagram España. Para descubrimiento masivo y alcance, TikTok es la opción clara. Para construcción de comunidad a largo plazo y contenido editorial de alta calidad, Instagram sigue siendo insustituible. La estrategia óptima combina ambas plataformas.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un creador de TikTok en España?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre 700€ y 6.500€ por vídeo dedicado. Los packs de 3 vídeos ofrecen un descuento efectivo del 20–30% y generan mejores resultados al reforzar el mensaje de marca de forma repetida a lo largo del tiempo.',
+      },
+    ],
   },
 
   'creadores-tiktok-madrid': {
@@ -139,6 +484,103 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas que lanzan productos en el mercado español, una campaña con creadores de TikTok en Madrid crea un efecto de saturación en el mercado premium español: lo que es tendencia en Madrid típicamente se convierte en tendencia en el resto de España en semanas.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de TikTok en Madrid: El Epicentro del TikTok Español',
+      },
+      {
+        type: 'paragraph',
+        content: 'Madrid concentra la mayor densidad de creadores profesionales de TikTok de España. Los creadores madrileños de TikTok están incluidos dentro del conjunto de creadores verificados con ubicación en España en la base de datos de InfluenceIT — un grupo que genera una tasa de engagement mediana del 6,01% y una media de 475.487 visualizaciones por vídeo. La capital atrae talento creativo de todo el país, resultando en una comunidad de creadores diversa con altos estándares de producción.',
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué Madrid Lidera el TikTok Español',
+      },
+      {
+        type: 'paragraph',
+        content: 'La concentración de industrias creativas en Madrid — moda, medios, gastronomía, tecnología — proporciona a los creadores madrileños de TikTok un flujo constante de contenido contextualmente relevante. Restaurantes de nueva apertura, eventos de moda, exposiciones culturales y la vibrante escena de ocio nocturno crean oportunidades diarias de contenido que los creadores de otras ciudades simplemente no tienen. Esta riqueza de contexto produce un TikTok de mayor calidad y mayor viralidad.',
+      },
+      {
+        type: 'h2',
+        content: 'Madrid como Backdrop de TikTok: Lugares que Amplifican el Contenido',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Mercado de San Miguel y Mercado de San Antón: gastronomía y lifestyle, muy fotografiables',
+          'Gran Vía: moda urbana, tiendas flagship, contenido aspiracional accesible',
+          'Retiro: fitness al aire libre, lifestyle, naturaleza dentro de la ciudad',
+          'Barrio de las Letras y Lavapiés: cultura, arte callejero, gastronomía internacional',
+          'Madrid Skyline (desde el Faro de Moncloa o el Cerro del Tío Pío): backdrops icónicos virales',
+          'Mercadillos (Rastro, Mercado de Motores): moda alternativa, vintage, lifestyle',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Efecto Tendencia Madrid: Lo Que Triunfa en la Capital Se Extiende al País',
+      },
+      {
+        type: 'paragraph',
+        content: 'Madrid funciona como laboratorio de tendencias para el resto de España. Los restaurantes, marcas de moda y productos que se convierten en tendencia en TikTok Madrid generalmente se adoptan en Barcelona, Valencia, Sevilla y el resto de ciudades españolas semanas después. Para marcas que buscan lanzar un producto en el mercado español, crear saturación inicial en Madrid a través de TikTok es la estrategia de entrada más eficiente.',
+      },
+      {
+        type: 'h2',
+        content: 'Eventos Clave de Madrid que Amplifican el Alcance del TikTok',
+      },
+      {
+        type: 'table',
+        headers: ['Evento', 'Mes', 'Oportunidad para marcas'],
+        rows: [
+          ['MBFWM (Fashion Week Madrid)', 'Enero y Septiembre', 'Moda, belleza, accesorios'],
+          ['ARCO (Feria de Arte)', 'Febrero', 'Lifestyle, lujo, cultura'],
+          ['Fiesta de San Isidro', 'Mayo', 'Gastronomía, moda típica, lifestyle'],
+          ['Apertura de terrazas de verano', 'Mayo–Junio', 'Gastronomía, lifestyle, belleza'],
+          ['Madrid Fusión (gastronomía)', 'Enero', 'Gastronomía, lifestyle, menaje'],
+          ['Luces de Navidad en Gran Vía', 'Noviembre–Enero', 'Lifestyle, moda, regalo'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de TikTok en Madrid (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado (€)', 'Mención integrada (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '250 – 800', '120 – 400'],
+          ['Medio bajo', '50K – 150K', '800 – 2.500', '400 – 1.200'],
+          ['Medio alto', '150K – 500K', '2.500 – 7.500', '1.200 – 3.800'],
+          ['Macro', '500K+', '7.500 – 25.000+', '3.800 – 12.000+'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores madrileños de TikTok cotizan entre un 15% y un 30% por encima de la media nacional para perfiles equivalentes, reflejando los mayores costes de vida de la capital y la mayor demanda de sus perfiles. Este premium está justificado por el efecto tendencia Madrid: el impacto de una campaña en la capital se extiende orgánicamente al resto del mercado español.',
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Por qué Madrid es el punto de partida más estratégico para campañas de TikTok en España?',
+        answer: 'Madrid concentra la mayor densidad de creadores profesionales de TikTok del país, tiene el ecosistema creativo más desarrollado y funciona como laboratorio de tendencias para el resto de España. Las marcas y productos que se convierten en tendencia en TikTok Madrid generalmente se adoptan en el resto de ciudades españolas semanas después — lo que convierte una campaña madrileña en una inversión con efecto multiplicador nacional.',
+      },
+      {
+        question: '¿Qué tipos de contenido de TikTok funcionan mejor con los backdrops de Madrid?',
+        answer: 'Madrid ofrece una variedad excepcional de backdrops: Gran Vía para moda urbana, Retiro para fitness y lifestyle, Mercado de San Miguel para gastronomía, el skyline para contenido aspiracional. Los creadores madrileños tienen acceso diario a nuevos restaurantes, eventos de moda y exposiciones culturales que generan contenido contextualmente relevante con alta viralidad orgánica.',
+      },
+      {
+        question: '¿Cuánto más caro es colaborar con un creador de TikTok en Madrid respecto al resto de España?',
+        answer: 'Los creadores madrileños de TikTok cotizan entre un 15% y un 30% por encima de la media nacional para perfiles equivalentes. El premium está justificado por el efecto tendencia Madrid — el impacto de una campaña en la capital se extiende orgánicamente al resto del mercado español — y por los mayores costes de vida y la mayor demanda de los perfiles madrileños.',
+      },
+      {
+        question: '¿Cuándo son los mejores momentos del año para lanzar una campaña de TikTok en Madrid?',
+        answer: 'Los momentos de mayor amplificación son la MBFWM (enero y septiembre), la apertura de terrazas en mayo-junio y la temporada navideña en noviembre-diciembre. Las campañas coordinadas con estos momentos culturales generan un alcance orgánico adicional porque el algoritmo de TikTok favorece el contenido contextualmente relevante con los eventos de mayor conversación en la plataforma.',
+      },
+      {
+        question: '¿Cuánto cuesta una colaboración con un creador de TikTok de nivel medio en Madrid?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores) en Madrid, los precios orientativos oscilan entre 800€ y 7.500€ por vídeo dedicado. Las menciones integradas en contenido de vida cotidiana madrileña (rutinas, salidas, gastronomía) son más accesibles (400€–3.800€) y suelen generar mayor confianza de audiencia precisamente por su naturalidad dentro del contenido.',
+      },
+    ],
   },
 
   // ── Niche pages (Spain) ───────────────────────────────────────────────────
