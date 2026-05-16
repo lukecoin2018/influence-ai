@@ -2129,6 +2129,135 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas que buscan entrar en el mercado colombiano, las colaboraciones con creadores son esenciales. El marketing de creadores es la principal forma en que los consumidores jóvenes colombianos descubren nuevas marcas y toman decisiones de compra.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de Instagram en Colombia: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 8 creadores de Instagram verificados con ubicación en Colombia. La tasa de engagement media del conjunto verificado es del 0,39% — una cifra que refleja el perfil específico de creadores con ubicación geográfica confirmada en la base de datos, no una representación del mercado colombiano de creadores en su totalidad. Colombia cuenta con un ecosistema de creadores en rápido crecimiento, con algunas de las tasas de engagement más altas de América Latina en categorías como belleza, moda y entretenimiento.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores verificados en Colombia (Instagram)', '8'],
+          ['Tasa de engagement media (conjunto verificado)', '0,39%'],
+          ['Plataforma', 'Instagram'],
+          ['Ciudades principales', 'Bogotá, Medellín, Cali, Barranquilla'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Ecosistema de Creadores de Instagram en Colombia: Un Mercado en Auge',
+      },
+      {
+        type: 'paragraph',
+        content: 'Colombia ha experimentado uno de los crecimientos más rápidos en el ecosistema de creadores de contenido de América Latina. La combinación de una población joven y digitalmente nativa, alta adopción de smartphones y una cultura de expresión creativa muy arraigada ha producido una comunidad de creadores dinámica con influencia creciente tanto a nivel regional como internacional. Medellín, en particular, se ha posicionado como uno de los centros creativos más importantes de América Latina.',
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué Colombia es un Mercado Estratégico para Marcas en LatAm',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Población joven y digitalmente nativa: alta adopción de redes sociales entre 18–35 años',
+          'Crecimiento acelerado de la clase media: poder adquisitivo en expansión en todas las categorías',
+          'Influencia regional: el contenido colombiano tiene alcance natural en Venezuela, Ecuador y Perú',
+          'Talento creativo reconocido globalmente: música, moda y entretenimiento colombianos con proyección internacional',
+          'Medellín como hub creativo: concentración de agencias, marcas y creadores de alto nivel',
+          'Coste-eficiencia excepcional: calidad de producción alta con costes de colaboración accesibles',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Las Categorías de Mayor Rendimiento en Instagram Colombia',
+      },
+      {
+        type: 'table',
+        headers: ['Categoría', 'Fortaleza en Colombia', 'Perfil de audiencia'],
+        rows: [
+          ['Belleza', 'Maquillaje vibrante, cuidado del cabello rizado, tonos latinoamericanos', 'Mujeres 18–35, alta intención de compra'],
+          ['Moda', 'Estilo urbano contemporáneo, influencia de la escena de Medellín', 'Adultos jóvenes 20–35, orientados a tendencias'],
+          ['Gastronomía', 'Cocina colombiana con proyección internacional', 'Amplia demografía, alta viralidad'],
+          ['Fitness', 'Cultura del cuerpo, danza y deportes locales', 'Adultos 20–40, alta intención de compra'],
+          ['Lifestyle', 'Vida urbana en Bogotá y Medellín, calidad de vida creciente', 'Clase media urbana, consumidores activos'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Cómo Trabajar con Creadores Colombianos de Instagram: Guía Práctica',
+      },
+      {
+        type: 'h3',
+        content: 'Briefing Culturalmente Informado',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores colombianos responden mejor a briefings que respetan su voz creativa y contexto cultural local. El español colombiano tiene sus propios modismos y referencias culturales — los briefings redactados directamente desde mercados europeos o norteamericanos sin adaptación cultural suelen producir contenido que la audiencia colombiana percibe como ajeno. Trabaja con el creador para adaptar el mensaje al contexto cultural local.',
+      },
+      {
+        type: 'h3',
+        content: 'Cumplimiento Legal: Publicidad en Colombia',
+      },
+      {
+        type: 'paragraph',
+        content: 'En Colombia, la publicidad en redes sociales está regulada por la Superintendencia de Industria y Comercio (SIC) y debe cumplir con la Ley 1480 (Estatuto del Consumidor). Todo contenido patrocinado debe identificarse claramente como publicidad. Las marcas son corresponsables del cumplimiento junto con el creador.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de Instagram en Colombia (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post estático ($)', 'Reel ($)', 'Pack Stories ($)'],
+        rows: [
+          ['Nano', '5K – 20K', '$40 – $180', '$80 – $300', '$30 – $120'],
+          ['Micro', '20K – 100K', '$180 – $600', '$300 – $1.000', '$120 – $350'],
+          ['Medio', '100K – 500K', '$600 – $2.500', '$1.000 – $4.000', '$350 – $1.200'],
+          ['Macro', '500K+', '$2.500 – $8.000+', '$4.000 – $13.000+', '$1.200 – $4.000+'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Momentos Clave del Calendario Colombiano para Campañas',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Enero: Temporada alta de verano en Colombia, propósitos de año nuevo',
+          'Marzo–Abril: Semana Santa (importante para viajes, gastronomía y moda)',
+          'Junio: Día del Padre, festividades locales de junio',
+          'Agosto: Feria de las Flores de Medellín — mayor evento cultural del año, enorme impacto en contenido',
+          'Noviembre: Black Friday colombiano y pre-temporada navideña',
+          'Diciembre: Fiestas navideñas, Año Viejo — temporada de mayor gasto del año',
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos creadores de Instagram verificados con ubicación en Colombia hay en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 8 creadores de Instagram verificados con ubicación en Colombia. Este es el subconjunto de creadores colombianos con ubicación geográfica confirmada en la base de datos — una garantía de autenticidad y relevancia geográfica para campañas dirigidas al mercado colombiano.',
+      },
+      {
+        question: '¿Por qué Colombia es un mercado estratégico para marcas que buscan presencia en América Latina?',
+        answer: 'Colombia combina una población joven y digitalmente nativa, un ecosistema creativo en rápido crecimiento y un coste-eficiencia excepcional. Los creadores colombianos tienen influencia natural en Venezuela, Ecuador y Perú por proximidad cultural y geográfica. Medellín se ha posicionado como uno de los hubs creativos más importantes de América Latina, atrayendo talento y marcas internacionales.',
+      },
+      {
+        question: '¿Qué categorías de contenido tienen mayor rendimiento con creadores colombianos de Instagram?',
+        answer: 'Belleza (especialmente maquillaje para tonos latinoamericanos y cuidado del cabello rizado), moda urbana contemporánea, gastronomía colombiana y lifestyle urbano son las categorías de mayor rendimiento. Colombia tiene una cultura creativa muy arraigada — los creadores colombianos en estas categorías generan contenido con una energía y autenticidad reconocibles internacionalmente.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un creador de Instagram en Colombia?',
+        answer: 'Para creadores de nivel medio (100.000–500.000 seguidores), los precios orientativos oscilan entre $600 y $4.000 USD por pieza de contenido. Los costes de colaboración con creadores colombianos son significativamente más accesibles que los equivalentes europeos o norteamericanos, con niveles de engagement y calidad de producción comparables.',
+      },
+      {
+        question: '¿Cuándo es el mejor momento para lanzar una campaña con creadores colombianos de Instagram?',
+        answer: 'La Feria de las Flores de Medellín (agosto) es el mayor evento cultural del año y genera un alcance orgánico excepcional para campañas vinculadas al evento. Diciembre es la temporada de mayor gasto del año. Noviembre (Black Friday colombiano) es el pico de campañas de retail. Para categorías de fitness y bienestar, enero es el momento de propósitos de año nuevo.',
+      },
+    ],
   },
 
   'creadores-tiktok-colombia': {
@@ -2150,6 +2279,120 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'El coste-eficiencia de las colaboraciones con creadores colombianos de TikTok es uno de los mayores atractivos del mercado. La calidad de producción es comparable a los estándares de América del Norte, mientras que los costes de asociación reflejan un mercado en desarrollo.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de TikTok en Colombia: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 14 creadores de TikTok verificados con ubicación en Colombia, con una tasa de engagement mediana del 7,01% y una media de 382.070 visualizaciones por vídeo. Colombia tiene una de las comunidades de TikTok más activas de América Latina — la plataforma ha encontrado en la cultura creativa colombiana un terreno especialmente fértil para la producción de contenido viral.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores verificados en Colombia (TikTok)', '14'],
+          ['Tasa de engagement mediana', '7,01%'],
+          ['Media de visualizaciones por vídeo', '382.070'],
+          ['Ciudades principales', 'Medellín, Bogotá, Cali, Barranquilla'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El TikTok Colombiano: Creatividad, Energía y Alcance Regional',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores colombianos de TikTok generan una media de 382.070 visualizaciones por vídeo con un engagement mediano del 7,01%. Lo que distingue al TikTok colombiano es su energía creativa característica — una combinación de espontaneidad, humor, música y una conexión emocional con la audiencia que produce contenido altamente compartible. El contenido colombiano en TikTok tiene alcance natural en Venezuela, Ecuador, Perú y el resto de América Latina por afinidad cultural y lingüística.',
+      },
+      {
+        type: 'h2',
+        content: 'Medellín: El Hub de TikTok más Creativo de Colombia',
+      },
+      {
+        type: 'paragraph',
+        content: 'Medellín ha emergido como el hub creativo más dinámico de Colombia y uno de los más importantes de América Latina. La ciudad atrae talento creativo de todo el país y tiene una concentración excepcional de creadores de TikTok en moda, belleza, gastronomía y entretenimiento. Las marcas que trabajan con creadores de Medellín acceden a una estética y una energía creativa reconocibles como distintivamente colombianas — y con proyección internacional creciente.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de TikTok con Mayor Rendimiento en el Mercado Colombiano',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Contenido con música colombiana y latinoamericana: amplificación orgánica por identidad cultural',
+          'Moda urbana de Medellín: estilo reconocible internacionalmente, alta viralidad regional',
+          'Gastronomía colombiana: bandeja paisa, arepas, aguardiente — alta curiosidad internacional',
+          'Belleza y maquillaje para tonos latinoamericanos: alta demanda de búsqueda en TikTok',
+          'Humor y entretenimiento con referencias culturales colombianas: muy compartido en LatAm',
+          'Fitness combinado con danza: Colombia tiene una cultura de baile sin equivalente en la región',
+          'Lifestyle de Medellín y Bogotá: ciudades aspiracionales que generan curiosidad internacional',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Colombia vs. Otros Mercados de TikTok en LatAm: La Comparativa',
+      },
+      {
+        type: 'table',
+        headers: ['País', 'Creadores verificados TikTok', 'Engagement mediano', 'Vistas medias'],
+        rows: [
+          ['Colombia', '14', '7,01%', '382.070'],
+          ['México', '15', '31,80%*', '373.718'],
+          ['Perú', '12', '8,42%', '281.172'],
+          ['Chile', '8', '38,88%*', '409.231'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: '* Las tasas de engagement de México y Chile reflejan el promedio de un conjunto pequeño de creadores verificados, influido por perfiles con rendimiento viral excepcional. Colombia y Perú ofrecen referentes más representativos del rendimiento típico del mercado. Para campañas en México y Chile, verifica el engagement individual de cada creador además del promedio del mercado.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de TikTok en Colombia (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado ($)', 'Mención integrada ($)', 'Pack 3 vídeos ($)'],
+        rows: [
+          ['Nano', '5K – 20K', '$30 – $150', '$15 – $80', '$80 – $380'],
+          ['Micro', '20K – 100K', '$150 – $600', '$80 – $300', '$380 – $1.500'],
+          ['Medio', '100K – 500K', '$600 – $2.800', '$300 – $1.400', '$1.500 – $7.000'],
+          ['Macro', '500K+', '$2.800 – $9.000+', '$1.400 – $4.500+', '$7.000 – $22.000+'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'La Feria de las Flores de Medellín: El Mayor Amplificador de TikTok en Colombia',
+      },
+      {
+        type: 'paragraph',
+        content: 'La Feria de las Flores de Medellín (agosto) es el evento cultural más importante de Colombia y uno de los más seguidos en TikTok latinoamericano. Los creadores de Medellín y de todo Colombia publican contenido vinculado al evento durante semanas — generando un pico de alcance orgánico que las marcas que coordinan colaboraciones alrededor de la Feria aprovechan sin costo adicional. Si tienes campañas planificadas para el mercado colombiano, agosto es el momento de mayor amplificación natural del año.',
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos creadores de TikTok verificados con ubicación en Colombia hay en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 14 creadores de TikTok verificados con ubicación en Colombia, con una tasa de engagement mediana del 7,01% y una media de 382.070 visualizaciones por vídeo.',
+      },
+      {
+        question: '¿Qué hace único al TikTok colombiano respecto a otros mercados de América Latina?',
+        answer: 'El TikTok colombiano se distingue por su energía creativa característica — una combinación de espontaneidad, humor, música y conexión emocional que produce contenido altamente compartible. La influencia de la música colombiana, la cultura de Medellín y la creatividad cultural del país generan un estilo reconocible internacionalmente que tiene alcance natural en toda América Latina.',
+      },
+      {
+        question: '¿Por qué Medellín es especialmente relevante para campañas de TikTok en Colombia?',
+        answer: 'Medellín es el hub creativo más dinámico de Colombia y uno de los más importantes de América Latina. Concentra talento creativo en moda, belleza, gastronomía y entretenimiento con una estética reconociblemente colombiana y proyección internacional creciente. Los creadores de Medellín generan contenido que el algoritmo de TikTok distribuye ampliamente por toda la región latinoamericana.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un creador de TikTok en Colombia?',
+        answer: 'Para creadores de nivel medio (100.000–500.000 seguidores), los precios orientativos oscilan entre $600 y $2.800 USD por vídeo dedicado. Los costes de colaboración con creadores colombianos son de los más accesibles de América Latina, con niveles de engagement y calidad de producción que compiten con mercados más desarrollados.',
+      },
+      {
+        question: '¿Cuándo es el mejor momento para lanzar campañas de TikTok en Colombia?',
+        answer: 'La Feria de las Flores de Medellín (agosto) es el mayor amplificador de TikTok del año en Colombia — las marcas que coordinan colaboraciones alrededor del evento aprovechan un pico de alcance orgánico excepcional. Diciembre es la temporada de mayor gasto del año y noviembre el pico de campañas de retail. Para fitness y bienestar, enero y junio-julio (pre-verano colombiano) son los momentos de mayor demanda.',
+      },
+    ],
   },
 
   'creadores-instagram-mexico': {
@@ -2171,6 +2414,110 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Belleza, gastronomía, familia y lifestyle son las categorías de mejor rendimiento en México. Las marcas que comprenden y respetan los valores culturales mexicanos en sus briefings superan consistentemente a las que simplemente adaptan plantillas no mexicanas.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de Instagram en México: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 3 creadores de Instagram verificados con ubicación en México, con una tasa de engagement media del 0,34% y una media de 9.006 visualizaciones por publicación. Estas cifras reflejan el conjunto específico de creadores mexicanos con ubicación geográfica confirmada en la base de datos. México es el segundo mercado más grande de América Latina y tiene un ecosistema de creadores de Instagram de gran escala, con Ciudad de México concentrando la mayor densidad de talento creativo del país.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores verificados en México (Instagram)', '3'],
+          ['Tasa de engagement media (conjunto verificado)', '0,34%'],
+          ['Media de visualizaciones por publicación', '9.006'],
+          ['Ciudades principales', 'Ciudad de México, Monterrey, Guadalajara'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'México: El Mayor Mercado de Creadores de Instagram en América Latina',
+      },
+      {
+        type: 'paragraph',
+        content: 'México es la segunda economía más grande de América Latina y uno de los diez principales mercados de redes sociales del mundo. Los creadores mexicanos han construido una economía de creadores de escala genuina con influencia que se extiende al mercado hispano de Estados Unidos — los 40 millones de mexicoamericanos y la comunidad hispana de 60 millones en EE.UU. son audiencias naturales del contenido en español producido en México.',
+      },
+      {
+        type: 'h2',
+        content: 'El Corredor Cultural México–Estados Unidos: Una Ventaja Única',
+      },
+      {
+        type: 'paragraph',
+        content: 'La dinámica cultural entre México y Estados Unidos crea oportunidades únicas para las marcas. Muchos creadores mexicanos de Instagram tienen seguidores significativos en ambos lados de la frontera — lo que convierte cada colaboración en una oportunidad de alcance binacional. Para marcas que quieren llegar simultáneamente al mercado mexicano y a la comunidad hispana de EE.UU., los creadores mexicanos son el puente más eficiente disponible.',
+      },
+      {
+        type: 'h2',
+        content: 'Las Categorías de Mayor Rendimiento en Instagram México',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Gastronomía: la cocina mexicana es patrimonio cultural UNESCO — el mayor driver de viralidad internacional',
+          'Belleza: maquillaje mestizo, cuidado de la piel para climas extremos (CDMX vs costas tropicales)',
+          'Moda: estilo urbano de CDMX, influencias indígenas reinterpretadas, moda contemporánea mexicana',
+          'Familia y lifestyle: valores familiares centrales, contenido de hogar con alta resonancia cultural',
+          'Viajes dentro de México: destinos únicos (Oaxaca, Yucatán, Baja California) con proyección internacional',
+          'Fitness: cultura del gym en CDMX y Monterrey, combinada con deportes y danza locales',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Momentos Clave del Calendario Mexicano para Campañas de Instagram',
+      },
+      {
+        type: 'table',
+        headers: ['Momento', 'Mes', 'Oportunidad de marca'],
+        rows: [
+          ['Año Nuevo', 'Enero', 'Propósitos, fitness, bienestar, renovación del hogar'],
+          ['Día de San Valentín', 'Febrero', 'Belleza, moda, lifestyle, regalos'],
+          ['Semana Santa', 'Marzo–Abril', 'Viajes, gastronomía, moda de temporada'],
+          ['Día de las Madres', 'Mayo', 'El día de mayor consumo del año en México'],
+          ['Día de Muertos', 'Noviembre', 'Gastronomía, cultura, moda inspirada en la tradición'],
+          ['Buen Fin', 'Noviembre', 'El Black Friday mexicano — máximo pico de retail'],
+          ['Navidad y Posadas', 'Diciembre', 'Temporada de mayor gasto, gastronomía, moda festiva'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de Instagram en México (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post estático ($)', 'Reel ($)', 'Pack Stories ($)'],
+        rows: [
+          ['Nano', '5K – 20K', '$50 – $200', '$100 – $350', '$40 – $150'],
+          ['Micro', '20K – 100K', '$200 – $700', '$350 – $1.200', '$150 – $400'],
+          ['Medio', '100K – 500K', '$700 – $3.000', '$1.200 – $5.000', '$400 – $1.500'],
+          ['Macro', '500K+', '$3.000 – $10.000+', '$5.000 – $16.000+', '$1.500 – $5.000+'],
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos creadores de Instagram verificados con ubicación en México hay en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 3 creadores de Instagram verificados con ubicación en México, con una tasa de engagement media del 0,34% y una media de 9.006 visualizaciones por publicación en el conjunto verificado.',
+      },
+      {
+        question: '¿Por qué México es el mercado de creadores más estratégico de América Latina?',
+        answer: 'México es la segunda economía más grande de América Latina y el mercado de creadores con mayor proyección hacia Estados Unidos. Los 60 millones de hispanos en EE.UU. — mayoritariamente de origen mexicano — son audiencias naturales del contenido producido en México. Una colaboración con un creador mexicano puede alcanzar simultáneamente México y la comunidad hispana de EE.UU., convirtiendo cada inversión en una oportunidad de alcance binacional.',
+      },
+      {
+        question: '¿Qué categorías de contenido tienen mayor rendimiento con creadores mexicanos de Instagram?',
+        answer: 'La gastronomía mexicana es el mayor driver de viralidad internacional — la cocina mexicana es patrimonio cultural UNESCO y genera curiosidad global. Belleza, moda urbana de CDMX, contenido familiar y viajes dentro de México son las otras categorías de mayor rendimiento. El Día de las Madres en mayo es el día de mayor consumo del año en México — una oportunidad de campaña única en el mercado latinoamericano.',
+      },
+      {
+        question: '¿Cuándo es el mejor momento del año para lanzar campañas en Instagram México?',
+        answer: 'El Día de las Madres (mayo) es el pico de mayor consumo del año en México — especialmente para belleza, moda y regalos. El Buen Fin (noviembre) es el mayor evento de retail del año. Día de Muertos (noviembre) genera un alcance orgánico internacional excepcional para marcas vinculadas a la gastronomía y la cultura. Planifica las colaboraciones con 6–8 semanas de antelación.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un creador de Instagram en México?',
+        answer: 'Para creadores de nivel medio (100.000–500.000 seguidores), los precios orientativos oscilan entre $700 y $5.000 USD por pieza de contenido. Los creadores mexicanos de mayor proyección — especialmente los con audiencias en ambos lados de la frontera — pueden cotizar en la parte alta de este rango por su alcance binacional México-EE.UU.',
+      },
+    ],
   },
 
   'creadores-tiktok-mexico': {
@@ -2192,6 +2539,106 @@ export const ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas en alimentación, moda, belleza y entretenimiento, los creadores mexicanos de TikTok ofrecen autenticidad cultural que los creadores internacionales no pueden replicar.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Creadores de TikTok en México: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 15 creadores de TikTok verificados con ubicación en México. La tasa de engagement mediana del conjunto verificado es del 31,80% y la media de visualizaciones por vídeo es de 373.718. La tasa de engagement excepcionalmente alta refleja el perfil del conjunto específico de creadores verificados — un grupo que incluye perfiles con rendimiento viral destacado. Para benchmarking de campañas, el dato más representativo es el alcance medio de 373.718 visualizaciones por vídeo.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores verificados en México (TikTok)', '15'],
+          ['Tasa de engagement mediana (conjunto verificado)', '31,80%*'],
+          ['Media de visualizaciones por vídeo', '373.718'],
+          ['Ciudades principales', 'Ciudad de México, Monterrey, Guadalajara'],
+        ],
+      },
+      {
+        type: 'paragraph',
+        content: '* La tasa de engagement del 31,80% refleja el promedio del conjunto verificado de 15 creadores, influido por perfiles con rendimiento viral excepcional. Al evaluar creadores individuales para tu campaña, verifica siempre el engagement específico de cada perfil — el dato del conjunto sirve como referencia de mercado, no como expectativa garantizada por colaboración.',
+      },
+      {
+        type: 'h2',
+        content: 'México en TikTok: Escala, Cultura y Proyección Internacional',
+      },
+      {
+        type: 'paragraph',
+        content: 'México es uno de los mercados de TikTok más grandes y activos del mundo hispanohablante. Los creadores mexicanos han desarrollado formatos únicos — gastronomía, humor, música, moda y lifestyle — que generan regularmente millones de reproducciones y establecen tendencias en todo el continente latinoamericano. La combinación de la riqueza cultural mexicana con el alcance masivo de TikTok produce contenido con una viralidad que pocas culturas pueden igualar.',
+      },
+      {
+        type: 'h2',
+        content: 'El Alcance Binacional México–EE.UU. en TikTok: Una Ventaja Estructural',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores mexicanos de TikTok tienen una ventaja estructural única: su contenido en español llega orgánicamente tanto al mercado mexicano como a los 60 millones de hispanos en Estados Unidos. Para marcas con presencia o ambición en el mercado hispano de EE.UU., trabajar con creadores mexicanos de TikTok es la estrategia de entrada más eficiente — un solo presupuesto de colaboración genera alcance en dos de los mercados más grandes del mundo hispanohablante.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de TikTok con Mayor Rendimiento en México',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Gastronomía mexicana: recetas, antojitos, street food — el formato de mayor viralidad internacional',
+          'Humor y entretenimiento con referencias culturales mexicanas: muy compartido en todo LatAm',
+          'Moda urbana de CDMX: tendencias contemporáneas con identidad cultural mexicana',
+          'Música regional mexicana y corridos: formato de enorme alcance y alta identidad cultural',
+          'Lifestyle en CDMX: la capital genera curiosidad internacional por su escala y dinamismo',
+          'Día de Muertos y celebraciones mexicanas: viralidad internacional excepcional',
+          'Belleza para tonos de piel latinoamericanos: alta demanda de búsqueda orgánica en TikTok',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Buen Fin y el Día de las Madres: Los Dos Picos de Mayor Oportunidad',
+      },
+      {
+        type: 'paragraph',
+        content: 'El Día de las Madres (10 de mayo en México) es el día de mayor consumo del año — supera incluso a la Navidad en muchas categorías de retail. Las campañas de TikTok coordinadas para el Día de las Madres generan un alcance orgánico excepcional porque el tema domina la plataforma durante semanas. El Buen Fin (noviembre) es el equivalente mexicano del Black Friday, con marcas de todas las categorías compitiendo por visibilidad — los creadores que tienen acuerdos previos garantizan presencia en el momento de mayor intención de compra del año.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Creadores de TikTok en México (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado ($)', 'Mención integrada ($)', 'Pack 3 vídeos ($)'],
+        rows: [
+          ['Nano', '5K – 20K', '$40 – $180', '$20 – $90', '$100 – $450'],
+          ['Micro', '20K – 100K', '$180 – $700', '$90 – $350', '$450 – $1.750'],
+          ['Medio', '100K – 500K', '$700 – $3.200', '$350 – $1.600', '$1.750 – $8.000'],
+          ['Macro', '500K+', '$3.200 – $11.000+', '$1.600 – $5.500+', '$8.000 – $27.000+'],
+        ],
+      },
+    ],
+    faqs: [
+      {
+        question: '¿Cuántos creadores de TikTok verificados con ubicación en México hay en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 15 creadores de TikTok verificados con ubicación en México, con una media de 373.718 visualizaciones por vídeo. La tasa de engagement mediana del conjunto verificado es del 31,80%, influida por perfiles con rendimiento viral excepcional — al evaluar creadores individuales, verifica siempre el engagement específico de cada perfil.',
+      },
+      {
+        question: '¿Por qué el contenido de gastronomía mexicana en TikTok tiene una viralidad internacional excepcional?',
+        answer: 'La cocina mexicana es patrimonio cultural UNESCO y genera una curiosidad global sin equivalente en otras gastronomías latinoamericanas. Las recetas de antojitos, tacos, mole y street food mexicano se comparten masivamente en todo el mundo hispanohablante y más allá. Para marcas de alimentación, menaje y lifestyle, la gastronomía mexicana es el formato de mayor viralidad orgánica disponible en TikTok español.',
+      },
+      {
+        question: '¿Cómo aprovecha una marca el alcance binacional México–EE.UU. en TikTok?',
+        answer: 'Los creadores mexicanos de TikTok publican en español para audiencias que incluyen tanto a los 130 millones de mexicanos como a los 60 millones de hispanos en EE.UU. Para marcas con presencia o ambición en el mercado hispano de EE.UU., un presupuesto de colaboración con creadores mexicanos genera alcance en ambos mercados simultáneamente — sin necesidad de duplicar la inversión.',
+      },
+      {
+        question: '¿Cuándo son los momentos de mayor impacto para campañas de TikTok en México?',
+        answer: 'El Día de las Madres (10 de mayo) es el día de mayor consumo del año en México — domina TikTok durante semanas. El Buen Fin (noviembre) es el pico de retail más importante. Día de Muertos (1–2 de noviembre) genera viralidad internacional excepcional. Para categorías de fitness y bienestar, enero es el momento de propósitos de año nuevo.',
+      },
+      {
+        question: '¿Cuánto cuesta colaborar con un creador de TikTok en México?',
+        answer: 'Para creadores de nivel medio (100.000–500.000 seguidores), los precios orientativos oscilan entre $700 y $3.200 USD por vídeo dedicado. Los creadores mexicanos con audiencias binacionales México-EE.UU. cotizan en la parte alta del rango por su mayor alcance efectivo. Los packs de 3 vídeos ofrecen eficiencia adicional del 20–30% respecto al precio por unidad.',
+      },
+    ],
   },
 
   'creadores-instagram-peru': {
