@@ -162,26 +162,113 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Para el éxito de la campaña, proporciona los productos 3–4 semanas antes de la fecha de publicación, haz briefings para uso auténtico en lugar de endorsement, y considera campañas de múltiples publicaciones — las audiencias de belleza confían en los creadores que usan los productos a lo largo del tiempo.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Belleza en Instagram: Lo Que Dicen los Datos de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 263 creadores de belleza verificados en Instagram con entre 50.000 y 500.000 seguidores. La tasa de engagement media del segmento es del 3,67%, calculada exclusivamente a partir de las 15 publicaciones más recientes de cada perfil — no promedios históricos inflados ni métricas de vanidad. Esto proporciona a las marcas una imagen precisa del rendimiento real de cada creador en el momento de la búsqueda.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de belleza verificados en Instagram', '263'],
+          ['Tasa de engagement media', '3,67%'],
+          ['Rango de seguidores', '50.000 – 500.000'],
+          ['Base de cálculo del engagement', 'Últimas 15 publicaciones'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué los Influencers de Nivel Medio Superan a los Macro en Conversión',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los creadores de belleza con 50.000–500.000 seguidores generan tasas de conversión consistentemente superiores a los macro influencers. Sus audiencias están compuestas por seguidores genuinamente interesados en belleza — no fans de una celebridad que publica belleza de forma ocasional. Un presupuesto de 5.000€ distribuido entre tres creadores de nivel medio genera más interacción cualificada que el mismo presupuesto invertido en un único macro influencer con engagement diluido.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Contenido con Mayor Rendimiento en Belleza Instagram',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Reels tutoriales: mayor alcance orgánico, priorizados por el algoritmo de Instagram',
+          'Carruseles de rutina: tasas de guardado 40–60% superiores al post de imagen estático',
+          'Get Ready With Me (GRWM): alto tiempo de visualización, ideal para productos de uso diario',
+          'Stories de comparación producto vs dupe: DMs directos y tráfico cualificado al perfil',
+          'Antes y después con ≥4 semanas de uso real: máxima credibilidad y conversión',
+          'Unboxings y first impressions: picos de engagement en las primeras horas post-publicación',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Briefing y Plazos Óptimos para Campañas de Belleza',
+      },
+      {
+        type: 'table',
+        headers: ['Fase de campaña', 'Plazo recomendado'],
+        rows: [
+          ['Contrato firmado', '8–10 semanas antes de publicación'],
+          ['Envío del producto', '6–7 semanas antes'],
+          ['Periodo de uso real', '4–6 semanas'],
+          ['Borrador de contenido entregado', '2–3 semanas antes'],
+          ['Aprobación de la marca', '1 semana antes'],
+          ['Informe de resultados', '2 semanas post-publicación'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Belleza en Instagram, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post estático (€)', 'Reel (€)', 'Pack 3 Stories (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '150 – 500', '300 – 800', '100 – 300'],
+          ['Medio bajo', '50K – 150K', '500 – 1.500', '800 – 2.500', '300 – 800'],
+          ['Medio alto', '150K – 500K', '1.500 – 4.500', '2.500 – 6.500', '800 – 2.000'],
+          ['Macro', '500K+', '4.500 – 15.000+', '6.500 – 20.000+', '2.000 – 6.000+'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Calendario de Belleza en España: Momentos Clave para Campañas',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Enero: Rutinas de nuevo año, lanzamientos de skincare de invierno',
+          'Marzo–Mayo: Transición a productos de protección solar y texturas ligeras',
+          'Junio–Agosto: Belleza de verano, productos waterproof, cuidado de piel post-sol',
+          'Septiembre: Vuelta a la rutina, reintroducción de activos y relanzamientos de otoño',
+          'Noviembre–Diciembre: Black Friday beauty, kits navideños, maquillaje de fiestas',
+        ],
+      },
+    ],
     faqs: [
       {
-        question: '¿Por qué los influencers de belleza de nivel medio convierten mejor que los macro influencers?',
-        answer:
-          'Los creadores con 50K–500K seguidores tienen audiencias genuinamente interesadas en contenido de belleza, no en cultura de celebridades. Esto se traduce en tasas de engagement 2–4× más altas que las cuentas por encima del millón de seguidores y en recomendaciones de producto que las audiencias perciben como personales y de confianza, no como publicidad de famosos.',
+        question: '¿Cuántos influencers de belleza verificados hay en Instagram en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 263 creadores de belleza verificados en Instagram con entre 50.000 y 500.000 seguidores. La tasa de engagement media del segmento es del 3,67%, calculada a partir de las 15 publicaciones más recientes de cada creador para garantizar datos actuales y representativos.',
       },
       {
-        question: '¿Qué formatos de contenido de belleza generan más engagement en Instagram?',
-        answer:
-          'Los Reels en formato tutorial, las Stories de comparación de productos y las reseñas honestas son los formatos de mayor rendimiento. Estos formatos impulsan las guardadas y los compartidos, que amplían el alcance orgánico más allá de los seguidores directos del creador.',
+        question: '¿Qué tasa de engagement debo exigir a un influencer de belleza en Instagram?',
+        answer: 'Para creadores de nivel medio en belleza en Instagram, el referente del mercado se sitúa en torno al 3–5%. La media verificada de InfluenceIT para este segmento es del 3,67%. Tasas por encima del 5% indican una audiencia muy comprometida; tasas por debajo del 2% deben investigarse antes de confirmar cualquier colaboración.',
       },
       {
-        question: '¿Con cuánta antelación debo enviar los productos antes de la fecha de publicación?',
-        answer:
-          'Lo ideal es entregar los productos 3–4 semanas antes de la fecha de publicación. Esto da al creador tiempo suficiente para un uso auténtico, lo que produce contenido más creíble y mejores resultados de conversión que las reseñas de una sola sesión.',
+        question: '¿Cuánto cuesta una colaboración con un influencer de belleza en Instagram en España?',
+        answer: 'Los precios orientativos para creadores de nivel medio (50.000–500.000 seguidores) en España oscilan entre 500€ y 6.500€ dependiendo del formato y el tamaño de la audiencia. Los Reels tutoriales tienen un coste superior a los posts estáticos por su mayor complejidad de producción y alcance orgánico más amplio.',
       },
       {
-        question: '¿Qué debo evitar al hacer el briefing a un creador de belleza?',
-        answer:
-          'Evita los mensajes guionizados y las instrucciones de endorsement explícito. Las marcas que dan libertad creativa y piden contenido de uso auténtico ven un engagement un 40–60% mayor que las que imponen textos estrictos.',
+        question: '¿Qué formatos de contenido de belleza generan más conversiones en Instagram?',
+        answer: 'Los Reels tutoriales y los carruseles de rutina son los formatos con mayor tasa de conversión en belleza. Generan las tasas de guardado más elevadas del nicho — señal de que los usuarios vuelven al contenido para actuar. Las Stories de comparación de productos también impulsan decisiones de compra en tiempo real.',
+      },
+      {
+        question: '¿Con cuánta antelación debo enviar mi producto a un creador de belleza?',
+        answer: 'Envía el producto 6–7 semanas antes de la fecha de publicación para garantizar 4–6 semanas de uso real antes de la creación del contenido. Las reseñas basadas en uso genuino durante semanas generan significativamente más conversiones que las impresiones de una sola sesión, especialmente en skincare y tratamientos de efecto acumulativo.',
       },
     ],
   },
@@ -205,26 +292,99 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Las colaboraciones más efectivas en belleza en TikTok dan a los creadores libertad para integrar el producto en su formato de contenido natural. Evita los guiones estrictos — el contenido de belleza en TikTok que parece genuino supera al contenido claramente publicitario en una proporción de 3 a 1 en términos de engagement y conversión.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Belleza en TikTok: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'InfluenceIT tiene verificados 651 creadores de belleza en TikTok — la categoría de belleza más grande de la base de datos. La tasa de engagement mediana es del 8,54%, con una media de 523.561 visualizaciones por publicación. Estos números posicionan a TikTok como la plataforma de mayor rendimiento para campañas de belleza en el mercado hispanohablante.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de belleza verificados en TikTok', '651'],
+          ['Tasa de engagement mediana', '8,54%'],
+          ['Media de visualizaciones por publicación', '523.561'],
+          ['Comparativa: belleza Instagram', '263 creadores / 3,67% engagement'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'TikTok vs. Instagram para Campañas de Belleza: La Diferencia en Números',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los 651 creadores de belleza en TikTok generan un engagement mediano del 8,54% — más del doble que la media del 3,67% en Instagram. Con 523.561 visualizaciones de media por vídeo, una colaboración con un creador de belleza en TikTok de nivel medio puede generar más impresiones que múltiples posts de Instagram combinados. Para marcas con presupuesto limitado que buscan el mayor alcance por euro invertido, TikTok es la plataforma de mayor retorno en belleza.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Belleza con Mayor Rendimiento en TikTok',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Tutoriales de maquillaje en tiempo real: el formato de mayor alcance orgánico en #BeautyTok',
+          'Rutinas de skincare paso a paso: alta retención de visualización y guardadas',
+          'Transformaciones completas (full glam): máximo impacto visual, altamente compartible',
+          'Reseñas honestas con valoración de ingredientes: elevada confianza de audiencia',
+          'Comparativas dupe vs producto premium: muy viral en el mercado español por el factor precio',
+          'Get Ready With Me (GRWM): alto tiempo de visualización, ideal para productos de rutina diaria',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Por Qué la Libertad Creativa es Obligatoria en TikTok Belleza',
+      },
+      {
+        type: 'paragraph',
+        content: 'El algoritmo de TikTok penaliza el contenido que las audiencias perciben como excesivamente publicitario. Los datos de la plataforma muestran que el contenido de belleza que parece genuino supera al contenido claramente patrocinado en una proporción de 3 a 1 en engagement y conversión. El brief debe especificar el objetivo y los beneficios del producto, pero la narrativa, el formato y el tono deben quedar completamente en manos del creador.',
+      },
+      {
+        type: 'h2',
+        content: 'Cumplimiento Legal: Colaboraciones de Belleza en TikTok, España',
+      },
+      {
+        type: 'paragraph',
+        content: 'En España, las colaboraciones de marca en redes sociales están reguladas por AUTOCONTROL y deben cumplir con la Ley General de Publicidad. Todo contenido patrocinado debe identificarse claramente con #publi, #anuncio o #colaboración, además de activar el toggle de branded content de TikTok. Las marcas son corresponsables del cumplimiento junto con el creador — inclúyelo explícitamente en el contrato de colaboración.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Belleza en TikTok, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado (€)', 'Mención integrada (€)', 'Pack 3 vídeos (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '200 – 700', '100 – 400', '500 – 1.800'],
+          ['Medio bajo', '50K – 150K', '700 – 2.000', '400 – 1.200', '1.800 – 5.000'],
+          ['Medio alto', '150K – 500K', '2.000 – 6.000', '1.200 – 3.500', '5.000 – 15.000'],
+          ['Macro', '500K+', '6.000 – 20.000+', '3.500 – 10.000+', '15.000 – 45.000+'],
+        ],
+      },
+    ],
     faqs: [
       {
-        question: '¿Por qué TikTok supera a Instagram para campañas de belleza en el mercado hispanohablante?',
-        answer:
-          'Las tasas de engagement en TikTok para creadores de belleza oscilan entre el 5% y el 12%, muy superiores a Instagram. El formato de vídeo corto es ideal para demostraciones en tiempo real — antes y después, aplicaciones completas y transformaciones — exactamente los formatos que convierten espectadores en compradores.',
+        question: '¿Cuántos influencers de belleza hay en TikTok en la base de datos de InfluenceIT?',
+        answer: 'InfluenceIT tiene verificados 651 creadores de belleza en TikTok — la categoría de mayor tamaño en la plataforma. La tasa de engagement mediana es del 8,54%, con una media de 523.561 visualizaciones por publicación, significativamente superior a los referentes de belleza en Instagram.',
       },
       {
-        question: '¿Qué alcance real tiene un creador de belleza hispanohablante en TikTok?',
-        answer:
-          'El contenido de TikTok en español tiene acceso potencial a más de 500 millones de hispanohablantes en todo el mundo. Un creador basado en España puede alcanzar simultáneamente audiencias en México, Colombia, Argentina y la comunidad hispana de Estados Unidos, convirtiendo cada colaboración en una oportunidad de alcance genuinamente global.',
+        question: '¿Qué engagement medio puedo esperar de un creador de belleza en TikTok?',
+        answer: 'La tasa de engagement mediana para creadores de belleza en TikTok es del 8,54% según los datos verificados de InfluenceIT — más del doble que el 3,67% de la categoría equivalente en Instagram. Con 523.561 visualizaciones de media por vídeo, el alcance potencial de una sola colaboración en TikTok es sustancialmente mayor.',
       },
       {
-        question: '¿Qué formatos de contenido de belleza funcionan mejor en TikTok?',
-        answer:
-          'Los tutoriales de maquillaje, las rutinas de skincare y las reseñas de productos virales son los formatos de mayor rendimiento. El contenido que parece genuino supera al contenido claramente publicitario en una proporción de 3 a 1 en términos de engagement y conversión, por lo que dar libertad creativa al creador es fundamental.',
+        question: '¿Es mejor invertir en TikTok o Instagram para campañas de belleza en España?',
+        answer: 'TikTok ofrece un engagement mediano más del doble que Instagram en el nicho de belleza (8,54% vs. 3,67%) y una media de 523.561 visualizaciones por vídeo. Para el mayor alcance e impacto por euro invertido, TikTok es la plataforma de mayor retorno en belleza. Instagram sigue siendo superior para contenido de catálogo editorial y comunidades de marca ya establecidas.',
       },
       {
-        question: '¿Cómo debo estructurar una colaboración de belleza en TikTok para maximizar resultados?',
-        answer:
-          'Da a los creadores libertad para integrar el producto en su formato de contenido natural y evita los guiones estrictos. Las colaboraciones más efectivas posicionan el producto dentro de una rutina existente del creador, permitiendo que la demostración sea orgánica y que la audiencia la perciba como una recomendación personal.',
+        question: '¿Cuánto cuesta una colaboración con un influencer de belleza en TikTok en España?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores) en España, los precios orientativos oscilan entre 700€ y 6.000€ por vídeo dedicado. Los packs de 3 vídeos ofrecen un descuento efectivo del 20–30% y generan mejores resultados al reforzar el mensaje de marca de forma repetida.',
+      },
+      {
+        question: '¿Qué obligaciones legales tiene mi marca al colaborar con un influencer de belleza en TikTok en España?',
+        answer: 'Las colaboraciones de marca en España están reguladas por AUTOCONTROL y la Ley General de Publicidad. Todo contenido patrocinado debe identificarse claramente usando #publi, #anuncio o #colaboración, y activar el branded content toggle de TikTok. Las marcas son corresponsables del cumplimiento junto con el creador — inclúyelo siempre en el contrato de colaboración.',
       },
     ],
   },
@@ -248,26 +408,104 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Las campañas de gifting funcionan bien para accesorios y artículos de precio más bajo, pero para moda de lujo o lanzamientos de productos significativos, las asociaciones pagadas generan mejores resultados. Presupuesta 6–10 semanas para los plazos de producción.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Moda en Instagram: Datos Reales de InfluenceIT',
+      },
+      {
+        type: 'paragraph',
+        content: 'La base de datos de InfluenceIT incluye 568 creadores de moda verificados en Instagram — la mayor categoría de moda de la plataforma en la base de datos. La tasa de engagement media del segmento es del 3,23%, con creadores especializados en estilo hispanohablante y audiencias activas en los mercados de España y América Latina.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de moda verificados en Instagram', '568'],
+          ['Tasa de engagement media', '3,23%'],
+          ['Rango de seguidores', '50.000 – 500.000'],
+          ['Base de cálculo del engagement', 'Últimas 15 publicaciones'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Perfil del Influencer de Moda de Nivel Medio: Accesible y Aspiracional',
+      },
+      {
+        type: 'paragraph',
+        content: 'Los influencers de moda con 50.000–500.000 seguidores ocupan el espacio más valioso del marketing de moda: son lo suficientemente aspiracionales para inspirar, pero lo suficientemente cercanos para que sus audiencias los perciban como iguales. En el mercado español, tienen una ventaja adicional: conocen las marcas de referencia locales (Zara, Mango, El Corte Inglés), el calendario de moda español y los momentos de compra de la audiencia — un conocimiento cultural que los creadores internacionales no pueden replicar.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Moda con Mayor Rendimiento en Instagram',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Reels de outfit transition: mayor alcance orgánico en moda Instagram, altamente compartibles',
+          'Carruseles "X looks con una prenda": altas tasas de guardado, exposición de marca repetida',
+          'Styling challenges: engagement de participación de la comunidad',
+          'Hauls de temporada: presentación natural de múltiples productos en un único formato',
+          'Contenido vinculado a MBFWM: alcance orgánico 3–5× superior al de publicaciones regulares',
+          '"Outfit del día" con etiqueta de marcas: referrals directos a tienda',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'La Semana de la Moda de Madrid: El Momento de Mayor Impacto',
+      },
+      {
+        type: 'paragraph',
+        content: 'La Mercedes-Benz Fashion Week Madrid (MBFWM) es el mayor escaparate de moda de España. Los creadores de moda acreditados en el evento generan contenido con un alcance orgánico 3–5× superior al de publicaciones regulares — el contexto del evento amplifica la distribución algorítmica. Las marcas que coordinan colaboraciones alrededor de la MBFWM obtienen cobertura de evento más credibilidad editorial en un único paquete.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Moda en Instagram, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Post estático (€)', 'Reel outfit (€)', 'Carrusel (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '100 – 450', '250 – 700', '200 – 600'],
+          ['Medio bajo', '50K – 150K', '450 – 1.400', '700 – 2.200', '600 – 1.800'],
+          ['Medio alto', '150K – 500K', '1.400 – 4.000', '2.200 – 6.000', '1.800 – 5.000'],
+          ['Macro', '500K+', '4.000 – 12.000+', '6.000 – 18.000+', '5.000 – 15.000+'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'Calendario de Moda en España: Picos de Campaña',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Enero–Febrero: Rebajas de invierno, nuevas colecciones primavera-verano',
+          'Marzo–Abril: Primavera y Semana Santa — importante para moda festiva y casual',
+          'Septiembre: MBFWM, colecciones otoño-invierno, vuelta al trabajo y al cole',
+          'Noviembre–Diciembre: Black Friday moda, Navidad, looks de fiesta',
+        ],
+      },
+    ],
     faqs: [
       {
-        question: '¿Qué tasas de engagement son realistas para influencers de moda en Instagram?',
-        answer:
-          'Espera tasas de engagement del 2,5–5% para creadores de moda en Instagram, con los Reels y las publicaciones en carrusel generando la mayor interacción. Los creadores de nivel medio son percibidos como iguales por sus audiencias, lo que hace que sus recomendaciones de compra tengan un impacto significativamente mayor que las de los macro influencers.',
+        question: '¿Cuántos influencers de moda verificados hay en Instagram en InfluenceIT?',
+        answer: 'La base de datos de InfluenceIT incluye 568 creadores de moda verificados en Instagram con entre 50.000 y 500.000 seguidores, con una tasa de engagement media del 3,23% calculada a partir de las 15 publicaciones más recientes de cada perfil.',
       },
       {
-        question: '¿Qué formatos de contenido de moda funcionan mejor en el mercado hispanohablante?',
-        answer:
-          'Los desafíos de estilo, las integraciones de temporada y los carruseles de outfits son los formatos de mayor rendimiento. El contenido que conecta tendencias con el estilo cotidiano hispanohablante — no solo replica tendencias europeas o norteamericanas — genera un engagement consistentemente superior.',
+        question: '¿Qué engagement medio puedo esperar de una colaboración de moda en Instagram?',
+        answer: 'La tasa de engagement media para creadores de moda en Instagram en InfluenceIT es del 3,23%. Para creadores de nicho específico o con audiencias muy comprometidas, las tasas pueden superar el 4–5%. Tasas por debajo del 2% deben investigarse antes de confirmar una colaboración.',
       },
       {
-        question: '¿Cuándo debo usar gifting y cuándo asociaciones pagadas para campañas de moda?',
-        answer:
-          'El gifting funciona bien para accesorios y artículos de precio más bajo. Para moda de lujo o lanzamientos de producto significativos, las asociaciones pagadas generan mejores resultados porque el creador tiene un incentivo real para producir contenido de alta calidad y priorizar la colaboración.',
+        question: '¿Cuánto cuesta colaborar con un influencer de moda en Instagram en España?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre 450€ y 6.000€ por pieza de contenido. Los Reels de outfit tienen un coste superior a los posts estáticos por su mayor complejidad de producción y alcance orgánico más amplio.',
       },
       {
-        question: '¿Cuánto tiempo necesito para planificar una campaña de moda en Instagram?',
-        answer:
-          'Presupuesta 6–10 semanas para los plazos de producción. Esto incluye el acuerdo de colaboración, el envío de productos, la creación del contenido, las revisiones del briefing y la programación de publicaciones alineada con tu calendario de marketing estacional.',
+        question: '¿Qué formatos de moda generan más guardadas en Instagram?',
+        answer: 'Los carruseles de estilo "X looks con una prenda" y los Reels de outfit transition son los formatos con mayores tasas de guardado en moda. Las guardadas son la métrica más valiosa en moda porque indican que el usuario volverá al contenido como referencia de compra o inspiración de estilo.',
+      },
+      {
+        question: '¿Cuándo es el mejor momento para lanzar una campaña de moda en Instagram en España?',
+        answer: 'Los picos de mayor impacto son septiembre (MBFWM, vuelta al trabajo, colecciones otoño-invierno), enero-febrero (rebajas y nuevas colecciones PV) y noviembre-diciembre (Black Friday y Navidad). Planifica las colaboraciones con 6–10 semanas de antelación para coincidir con estos momentos del calendario.',
       },
     ],
   },
@@ -291,26 +529,91 @@ export const ES_ES_PAGES: Record<string, EsPageConfig> = {
         'Para marcas de moda que buscan presencia en el mercado hispanohablante, TikTok ofrece el camino de entrada más eficiente en coste. Los costes de asociación con creadores hispanohablantes de TikTok son significativamente más bajos que los equivalentes norteamericanos o europeos, con tasas de engagement igualmente altas o superiores.',
       ],
     },
+    sections: [
+      {
+        type: 'h2',
+        content: 'Influencers de Moda en TikTok: La Mayor Base de Datos Verificada',
+      },
+      {
+        type: 'paragraph',
+        content: 'Con 1.317 creadores verificados, la moda en TikTok es la categoría más grande de toda la base de datos de InfluenceIT. La tasa de engagement mediana es del 7,95%, con una media de 504.854 visualizaciones por vídeo. Este volumen de creadores verificados y estos niveles de engagement hacen de TikTok el canal de mayor escala disponible para marcas de moda que buscan presencia en el mercado hispanohablante.',
+      },
+      {
+        type: 'table',
+        headers: ['Métrica', 'Dato verificado'],
+        rows: [
+          ['Creadores de moda verificados en TikTok', '1.317 (mayor categoría de la base de datos)'],
+          ['Tasa de engagement mediana', '7,95%'],
+          ['Media de visualizaciones por vídeo', '504.854'],
+          ['Comparativa: moda Instagram', '568 creadores / 3,23% engagement'],
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'El Poder de la Viralidad en Moda TikTok: Alcance Más Allá del Seguidor',
+      },
+      {
+        type: 'paragraph',
+        content: 'TikTok ha eliminado el vínculo entre el tamaño de la audiencia y el alcance del contenido. Un creador de moda con 80.000 seguidores puede generar 3–5 millones de visualizaciones en un solo vídeo cuando el algoritmo lo amplifica. La moda es uno de los nichos con mayor probabilidad de viralidad orgánica — la combinación de visuales atractivos, ritmo dinámico y la cultura de tendencias de TikTok crea las condiciones perfectas para que el contenido de moda se distribuya masivamente.',
+      },
+      {
+        type: 'h2',
+        content: 'Formatos de Moda TikTok con Mayor Alcance Orgánico',
+      },
+      {
+        type: 'bullets',
+        items: [
+          'Fashion hauls: presentación de múltiples prendas en un vídeo, altamente compartible',
+          '"Get The Look" (recreación de look a menor precio): viral por su componente de accesibilidad',
+          'Outfit of the day (OOTD): formato de alta consistencia, ideal para integración de marca',
+          'Transformaciones de estilo antes/después: alta retención de visualización',
+          'Try-on haul en tienda: autenticidad de locación, alto engagement de curiosidad',
+          'Trending sounds + fashion content: amplificación algorítmica por uso de audio viral',
+        ],
+      },
+      {
+        type: 'h2',
+        content: 'TikTok Shop y el Comercio de Moda en la Plataforma',
+      },
+      {
+        type: 'paragraph',
+        content: 'TikTok Shop está transformando el recorrido de compra en moda. Los vídeos con producto etiquetado permiten compras directas desde el contenido sin salir de la plataforma. Las marcas de moda que trabajan con creadores de TikTok con acceso a TikTok Shop reportan tasas de conversión significativamente superiores a los formatos de "link en bio" por la reducción drástica de fricción en el proceso de compra.',
+      },
+      {
+        type: 'h2',
+        content: 'Precios Orientativos: Moda en TikTok, España (2026)',
+      },
+      {
+        type: 'table',
+        headers: ['Tier', 'Seguidores', 'Vídeo dedicado (€)', 'Mención en haul (€)', 'Pack mensual (€)'],
+        rows: [
+          ['Micro', '10K – 50K', '150 – 600', '80 – 300', '400 – 1.500'],
+          ['Medio bajo', '50K – 150K', '600 – 1.800', '300 – 900', '1.500 – 4.500'],
+          ['Medio alto', '150K – 500K', '1.800 – 5.500', '900 – 2.800', '4.500 – 13.000'],
+          ['Macro', '500K+', '5.500 – 18.000+', '2.800 – 8.000+', '13.000 – 40.000+'],
+        ],
+      },
+    ],
     faqs: [
       {
-        question: '¿Qué formatos de moda generan más visualizaciones en TikTok en español?',
-        answer:
-          'Los vídeos "Get The Look", los fashion hauls, los desafíos de estilo y las integraciones de temporada son los formatos más virales. Los creadores que conectan tendencias globales con contextos culturales hispanohablantes locales superan consistentemente a los que replican contenido de tendencias internacionales sin adaptación.',
+        question: '¿Cuántos influencers de moda hay en TikTok en la base de datos de InfluenceIT?',
+        answer: 'InfluenceIT tiene verificados 1.317 creadores de moda en TikTok — la categoría más grande de toda la base de datos. La tasa de engagement mediana es del 7,95% con una media de 504.854 visualizaciones por vídeo.',
       },
       {
-        question: '¿Cómo puede un creador con 100K seguidores alcanzar millones de visualizaciones?',
-        answer:
-          'El algoritmo de TikTok amplifica el contenido más allá del seguidor base cuando genera engagement temprano. Un creador de moda hispanohablante con 100K seguidores puede generar 2–5 millones de visualizaciones en un solo vídeo cuando el algoritmo lo distribuye — haciendo que el alcance potencial supere con creces el tamaño de su audiencia habitual.',
+        question: '¿Qué engagement puedo esperar de una colaboración de moda en TikTok?',
+        answer: 'La tasa de engagement mediana para creadores de moda en TikTok es del 7,95% — más del doble que la media de moda en Instagram. Con 504.854 visualizaciones de media por vídeo, una sola colaboración en TikTok puede generar más impresiones que múltiples publicaciones de Instagram combinadas.',
       },
       {
-        question: '¿Qué ventaja de coste ofrecen los creadores de moda hispanohablantes en TikTok?',
-        answer:
-          'Los costes de asociación con creadores hispanohablantes de TikTok son significativamente más bajos que los equivalentes norteamericanos o europeos, con tasas de engagement igualmente altas o superiores. Esto convierte a TikTok hispanohablante en el canal de entrada más eficiente en coste para marcas que buscan presencia en el mercado de habla española.',
+        question: '¿Cuánto cuesta una colaboración de moda en TikTok en España?',
+        answer: 'Para creadores de nivel medio (50.000–500.000 seguidores), los precios orientativos oscilan entre 600€ y 5.500€ por vídeo dedicado. Las menciones en fashion hauls son más accesibles (300€–2.800€) y pueden ser igualmente efectivas para productos que se presentan bien en contexto de múltiples prendas.',
       },
       {
-        question: '¿Por qué es importante que el contenido de moda refleje tendencias locales y no solo globales?',
-        answer:
-          'Las audiencias de moda hispanohablantes en TikTok son especialmente receptivas al contenido que refleja tendencias locales y estilos adaptados a sus climas y culturas. El contenido nativo hispanohablante supera consistentemente al contenido adaptado o traducido, porque las audiencias valoran a los creadores que hablan su idioma cultural, no solo su idioma literal.',
+        question: '¿Qué formatos de moda funcionan mejor en TikTok para una marca?',
+        answer: 'Los fashion hauls y los "Get The Look" son los formatos de mayor alcance orgánico. Los hauls integran el producto en un contexto natural de múltiples prendas, mientras que los "Get The Look" viralizan por su componente de accesibilidad — recrear un look aspiracional a menor precio es uno de los contenidos más compartidos en moda TikTok.',
+      },
+      {
+        question: '¿Cuántos seguidores necesita tener un creador de moda en TikTok para ser efectivo?',
+        answer: 'En TikTok, el tamaño del seguidor es menos determinante que en Instagram porque el algoritmo distribuye el contenido más allá del seguidor base. Un creador con 50.000–200.000 seguidores y alta tasa de engagement puede superar en alcance real a un macro influencer con bajo engagement. Busca tasas por encima del 6% y medias de visualización superiores a 200.000 vistas por vídeo.',
       },
     ],
   },
