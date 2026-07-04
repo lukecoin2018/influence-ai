@@ -1,0 +1,206 @@
+/*
+  Ported from design/landing-dark.html, scoped under .hv2 so nothing leaks into
+  the rest of the app (which relies on app/globals.css's light LMG theme).
+
+  TODO: if /home-v2 becomes the primary homepage, migrate these tokens
+  (--bg, --yellow, --disp, --body, etc.) into the Tailwind `@theme`
+  block in app/globals.css instead of scoping them here.
+*/
+
+.hv2{
+  --bg:#0A0A0A;
+  --bg-soft:#141414;
+  --paper:#F7F5F0;       /* profile-card mini-stat blocks only */
+  --surface:#F1F2F4;     /* leaderboard/methodology section bg — change this one line to try #FFFFFF */
+  --card:#FFFFFF;
+  --ink:#111111;
+  --yellow:#FFD700;      /* matches --color-lmg-gold in app/globals.css @theme — the one sitewide brand yellow */
+  --muted-d:#9B9890;
+  --muted-l:#6E6A5C;
+  --line-d:#262626;
+  --line-l:#E4E0D4;
+  --up:#3BA55D;
+  --down:#E5543A;
+  --disp: "Satoshi", system-ui, sans-serif;
+  --body: "Satoshi", system-ui, sans-serif;
+
+  background:var(--bg);color:#F2F0EA;font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;
+}
+.hv2, .hv2 *{margin:0;padding:0;box-sizing:border-box}
+.hv2 a{color:inherit;text-decoration:none}
+.hv2 :focus-visible{outline:3px solid var(--yellow);outline-offset:2px;border-radius:2px}
+.hv2 .wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+.hv2 .mono{font-variant-numeric:tabular-nums}
+
+/* ============ ticker ============ */
+.hv2 .ticker{background:var(--bg);border-bottom:1px solid var(--line-d);overflow:hidden;white-space:nowrap}
+.hv2 .ticker-track{display:inline-flex;animation:hv2-tick 48s linear infinite;padding:8px 0}
+.hv2 .ticker:hover .ticker-track{animation-play-state:paused}
+.hv2 .tick-item{font-family:var(--body);font-size:12px;padding:0 22px;border-right:1px solid var(--line-d);color:var(--muted-d);letter-spacing:.02em}
+.hv2 .tick-item b{font-weight:600;color:var(--yellow);font-variant-numeric:tabular-nums}
+@keyframes hv2-tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.hv2 .ticker-track{animation:none}}
+
+/* ============ nav ============ */
+.hv2 nav{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line-d)}
+.hv2 .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+.hv2 .logo{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:900;font-size:19px}
+.hv2 .logo em{font-style:normal;font-weight:900;color:var(--yellow);display:inline}
+.hv2 .logo-mark{width:30px;height:30px;background:var(--yellow);border-radius:7px;display:flex;align-items:flex-end;justify-content:center;gap:2.5px;padding:6px 6px 5px}
+.hv2 .logo-mark i{width:3.5px;background:var(--bg);display:block;border-radius:1px}
+.hv2 .logo-mark i:nth-child(1){height:7px}.hv2 .logo-mark i:nth-child(2){height:13px}.hv2 .logo-mark i:nth-child(3){height:9px}
+.hv2 .nav-links{display:flex;gap:32px;font-size:14.5px;font-weight:500;color:var(--muted-d)}
+.hv2 .nav-links a:hover{color:#fff}
+.hv2 .nav-right{display:flex;align-items:center;gap:20px}
+.hv2 .signin{font-size:14.5px;font-weight:500;color:var(--muted-d)}
+.hv2 .signin:hover{color:#fff}
+.hv2 .btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:12px 24px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:transform .12s,filter .12s}
+.hv2 .btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+.hv2 .btn:active{transform:translateY(0)}
+.hv2 .btn-yellow{background:var(--yellow);color:var(--ink)}
+.hv2 .btn-ghost-d{border-color:#3A3A3A;color:#F2F0EA;background:transparent}
+.hv2 .btn-ghost-d:hover{border-color:#5a5a5a}
+.hv2 .btn-ghost-l{border-color:#C9C4B4;color:var(--ink);background:transparent}
+.hv2 .nav-mobile-toggle{display:none}
+@media (max-width:900px){
+  .hv2 .nav-links,.hv2 .signin{display:none}
+  /* the persistent yellow CTA doesn't fit next to the hamburger without wrapping
+     and busting the fixed-height sticky nav — it moves into the dropdown below instead */
+  .hv2 .nav-right .btn-yellow{display:none}
+  .hv2 .nav-mobile-toggle{display:flex}
+}
+
+/* mobile nav dropdown — added because the mockup hides nav-links/signin below
+   900px with no replacement; this keeps Leaderboard/Creators/Compare/Methodology,
+   Sign in, and the primary CTA reachable without a mouse-hover-width viewport */
+.hv2 .nav-mobile-menu{display:flex;flex-direction:column;gap:2px;padding:10px 20px 18px;border-top:1px solid var(--line-d);background:var(--bg)}
+.hv2 .nav-mobile-menu a,.hv2 .nav-mobile-menu button{padding:12px 8px;font-size:15px;font-weight:500;color:var(--muted-d);border-radius:8px;width:100%}
+.hv2 .nav-mobile-menu a:hover,.hv2 .nav-mobile-menu button:hover{color:#fff;background:var(--bg-soft)}
+.hv2 .nav-mobile-menu .btn-yellow{justify-content:center;margin-top:10px}
+
+/* ============ hero ============ */
+.hv2 .hero{padding:120px 0 140px;position:relative;overflow:hidden}
+.hv2 .hero-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:80px;align-items:center}
+.hv2 .hero-grid.solo{grid-template-columns:minmax(0,1fr)}
+.hv2 .eyebrow{display:flex;align-items:center;gap:9px;font-family:var(--body);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--yellow);margin-bottom:26px}
+.hv2 .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--yellow)}
+.hv2 h1{font-family:var(--disp);font-weight:900;font-size:clamp(2.4rem,4.6vw,4.6rem);line-height:.98;letter-spacing:-.03em;margin-bottom:26px;font-variant-numeric:tabular-nums}
+.hv2 h1 .h1-line{display:block}
+.hv2 h1 .yl{color:var(--yellow)}
+.hv2 .hero p.lede{font-size:18px;color:var(--muted-d);max-width:47ch;margin-bottom:38px}
+.hv2 .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:30px}
+.hv2 .hero-note{display:flex;align-items:center;gap:9px;font-family:var(--body);font-size:clamp(11px,2.3vw,12.5px);color:var(--muted-d);max-width:100%}
+.hv2 .hero-note::before{content:"";width:6px;height:6px;flex-shrink:0;border-radius:50%;background:var(--up);animation:hv2-pulse 2.2s ease-in-out infinite}
+.hv2 .hero-note-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+@keyframes hv2-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.hv2 .hero-note::before{animation:none}}
+
+/* profile card + ghost card */
+.hv2 .cardstack{position:relative;justify-self:end;width:100%;max-width:470px}
+.hv2 .ghost{position:absolute;inset:-26px -26px auto auto;width:100%;height:100%;border:1px solid var(--line-d);border-radius:20px;background:var(--bg-soft)}
+.hv2 .pcard{position:relative;background:var(--card);color:var(--ink);border-radius:18px;padding:36px 40px 34px;box-shadow:0 24px 70px rgba(0,0,0,.55);transition:opacity 150ms ease}
+.hv2 .pcard.fading{opacity:0}
+@media (prefers-reduced-motion:reduce){.hv2 .pcard{transition:none}}
+.hv2 .pcard-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.hv2 .pcard-live{font-family:var(--body);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-l)}
+.hv2 .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--body);font-size:11px;font-weight:600;background:#FFF6D6;border-radius:99px;padding:5px 12px}
+.hv2 .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--up)}
+.hv2 .pcard-id{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:26px}
+.hv2 .pcard-who{display:flex;gap:14px;align-items:center}
+.hv2 .avatar{width:60px;height:60px;border-radius:14px;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:19px;flex-shrink:0}
+.hv2 .pname{font-family:var(--disp);font-weight:700;font-size:20px;line-height:1.15}
+.hv2 .phandle{font-family:var(--body);font-size:12.5px;color:var(--muted-l)}
+.hv2 .er-big{text-align:right}
+.hv2 .er-big b{display:block;font-family:var(--disp);font-weight:700;font-size:30px;letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums}
+.hv2 .er-big span{font-family:var(--body);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-l)}
+.hv2 .er-vs{font-family:var(--body);font-size:11px;color:var(--up);display:block;margin-top:4px;font-variant-numeric:tabular-nums}
+.hv2 .pstats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px}
+.hv2 .pstat{background:var(--paper);border-radius:12px;padding:18px 18px 16px}
+.hv2 .pstat b{display:block;font-family:var(--disp);font-weight:700;font-size:19px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.hv2 .pstat b small{font-size:12px;font-weight:500;color:var(--muted-l)}
+.hv2 .pstat span{font-family:var(--body);font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted-l)}
+.hv2 .plabel{font-family:var(--body);font-size:10.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted-l);margin-bottom:9px}
+.hv2 .mixbar{display:flex;height:14px;border-radius:99px;overflow:hidden;margin-bottom:7px;background:#E9E5D9}
+.hv2 .mixkey{display:flex;gap:18px;flex-wrap:wrap;font-family:var(--body);font-size:11px;color:var(--muted-l);margin-bottom:20px}
+.hv2 .mixkey i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+.hv2 .brands{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:24px}
+.hv2 .brand{font-family:var(--body);font-size:11.5px;font-weight:500;border-radius:99px;padding:6px 13px;background:var(--ink);color:#F2F0EA}
+.hv2 .brand.more{background:transparent;color:var(--muted-l);border:1px dashed #CFC9B8}
+.hv2 .pcard-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line-l);padding-top:16px}
+.hv2 .pcard-foot .when{font-family:var(--body);font-size:11.5px;color:var(--muted-l)}
+.hv2 .openp{font-weight:600;font-size:14px;border-bottom:2px solid var(--yellow);padding-bottom:1px}
+@media (max-width:940px){
+  .hv2 .hero-grid{grid-template-columns:minmax(0,1fr);gap:56px}
+  .hv2 .cardstack{justify-self:start}
+  .hv2 .ghost{inset:auto auto -20px -20px}
+}
+
+/* ============ yellow band ============ */
+.hv2 .band{background:var(--yellow);color:var(--ink)}
+.hv2 .band-in{display:flex;justify-content:space-between;gap:12px;padding:34px 0;flex-wrap:wrap}
+.hv2 .band-stat{display:flex;align-items:baseline;gap:10px}
+.hv2 .band-stat b{font-family:var(--disp);font-weight:700;font-size:clamp(1.3rem,2.4vw,1.7rem);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.hv2 .band-stat span{font-family:var(--body);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+.hv2 .band-stat-wide b{font-size:clamp(1rem,1.8vw,1.4rem)}
+@media (max-width:900px){.hv2 .band-in{justify-content:flex-start;gap:26px}}
+
+/* ============ leaderboard (light) ============ */
+.hv2 .board{background:var(--surface);color:var(--ink);padding:130px 0 110px}
+.hv2 .board-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:38px;flex-wrap:wrap}
+.hv2 .eyebrow-l{font-family:var(--body);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-l);margin-bottom:12px}
+.hv2 h2{font-family:var(--disp);font-weight:800;font-size:clamp(1.9rem,3.8vw,2.9rem);letter-spacing:-.025em;line-height:1.05}
+.hv2 .hl-u{box-shadow:inset 0 -0.28em 0 var(--yellow)}
+.hv2 .board-hint{font-size:14px;color:var(--muted-l);text-align:right;line-height:1.5}
+.hv2 .board-tabs{display:flex;gap:8px;margin-bottom:16px}
+.hv2 .tab-btn{font-family:var(--body);font-size:14px;font-weight:600;padding:9px 18px;border-radius:99px;border:1px solid #D8D3C3;background:transparent;color:var(--muted-l);cursor:pointer;transition:background .12s,color .12s,border-color .12s}
+.hv2 .tab-btn:hover{border-color:var(--ink);color:var(--ink)}
+.hv2 .tab-btn.active{background:var(--ink);border-color:var(--ink);color:#fff}
+.hv2 .tablecard{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 2px 24px rgba(20,18,10,.06)}
+.hv2 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.hv2 table{width:100%;min-width:420px;border-collapse:collapse}
+.hv2 thead th{background:var(--ink);color:#C9C6BD;font-family:var(--body);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;font-weight:500;text-align:left;padding:16px 22px}
+.hv2 thead th.sorted{color:var(--yellow)}
+.hv2 tbody td{padding:14px 22px;border-bottom:1px solid #EFECE2;font-size:15px;vertical-align:middle}
+.hv2 tbody tr:last-child td{border-bottom:none}
+.hv2 tbody tr{transition:background .1s}
+.hv2 tbody tr:hover{background:#FFFBEB}
+.hv2 .rk{font-family:var(--disp);font-weight:600;font-size:16px;color:#B9B5A6;width:52px;font-variant-numeric:tabular-nums}
+.hv2 tr:nth-child(-n+3) .rk{color:var(--ink)}
+.hv2 .who{display:flex;gap:13px;align-items:center}
+.hv2 .who .avatar{width:44px;height:44px;border-radius:12px;font-size:14.5px}
+.hv2 .who .avatar.inkv{background:var(--ink);color:#fff}
+.hv2 .who .nm{font-weight:600;font-size:15px;line-height:1.2}
+.hv2 .who .hd{font-family:var(--body);font-size:12px;color:var(--muted-l)}
+.hv2 .fl{font-family:var(--body);font-size:14.5px;text-align:right;font-variant-numeric:tabular-nums}
+.hv2 .er-wrap{display:flex;align-items:center;gap:14px;justify-content:flex-end}
+.hv2 .er-track{width:120px;height:7px;border-radius:99px;background:#ECE8DB;overflow:hidden}
+.hv2 .er-fill{height:100%;background:var(--yellow);border-radius:99px}
+.hv2 .er-val{font-family:var(--body);font-weight:600;font-size:14.5px;text-align:right;font-variant-numeric:tabular-nums}
+.hv2 .views-cell{display:flex;flex-direction:column;align-items:flex-end;gap:1px}
+.hv2 .er-sub{font-family:var(--body);font-size:11px;color:var(--muted-l);font-variant-numeric:tabular-nums}
+.hv2 .tfoot{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;background:#FBFAF4;font-size:14px;color:var(--muted-l);flex-wrap:wrap;gap:10px}
+.hv2 .tfoot a{font-weight:600;color:var(--ink);border-bottom:2px solid var(--yellow);padding-bottom:1px}
+@media (max-width:640px){.hv2 .er-track{width:70px}}
+
+/* ============ methodology ============ */
+.hv2 .method{background:var(--surface);color:var(--ink);padding:0 0 130px}
+.hv2 .method-rule{border-top:2px solid var(--ink);margin-bottom:72px}
+.hv2 .method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:64px}
+.hv2 .m-k{font-family:var(--body);font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-l);margin-bottom:16px}
+.hv2 .method-grid p{font-size:15.5px;color:#3E3B33}
+@media (max-width:840px){.hv2 .method-grid{grid-template-columns:1fr;gap:36px}}
+
+/* ============ cta ============ */
+.hv2 .cta{padding:150px 0}
+.hv2 .cta h2{color:#F2F0EA;font-weight:900;font-size:clamp(2.2rem,5vw,3.6rem);max-width:14ch;margin-bottom:26px}
+.hv2 .cta .yl{color:var(--yellow)}
+.hv2 .cta p{font-size:17px;color:var(--muted-d);max-width:46ch;margin-bottom:38px}
+.hv2 .cta-ctas{display:flex;gap:14px;flex-wrap:wrap}
+
+/* ============ footer ============ */
+.hv2 footer{border-top:1px solid var(--line-d);padding:34px 0}
+.hv2 .foot-in{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;font-size:13.5px;color:var(--muted-d)}
+.hv2 .foot-links{display:flex;gap:24px;flex-wrap:wrap}
+.hv2 .foot-links a:hover{color:#fff}
+.hv2 .foot-brand{font-family:var(--disp);font-weight:900;font-size:16px;color:#F2F0EA}
+.hv2 .foot-brand em{font-style:normal;font-weight:900;color:var(--yellow);display:inline}

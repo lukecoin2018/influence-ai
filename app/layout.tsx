@@ -5,6 +5,7 @@ import { AuthProvider } from '@/context/AuthContext';
 import { SiteShell } from '@/components/SiteShell';
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://influenceit.app'),
   title: {
     default: 'InfluenceIT — Creator Discovery Platform',
     template: '%s | InfluenceIT',

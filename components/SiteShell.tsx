@@ -7,8 +7,11 @@ import { Footer } from '@/components/Footer';
 export function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdmin = pathname.startsWith('/admin');
+  // Exact match only — the homepage ships its own dark nav/footer. startsWith('/')
+  // would match every route on the site and kill the shared nav everywhere.
+  const isHome = pathname === '/';
 
-  if (isAdmin) {
+  if (isAdmin || isHome) {
     return <>{children}</>;
   }
 
