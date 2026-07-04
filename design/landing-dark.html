@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InfluenceIT — 4,512 creators. Zero guesswork.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Archivo:wght@400;500;600;700&family=Spline+Sans+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  /* ============ tokens ============ */
+  :root{
+    --bg:#0A0A0A;
+    --bg-soft:#141414;
+    --paper:#F7F5F0;
+    --card:#FFFFFF;
+    --ink:#111111;
+    --yellow:#FFD338;
+    --yellow-deep:#E8B90F;
+    --muted-d:#9B9890;      /* muted on dark */
+    --muted-l:#6E6A5C;      /* muted on light */
+    --line-d:#262626;
+    --line-l:#E4E0D4;
+    --up:#3BA55D;
+    --down:#E5543A;
+    --disp:"Bricolage Grotesque",Georgia,serif;
+    --body:"Archivo",-apple-system,sans-serif;
+    --mono:"Spline Sans Mono","SF Mono",Consolas,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:#F2F0EA;font-family:var(--body);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  :focus-visible{outline:3px solid var(--yellow);outline-offset:2px;border-radius:2px}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 28px}
+  .mono{font-family:var(--mono)}
+
+  /* ============ ticker ============ */
+  .ticker{background:var(--bg);border-bottom:1px solid var(--line-d);overflow:hidden;white-space:nowrap}
+  .ticker-track{display:inline-flex;animation:tick 48s linear infinite;padding:8px 0}
+  .ticker:hover .ticker-track{animation-play-state:paused}
+  .tick-item{font-family:var(--mono);font-size:12px;padding:0 22px;border-right:1px solid var(--line-d);color:var(--muted-d);letter-spacing:.02em}
+  .tick-item b{font-weight:600;color:var(--yellow)}
+  .tick-item b.dn{color:var(--down)}
+  @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion:reduce){.ticker-track{animation:none}}
+
+  /* ============ nav ============ */
+  nav{position:sticky;top:0;z-index:50;background:rgba(10,10,10,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line-d)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:68px}
+  .logo{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:800;font-size:19px}
+  .logo em{font-style:normal;color:var(--yellow)}
+  .logo-mark{width:30px;height:30px;background:var(--yellow);border-radius:7px;display:flex;align-items:flex-end;justify-content:center;gap:2.5px;padding:6px 6px 5px}
+  .logo-mark i{width:3.5px;background:var(--bg);display:block;border-radius:1px}
+  .logo-mark i:nth-child(1){height:7px}.logo-mark i:nth-child(2){height:13px}.logo-mark i:nth-child(3){height:9px}
+  .nav-links{display:flex;gap:32px;font-size:14.5px;font-weight:500;color:var(--muted-d)}
+  .nav-links a:hover{color:#fff}
+  .nav-right{display:flex;align-items:center;gap:20px}
+  .signin{font-size:14.5px;font-weight:500;color:var(--muted-d)}
+  .signin:hover{color:#fff}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:600;font-size:15px;padding:12px 24px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:transform .12s,filter .12s}
+  .btn:hover{transform:translateY(-1px);filter:brightness(1.05)}
+  .btn:active{transform:translateY(0)}
+  .btn-yellow{background:var(--yellow);color:var(--ink)}
+  .btn-ghost-d{border-color:#3A3A3A;color:#F2F0EA;background:transparent}
+  .btn-ghost-d:hover{border-color:#5a5a5a}
+  .btn-ghost-l{border-color:#C9C4B4;color:var(--ink);background:transparent}
+  @media (max-width:900px){.nav-links,.signin{display:none}}
+
+  /* ============ hero ============ */
+  .hero{padding:96px 0 110px;position:relative;overflow:hidden}
+  .hero-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:64px;align-items:center}
+  .eyebrow{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--yellow);margin-bottom:26px}
+  .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--yellow)}
+  h1{font-family:var(--disp);font-weight:800;font-size:clamp(2.8rem,5.8vw,4.9rem);line-height:.98;letter-spacing:-.03em;margin-bottom:26px}
+  h1 .yl{color:var(--yellow)}
+  .hero p.lede{font-size:18px;color:var(--muted-d);max-width:47ch;margin-bottom:38px}
+  .hero-ctas{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:30px}
+  .hero-note{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;color:var(--muted-d)}
+  .hero-note::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--up);animation:pulse 2.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  @media (prefers-reduced-motion:reduce){.hero-note::before{animation:none}}
+
+  /* profile card + ghost card */
+  .cardstack{position:relative;justify-self:end;width:100%;max-width:470px}
+  .ghost{position:absolute;inset:-26px -26px auto auto;width:100%;height:100%;border:1px solid var(--line-d);border-radius:20px;background:var(--bg-soft)}
+  .pcard{position:relative;background:var(--card);color:var(--ink);border-radius:18px;padding:26px 28px 24px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+  .pcard-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+  .pcard-live{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted-l)}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;font-weight:600;background:#FFF6D6;border-radius:99px;padding:5px 12px}
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--up)}
+  .pcard-id{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:20px}
+  .pcard-who{display:flex;gap:14px;align-items:center}
+  .avatar{width:52px;height:52px;border-radius:13px;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-family:var(--disp);font-weight:800;font-size:17px;flex-shrink:0}
+  .pname{font-family:var(--disp);font-weight:700;font-size:20px;line-height:1.15}
+  .phandle{font-family:var(--mono);font-size:12.5px;color:var(--muted-l)}
+  .er-big{text-align:right}
+  .er-big b{display:block;font-family:var(--mono);font-weight:600;font-size:30px;letter-spacing:-.03em;line-height:1}
+  .er-big span{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted-l)}
+  .er-vs{font-family:var(--mono);font-size:11px;color:var(--up);display:block;margin-top:4px}
+  .pstats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+  .pstat{background:var(--paper);border-radius:12px;padding:14px 14px 12px}
+  .pstat b{display:block;font-family:var(--mono);font-weight:600;font-size:19px;letter-spacing:-.02em}
+  .pstat b small{font-size:12px;font-weight:500;color:var(--muted-l)}
+  .pstat span{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted-l)}
+  .plabel{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.11em;color:var(--muted-l);margin-bottom:9px}
+  .mixbar{display:flex;height:14px;border-radius:99px;overflow:hidden;margin-bottom:7px;background:#E9E5D9}
+  .mix-v{background:var(--yellow)}
+  .mix-c{background:var(--ink)}
+  .mixkey{display:flex;gap:18px;font-family:var(--mono);font-size:11px;color:var(--muted-l);margin-bottom:20px}
+  .mixkey i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:6px}
+  .brands{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:20px}
+  .brand{font-family:var(--mono);font-size:11.5px;font-weight:500;border-radius:99px;padding:6px 13px;background:var(--ink);color:#F2F0EA}
+  .brand.more{background:transparent;color:var(--muted-l);border:1px dashed #CFC9B8}
+  .pcard-foot{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line-l);padding-top:16px}
+  .pcard-foot .when{font-family:var(--mono);font-size:11.5px;color:var(--muted-l)}
+  .openp{font-weight:600;font-size:14px;border-bottom:2px solid var(--yellow);padding-bottom:1px}
+  @media (max-width:940px){
+    .hero-grid{grid-template-columns:1fr;gap:56px}
+    .cardstack{justify-self:start}
+    .ghost{inset:auto auto -20px -20px}
+  }
+
+  /* ============ yellow band ============ */
+  .band{background:var(--yellow);color:var(--ink)}
+  .band-in{display:flex;justify-content:space-between;gap:12px;padding:26px 0;flex-wrap:wrap}
+  .band-stat{display:flex;align-items:baseline;gap:10px}
+  .band-stat b{font-family:var(--mono);font-weight:600;font-size:clamp(1.3rem,2.4vw,1.7rem);letter-spacing:-.02em}
+  .band-stat span{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;font-weight:500}
+  @media (max-width:900px){.band-in{justify-content:flex-start;gap:26px}}
+
+  /* ============ leaderboard (light) ============ */
+  .board{background:var(--paper);color:var(--ink);padding:100px 0 90px}
+  .board-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:38px;flex-wrap:wrap}
+  .eyebrow-l{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted-l);margin-bottom:12px}
+  h2{font-family:var(--disp);font-weight:800;font-size:clamp(1.9rem,3.8vw,2.9rem);letter-spacing:-.025em;line-height:1.05}
+  .hl-u{box-shadow:inset 0 -0.28em 0 var(--yellow)}
+  .board-hint{font-size:14px;color:var(--muted-l);text-align:right;line-height:1.5}
+  .tablecard{background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 2px 24px rgba(20,18,10,.06)}
+  table{width:100%;border-collapse:collapse}
+  thead th{background:var(--ink);color:#C9C6BD;font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;font-weight:500;text-align:left;padding:14px 20px}
+  thead th.sorted{color:var(--yellow)}
+  tbody td{padding:16px 20px;border-bottom:1px solid #EFECE2;font-size:15px;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:none}
+  tbody tr{transition:background .1s}
+  tbody tr:hover{background:#FFFBEB}
+  .rk{font-family:var(--mono);font-weight:600;font-size:16px;color:#B9B5A6;width:52px}
+  tr:nth-child(-n+3) .rk{color:var(--ink)}
+  .who{display:flex;gap:13px;align-items:center}
+  .who .avatar{width:42px;height:42px;border-radius:11px;font-size:14px}
+  .who .avatar.inkv{background:var(--ink);color:#fff}
+  .who .nm{font-weight:600;font-size:15px;line-height:1.2}
+  .who .hd{font-family:var(--mono);font-size:12px;color:var(--muted-l)}
+  .plat{font-family:var(--mono);font-size:11px;font-weight:500;border:1px solid #D8D3C3;border-radius:99px;padding:4px 12px;color:var(--muted-l)}
+  .cat{font-size:14px;color:#3E3B33}
+  .fl{font-family:var(--mono);font-size:14.5px;text-align:right}
+  .er-wrap{display:flex;align-items:center;gap:14px;justify-content:flex-end}
+  .er-track{width:120px;height:7px;border-radius:99px;background:#ECE8DB;overflow:hidden}
+  .er-fill{height:100%;background:var(--yellow);border-radius:99px}
+  .er-val{font-family:var(--mono);font-weight:600;font-size:14.5px;width:56px;text-align:right}
+  .d30{font-family:var(--mono);font-size:13px;font-weight:500;text-align:right;color:var(--up)}
+  .d30.neg{color:var(--down)}
+  .spark{width:86px;height:26px}
+  .spark polyline{fill:none;stroke:var(--ink);stroke-width:1.6}
+  .spark circle{fill:var(--yellow);stroke:var(--ink);stroke-width:1.4}
+  .tfoot{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;background:#FBFAF4;font-size:14px;color:var(--muted-l);flex-wrap:wrap;gap:10px}
+  .tfoot a{font-weight:600;color:var(--ink);border-bottom:2px solid var(--yellow);padding-bottom:1px}
+  @media (max-width:980px){.cat-col,.fl-col,.spark-col{display:none}}
+  @media (max-width:640px){.d30-col{display:none}.er-track{width:70px}}
+
+  /* ============ methodology ============ */
+  .method{background:var(--paper);color:var(--ink);padding:0 0 100px}
+  .method-rule{border-top:2px solid var(--ink);margin-bottom:56px}
+  .method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:48px}
+  .m-k{font-family:var(--mono);font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-l);margin-bottom:16px}
+  .method-grid p{font-size:15.5px;color:#3E3B33}
+  @media (max-width:840px){.method-grid{grid-template-columns:1fr;gap:36px}}
+
+  /* ============ cta ============ */
+  .cta{padding:120px 0}
+  .cta h2{color:#F2F0EA;font-size:clamp(2.2rem,5vw,3.6rem);max-width:14ch;margin-bottom:26px}
+  .cta .yl{color:var(--yellow)}
+  .cta p{font-size:17px;color:var(--muted-d);max-width:46ch;margin-bottom:38px}
+  .cta-ctas{display:flex;gap:14px;flex-wrap:wrap}
+
+  /* ============ footer ============ */
+  footer{border-top:1px solid var(--line-d);padding:34px 0}
+  .foot-in{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;font-size:13.5px;color:var(--muted-d)}
+  .foot-links{display:flex;gap:24px;flex-wrap:wrap}
+  .foot-links a:hover{color:#fff}
+  .foot-brand{font-family:var(--disp);font-weight:800;font-size:16px;color:#F2F0EA}
+  .foot-brand em{font-style:normal;color:var(--yellow)}
+</style>
+</head>
+<body>
+
+<!-- ticker · PLACEHOLDER DATA — wire to supabase.rpc('ticker_sample') -->
+<div class="ticker" aria-hidden="true"><div class="ticker-track" id="tickerTrack"></div></div>
+
+<nav>
+  <div class="wrap nav-in">
+    <a class="logo" href="#"><span class="logo-mark"><i></i><i></i><i></i></span>Influence<em>IT</em></a>
+    <div class="nav-links">
+      <a href="#board">Leaderboard</a><a href="#">Creators</a><a href="#">Compare</a><a href="#method">Methodology</a>
+    </div>
+    <div class="nav-right">
+      <a class="signin" href="#">Sign in</a>
+      <a class="btn btn-yellow" href="#">Explore the database</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ hero ============ -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow">Creator intelligence database</div>
+      <!-- count: PLACEHOLDER — public_stats().creators -->
+      <h1><span id="creatorCount">4,512</span> creators.<br><span class="yl">Zero guesswork.</span></h1>
+      <p class="lede">InfluenceIT indexes real engagement, content mix, and detected brand deals across Instagram and TikTok — so your shortlist is built on evidence, not follower counts.</p>
+      <div class="hero-ctas">
+        <a class="btn btn-yellow" href="#board">See the leaderboard</a>
+        <a class="btn btn-ghost-d" href="#method">How the numbers work</a>
+      </div>
+      <div class="hero-note">Index updated <span class="mono">&nbsp;Jul 2, 2026&nbsp;</span> · every stat on this page is read from the live database</div>
+    </div>
+
+    <!-- hero profile card · PLACEHOLDER creator — swap for a real featured profile -->
+    <div class="cardstack">
+      <div class="ghost" aria-hidden="true"></div>
+      <div class="pcard" role="figure" aria-label="Featured creator profile">
+        <div class="pcard-head">
+          <span class="pcard-live">Live from the database</span>
+          <span class="pill">Active</span>
+        </div>
+        <div class="pcard-id">
+          <div class="pcard-who">
+            <div class="avatar">MV</div>
+            <div>
+              <div class="pname">Marisol Vega</div>
+              <div class="phandle">@marisol.vega · TikTok · Lisbon</div>
+            </div>
+          </div>
+          <div class="er-big">
+            <b>11.8%</b><span>engagement</span>
+            <span class="er-vs">▲ vs 5.8% category median</span>
+          </div>
+        </div>
+        <div class="pstats">
+          <div class="pstat"><b>89K</b><span>followers</span></div>
+          <div class="pstat"><b>4.1<small>/wk</small></b><span>posts</span></div>
+          <div class="pstat"><b>96K</b><span>avg views</span></div>
+        </div>
+        <div class="plabel">Content mix</div>
+        <div class="mixbar"><div class="mix-v" style="width:72%"></div><div class="mix-c" style="width:21%"></div></div>
+        <div class="mixkey">
+          <span><i style="background:var(--yellow)"></i>Video 72%</span>
+          <span><i style="background:var(--ink)"></i>Carousel 21%</span>
+          <span><i style="background:#C9C4B4"></i>Photo 7%</span>
+        </div>
+        <div class="plabel">Brand partnerships detected · 8</div>
+        <div class="brands">
+          <span class="brand">Sézane</span><span class="brand">Aesop</span><span class="brand">On Running</span><span class="brand">Rhode</span><span class="brand more">+4 more</span>
+        </div>
+        <div class="pcard-foot">
+          <span class="when">Data calculated Jul 2, 2026</span>
+          <a class="openp" href="#">Open full profile →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ yellow band · PLACEHOLDER — public_stats() ============ -->
+<section class="band" aria-label="Index statistics">
+  <div class="wrap band-in">
+    <div class="band-stat"><b>4,512</b><span>creators indexed</span></div>
+    <div class="band-stat"><b>5.8%</b><span>median engagement</span></div>
+    <div class="band-stat"><b>54</b><span>categories</span></div>
+    <div class="band-stat"><b>38,400</b><span>posts analyzed</span></div>
+    <div class="band-stat"><b>Jul 2, 2026</b><span>last index run</span></div>
+  </div>
+</section>
+
+<!-- ============ leaderboard ============ -->
+<section class="board" id="board">
+  <div class="wrap">
+    <div class="board-head">
+      <div>
+        <div class="eyebrow-l">The leaderboard</div>
+        <h2>Top 10 by engagement, <span class="hl-u">right now.</span></h2>
+      </div>
+      <div class="board-hint">Ranked live from the index.<br>Click a column to re-sort.</div>
+    </div>
+
+    <div class="tablecard">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Creator</th><th>Platform</th><th class="cat-col">Category</th>
+            <th class="fl-col" style="text-align:right">Followers</th>
+            <th class="sorted" style="text-align:right">Engagement ↓</th>
+            <th class="d30-col" style="text-align:right">30-day</th>
+            <th class="spark-col" style="text-align:right">Trend</th>
+          </tr>
+        </thead>
+        <tbody id="lbBody"></tbody>
+      </table>
+      <div class="tfoot">
+        <span>Showing 10 of <span class="mono">4,512</span> indexed creators</span>
+        <a href="#">Browse the full database →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ methodology ============ -->
+<section class="method" id="method">
+  <div class="wrap">
+    <div class="method-rule"></div>
+    <div class="method-grid">
+      <div>
+        <div class="m-k">01 — Measured, not claimed</div>
+        <p>Engagement is calculated from each creator's recent posts — likes, comments, and views against reach. No self-reported media kits.</p>
+      </div>
+      <div>
+        <div class="m-k">02 — Deals, detected</div>
+        <p>We scan captions and tags for #ad, #collaboration, and brand mentions, so you see who a creator already works with before you reach out.</p>
+      </div>
+      <div>
+        <div class="m-k">03 — One source of truth</div>
+        <p>Every number on this page — the hero card, the ticker, the leaderboard — is read from the same index, recalculated Jul 2, 2026.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ cta ============ -->
+<section class="cta">
+  <div class="wrap">
+    <h2>Your next shortlist is <span class="yl">already ranked.</span></h2>
+    <p>Search 4,512 creators by engagement, category, and detected partnerships. Free to explore — no demo call required.</p>
+    <div class="cta-ctas">
+      <a class="btn btn-yellow" href="#">Explore the database</a>
+      <a class="btn btn-ghost-d" href="#">Compare creators</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-in">
+    <span class="foot-brand">Influence<em>IT</em></span>
+    <div class="foot-links">
+      <a href="#">Browse creators</a><a href="#">Compare</a><a href="#">Blog</a><a href="#">Privacy</a><a href="#">Terms</a>
+    </div>
+    <span>© 2026 InfluenceIT · an LMG Media platform</span>
+  </div>
+</footer>
+
+<script>
+/* =========================================================
+   ALL DATA BELOW IS PLACEHOLDER.
+   Production wiring (later step):
+   - creator count + band stats  → supabase.rpc('public_stats')
+   - leaderboard rows            → supabase.rpc('top_creators', {limit:10})
+   - ticker                      → supabase.rpc('ticker_sample')
+   ========================================================= */
+
+const rows = [
+  {n:"Kate Coffey",    h:"katecoffey",   p:"IG",     c:"Lifestyle",         f:"161K", er:20.2, d:+2.4},
+  {n:"Marisol Vega",   h:"marisol.vega", p:"TikTok", c:"Fitness & Wellness",f:"89K",  er:17.8, d:+1.1},
+  {n:"Tunde Okafor",   h:"tunde.codes",  p:"TikTok", c:"Tech",              f:"212K", er:15.3, d:+3.2},
+  {n:"Lena Kowalczyk", h:"lena.away",    p:"IG",     c:"Travel",            f:"76K",  er:14.1, d:-0.6},
+  {n:"Priya Raghavan", h:"priyacooks",   p:"IG",     c:"Food",              f:"134K", er:12.9, d:+1.8},
+  {n:"Jonas Lindqvist",h:"jonaslind",    p:"TikTok", c:"Comedy",            f:"340K", er:11.4, d:+0.9},
+  {n:"Amara Diallo",   h:"amarastyle",   p:"IG",     c:"Fashion",           f:"98K",  er:10.7, d:+1.5},
+  {n:"Diego Fuentes",  h:"diegolifts",   p:"TikTok", c:"Fitness & Wellness",f:"187K", er:9.8,  d:-1.2},
+  {n:"Hana Sato",      h:"hana.desk",    p:"IG",     c:"AI Influencers",    f:"66K",  er:9.1,  d:+2.1},
+  {n:"Callum Brooks",  h:"callum.rides", p:"IG",     c:"Luxury",            f:"254K", er:8.6,  d:+0.4}
+];
+
+function spark(delta){
+  // deterministic little trend line matching the delta's direction
+  let pts=[], y=20;
+  for(let i=0;i<8;i++){
+    y += (delta>=0?-1.6:1.6) + ((i*7)%5-2)*0.9;
+    y = Math.max(4,Math.min(23,y));
+    pts.push(`${4+i*10},${y.toFixed(1)}`);
+  }
+  const last=pts[pts.length-1].split(",");
+  return `<svg class="spark" viewBox="0 0 90 26" aria-hidden="true"><polyline points="${pts.join(" ")}"/><circle cx="${last[0]}" cy="${last[1]}" r="2.6"/></svg>`;
+}
+
+const maxEr = Math.max(...rows.map(r=>r.er));
+const initials = n => n.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+
+document.getElementById("lbBody").innerHTML = rows.map((r,i)=>`
+  <tr>
+    <td class="rk">${String(i+1).padStart(2,"0")}</td>
+    <td><div class="who">
+      <div class="avatar ${i%2? "inkv":""}">${initials(r.n)}</div>
+      <div><div class="nm">${r.n}</div><div class="hd">@${r.h}</div></div>
+    </div></td>
+    <td><span class="plat">${r.p}</span></td>
+    <td class="cat cat-col">${r.c}</td>
+    <td class="fl fl-col">${r.f}</td>
+    <td><div class="er-wrap">
+      <span class="er-track"><span class="er-fill" style="display:block;width:${(r.er/maxEr)*100}%"></span></span>
+      <span class="er-val">${r.er.toFixed(1)}%</span>
+    </div></td>
+    <td class="d30 d30-col ${r.d<0?"neg":""}">${r.d>0?"+":""}${r.d.toFixed(1)} pts</td>
+    <td class="spark-col" style="text-align:right">${spark(r.d)}</td>
+  </tr>`).join("");
+
+const ticks = rows.map(r=>[r.h, r.er, r.d]);
+const item = t => `<span class="tick-item">@${t[0]} <b class="${t[2]<0?'dn':''}">${t[2]<0?'▼':'▲'} ${t[1].toFixed(1)}%</b></span>`;
+const half = ticks.map(item).join("");
+document.getElementById("tickerTrack").innerHTML = half + half;
+</script>
+</body>
+</html>

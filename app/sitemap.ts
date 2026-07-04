@@ -6,22 +6,25 @@ import { getAllEsSlugs } from '@/lib/discover/es-config';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const { data: creators } = await supabase
-    .from('v_creator_summary')
-    .select('instagram_handle, tiktok_handle, creator_id')
+    .from('social_profiles')
+    .select('handle, last_updated_at')
+    .gte('follower_count', 50000)
+    .lte('follower_count', 500000)
     .limit(10000);
 
-  const creatorPages = (creators || [])
-    .map((creator) => {
-      const handle = creator.instagram_handle || creator.tiktok_handle;
-      if (!handle) return null;
-      return {
-        url: `https://influenceit.app/creators/${handle}`,
-        lastModified: new Date(),
-        changeFrequency: 'weekly' as const,
-        priority: 0.7,
-      };
+  const seenHandles = new Set<string>();
+  const creatorPages: MetadataRoute.Sitemap = (creators || [])
+    .filter((creator) => {
+      if (!creator.handle || seenHandles.has(creator.handle)) return false;
+      seenHandles.add(creator.handle);
+      return true;
     })
-    .filter(Boolean) as MetadataRoute.Sitemap;
+    .map((creator) => ({
+      url: `https://influenceit.app/creators/${creator.handle}`,
+      lastModified: creator.last_updated_at ? new Date(creator.last_updated_at) : new Date('2026-03-29'),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    }));
 
   const discoverSlugs = getAllSlugs();
   const discoverPages: MetadataRoute.Sitemap = discoverSlugs.map((slug) => ({
