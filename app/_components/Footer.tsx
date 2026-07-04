@@ -8,7 +8,10 @@ export function Footer() {
         <div className="foot-links">
           <Link href="/creators">Browse creators</Link>
           <Link href="/compare">Compare</Link>
+          <Link href="/discover">Discover</Link>
           <Link href="/blog">Blog</Link>
+          <Link href="/about">About</Link>
+          <Link href="/contact">Contact</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/terms">Terms</Link>
         </div>
