@@ -391,12 +391,16 @@ function PlatformMetrics({ profile }: { profile: SocialProfile }) {
   );
 }
 
-function SimilarCreatorCard({ creator }: { creator: any }) {
+function SimilarCreatorCard({ creator, isLoggedIn }: { creator: any; isLoggedIn: boolean }) {
   const handle = creator.instagram_handle ?? creator.tiktok_handle;
   const engagement = creator.instagram_engagement ?? creator.tiktok_engagement;
   if (!handle) return null;
+  const profilePath = `/creators/${handle}`;
+  // Cards stay fully visible for logged-out visitors — only the click is gated,
+  // so browsing one profile can't be used to traverse the whole database for free.
+  const href = isLoggedIn ? profilePath : `/login?redirectTo=${encodeURIComponent(profilePath)}`;
   return (
-    <Link href={`/creators/${handle}`} style={{ textDecoration: 'none' }}>
+    <Link href={href} style={{ textDecoration: 'none' }}>
       <div className="card" style={{ padding: '14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
         <div style={{ width: '36px', height: '36px', borderRadius: '50%', backgroundColor: '#FFF0F5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <span style={{ fontSize: '11px', fontWeight: 600, color: '#FF4D94' }}>
@@ -735,7 +739,7 @@ export default async function CreatorProfilePage({
               <div className="card" style={{ padding: '24px' }}>
                 <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Similar Creators</h2>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {similarCreators.map((c) => <SimilarCreatorCard key={c.creator_id} creator={c} />)}
+                  {similarCreators.map((c) => <SimilarCreatorCard key={c.creator_id} creator={c} isLoggedIn={isLoggedIn} />)}
                 </div>
               </div>
             )}
