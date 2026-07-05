@@ -10,8 +10,35 @@ import type { User } from '@supabase/supabase-js';
 // hangs — e.g. a token-refresh fetch with no network timeout — every later
 // auth call, including signOut, queues behind it and hangs too. Timeouts
 // here are what let loading and signOut recover instead of hanging forever.
-const AUTH_INIT_TIMEOUT_MS = 10_000;
+//
+// 15s (up from an initial 10s) plus one silent retry below: a single slow
+// response — which is what we've actually seen in practice, not a true
+// deadlock — now gets a second chance before we bother the user with an
+// error state. If the [auth] timeout logs below show a *specific* step
+// (e.g. "brand_profiles query") consistently eating most of this budget,
+// that's the real underlying bug to chase, not this timeout value.
+const AUTH_INIT_TIMEOUT_MS = 15_000;
 const SIGN_OUT_TIMEOUT_MS = 5_000;
+
+// Tracks whichever auth/profile call is currently in flight, purely so that
+// if the overall check times out we can log *which* step was still pending
+// and for how long — otherwise a timeout tells you nothing about whether
+// the slow part was getSession, the token refresh underneath it, or one of
+// the profile queries.
+type Stage = { label: string; start: number } | null;
+
+async function timed<T>(stageRef: { current: Stage }, label: string, promise: PromiseLike<T>): Promise<T> {
+  const start = Date.now();
+  stageRef.current = { label, start };
+  const result = await promise;
+  if (stageRef.current?.start === start) stageRef.current = null;
+  return result;
+}
+
+function describeStage(stage: Stage): string {
+  if (!stage) return 'no specific step recorded (already finished before the timeout fired)';
+  return `"${stage.label}", in flight for ${Date.now() - stage.start}ms`;
+}
 
 interface BrandProfile {
   id: string;
@@ -74,13 +101,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [authError, setAuthError] = useState<string | null>(null);
   const [retryToken, setRetryToken] = useState(0);
   const isMounted = useRef(true);
+  const stageRef = useRef<Stage>(null);
 
   async function loadProfileForUser(userId: string) {
-    const { data: roleData } = await supabase
+    const { data: roleData } = await timed(stageRef, 'user_roles query', supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', userId)
-      .single();
+      .single());
 
 
     const role = roleData?.role ?? null;
@@ -92,23 +120,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setBrandProfile(null);
       setCreatorProfile(null);
     } else if (role === 'creator') {
-      const { data } = await supabase
+      const { data } = await timed(stageRef, 'creator_profiles query', supabase
         .from('creator_profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .single());
       if (!isMounted.current) return;
       setCreatorProfile(data ?? null);
       setBrandProfile(null);
     } else {
-      const { data } = await supabase
+      const { data } = await timed(stageRef, 'brand_profiles query', supabase
         .from('brand_profiles')
         .select('*')
         .eq('id', userId)
-        .single();
+        .single());
       if (!isMounted.current) return;
       setBrandProfile(data ?? null);
       setCreatorProfile(null);
+    }
+  }
+
+  // Runs `fn` under the timeout budget; if it fails (times out or throws),
+  // logs which step was in flight and retries once, silently, before ever
+  // touching `authError`. Most real-world failures here are one slow
+  // response, not a genuine deadlock, so a single retry clears the vast
+  // majority of them without ever showing the user anything.
+  async function runSessionCheck(label: string, fn: () => Promise<void>): Promise<void> {
+    try {
+      await withTimeout(fn(), AUTH_INIT_TIMEOUT_MS);
+      if (isMounted.current) setAuthError(null);
+      return;
+    } catch (e) {
+      console.warn(`[auth] ${label} failed on first attempt (${describeStage(stageRef.current)}), retrying silently:`, e);
+    }
+
+    try {
+      await withTimeout(fn(), AUTH_INIT_TIMEOUT_MS);
+      if (isMounted.current) setAuthError(null);
+    } catch (e) {
+      console.error(`[auth] ${label} failed again on retry (${describeStage(stageRef.current)}), giving up:`, e);
+      if (isMounted.current) setAuthError('Failed to verify your session.');
     }
   }
 
@@ -119,40 +170,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // flaky connection — there's no timeout anywhere in supabase-js for
     // this. Race it so `loading` always resolves instead of leaving every
     // admin/brand/creator page stuck on "Loading...".
-    withTimeout(supabase.auth.getSession(), AUTH_INIT_TIMEOUT_MS)
-      .then(async ({ data: { session } }) => {
+    (async () => {
+      await runSessionCheck('initial session check', async () => {
+        const { data: { session } } = await timed(stageRef, 'getSession', supabase.auth.getSession());
         if (!isMounted.current) return;
         setUser(session?.user ?? null);
-        setAuthError(null);
-        if (session?.user) await withTimeout(loadProfileForUser(session.user.id), AUTH_INIT_TIMEOUT_MS);
-      })
-      .catch((e) => {
-        console.error('getSession/loadProfile error:', e);
-        if (!isMounted.current) return;
-        setAuthError('Failed to verify your session.');
-      })
-      .finally(() => {
-        if (isMounted.current) setLoading(false);
+        if (session?.user) await loadProfileForUser(session.user.id);
       });
+      if (isMounted.current) setLoading(false);
+    })();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (!isMounted.current) return;
       setUser(session?.user ?? null);
-      try {
+      await runSessionCheck('auth state change sync', async () => {
         if (session?.user) {
-          await withTimeout(loadProfileForUser(session.user.id), AUTH_INIT_TIMEOUT_MS);
+          await loadProfileForUser(session.user.id);
         } else {
           setBrandProfile(null);
           setCreatorProfile(null);
           setUserRole(null);
         }
-        if (isMounted.current) setAuthError(null);
-      } catch (e) {
-        console.error('onAuthStateChange loadProfile error:', e);
-        if (isMounted.current) setAuthError('Failed to verify your session.');
-      } finally {
-        if (isMounted.current) setLoading(false);
-      }
+      });
     });
 
     return () => {
