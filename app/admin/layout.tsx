@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -19,6 +20,7 @@ const sidebarLinks = [
 function AdminSidebar() {
   const pathname = usePathname();
   const { signOut } = useAuth();
+  const [signingOut, setSigningOut] = useState(false);
 
   return (
     <div style={{ width: '220px', minHeight: '100vh', backgroundColor: '#3A3A3A', display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'sticky', top: 0, height: '100vh' }}>
@@ -48,9 +50,13 @@ function AdminSidebar() {
           <ArrowLeft size={15} />
           Back to Site
         </Link>
-        <button onClick={() => { signOut(); }} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, color: '#9CA3AF', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}>
+        <button
+          onClick={() => { if (!signingOut) { setSigningOut(true); signOut(); } }}
+          disabled={signingOut}
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, color: '#9CA3AF', background: 'none', border: 'none', cursor: signingOut ? 'default' : 'pointer', width: '100%', textAlign: 'left', opacity: signingOut ? 0.6 : 1 }}
+        >
           <LogOut size={15} />
-          Sign Out
+          {signingOut ? 'Signing out...' : 'Sign Out'}
         </button>
       </div>
     </div>
@@ -58,7 +64,7 @@ function AdminSidebar() {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { user, userRole, loading } = useAuth();
+  const { user, userRole, loading, authError, retryAuth } = useAuth();
 
   // While loading, show a minimal shell with sidebar so it doesn't flash
   if (loading) {
@@ -67,6 +73,25 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <AdminSidebar />
         <main style={{ flex: 1, padding: '32px', backgroundColor: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
+        </main>
+      </div>
+    );
+  }
+
+  // Auth check itself failed (e.g. a hung/timed-out session refresh) — show
+  // a retry instead of either spinning forever or force-signing out someone
+  // who might still have a perfectly valid session.
+  if (authError) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <AdminSidebar />
+        <main style={{ flex: 1, padding: '32px', backgroundColor: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ color: '#DC2626', fontSize: '14px', margin: '0 0 12px 0' }}>{authError} — retry</p>
+            <button onClick={retryAuth} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FFD700', color: 'white' }}>
+              Retry
+            </button>
+          </div>
         </main>
       </div>
     );

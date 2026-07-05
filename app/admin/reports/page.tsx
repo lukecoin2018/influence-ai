@@ -38,6 +38,7 @@ export default function AdminReportsPage() {
 
   const [reports, setReports] = useState<BrandReport[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [creating, setCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -66,10 +67,17 @@ export default function AdminReportsPage() {
 
   async function loadReports() {
     setDataLoading(true);
-    const { data, error } = await supabase.from('brand_reports').select('*').order('created_at', { ascending: false });
-    if (error) setToast({ message: 'Failed to load reports', type: 'error' });
-    else setReports(data ?? []);
-    setDataLoading(false);
+    setLoadError(null);
+    try {
+      const { data, error } = await supabase.from('brand_reports').select('*').order('created_at', { ascending: false });
+      if (error) throw error;
+      setReports(data ?? []);
+    } catch (err) {
+      console.error('Failed to load brand_reports:', err);
+      setLoadError(err instanceof Error ? err.message : 'Failed to load reports');
+    } finally {
+      setDataLoading(false);
+    }
   }
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -77,30 +85,40 @@ export default function AdminReportsPage() {
     if (!brandName.trim()) return;
     if (mode === 'manual' && !category.trim()) { setToast({ message: 'Category is required for manual mode', type: 'error' }); return; }
     setCreating(true);
-    const { error } = await supabase.from('brand_reports').insert({
-      brand_name: brandName.trim(),
-      slug: slug.trim() || toSlug(brandName),
-      brand_handle: brandHandle.trim() || null,
-      category: category.trim() || null,
-      mode,
-    });
-    if (error) {
-      setToast({ message: error.message.includes('unique') ? 'A report with that slug already exists' : error.message, type: 'error' });
-    } else {
+    try {
+      const { error } = await supabase.from('brand_reports').insert({
+        brand_name: brandName.trim(),
+        slug: slug.trim() || toSlug(brandName),
+        brand_handle: brandHandle.trim() || null,
+        category: category.trim() || null,
+        mode,
+      });
+      if (error) throw error;
       setToast({ message: 'Report created!', type: 'success' });
       setBrandName(''); setSlug(''); setBrandHandle(''); setCategory(''); setMode('auto'); setSlugEdited(false);
       loadReports();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to create report';
+      setToast({ message: message.includes('unique') ? 'A report with that slug already exists' : message, type: 'error' });
+    } finally {
+      setCreating(false);
     }
-    setCreating(false);
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Delete this report? This cannot be undone.')) return;
     setDeletingId(id);
-    const { error } = await supabase.from('brand_reports').delete().eq('id', id);
-    if (error) setToast({ message: 'Failed to delete report', type: 'error' });
-    else { setToast({ message: 'Report deleted', type: 'success' }); loadReports(); }
-    setDeletingId(null);
+    try {
+      const { error } = await supabase.from('brand_reports').delete().eq('id', id);
+      if (error) throw error;
+      setToast({ message: 'Report deleted', type: 'success' });
+      loadReports();
+    } catch (err) {
+      console.error('Failed to delete report:', err);
+      setToast({ message: 'Failed to delete report', type: 'error' });
+    } finally {
+      setDeletingId(null);
+    }
   };
 
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://influenceit.app';
@@ -172,6 +190,13 @@ export default function AdminReportsPage() {
         </div>
         {dataLoading ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF', fontSize: '13px' }}>Loading…</div>
+        ) : loadError ? (
+          <div style={{ padding: '40px', textAlign: 'center' }}>
+            <p style={{ color: '#DC2626', fontSize: '13px', margin: '0 0 8px 0' }}>Failed to load — {loadError}</p>
+            <button onClick={loadReports} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FFD700', color: 'white' }}>
+              Retry
+            </button>
+          </div>
         ) : reports.length === 0 ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF', fontSize: '13px' }}>No reports yet. Create one above.</div>
         ) : (

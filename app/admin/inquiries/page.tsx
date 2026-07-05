@@ -10,6 +10,7 @@ export default function AdminInquiriesPage() {
   const router = useRouter();
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (loading) return;
@@ -19,12 +20,20 @@ export default function AdminInquiriesPage() {
 
   async function load() {
     setDataLoading(true);
-    const { data } = await supabase
-      .from('inquiries')
-      .select('*, brand_profiles(company_name, email), creators!creator_id(name, instagram_handle, tiktok_handle, contact_email)')
-      .order('created_at', { ascending: false });
-    setInquiries(data ?? []);
-    setDataLoading(false);
+    setLoadError(null);
+    try {
+      const { data, error } = await supabase
+        .from('inquiries')
+        .select('*, brand_profiles(company_name, email), creators!creator_id(name, instagram_handle, tiktok_handle, contact_email)')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setInquiries(data ?? []);
+    } catch (err) {
+      console.error('Failed to load inquiries:', err);
+      setLoadError(err instanceof Error ? err.message : 'Failed to load');
+    } finally {
+      setDataLoading(false);
+    }
   }
 
   if (loading) return null;
@@ -35,6 +44,13 @@ export default function AdminInquiriesPage() {
       <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Inquiries</h1>
       {dataLoading ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
+      ) : loadError ? (
+        <div>
+          <p style={{ color: '#DC2626', fontSize: '14px', margin: '0 0 8px 0' }}>Failed to load — {loadError}</p>
+          <button onClick={load} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FFD700', color: 'white' }}>
+            Retry
+          </button>
+        </div>
       ) : inquiries.length === 0 ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>No inquiries yet.</p>
       ) : (

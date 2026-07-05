@@ -1,6 +1,15 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { withTimeout } from '@/lib/withTimeout'
+
+// This runs on nearly every request. getSession() has no built-in timeout,
+// so a slow/hung auth call here would hang navigation for the entire site,
+// not just admin pages. Fail open on timeout — treat it as "session
+// unknown" rather than blocking the request — since the protected routes
+// below are the only ones gated here and a false redirect-to-login is worse
+// for reliability than briefly letting a request through unauthenticated.
+const MIDDLEWARE_AUTH_TIMEOUT_MS = 5_000
 
 export async function middleware(req: NextRequest) {
   let supabaseResponse = NextResponse.next({ request: req })
@@ -26,7 +35,12 @@ export async function middleware(req: NextRequest) {
     }
   )
 
-  const { data: { session } } = await supabase.auth.getSession()
+  const session = await withTimeout(supabase.auth.getSession(), MIDDLEWARE_AUTH_TIMEOUT_MS)
+    .then(({ data }) => data.session)
+    .catch((e) => {
+      console.error('middleware getSession timed out/failed, proceeding without session:', e)
+      return null
+    })
   const { pathname } = req.nextUrl
 
   const isProtected =

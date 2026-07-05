@@ -10,6 +10,7 @@ export default function AdminActivityPage() {
   const router = useRouter();
   const [activity, setActivity] = useState<any[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 30;
 
@@ -21,17 +22,27 @@ export default function AdminActivityPage() {
 
   async function load(pageNum: number) {
     setDataLoading(true);
-    const { data } = await supabase
-      .from('activity_log')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
-    if (pageNum === 0) {
-      setActivity(data ?? []);
-    } else {
-      setActivity((prev) => [...prev, ...(data ?? [])]);
+    setLoadError(null);
+    try {
+      const { data, error } = await supabase
+        .from('activity_log')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .range(pageNum * PAGE_SIZE, (pageNum + 1) * PAGE_SIZE - 1);
+      if (error) throw error;
+      if (pageNum === 0) {
+        setActivity(data ?? []);
+      } else {
+        setActivity((prev) => [...prev, ...(data ?? [])]);
+      }
+    } catch (err) {
+      // Keep whatever's already rendered — a "Load more" failure shouldn't
+      // wipe the page, it should just let you retry that same page.
+      console.error('Failed to load activity_log:', err);
+      setLoadError(err instanceof Error ? err.message : 'Failed to load');
+    } finally {
+      setDataLoading(false);
     }
-    setDataLoading(false);
   }
 
   function activityLabel(event: any) {
@@ -73,6 +84,13 @@ export default function AdminActivityPage() {
 
       {dataLoading && activity.length === 0 ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
+      ) : loadError && activity.length === 0 ? (
+        <div>
+          <p style={{ color: '#DC2626', fontSize: '14px', margin: '0 0 8px 0' }}>Failed to load — {loadError}</p>
+          <button onClick={() => load(0)} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FFD700', color: 'white' }}>
+            Retry
+          </button>
+        </div>
       ) : activity.length === 0 ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>No activity yet.</p>
       ) : (
@@ -92,9 +110,13 @@ export default function AdminActivityPage() {
             </div>
           ))}
 
-          {!dataLoading && activity.length % PAGE_SIZE === 0 && (
-            <button onClick={() => { const next = page + 1; setPage(next); load(next); }} style={{ padding: '10px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', border: '1px solid #E5E7EB', backgroundColor: 'white', color: '#374151' }}>
-              Load More
+          {loadError && (
+            <p style={{ color: '#DC2626', fontSize: '13px', margin: '0 0 8px 0' }}>Failed to load more — {loadError}</p>
+          )}
+
+          {!dataLoading && (loadError || activity.length % PAGE_SIZE === 0) && (
+            <button onClick={() => { const next = loadError ? page : page + 1; setPage(next); load(next); }} style={{ padding: '10px 24px', borderRadius: '8px', fontSize: '14px', fontWeight: 600, cursor: 'pointer', border: '1px solid #E5E7EB', backgroundColor: 'white', color: '#374151' }}>
+              {loadError ? 'Retry' : 'Load More'}
             </button>
           )}
 

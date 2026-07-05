@@ -1,8 +1,17 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
+import { withTimeout } from '@/lib/withTimeout';
 import type { User } from '@supabase/supabase-js';
+
+// supabase-js serializes every auth.* call (getSession, signOut, token
+// refresh...) behind one lock per client instance. If one of those calls
+// hangs — e.g. a token-refresh fetch with no network timeout — every later
+// auth call, including signOut, queues behind it and hangs too. Timeouts
+// here are what let loading and signOut recover instead of hanging forever.
+const AUTH_INIT_TIMEOUT_MS = 10_000;
+const SIGN_OUT_TIMEOUT_MS = 5_000;
 
 interface BrandProfile {
   id: string;
@@ -40,6 +49,8 @@ interface AuthContextType {
   creatorProfile: CreatorProfile | null;
   userRole: 'brand' | 'creator' | 'admin' | null;
   loading: boolean;
+  authError: string | null;
+  retryAuth: () => void;
   signOut: () => Promise<void>;
 }
 
@@ -49,6 +60,8 @@ const AuthContext = createContext<AuthContextType>({
   creatorProfile: null,
   userRole: null,
   loading: true,
+  authError: null,
+  retryAuth: () => {},
   signOut: async () => {},
 });
 
@@ -58,6 +71,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [creatorProfile, setCreatorProfile] = useState<CreatorProfile | null>(null);
   const [userRole, setUserRole] = useState<'brand' | 'creator' | 'admin' | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const [retryToken, setRetryToken] = useState(0);
+  const isMounted = useRef(true);
 
   async function loadProfileForUser(userId: string) {
     const { data: roleData } = await supabase
@@ -68,6 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 
     const role = roleData?.role ?? null;
+    if (!isMounted.current) return;
     setUserRole(role);
 
     if (role === 'admin') {
@@ -80,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .select('*')
         .eq('id', userId)
         .single();
+      if (!isMounted.current) return;
       setCreatorProfile(data ?? null);
       setBrandProfile(null);
     } else {
@@ -88,45 +106,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .select('*')
         .eq('id', userId)
         .single();
+      if (!isMounted.current) return;
       setBrandProfile(data ?? null);
       setCreatorProfile(null);
     }
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      try {
-        if (session?.user) await loadProfileForUser(session.user.id);
-      } catch (e) {
-        console.error('getSession loadProfile error:', e);
-      } finally {
-        setLoading(false);
-      }
-    });
+    isMounted.current = true;
+
+    // getSession() (and the profile lookups after it) can hang forever on a
+    // flaky connection — there's no timeout anywhere in supabase-js for
+    // this. Race it so `loading` always resolves instead of leaving every
+    // admin/brand/creator page stuck on "Loading...".
+    withTimeout(supabase.auth.getSession(), AUTH_INIT_TIMEOUT_MS)
+      .then(async ({ data: { session } }) => {
+        if (!isMounted.current) return;
+        setUser(session?.user ?? null);
+        setAuthError(null);
+        if (session?.user) await withTimeout(loadProfileForUser(session.user.id), AUTH_INIT_TIMEOUT_MS);
+      })
+      .catch((e) => {
+        console.error('getSession/loadProfile error:', e);
+        if (!isMounted.current) return;
+        setAuthError('Failed to verify your session.');
+      })
+      .finally(() => {
+        if (isMounted.current) setLoading(false);
+      });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!isMounted.current) return;
       setUser(session?.user ?? null);
       try {
         if (session?.user) {
-          await loadProfileForUser(session.user.id);
+          await withTimeout(loadProfileForUser(session.user.id), AUTH_INIT_TIMEOUT_MS);
         } else {
           setBrandProfile(null);
           setCreatorProfile(null);
           setUserRole(null);
         }
+        if (isMounted.current) setAuthError(null);
       } catch (e) {
         console.error('onAuthStateChange loadProfile error:', e);
+        if (isMounted.current) setAuthError('Failed to verify your session.');
       } finally {
-        setLoading(false);
+        if (isMounted.current) setLoading(false);
       }
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      isMounted.current = false;
+      subscription.unsubscribe();
+    };
+  }, [retryToken]);
+
+  function retryAuth() {
+    setLoading(true);
+    setAuthError(null);
+    setRetryToken((t) => t + 1);
+  }
 
   async function signOut() {
-    await supabase.auth.signOut();
+    // signOut() must work even if the client's internal auth lock is stuck
+    // behind an earlier hung call (e.g. a token refresh with no timeout) —
+    // supabase-js serializes all auth.* calls per client instance, so a
+    // stuck getSession() would otherwise wedge signOut() too. Race it and
+    // clear local state / redirect unconditionally so the button never dies.
+    await withTimeout(supabase.auth.signOut(), SIGN_OUT_TIMEOUT_MS).catch((e) => {
+      console.error('signOut network call did not complete, clearing local state anyway:', e);
+    });
     setUser(null);
     setBrandProfile(null);
     setCreatorProfile(null);
@@ -135,7 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, brandProfile, creatorProfile, userRole, loading, signOut }}>
+    <AuthContext.Provider value={{ user, brandProfile, creatorProfile, userRole, loading, authError, retryAuth, signOut }}>
       {children}
     </AuthContext.Provider>
   );
