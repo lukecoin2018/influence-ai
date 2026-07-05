@@ -13,7 +13,10 @@
 // classified aliases are skipped on rerun regardless of how many times this
 // is run.
 //
-// Run: node scripts/brand-aliases/classify.mjs
+// Run: node scripts/brand-aliases/classify.mjs [--limit N]
+//   --limit N   process at most N batches (~50 aliases each) then stop —
+//               useful for reviewing raw model output before committing to
+//               a full run. Omit to process every eligible batch.
 import { supabase, paginate, env_ } from './_supabase.mjs';
 import { aggregateDetectedBrands } from './_aggregate.mjs';
 
@@ -25,6 +28,15 @@ const DELAY_BETWEEN_BATCHES_MS = 500;
 
 const ANTHROPIC_API_KEY = env_.ANTHROPIC_API_KEY;
 if (!ANTHROPIC_API_KEY) throw new Error('Missing ANTHROPIC_API_KEY in .env.local');
+
+function parseLimitArg() {
+  const args = process.argv.slice(2);
+  const eqArg = args.find((a) => a.startsWith('--limit='));
+  if (eqArg) return Number(eqArg.split('=')[1]);
+  const flagIndex = args.indexOf('--limit');
+  if (flagIndex !== -1 && args[flagIndex + 1]) return Number(args[flagIndex + 1]);
+  return null;
+}
 
 async function loadEligibleAliases() {
   const aliases = [];
@@ -123,9 +135,16 @@ async function main() {
     return;
   }
 
-  const batches = [];
-  for (let i = 0; i < eligible.length; i += BATCH_SIZE) batches.push(eligible.slice(i, i + BATCH_SIZE));
-  console.log(`Processing ${batches.length} batches of up to ${BATCH_SIZE}...`);
+  const allBatches = [];
+  for (let i = 0; i < eligible.length; i += BATCH_SIZE) allBatches.push(eligible.slice(i, i + BATCH_SIZE));
+
+  const limit = parseLimitArg();
+  const batches = limit != null ? allBatches.slice(0, limit) : allBatches;
+  console.log(
+    `Processing ${batches.length} of ${allBatches.length} batches of up to ${BATCH_SIZE}` +
+      (limit != null ? ` (--limit ${limit})` : '') +
+      '...'
+  );
 
   const now = new Date().toISOString();
   let classifiedCount = 0;
@@ -148,6 +167,10 @@ async function main() {
       failedBatches++;
       continue;
     }
+
+    console.log(`\n--- RAW MODEL OUTPUT (batch ${b + 1}) ---`);
+    console.log(JSON.stringify(results, null, 2));
+    console.log('--- END RAW OUTPUT ---\n');
 
     const updates = [];
     for (const result of results) {
