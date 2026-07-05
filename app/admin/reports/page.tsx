@@ -1,10 +1,20 @@
 // app/admin/reports/page.tsx
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
+import {
+  resolveCanonicalBrand,
+  getBrandActivity,
+  suggestCompetitors,
+  getCompetitorActivities,
+  type BrandActivity,
+  type ResolvedBrand,
+} from '@/lib/reports/brand-activity';
+
+const MAX_COMPETITORS = 3;
 
 interface BrandReport {
   id: string;
@@ -13,11 +23,31 @@ interface BrandReport {
   brand_handle: string | null;
   category: string | null;
   mode: 'auto' | 'manual';
+  competitor_names: string[] | null;
   created_at: string;
 }
 
+type ReportDetail = {
+  loading: boolean;
+  resolved: ResolvedBrand | null;
+  tier1: BrandActivity | null;
+  competitors: BrandActivity[];
+};
+
 function toSlug(name: string): string {
   return name.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+}
+
+async function loadDetail(report: Pick<BrandReport, 'brand_handle' | 'brand_name' | 'competitor_names'>): Promise<ReportDetail> {
+  const resolved = await resolveCanonicalBrand(supabase, { brandHandle: report.brand_handle, brandName: report.brand_name });
+  const tier1 = resolved ? await getBrandActivity(supabase, resolved.canonicalName) : null;
+  let competitors: BrandActivity[] = [];
+  if (report.competitor_names) {
+    competitors = await getCompetitorActivities(supabase, report.competitor_names);
+  } else if (resolved) {
+    competitors = await suggestCompetitors(supabase, { excludeCanonicalName: resolved.canonicalName, category: resolved.category });
+  }
+  return { loading: false, resolved, tier1, competitors };
 }
 
 function CopyButton({ url }: { url: string }) {
@@ -32,11 +62,103 @@ function CopyButton({ url }: { url: string }) {
   );
 }
 
+function ActivitySummary({ detail }: { detail: ReportDetail | undefined }) {
+  if (!detail || detail.loading) return <span style={{ fontSize: '12px', color: '#9CA3AF' }}>Checking activity…</span>;
+  if (!detail.tier1) return <span style={{ fontSize: '12px', color: '#9CA3AF' }}>No detected activity</span>;
+  return (
+    <span style={{ fontSize: '12px', color: '#16a34a' }}>
+      {detail.tier1.sponsoredPosts.toLocaleString()} posts · {detail.tier1.distinctCreators.toLocaleString()} creators
+    </span>
+  );
+}
+
+function CompetitorPicker({
+  id,
+  names,
+  onChange,
+  verifiedOptions,
+  onSuggest,
+  suggesting,
+}: {
+  id: string;
+  names: string[];
+  onChange: (names: string[]) => void;
+  verifiedOptions: string[];
+  onSuggest: () => void;
+  suggesting: boolean;
+}) {
+  const [addValue, setAddValue] = useState('');
+  const available = verifiedOptions.filter((n) => !names.includes(n));
+  const datalistId = `verified-brand-options-${id}`;
+
+  const addCompetitor = () => {
+    const trimmed = addValue.trim();
+    if (!trimmed || names.includes(trimmed) || names.length >= MAX_COMPETITORS) return;
+    if (!verifiedOptions.includes(trimmed)) return; // only verified brands may ever be named in Tier 2
+    onChange([...names, trimmed]);
+    setAddValue('');
+  };
+
+  return (
+    <div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '10px' }}>
+        {names.length === 0 && <span style={{ fontSize: '12px', color: '#9CA3AF' }}>No competitors chosen yet.</span>}
+        {names.map((name) => (
+          <span key={name} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '4px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 500, backgroundColor: 'rgba(255,215,0,0.15)', color: '#92660b' }}>
+            {name}
+            <button type="button" onClick={() => onChange(names.filter((n) => n !== name))} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#92660b', fontWeight: 700, padding: 0, lineHeight: 1 }}>
+              ×
+            </button>
+          </span>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          onClick={onSuggest}
+          disabled={suggesting}
+          style={{ padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, border: '1px solid #E5E7EB', backgroundColor: 'white', color: '#3A3A3A', cursor: suggesting ? 'not-allowed' : 'pointer', opacity: suggesting ? 0.6 : 1 }}
+        >
+          {suggesting ? 'Suggesting…' : 'Auto-suggest'}
+        </button>
+        {names.length < MAX_COMPETITORS && (
+          <>
+            <input
+              list={datalistId}
+              value={addValue}
+              onChange={(e) => setAddValue(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCompetitor(); } }}
+              placeholder="Add a verified competitor…"
+              style={{ padding: '6px 10px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '12px', color: '#3A3A3A', width: '220px' }}
+            />
+            <datalist id={datalistId}>
+              {available.map((n) => <option key={n} value={n} />)}
+            </datalist>
+            <button
+              type="button"
+              onClick={addCompetitor}
+              disabled={!addValue.trim() || !verifiedOptions.includes(addValue.trim())}
+              style={{ padding: '6px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, border: 'none', backgroundColor: '#FFD700', color: '#3A3A3A', cursor: 'pointer' }}
+            >
+              Add
+            </button>
+          </>
+        )}
+        <span style={{ fontSize: '11px', color: '#9CA3AF' }}>{names.length}/{MAX_COMPETITORS} · verified brands only</span>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminReportsPage() {
   const { user, userRole, loading } = useAuth();
   const router = useRouter();
 
   const [reports, setReports] = useState<BrandReport[]>([]);
+  const [details, setDetails] = useState<Record<string, ReportDetail>>({});
+  const [editingCompetitorsId, setEditingCompetitorsId] = useState<string | null>(null);
+  const [editingNames, setEditingNames] = useState<string[]>([]);
+  const [savingCompetitors, setSavingCompetitors] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -50,11 +172,17 @@ export default function AdminReportsPage() {
   const [mode, setMode] = useState<'auto' | 'manual'>('auto');
   const [slugEdited, setSlugEdited] = useState(false);
 
+  const [verifiedBrandOptions, setVerifiedBrandOptions] = useState<string[]>([]);
+  const [formCompetitors, setFormCompetitors] = useState<string[]>([]);
+  const [formSuggesting, setFormSuggesting] = useState(false);
+  const [rowSuggesting, setRowSuggesting] = useState(false);
+
   // Wait for auth exactly like other admin pages do
   useEffect(() => {
     if (loading) return;
     if (!user || userRole !== 'admin') { router.push('/login'); return; }
     loadReports();
+    loadVerifiedBrandOptions();
   }, [loading, user, userRole]);
 
   useEffect(() => {
@@ -65,18 +193,57 @@ export default function AdminReportsPage() {
     if (toast) { const t = setTimeout(() => setToast(null), 3500); return () => clearTimeout(t); }
   }, [toast]);
 
+  async function loadVerifiedBrandOptions() {
+    const { data } = await supabase
+      .from('brand_aliases')
+      .select('canonical_name')
+      .eq('entity_type', 'brand')
+      .eq('verified', true)
+      .not('canonical_name', 'is', null);
+    const names = [...new Set((data ?? []).map((r) => r.canonical_name as string))].sort();
+    setVerifiedBrandOptions(names);
+  }
+
+  const loadReportDetails = useCallback((rows: BrandReport[]) => {
+    for (const report of rows) {
+      setDetails((prev) => ({ ...prev, [report.id]: { loading: true, resolved: null, tier1: null, competitors: [] } }));
+      loadDetail(report).then((detail) => {
+        setDetails((prev) => ({ ...prev, [report.id]: detail }));
+      });
+    }
+  }, []);
+
   async function loadReports() {
     setDataLoading(true);
     setLoadError(null);
     try {
       const { data, error } = await supabase.from('brand_reports').select('*').order('created_at', { ascending: false });
       if (error) throw error;
-      setReports(data ?? []);
+      const rows = (data ?? []) as BrandReport[];
+      setReports(rows);
+      loadReportDetails(rows);
     } catch (err) {
       console.error('Failed to load brand_reports:', err);
       setLoadError(err instanceof Error ? err.message : 'Failed to load reports');
     } finally {
       setDataLoading(false);
+    }
+  }
+
+  async function handleFormSuggest() {
+    if (!brandName.trim() && !brandHandle.trim()) return;
+    setFormSuggesting(true);
+    try {
+      const resolved = await resolveCanonicalBrand(supabase, { brandHandle: brandHandle.trim() || null, brandName: brandName.trim() });
+      if (!resolved) {
+        setToast({ message: 'Could not resolve this brand against brand_aliases — no suggestions available', type: 'error' });
+        return;
+      }
+      const suggestions = await suggestCompetitors(supabase, { excludeCanonicalName: resolved.canonicalName, category: resolved.category });
+      setFormCompetitors(suggestions.map((s) => s.canonicalName));
+      if (suggestions.length === 0) setToast({ message: 'No qualifying competitors found (same category, verified, ≥5 creators)', type: 'error' });
+    } finally {
+      setFormSuggesting(false);
     }
   }
 
@@ -92,10 +259,12 @@ export default function AdminReportsPage() {
         brand_handle: brandHandle.trim() || null,
         category: category.trim() || null,
         mode,
+        competitor_names: formCompetitors.length > 0 ? formCompetitors : null,
       });
       if (error) throw error;
       setToast({ message: 'Report created!', type: 'success' });
       setBrandName(''); setSlug(''); setBrandHandle(''); setCategory(''); setMode('auto'); setSlugEdited(false);
+      setFormCompetitors([]);
       loadReports();
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to create report';
@@ -121,12 +290,47 @@ export default function AdminReportsPage() {
     }
   };
 
+  function startEditingCompetitors(report: BrandReport) {
+    setEditingCompetitorsId(report.id);
+    setEditingNames(report.competitor_names ?? details[report.id]?.competitors.map((c) => c.canonicalName) ?? []);
+  }
+
+  async function handleRowSuggest(report: BrandReport) {
+    setRowSuggesting(true);
+    try {
+      const resolved = await resolveCanonicalBrand(supabase, { brandHandle: report.brand_handle, brandName: report.brand_name });
+      if (!resolved) { setToast({ message: 'Could not resolve this brand', type: 'error' }); return; }
+      const suggestions = await suggestCompetitors(supabase, { excludeCanonicalName: resolved.canonicalName, category: resolved.category });
+      setEditingNames(suggestions.map((s) => s.canonicalName));
+    } finally {
+      setRowSuggesting(false);
+    }
+  }
+
+  async function saveCompetitors(report: BrandReport) {
+    setSavingCompetitors(true);
+    try {
+      const { error } = await supabase.from('brand_reports').update({ competitor_names: editingNames }).eq('id', report.id);
+      if (error) throw error;
+      const updated = { ...report, competitor_names: editingNames };
+      setReports((prev) => prev.map((r) => (r.id === report.id ? updated : r)));
+      loadReportDetails([updated]);
+      setEditingCompetitorsId(null);
+      setToast({ message: 'Competitors updated', type: 'success' });
+    } catch (err) {
+      console.error('Failed to update competitors:', err);
+      setToast({ message: 'Failed to update competitors', type: 'error' });
+    } finally {
+      setSavingCompetitors(false);
+    }
+  }
+
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://influenceit.app';
   const inputStyle = { width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', color: '#3A3A3A', backgroundColor: '#F9FAFB', outline: 'none', boxSizing: 'border-box' as const };
   const labelStyle = { display: 'block' as const, fontSize: '12px', fontWeight: 600 as const, color: '#6B7280', marginBottom: '4px' };
 
   return (
-    <div style={{ maxWidth: '960px' }}>
+    <div style={{ maxWidth: '1080px' }}>
       {toast && (
         <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 50, padding: '12px 20px', borderRadius: '12px', fontSize: '13px', fontWeight: 500, color: 'white', backgroundColor: toast.type === 'success' ? '#16a34a' : '#dc2626', boxShadow: '0 4px 16px rgba(0,0,0,0.15)' }}>
           {toast.message}
@@ -135,7 +339,7 @@ export default function AdminReportsPage() {
 
       <div style={{ marginBottom: '28px' }}>
         <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: 0 }}>Brand Reports</h1>
-        <p style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '4px' }}>Create personalised creator match pages to send to prospective brand partners.</p>
+        <p style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '4px' }}>Create personalised, evidence-based creator reports to send to prospective brand partners.</p>
       </div>
 
       {/* Create form */}
@@ -175,6 +379,19 @@ export default function AdminReportsPage() {
               <input style={inputStyle} type="text" required={mode === 'manual'} value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. fitness, beauty, tech" />
             </div>
           </div>
+
+          <div style={{ marginBottom: '20px', padding: '16px', borderRadius: '12px', backgroundColor: '#F9FAFB', border: '1px solid #F3F4F6' }}>
+            <label style={labelStyle}>Competitors (Tier 2)</label>
+            <CompetitorPicker
+              id="create-form"
+              names={formCompetitors}
+              onChange={setFormCompetitors}
+              verifiedOptions={verifiedBrandOptions}
+              onSuggest={handleFormSuggest}
+              suggesting={formSuggesting}
+            />
+          </div>
+
           <button type="submit" disabled={creating || !brandName.trim()} style={{ padding: '9px 24px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, color: '#3A3A3A', backgroundColor: '#FFD700', border: 'none', cursor: creating || !brandName.trim() ? 'not-allowed' : 'pointer', opacity: creating || !brandName.trim() ? 0.5 : 1 }}>
             {creating ? 'Creating…' : 'Create report'}
           </button>
@@ -203,7 +420,7 @@ export default function AdminReportsPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ backgroundColor: '#F9FAFB' }}>
-                {['Brand', 'URL', 'Mode', 'Created', ''].map(h => (
+                {['Brand', 'Detected activity', 'Competitors', 'URL', 'Mode', ''].map(h => (
                   <th key={h} style={{ textAlign: 'left', padding: '10px 20px', fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
@@ -211,11 +428,57 @@ export default function AdminReportsPage() {
             <tbody>
               {reports.map(report => {
                 const url = `${baseUrl}/report/${report.slug}`;
+                const detail = details[report.id];
+                const isEditing = editingCompetitorsId === report.id;
                 return (
-                  <tr key={report.id} style={{ borderTop: '1px solid #F3F4F6' }}>
+                  <tr key={report.id} style={{ borderTop: '1px solid #F3F4F6', verticalAlign: 'top' }}>
                     <td style={{ padding: '14px 20px' }}>
                       <p style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: 0 }}>{report.brand_name}</p>
                       {report.brand_handle && <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '2px 0 0' }}>@{report.brand_handle}</p>}
+                    </td>
+                    <td style={{ padding: '14px 20px' }}>
+                      <ActivitySummary detail={detail} />
+                    </td>
+                    <td style={{ padding: '14px 20px', minWidth: '260px' }}>
+                      {isEditing ? (
+                        <div>
+                          <CompetitorPicker
+                            id={report.id}
+                            names={editingNames}
+                            onChange={setEditingNames}
+                            verifiedOptions={verifiedBrandOptions}
+                            onSuggest={() => handleRowSuggest(report)}
+                            suggesting={rowSuggesting}
+                          />
+                          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                            <button onClick={() => saveCompetitors(report)} disabled={savingCompetitors} style={{ padding: '5px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, border: 'none', backgroundColor: '#16a34a', color: 'white', cursor: 'pointer' }}>
+                              {savingCompetitors ? 'Saving…' : 'Save'}
+                            </button>
+                            <button onClick={() => setEditingCompetitorsId(null)} style={{ padding: '5px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, border: '1px solid #E5E7EB', backgroundColor: 'white', color: '#6B7280', cursor: 'pointer' }}>
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div>
+                          {!detail || detail.loading ? (
+                            <span style={{ fontSize: '12px', color: '#9CA3AF' }}>Loading…</span>
+                          ) : detail.competitors.length === 0 ? (
+                            <span style={{ fontSize: '12px', color: '#9CA3AF' }}>None{report.competitor_names === null ? ' (no auto-suggestion qualified)' : ''}</span>
+                          ) : (
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                              {detail.competitors.map((c) => (
+                                <span key={c.canonicalName} style={{ display: 'inline-block', padding: '3px 8px', borderRadius: '999px', fontSize: '11px', fontWeight: 500, backgroundColor: 'rgba(255,215,0,0.15)', color: '#92660b' }}>
+                                  {c.canonicalName}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          <button onClick={() => startEditingCompetitors(report)} style={{ marginTop: '6px', fontSize: '11px', color: '#3AAFF4', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+                            Edit competitors
+                          </button>
+                        </div>
+                      )}
                     </td>
                     <td style={{ padding: '14px 20px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -229,9 +492,6 @@ export default function AdminReportsPage() {
                       <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 500, backgroundColor: report.mode === 'auto' ? 'rgba(58,175,244,0.1)' : 'rgba(255,77,148,0.1)', color: report.mode === 'auto' ? '#1e7fbf' : '#c0195d' }}>
                         {report.mode === 'auto' ? 'Auto' : 'Manual'}{report.category && ` · ${report.category}`}
                       </span>
-                    </td>
-                    <td style={{ padding: '14px 20px', fontSize: '12px', color: '#9CA3AF' }}>
-                      {new Date(report.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </td>
                     <td style={{ padding: '14px 20px', textAlign: 'right' }}>
                       <button onClick={() => handleDelete(report.id)} disabled={deletingId === report.id} style={{ fontSize: '12px', color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', opacity: deletingId === report.id ? 0.4 : 1 }}>
