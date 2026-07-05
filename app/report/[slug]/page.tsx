@@ -99,11 +99,11 @@ export default async function ReportPage({
     brandHandle: report.brand_handle,
     category: report.category,
     excludeCreatorIds,
-    limit: 12,
+    limit: 10,
   });
 
-  const topMatches = matched.slice(0, 5);
-  const blurredMatches = matched.slice(5, 12);
+  const topMatches = matched.slice(0, 3);
+  const blurredMatches = matched.slice(3, 10);
 
   const signupUrl = '/signup?role=brand';
 
