@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "brand-aliases:seed": "node scripts/brand-aliases/seed.mjs",
+    "brand-aliases:prepass": "node scripts/brand-aliases/prepass.mjs",
+    "brand-aliases:classify": "node scripts/brand-aliases/classify.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

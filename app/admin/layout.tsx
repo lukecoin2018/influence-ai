@@ -3,11 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { BarChart2, Building2, Users, MessageSquare, Mail, Activity, ArrowLeft, LogOut, FileText } from 'lucide-react';
+import { BarChart2, Building2, Users, MessageSquare, Mail, Activity, ArrowLeft, LogOut, FileText, Tags } from 'lucide-react';
 
 const sidebarLinks = [
   { href: '/admin', label: 'Overview', icon: BarChart2, exact: true },
   { href: '/admin/brands', label: 'Brands', icon: Building2 },
+  { href: '/admin/brand-index', label: 'Brand Index', icon: Tags },
   { href: '/admin/creators', label: 'Creators', icon: Users },
   { href: '/admin/inquiries', label: 'Inquiries', icon: MessageSquare },
   { href: '/admin/contact', label: 'Contact', icon: Mail },
