@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -57,7 +57,10 @@ export default function AdminBrandIndexPage() {
   const [unclassifiedCount, setUnclassifiedCount] = useState(0);
   const [unverifiedBrandsCount, setUnverifiedBrandsCount] = useState(0);
   const [dataLoading, setDataLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [savingAlias, setSavingAlias] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const requestSeq = useRef(0);
 
   useEffect(() => {
     if (loading) return;
@@ -82,27 +85,44 @@ export default function AdminBrandIndexPage() {
   }
 
   async function load() {
+    const seq = ++requestSeq.current;
     setDataLoading(true);
-    const query = applyFilter(
-      supabase.from('brand_aliases').select('*').order('creators_count', { ascending: false }).limit(ROW_LIMIT),
-      filter
-    );
-    const [{ data }] = await Promise.all([query, loadCounts()]);
-    setRows((data ?? []) as BrandAlias[]);
-    setDataLoading(false);
+    setLoadError(null);
+    try {
+      const query = applyFilter(
+        supabase.from('brand_aliases').select('*').order('creators_count', { ascending: false }).limit(ROW_LIMIT),
+        filter
+      );
+      const [{ data, error }] = await Promise.all([query, loadCounts()]);
+      if (error) throw error;
+      if (seq !== requestSeq.current) return; // a newer load() (e.g. filter change) already superseded this one
+      setRows((data ?? []) as BrandAlias[]);
+    } catch (err) {
+      if (seq !== requestSeq.current) return;
+      console.error('Failed to load brand_aliases:', err);
+      setLoadError(err instanceof Error ? err.message : 'Failed to load');
+    } finally {
+      if (seq === requestSeq.current) setDataLoading(false);
+    }
   }
 
   async function saveField(alias: string, patch: Partial<BrandAlias>) {
     setSavingAlias(alias);
-    const { error } = await supabase.from('brand_aliases').update(patch).eq('alias', alias);
-    if (!error) {
+    setSaveError(null);
+    try {
+      const { error } = await supabase.from('brand_aliases').update(patch).eq('alias', alias);
+      if (error) throw error;
       setRows((prev) => prev.map((r) => (r.alias === alias ? { ...r, ...patch } : r)));
       // entity_type/verified changes can move a row in or out of any of the
       // other tabs, so badge counts need refreshing even though we skip a
       // full row refetch for snappier inline editing.
       if ('entity_type' in patch || 'verified' in patch) loadCounts();
+    } catch (err) {
+      console.error('Failed to save brand_alias field:', err);
+      setSaveError(err instanceof Error ? err.message : 'Failed to save');
+    } finally {
+      setSavingAlias(null);
     }
-    setSavingAlias(null);
   }
 
   const filterBtn = (value: FilterType, label: string) => (
@@ -133,8 +153,19 @@ export default function AdminBrandIndexPage() {
         {filterBtn('unclassified', `Unclassified (${unclassifiedCount})`)}
       </div>
 
+      {saveError && (
+        <p style={{ color: '#DC2626', fontSize: '13px', margin: '0 0 12px 0' }}>{saveError}</p>
+      )}
+
       {dataLoading ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
+      ) : loadError ? (
+        <div>
+          <p style={{ color: '#DC2626', fontSize: '14px', margin: '0 0 8px 0' }}>Failed to load — {loadError}</p>
+          <button onClick={load} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FFD700', color: 'white' }}>
+            Retry
+          </button>
+        </div>
       ) : rows.length === 0 ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>
           {filter === 'review' && 'No unknown classifications right now.'}

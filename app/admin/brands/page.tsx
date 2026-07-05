@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -13,7 +13,10 @@ export default function AdminBrandsPage() {
   const [brands, setBrands] = useState<any[]>([]);
   const [filter, setFilter] = useState<FilterType>('all');
   const [dataLoading, setDataLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const requestSeq = useRef(0);
 
   useEffect(() => {
     if (loading) return;
@@ -22,20 +25,39 @@ export default function AdminBrandsPage() {
   }, [loading, user, userRole, filter]);
 
   async function load() {
+    const seq = ++requestSeq.current;
     setDataLoading(true);
-    let query = supabase.from('brand_profiles').select('*').order('created_at', { ascending: false });
-    if (filter !== 'all') query = query.eq('approval_status', filter);
-    const { data } = await query;
-    setBrands(data ?? []);
-    setDataLoading(false);
+    setLoadError(null);
+    try {
+      let query = supabase.from('brand_profiles').select('*').order('created_at', { ascending: false });
+      if (filter !== 'all') query = query.eq('approval_status', filter);
+      const { data, error } = await query;
+      if (error) throw error;
+      if (seq !== requestSeq.current) return;
+      setBrands(data ?? []);
+    } catch (err) {
+      if (seq !== requestSeq.current) return;
+      console.error('Failed to load brand_profiles:', err);
+      setLoadError(err instanceof Error ? err.message : 'Failed to load');
+    } finally {
+      if (seq === requestSeq.current) setDataLoading(false);
+    }
   }
 
   async function updateStatus(brandId: string, status: string) {
     setActionLoading(brandId + status);
-    await supabase.from('brand_profiles').update({ approval_status: status }).eq('id', brandId);
-    await supabase.from('activity_log').insert({ event_type: `brand_${status}`, target_id: brandId, details: { action: status } });
-    await load();
-    setActionLoading(null);
+    setActionError(null);
+    try {
+      const { error } = await supabase.from('brand_profiles').update({ approval_status: status }).eq('id', brandId);
+      if (error) throw error;
+      await supabase.from('activity_log').insert({ event_type: `brand_${status}`, target_id: brandId, details: { action: status } });
+      await load();
+    } catch (err) {
+      console.error('Failed to update brand status:', err);
+      setActionError(err instanceof Error ? err.message : 'Failed to update');
+    } finally {
+      setActionLoading(null);
+    }
   }
 
   const statusBadge = (status: string) => {
@@ -64,8 +86,18 @@ export default function AdminBrandsPage() {
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
         {filterBtn('all', 'All')}{filterBtn('pending', 'Pending')}{filterBtn('approved', 'Approved')}{filterBtn('rejected', 'Rejected')}{filterBtn('suspended', 'Suspended')}
       </div>
+      {actionError && (
+        <p style={{ color: '#DC2626', fontSize: '13px', margin: '0 0 12px 0' }}>{actionError}</p>
+      )}
       {dataLoading ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
+      ) : loadError ? (
+        <div>
+          <p style={{ color: '#DC2626', fontSize: '14px', margin: '0 0 8px 0' }}>Failed to load — {loadError}</p>
+          <button onClick={load} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FFD700', color: 'white' }}>
+            Retry
+          </button>
+        </div>
       ) : brands.length === 0 ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>No brands found.</p>
       ) : (

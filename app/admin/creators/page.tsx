@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -13,7 +13,10 @@ export default function AdminCreatorsPage() {
   const [creators, setCreators] = useState<any[]>([]);
   const [filter, setFilter] = useState<FilterType>('all');
   const [dataLoading, setDataLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const requestSeq = useRef(0);
 
   useEffect(() => {
     if (loading) return;
@@ -22,20 +25,39 @@ export default function AdminCreatorsPage() {
   }, [loading, user, userRole, filter]);
 
   async function load() {
+    const seq = ++requestSeq.current;
     setDataLoading(true);
-    let query = supabase.from('creator_profiles').select('*, creators!creator_id(name, instagram_handle, tiktok_handle)').order('created_at', { ascending: false });
-    if (filter !== 'all') query = query.eq('claim_status', filter);
-    const { data } = await query;
-    setCreators(data ?? []);
-    setDataLoading(false);
+    setLoadError(null);
+    try {
+      let query = supabase.from('creator_profiles').select('*, creators!creator_id(name, instagram_handle, tiktok_handle)').order('created_at', { ascending: false });
+      if (filter !== 'all') query = query.eq('claim_status', filter);
+      const { data, error } = await query;
+      if (error) throw error;
+      if (seq !== requestSeq.current) return;
+      setCreators(data ?? []);
+    } catch (err) {
+      if (seq !== requestSeq.current) return;
+      console.error('Failed to load creator_profiles:', err);
+      setLoadError(err instanceof Error ? err.message : 'Failed to load');
+    } finally {
+      if (seq === requestSeq.current) setDataLoading(false);
+    }
   }
 
   async function updateStatus(creatorProfileId: string, status: string) {
     setActionLoading(creatorProfileId + status);
-    await supabase.from('creator_profiles').update({ claim_status: status }).eq('id', creatorProfileId);
-    await supabase.from('activity_log').insert({ event_type: status === 'verified' ? 'creator_verified' : 'creator_rejected', target_id: creatorProfileId, details: { action: status } });
-    await load();
-    setActionLoading(null);
+    setActionError(null);
+    try {
+      const { error } = await supabase.from('creator_profiles').update({ claim_status: status }).eq('id', creatorProfileId);
+      if (error) throw error;
+      await supabase.from('activity_log').insert({ event_type: status === 'verified' ? 'creator_verified' : 'creator_rejected', target_id: creatorProfileId, details: { action: status } });
+      await load();
+    } catch (err) {
+      console.error('Failed to update creator status:', err);
+      setActionError(err instanceof Error ? err.message : 'Failed to update');
+    } finally {
+      setActionLoading(null);
+    }
   }
 
   const statusBadge = (status: string) => {
@@ -64,8 +86,18 @@ export default function AdminCreatorsPage() {
       <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
         {filterBtn('all', 'All')}{filterBtn('pending', 'Pending')}{filterBtn('verified', 'Verified')}{filterBtn('rejected', 'Rejected')}
       </div>
+      {actionError && (
+        <p style={{ color: '#DC2626', fontSize: '13px', margin: '0 0 12px 0' }}>{actionError}</p>
+      )}
       {dataLoading ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
+      ) : loadError ? (
+        <div>
+          <p style={{ color: '#DC2626', fontSize: '14px', margin: '0 0 8px 0' }}>Failed to load — {loadError}</p>
+          <button onClick={load} style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FFD700', color: 'white' }}>
+            Retry
+          </button>
+        </div>
       ) : creators.length === 0 ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>No creators found.</p>
       ) : (
