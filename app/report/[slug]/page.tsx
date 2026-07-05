@@ -2,79 +2,65 @@
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
-import { toSafeCreator, type SafeCreator } from '@/lib/discover/config';
+import { createSupabaseAdminClient } from '@/lib/supabase-admin';
+import { getPublicStats } from '@/app/_queries';
+import {
+  resolveCanonicalBrand,
+  getBrandActivity,
+  suggestCompetitors,
+  getCompetitorActivities,
+  type BrandActivity,
+} from '@/lib/reports/brand-activity';
+import { getMatchedCreators } from '@/lib/reports/matching';
+import Link from 'next/link';
+import { formatEngagementRate, formatDate } from '@/lib/formatters';
+import { NamedCreatorCard } from './_components/NamedCreatorCard';
 import CreatorCard from '@/app/discover/_components/CreatorCard';
 
-export const metadata: Metadata = {
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const supabase = await createSupabaseServerClient();
+  const { data: report } = await supabase.from('brand_reports').select('brand_name').eq('slug', slug).maybeSingle();
 
-// Intentionally excludes handle columns — brands cannot identify creators without signing up
-const BASE_SELECT =
-  'creator_id, display_name:creators!inner(display_name), platform, follower_count, detected_city, detected_country, ai_summary, engagement_rate';
-
-async function fetchAutoMatch(
-  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  brandHandle: string,
-  fallbackCategory: string | null,
-): Promise<SafeCreator[]> {
-  const { data: partners } = await supabase
-    .from('social_profiles')
-    .select('creator_id, ai_summary')
-    .ilike('enrichment_data::text', `%"${brandHandle}"%`)
-    .limit(50);
-
-  if (!partners || partners.length === 0) {
-    if (fallbackCategory) return fetchManualMatch(supabase, fallbackCategory);
-    return [];
-  }
-
-  const tagCandidates = [
-    'Beauty', 'Fashion', 'Fitness', 'Lifestyle', 'Travel',
-    'Food', 'Wellness', 'Skincare', 'Gaming', 'Tech',
-    'Nutrition', 'Comedy', 'Parenting',
-  ];
-  const counts: Record<string, number> = {};
-  for (const p of partners) {
-    const summary = (p.ai_summary || '').toLowerCase();
-    for (const tag of tagCandidates) {
-      if (summary.includes(tag.toLowerCase())) {
-        counts[tag] = (counts[tag] ?? 0) + 1;
-      }
-    }
-  }
-  const topCategory = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
-  if (!topCategory) return fetchManualMatch(supabase, fallbackCategory ?? 'Lifestyle');
-
-  const partnerIds = partners.map((p: { creator_id: string }) => p.creator_id);
-
-  const { data: rawCreators } = await supabase
-    .from('social_profiles')
-    .select(BASE_SELECT)
-    .ilike('ai_summary', `%${topCategory}%`)
-    .not('creator_id', 'in', `(${partnerIds.join(',')})`)
-    .gte('follower_count', 50_000)
-    .lte('follower_count', 500_000)
-    .order('engagement_rate', { ascending: false })
-    .limit(10);
-
-  return (rawCreators ?? []).map(toSafeCreator);
+  return {
+    title: report ? `${report.brand_name} — Creator Report` : 'Creator Report',
+    robots: { index: false, follow: false },
+  };
 }
 
-async function fetchManualMatch(
-  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
-  category: string,
-): Promise<SafeCreator[]> {
-  const { data: rawCreators } = await supabase
-    .from('social_profiles')
-    .select(BASE_SELECT)
-    .ilike('ai_summary', `%${category}%`)
-    .gte('follower_count', 50_000)
-    .lte('follower_count', 500_000)
-    .order('engagement_rate', { ascending: false })
-    .limit(10);
+function StatBlock({ label, value }: { label: string; value: string }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
+      <b style={{ fontWeight: 800, fontSize: 'clamp(1.3rem, 2.4vw, 1.7rem)', letterSpacing: '-0.02em', color: '#111' }}>{value}</b>
+      <span style={{ fontSize: '10.5px', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 500, color: '#3A3A3A' }}>{label}</span>
+    </div>
+  );
+}
 
-  return (rawCreators ?? []).map(toSafeCreator);
+function SectionHeading({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
+  return (
+    <div style={{ marginBottom: '28px' }}>
+      <div style={{ fontSize: '11.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#9B9890', marginBottom: '10px' }}>
+        {eyebrow}
+      </div>
+      <h2 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em', color: '#F2F0EA', margin: 0 }}>
+        {title}
+      </h2>
+      {subtitle && <p style={{ fontSize: '14px', color: '#9B9890', marginTop: '10px', maxWidth: '620px' }}>{subtitle}</p>}
+    </div>
+  );
+}
+
+function CardGrid({ children }: { children: React.ReactNode }) {
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
+      {children}
+    </div>
+  );
 }
 
 export default async function ReportPage({
@@ -87,35 +73,53 @@ export default async function ReportPage({
 
   const { data: report } = await supabase
     .from('brand_reports')
-    .select('brand_name, brand_handle, category, mode')
+    .select('brand_name, brand_handle, category, mode, competitor_names')
     .eq('slug', slug)
-    .single();
+    .maybeSingle();
 
   if (!report) notFound();
 
-  let creators: SafeCreator[] = [];
-  if (report.mode === 'auto' && report.brand_handle) {
-    creators = await fetchAutoMatch(supabase, report.brand_handle, report.category);
-  } else if (report.category) {
-    creators = await fetchManualMatch(supabase, report.category);
+  const admin = createSupabaseAdminClient();
+  const stats = await getPublicStats();
+
+  const resolved = await resolveCanonicalBrand(admin, { brandHandle: report.brand_handle, brandName: report.brand_name });
+  const tier1 = resolved ? await getBrandActivity(admin, resolved.canonicalName) : null;
+
+  let competitors: BrandActivity[] = [];
+  if (report.competitor_names) {
+    // Defensive slice: admin UI caps at 3, but never trust stale data over the spec's "up to 3" limit.
+    competitors = (await getCompetitorActivities(admin, report.competitor_names)).slice(0, 3);
+  } else if (resolved) {
+    competitors = await suggestCompetitors(admin, { excludeCanonicalName: resolved.canonicalName, category: resolved.category });
   }
+
+  const excludeCreatorIds = new Set(competitors.flatMap((c) => c.creators.map((cr) => cr.creatorId)));
+  const matched = await getMatchedCreators(supabase, {
+    mode: report.mode,
+    brandHandle: report.brand_handle,
+    category: report.category,
+    excludeCreatorIds,
+    limit: 12,
+  });
+
+  const topMatches = matched.slice(0, 5);
+  const blurredMatches = matched.slice(5, 12);
 
   const signupUrl = '/signup?role=brand';
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F9FAFB' }}>
-
-      {/* Minimal nav */}
-      <nav style={{ backgroundColor: 'white', borderBottom: '1px solid #E5E7EB', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div style={{ maxWidth: '1024px', margin: '0 auto', padding: '0 24px', height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <a href="/" style={{ textDecoration: 'none' }}>
-            <span style={{ fontSize: '18px', fontWeight: 800, color: '#3A3A3A', letterSpacing: '-0.02em' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: '#0A0A0A', color: '#F2F0EA', fontFamily: 'system-ui, sans-serif' }}>
+      {/* Nav */}
+      <nav style={{ position: 'sticky', top: 0, zIndex: 10, background: 'rgba(10,10,10,0.92)', backdropFilter: 'blur(8px)', borderBottom: '1px solid #262626' }}>
+        <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '0 24px', height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Link href="/" style={{ textDecoration: 'none' }}>
+            <span style={{ fontSize: '18px', fontWeight: 900, color: '#F2F0EA', letterSpacing: '-0.02em' }}>
               Influence<span style={{ color: '#FFD700' }}>IT</span>
             </span>
-          </a>
+          </Link>
           <a
             href={signupUrl}
-            style={{ fontSize: '13px', fontWeight: 600, padding: '8px 18px', borderRadius: '10px', backgroundColor: '#FFD700', color: '#3A3A3A', textDecoration: 'none' }}
+            style={{ fontSize: '13px', fontWeight: 700, padding: '10px 20px', borderRadius: '10px', backgroundColor: '#FFD700', color: '#111', textDecoration: 'none' }}
           >
             Sign up free
           </a>
@@ -123,59 +127,144 @@ export default async function ReportPage({
       </nav>
 
       {/* Hero */}
-      <div style={{ background: 'linear-gradient(160deg, #fff 0%, #fffbea 60%, #fff0f7 100%)', padding: '56px 24px 48px', textAlign: 'center' }}>
+      <div style={{ padding: '64px 24px 40px', textAlign: 'center' }}>
         <div style={{ maxWidth: '640px', margin: '0 auto' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', padding: '6px 14px', borderRadius: '999px', border: '1px solid #FFD700', backgroundColor: 'rgba(255,215,0,0.08)' }}>
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FFD700', boxShadow: '0 0 0 3px rgba(255,215,0,0.25)', display: 'inline-block' }} />
-            <span style={{ fontSize: '12px', fontWeight: 600, color: '#B8860B' }}>Personalised creator report</span>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', marginBottom: '20px', padding: '6px 14px', borderRadius: '999px', border: '1px solid #FFD700' }}>
+            <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#FFD700', display: 'inline-block' }} />
+            <span style={{ fontSize: '12px', fontWeight: 600, color: '#FFD700' }}>Personalised creator report</span>
           </div>
-          <h1 style={{ fontSize: 'clamp(26px, 5vw, 38px)', fontWeight: 800, color: '#3A3A3A', letterSpacing: '-0.02em', lineHeight: 1.2, margin: '0 0 12px' }}>
-            {creators.length} Creators Matched for{' '}
-            <span style={{ background: 'linear-gradient(90deg, #D4820A, #FF4D94)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-              {report.brand_name}
-            </span>
+          <h1 style={{ fontSize: 'clamp(28px, 5vw, 42px)', fontWeight: 900, letterSpacing: '-0.03em', lineHeight: 1.1, margin: '0 0 14px' }}>
+            Creator intelligence for <span style={{ color: '#FFD700' }}>{report.brand_name}</span>
           </h1>
-          <p style={{ fontSize: '16px', color: '#6B7280', maxWidth: '500px', margin: '0 auto', lineHeight: 1.6 }}>
-            We analysed our database of 2,700+ verified creators and found these matches
-            based on your brand&apos;s niche and partnership history.
+          <p style={{ fontSize: '16px', color: '#9B9890', maxWidth: '520px', margin: '0 auto', lineHeight: 1.6 }}>
+            Built live from InfluenceIT&apos;s index of {stats.creators.toLocaleString()}+ creators — real detected
+            brand deals, real engagement, no guesswork.
           </p>
         </div>
       </div>
 
-      {/* Creator grid */}
-      <main style={{ maxWidth: '1024px', margin: '0 auto', padding: '40px 24px' }}>
-        {creators.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '64px 0', color: '#9CA3AF' }}>
-            <p style={{ fontSize: '16px' }}>No creators found for this report.</p>
-            <p style={{ fontSize: '13px', marginTop: '4px' }}>Please contact InfluenceIT to update this report.</p>
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-            {creators.map((creator, i) => (
-              <CreatorCard key={i} creator={creator} signupUrl={signupUrl} />
-            ))}
-          </div>
+      <main style={{ maxWidth: '1080px', margin: '0 auto', padding: '20px 24px 60px', display: 'flex', flexDirection: 'column', gap: '72px' }}>
+        {/* Tier 1 — Your creator activity */}
+        {tier1 && (
+          <section>
+            <SectionHeading
+              eyebrow="Tier 1 · Open"
+              title="Your creator activity"
+              subtitle={`Creators we've detected posting sponsored content for ${resolved!.canonicalName}.`}
+            />
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#FFD700', borderRadius: '16px', padding: '24px 28px', marginBottom: '28px' }}>
+              <div style={{ flex: '1 1 160px' }}><StatBlock label="Sponsored posts" value={tier1.sponsoredPosts.toLocaleString()} /></div>
+              <div style={{ flex: '1 1 160px' }}><StatBlock label="Distinct creators" value={tier1.distinctCreators.toLocaleString()} /></div>
+              <div style={{ flex: '1 1 160px' }}><StatBlock label="Median engagement" value={formatEngagementRate(tier1.medianEngagement)} /></div>
+              <div style={{ flex: '1 1 160px' }}><StatBlock label="Most recent post" value={formatDate(tier1.mostRecentPost)} /></div>
+            </div>
+            <CardGrid>
+              {tier1.creators.slice(0, 6).map((c) => (
+                <NamedCreatorCard
+                  key={c.creatorId}
+                  creator={{ handle: c.handle, displayName: c.displayName, platform: c.platform, followerCount: c.followerCount, engagementRate: c.engagementRate }}
+                />
+              ))}
+            </CardGrid>
+          </section>
         )}
 
+        {/* Tier 2 — Your competitive landscape */}
+        {competitors.length > 0 && (
+          <section>
+            <SectionHeading
+              eyebrow="Tier 2 · Open"
+              title="Your competitive landscape"
+              subtitle="Verified competitor brands in your category, and the creators actively posting sponsored content for them."
+            />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              {competitors.map((comp) => (
+                <div key={comp.canonicalName} style={{ background: '#141414', border: '1px solid #262626', borderRadius: '18px', padding: '22px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px', marginBottom: '18px' }}>
+                    <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#F2F0EA', margin: 0 }}>{comp.canonicalName}</h3>
+                    <div style={{ fontSize: '12.5px', color: '#9B9890' }}>
+                      {comp.distinctCreators.toLocaleString()} creators detected · most recent post {formatDate(comp.mostRecentPost)}
+                    </div>
+                  </div>
+                  <CardGrid>
+                    {comp.creators.slice(0, 3).map((c) => (
+                      <NamedCreatorCard
+                        key={c.creatorId}
+                        creator={{ handle: c.handle, displayName: c.displayName, platform: c.platform, followerCount: c.followerCount, engagementRate: c.engagementRate }}
+                      />
+                    ))}
+                  </CardGrid>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Tier 3 — Recommended for you */}
+        <section>
+          <SectionHeading
+            eyebrow="Tier 3 · Partial"
+            title="Recommended for you"
+            subtitle="Creators matched to your brand's niche and partnership history — none currently work with the competitors above."
+          />
+          {competitors.length > 0 && (
+            <p style={{ fontSize: '13px', color: '#9B9890', margin: '-14px 0 24px' }}>
+              None of these creators currently post sponsored content for {competitors.map((c) => c.canonicalName).join(', ')}.
+            </p>
+          )}
+
+          {matched.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 0', color: '#6E6A5C' }}>
+              <p style={{ fontSize: '15px' }}>No creator matches found for this report yet.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+              {topMatches.length > 0 && (
+                <CardGrid>
+                  {topMatches.map((m) => (
+                    <NamedCreatorCard
+                      key={m.creatorId}
+                      href={`/login?redirectTo=${encodeURIComponent(`/creators/${m.handle}`)}`}
+                      creator={{
+                        handle: m.handle,
+                        displayName: m.displayName,
+                        platform: m.platform,
+                        followerCount: m.followerCount,
+                        engagementRate: m.engagementRate,
+                      }}
+                    />
+                  ))}
+                </CardGrid>
+              )}
+              {blurredMatches.length > 0 && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                  {blurredMatches.map((m, i) => (
+                    <CreatorCard key={i} creator={m.safe} signupUrl={signupUrl} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
         {/* CTA block */}
-        <div style={{ marginTop: '56px', borderRadius: '24px', padding: '48px 32px', textAlign: 'center', background: 'linear-gradient(135deg, #3A3A3A 0%, #1a1a1a 100%)', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '160px', height: '160px', borderRadius: '50%', background: '#FFD700', opacity: 0.15, filter: 'blur(40px)', pointerEvents: 'none' }} />
-          <div style={{ position: 'absolute', bottom: '-40px', left: '-40px', width: '160px', height: '160px', borderRadius: '50%', background: '#FF4D94', opacity: 0.15, filter: 'blur(40px)', pointerEvents: 'none' }} />
+        <div style={{ borderRadius: '24px', padding: '48px 32px', textAlign: 'center', background: 'linear-gradient(135deg, #141414 0%, #0A0A0A 100%)', border: '1px solid #262626', position: 'relative', overflow: 'hidden' }}>
+          <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '160px', height: '160px', borderRadius: '50%', background: '#FFD700', opacity: 0.12, filter: 'blur(40px)', pointerEvents: 'none' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
-            <h2 style={{ fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 800, color: 'white', margin: '0 0 12px', letterSpacing: '-0.02em' }}>
-              Want to see full profiles,<br />engagement data &amp; connect?
+            <h2 style={{ fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 800, color: '#F2F0EA', margin: '0 0 12px', letterSpacing: '-0.02em' }}>
+              Want full profiles,<br />contact details &amp; more matches?
             </h2>
-            <p style={{ color: '#9CA3AF', fontSize: '15px', maxWidth: '420px', margin: '0 auto 32px', lineHeight: 1.6 }}>
+            <p style={{ color: '#9B9890', fontSize: '15px', maxWidth: '420px', margin: '0 auto 32px', lineHeight: 1.6 }}>
               Sign up free to unlock every creator&apos;s full stats, contact details,
               and start building partnerships today.
             </p>
             <a
               href={signupUrl}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '14px 32px', borderRadius: '14px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '14px 32px', borderRadius: '14px', backgroundColor: '#FFD700', color: '#111', fontSize: '15px', fontWeight: 700, textDecoration: 'none' }}
             >
               Sign up free →
             </a>
-            <p style={{ color: '#6B7280', fontSize: '12px', marginTop: '16px' }}>
+            <p style={{ color: '#6E6A5C', fontSize: '12px', marginTop: '16px' }}>
               No credit card required · Free forever plan available
             </p>
           </div>
@@ -183,10 +272,10 @@ export default async function ReportPage({
       </main>
 
       {/* Footer */}
-      <footer style={{ textAlign: 'center', padding: '32px 24px', fontSize: '12px', color: '#9CA3AF' }}>
+      <footer style={{ textAlign: 'center', padding: '32px 24px', fontSize: '12px', color: '#6E6A5C', borderTop: '1px solid #262626' }}>
         Powered by{' '}
-        <a href="/" style={{ color: '#D4820A', fontWeight: 600, textDecoration: 'none' }}>InfluenceIT</a>
-        {' '}— AI-powered creator discovery
+        <Link href="/" style={{ color: '#FFD700', fontWeight: 600, textDecoration: 'none' }}>InfluenceIT</Link>
+        {' '}— {stats.creators.toLocaleString()}+ creators indexed with real engagement data.
       </footer>
     </div>
   );
