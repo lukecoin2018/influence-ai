@@ -79,6 +79,15 @@ comment on column brand_aliases.creators_count is 'Distinct creators who have po
 -- data through the view to any authenticated (non-admin) caller. This makes
 -- it respect the querying user's own permissions instead, same as if they'd
 -- queried brand_aliases directly.
+--
+-- count(distinct cp.id): a post can carry multiple detected_brands entries
+-- that resolve to the same canonical brand (e.g. "shein" + "sheinofficial"
+-- both mentioned in one caption) — count(*) would double-count that post.
+-- cp.is_sponsored filter: only posts actually flagged as a brand
+-- partnership count, not every post that happens to mention a brand name.
+-- lower(detected.alias): creator_posts.detected_brands isn't guaranteed
+-- lowercase at the source; brand_aliases.alias always is (seed.mjs
+-- normalizes it), so the join needs a case-insensitive match.
 create or replace view v_brand_partnerships
   with (security_invoker = true)
 as
@@ -86,13 +95,14 @@ select
   ba.canonical_name,
   ba.category,
   count(distinct sp.creator_id) as distinct_creators,
-  count(*) as sponsored_posts,
+  count(distinct cp.id) as sponsored_posts,
   max(cp.posted_at) as most_recent_post
 from creator_posts cp
 join social_profiles sp on sp.id = cp.social_profile_id
 cross join lateral jsonb_array_elements_text(to_jsonb(cp.detected_brands)) as detected(alias)
-join brand_aliases ba on ba.alias = detected.alias
+join brand_aliases ba on ba.alias = lower(detected.alias)
 where ba.entity_type = 'brand'
+  and cp.is_sponsored
 group by ba.canonical_name, ba.category;
 
 comment on view v_brand_partnerships is
