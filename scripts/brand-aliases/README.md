@@ -15,6 +15,12 @@ Postgres connection configured). Apply the schema manually:
 2. Run `supabase/migrations/0001_brand_aliases.sql`.
 
 That creates the `brand_aliases` table and the `v_brand_partnerships` view.
+`brand_aliases` is internal sales intelligence — RLS is enabled and scoped
+to `user_roles.role = 'admin'` (see the migration for the policy), it is
+**not** readable with the anon key. The pipeline scripts below use the
+service-role key to bypass RLS; the admin Brand Index page works because a
+logged-in admin's session JWT satisfies the policy even though the page
+uses the anon-key browser client.
 
 ## Running the pipeline
 
@@ -32,6 +38,8 @@ updates `creators_count`, never touching already-classified rows. Re-run
 `classify` any time; it only selects `classified_at IS NULL` rows.
 
 Aliases with a single detected creator are never sent to the AI (low signal,
-not worth the cost) — they stay `entity_type = 'unknown'` and are reachable
-from the "Needs Review" tab in the admin Brand Index
-(`/admin/brand-index`) if you want to triage them by hand.
+not worth the cost) — they stay unclassified and show up in the
+"Unclassified" tab of the admin Brand Index (`/admin/brand-index`), which
+also has "Unverified brands" (the human triage worklist — `verified` is
+never set by this pipeline, only by an admin in that UI) and "Review —
+unknown" (the small number of aliases the AI genuinely couldn't place).

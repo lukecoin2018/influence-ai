@@ -1,6 +1,8 @@
 // Shared Supabase client for the brand-aliases scripts. Uses the service role
-// key (these are ops scripts writing to a table with no RLS policies assumed
-// yet) and reads .env.local directly since the project has no dotenv
+// key — brand_aliases has RLS enabled and scoped to admin users only (it's
+// internal sales intelligence, not anon-readable), and these ops scripts run
+// outside any user session, so they need the service role to bypass RLS
+// entirely. Reads .env.local directly since the project has no dotenv
 // dependency and these scripts run outside Next's env loading.
 import fs from 'fs';
 import path from 'path';

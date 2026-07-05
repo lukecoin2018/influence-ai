@@ -27,13 +27,40 @@ create index if not exists idx_brand_aliases_entity_type on brand_aliases (entit
 create index if not exists idx_brand_aliases_creators_count on brand_aliases (creators_count desc);
 create index if not exists idx_brand_aliases_unclassified on brand_aliases (creators_count desc) where classified_at is null;
 
--- Matches this app's existing convention for admin-managed tables (e.g.
--- brand_profiles): the anon-key browser client reads/writes this table
--- directly from app/admin/brand-index, with admin-only access enforced at
--- the app layer (useAuth() role check), not via RLS. If this project's
--- default is RLS-enabled-with-no-policies for new tables, that silently
--- returns zero rows to the anon key with no error — disable it explicitly.
-alter table brand_aliases disable row level security;
+-- brand_aliases is internal sales intelligence and must NOT be readable with
+-- just the public anon key (unlike brand_profiles/creators, which several
+-- other admin pages read/write via the anon-key browser client relying only
+-- on app-layer role gating — a pre-existing gap worth a security review
+-- later, but not fixed here). RLS is enabled and scoped to admins via
+-- user_roles, so the Brand Index page's existing anon-key browser client
+-- keeps working when a real admin is logged in (their session JWT makes
+-- auth.uid() resolve correctly even though the client was constructed with
+-- the anon key) — genuinely anonymous/non-admin requests get zero rows.
+alter table brand_aliases enable row level security;
+
+create or replace function is_admin_user() returns boolean
+language sql security definer stable
+set search_path = public
+as $$
+  select exists (
+    select 1 from user_roles
+    where user_roles.user_id = auth.uid()
+      and user_roles.role = 'admin'
+  );
+$$;
+
+drop policy if exists "Admins can view brand_aliases" on brand_aliases;
+create policy "Admins can view brand_aliases"
+  on brand_aliases for select
+  to authenticated
+  using (is_admin_user());
+
+drop policy if exists "Admins can update brand_aliases" on brand_aliases;
+create policy "Admins can update brand_aliases"
+  on brand_aliases for update
+  to authenticated
+  using (is_admin_user())
+  with check (is_admin_user());
 
 comment on table brand_aliases is
   'Normalizes creator_posts.detected_brands free-text strings into canonical entities. Unrelated to brand_profiles (brand customer accounts).';
@@ -45,7 +72,16 @@ comment on column brand_aliases.creators_count is 'Distinct creators who have po
 -- Brand partnership rollup: only entity_type = 'brand' aliases, joined back
 -- through creator_posts.detected_brands. jsonb_array_elements_text(to_jsonb(...))
 -- works whether detected_brands is a native text[] or a jsonb array column.
-create or replace view v_brand_partnerships as
+--
+-- security_invoker=true is required here: by default a Postgres view runs
+-- with the VIEW OWNER's privileges for RLS purposes, which would silently
+-- bypass the admin-only policy just added to brand_aliases and leak this
+-- data through the view to any authenticated (non-admin) caller. This makes
+-- it respect the querying user's own permissions instead, same as if they'd
+-- queried brand_aliases directly.
+create or replace view v_brand_partnerships
+  with (security_invoker = true)
+as
 select
   ba.canonical_name,
   ba.category,
