@@ -27,6 +27,14 @@ create index if not exists idx_brand_aliases_entity_type on brand_aliases (entit
 create index if not exists idx_brand_aliases_creators_count on brand_aliases (creators_count desc);
 create index if not exists idx_brand_aliases_unclassified on brand_aliases (creators_count desc) where classified_at is null;
 
+-- Matches this app's existing convention for admin-managed tables (e.g.
+-- brand_profiles): the anon-key browser client reads/writes this table
+-- directly from app/admin/brand-index, with admin-only access enforced at
+-- the app layer (useAuth() role check), not via RLS. If this project's
+-- default is RLS-enabled-with-no-policies for new tables, that silently
+-- returns zero rows to the anon key with no error — disable it explicitly.
+alter table brand_aliases disable row level security;
+
 comment on table brand_aliases is
   'Normalizes creator_posts.detected_brands free-text strings into canonical entities. Unrelated to brand_profiles (brand customer accounts).';
 comment on column brand_aliases.alias is 'Raw detected string as it appears in creator_posts.detected_brands (lowercase handle-like token).';

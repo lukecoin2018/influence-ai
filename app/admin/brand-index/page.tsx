@@ -18,7 +18,22 @@ type BrandAlias = {
   classified_at: string | null;
 };
 
-type FilterType = 'all' | 'review';
+type FilterType = 'all' | 'review' | 'unclassified' | 'unverified_brands';
+
+// `verified` is a purely human-set trust flag — nothing in the classification
+// pipeline (prepass.mjs, classify.mjs) ever writes it, so it means exactly
+// "an admin looked at this row," not "the AI was confident."
+//
+// supabase-js's PostgrestFilterBuilder generics don't survive a plain
+// function boundary; `any` here matches this codebase's existing convention
+// for supabase query intermediates (see app/admin/brands/page.tsx).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function applyFilter(query: any, filter: FilterType): any {
+  if (filter === 'review') return query.eq('entity_type', 'unknown').not('classified_at', 'is', null);
+  if (filter === 'unclassified') return query.is('classified_at', null);
+  if (filter === 'unverified_brands') return query.eq('entity_type', 'brand').eq('verified', false);
+  return query;
+}
 
 const ENTITY_TYPES: EntityType[] = ['brand', 'creator', 'celebrity', 'media', 'fragment', 'unknown'];
 const ROW_LIMIT = 500;
@@ -39,6 +54,8 @@ export default function AdminBrandIndexPage() {
   const [filter, setFilter] = useState<FilterType>('all');
   const [totalCount, setTotalCount] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
+  const [unclassifiedCount, setUnclassifiedCount] = useState(0);
+  const [unverifiedBrandsCount, setUnverifiedBrandsCount] = useState(0);
   const [dataLoading, setDataLoading] = useState(true);
   const [savingAlias, setSavingAlias] = useState<string | null>(null);
 
@@ -49,21 +66,27 @@ export default function AdminBrandIndexPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, user, userRole, filter]);
 
-  // Counts for both tabs are fetched independently of which tab is active, so
-  // the "Needs Review" badge is always accurate even while looking at "All".
+  // Counts for every tab are fetched independently of which tab is active, so
+  // badges stay accurate no matter which one you're looking at.
   async function loadCounts() {
-    const [{ count: total }, { count: review }] = await Promise.all([
+    const [{ count: total }, { count: review }, { count: unclassified }, { count: unverifiedBrands }] = await Promise.all([
       supabase.from('brand_aliases').select('*', { count: 'exact', head: true }),
-      supabase.from('brand_aliases').select('*', { count: 'exact', head: true }).or('entity_type.eq.unknown,verified.eq.false'),
+      applyFilter(supabase.from('brand_aliases').select('*', { count: 'exact', head: true }), 'review'),
+      applyFilter(supabase.from('brand_aliases').select('*', { count: 'exact', head: true }), 'unclassified'),
+      applyFilter(supabase.from('brand_aliases').select('*', { count: 'exact', head: true }), 'unverified_brands'),
     ]);
     setTotalCount(total ?? 0);
     setReviewCount(review ?? 0);
+    setUnclassifiedCount(unclassified ?? 0);
+    setUnverifiedBrandsCount(unverifiedBrands ?? 0);
   }
 
   async function load() {
     setDataLoading(true);
-    let query = supabase.from('brand_aliases').select('*').order('creators_count', { ascending: false }).limit(ROW_LIMIT);
-    if (filter === 'review') query = query.or('entity_type.eq.unknown,verified.eq.false');
+    const query = applyFilter(
+      supabase.from('brand_aliases').select('*').order('creators_count', { ascending: false }).limit(ROW_LIMIT),
+      filter
+    );
     const [{ data }] = await Promise.all([query, loadCounts()]);
     setRows((data ?? []) as BrandAlias[]);
     setDataLoading(false);
@@ -74,8 +97,8 @@ export default function AdminBrandIndexPage() {
     const { error } = await supabase.from('brand_aliases').update(patch).eq('alias', alias);
     if (!error) {
       setRows((prev) => prev.map((r) => (r.alias === alias ? { ...r, ...patch } : r)));
-      // entity_type/verified changes can move a row in or out of the review
-      // queue, so the badge counts need refreshing even though we skip a
+      // entity_type/verified changes can move a row in or out of any of the
+      // other tabs, so badge counts need refreshing even though we skip a
       // full row refetch for snappier inline editing.
       if ('entity_type' in patch || 'verified' in patch) loadCounts();
     }
@@ -100,18 +123,24 @@ export default function AdminBrandIndexPage() {
       <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 6px 0', letterSpacing: '-0.02em' }}>Brand Index</h1>
       <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 24px 0' }}>
         Normalized brand/creator/celebrity entities detected across creator posts. Separate from Brands (customer accounts).
+        Verified is set by a human only — the classification pipeline never touches it, so it&apos;s the trust flag for what&apos;s safe to use in outbound reports.
       </p>
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
         {filterBtn('all', `All (${totalCount})`)}
-        {filterBtn('review', `Needs Review (${reviewCount})`)}
+        {filterBtn('unverified_brands', `Unverified brands (${unverifiedBrandsCount})`)}
+        {filterBtn('review', `Review — unknown (${reviewCount})`)}
+        {filterBtn('unclassified', `Unclassified (${unclassifiedCount})`)}
       </div>
 
       {dataLoading ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
       ) : rows.length === 0 ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>
-          {filter === 'review' ? 'Nothing needs review right now.' : 'No aliases found — run the seed script first.'}
+          {filter === 'review' && 'No unknown classifications right now.'}
+          {filter === 'unverified_brands' && 'Every classified brand has been verified.'}
+          {filter === 'unclassified' && 'Nothing unclassified — the AI/pre-pass has covered everything eligible.'}
+          {filter === 'all' && 'No aliases found — run the seed script first.'}
         </p>
       ) : (
         <div style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
@@ -186,7 +215,7 @@ export default function AdminBrandIndexPage() {
       )}
       {rows.length === ROW_LIMIT && (
         <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '10px' }}>
-          Showing the top {ROW_LIMIT} by creator count{filter === 'review' ? ' within this filter' : ` of ${totalCount}`}.
+          Showing the top {ROW_LIMIT} by creator count{filter === 'all' ? ` of ${totalCount}` : ' within this filter'}.
         </p>
       )}
     </div>
