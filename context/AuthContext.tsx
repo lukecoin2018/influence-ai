@@ -11,20 +11,31 @@ import type { User } from '@supabase/supabase-js';
 // auth call, including signOut, queues behind it and hangs too. Timeouts
 // here are what let loading and signOut recover instead of hanging forever.
 //
-// 15s (up from an initial 10s) plus one silent retry below: a single slow
-// response — which is what we've actually seen in practice, not a true
-// deadlock — now gets a second chance before we bother the user with an
-// error state. If the [auth] timeout logs below show a *specific* step
-// (e.g. "brand_profiles query") consistently eating most of this budget,
-// that's the real underlying bug to chase, not this timeout value.
-const AUTH_INIT_TIMEOUT_MS = 15_000;
+// getSession() and the profile lookups after it get SEPARATE timeout
+// budgets — they used to share one combined window (see git history), which
+// quietly cut the effective time available to whichever step ran second.
+// They're also retried differently:
+//  - Profile queries are plain Postgrest calls with no shared lock, so
+//    retrying them by calling loadProfileForUser() again is a genuine fresh
+//    attempt.
+//  - getSession() is different: because supabase-js serializes it behind
+//    the client's auth lock, calling it a *second* time while the first
+//    call is still in flight doesn't get a fresh attempt — it just queues
+//    behind the same lock and can't resolve any faster. Worse, if the SDK's
+//    own background token-refresh timer fires at the same moment, two
+//    concurrent attempts to use/refresh the same token can race and cause a
+//    genuine (not just UI-level) sign-out. So getSession()'s "retry" below
+//    re-races the *same* in-flight call with a fresh deadline instead of
+//    invoking supabase.auth.getSession() a second time.
+const GET_SESSION_TIMEOUT_MS = 15_000;
+const PROFILE_LOAD_TIMEOUT_MS = 15_000;
 const SIGN_OUT_TIMEOUT_MS = 5_000;
 
 // Tracks whichever auth/profile call is currently in flight, purely so that
-// if the overall check times out we can log *which* step was still pending
-// and for how long — otherwise a timeout tells you nothing about whether
-// the slow part was getSession, the token refresh underneath it, or one of
-// the profile queries.
+// if a check times out we can log *which* step was still pending and for
+// how long — otherwise a timeout tells you nothing about whether the slow
+// part was getSession, the token refresh underneath it, or one of the
+// profile queries.
 type Stage = { label: string; start: number } | null;
 
 async function timed<T>(stageRef: { current: Stage }, label: string, promise: PromiseLike<T>): Promise<T> {
@@ -102,6 +113,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [retryToken, setRetryToken] = useState(0);
   const isMounted = useRef(true);
   const stageRef = useRef<Stage>(null);
+  // Identifies which effect run (i.e. which retryAuth() generation) an async
+  // callback belongs to. isMounted alone can't do this: it flips back to
+  // true as soon as the *next* effect run starts, so a stale promise left
+  // over from *before* a retryAuth() click — e.g. a getSession() call that
+  // was still hung when the user clicked Retry — would otherwise pass the
+  // isMounted check and be free to overwrite the fresh attempt's state with
+  // stale results once it finally settles.
+  const runIdRef = useRef(0);
+
+  function isCurrent(runId: number) {
+    return isMounted.current && runIdRef.current === runId;
+  }
+
+  // getSession() re-races the SAME in-flight call across both timeout
+  // windows rather than invoking supabase.auth.getSession() a second time —
+  // see the comment on GET_SESSION_TIMEOUT_MS above for why a real second
+  // call would be pointless (or actively harmful) here.
+  async function getSessionWithRetry() {
+    const pending = timed(stageRef, 'getSession', supabase.auth.getSession());
+    try {
+      return await withTimeout(pending, GET_SESSION_TIMEOUT_MS);
+    } catch (e) {
+      console.warn(
+        `[auth] getSession still pending after ${GET_SESSION_TIMEOUT_MS}ms (${describeStage(stageRef.current)}) — waiting on the same call rather than starting a second one:`,
+        e,
+      );
+    }
+    return withTimeout(pending, GET_SESSION_TIMEOUT_MS);
+  }
 
   async function loadProfileForUser(userId: string) {
     const { data: roleData } = await timed(stageRef, 'user_roles query', supabase
@@ -140,30 +180,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  // Runs `fn` under the timeout budget; if it fails (times out or throws),
-  // logs which step was in flight and retries once, silently, before ever
-  // touching `authError`. Most real-world failures here are one slow
-  // response, not a genuine deadlock, so a single retry clears the vast
-  // majority of them without ever showing the user anything.
-  async function runSessionCheck(label: string, fn: () => Promise<void>): Promise<void> {
+  // Plain Postgrest queries underneath, no shared client-wide lock, so a
+  // second attempt here is a genuine fresh retry (unlike getSessionWithRetry).
+  async function loadProfileWithRetry(userId: string): Promise<void> {
     try {
-      await withTimeout(fn(), AUTH_INIT_TIMEOUT_MS);
-      if (isMounted.current) setAuthError(null);
-      return;
+      await withTimeout(loadProfileForUser(userId), PROFILE_LOAD_TIMEOUT_MS);
     } catch (e) {
-      console.warn(`[auth] ${label} failed on first attempt (${describeStage(stageRef.current)}), retrying silently:`, e);
-    }
-
-    try {
-      await withTimeout(fn(), AUTH_INIT_TIMEOUT_MS);
-      if (isMounted.current) setAuthError(null);
-    } catch (e) {
-      console.error(`[auth] ${label} failed again on retry (${describeStage(stageRef.current)}), giving up:`, e);
-      if (isMounted.current) setAuthError('Failed to verify your session.');
+      console.warn(`[auth] profile load failed on first attempt (${describeStage(stageRef.current)}), retrying:`, e);
+      await withTimeout(loadProfileForUser(userId), PROFILE_LOAD_TIMEOUT_MS);
     }
   }
 
   useEffect(() => {
+    const runId = ++runIdRef.current;
     isMounted.current = true;
 
     // getSession() (and the profile lookups after it) can hang forever on a
@@ -171,27 +200,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // this. Race it so `loading` always resolves instead of leaving every
     // admin/brand/creator page stuck on "Loading...".
     (async () => {
-      await runSessionCheck('initial session check', async () => {
-        const { data: { session } } = await timed(stageRef, 'getSession', supabase.auth.getSession());
-        if (!isMounted.current) return;
+      try {
+        const { data: { session } } = await getSessionWithRetry();
+        if (!isCurrent(runId)) return;
         setUser(session?.user ?? null);
-        if (session?.user) await loadProfileForUser(session.user.id);
-      });
-      if (isMounted.current) setLoading(false);
+        if (session?.user) await loadProfileWithRetry(session.user.id);
+        if (isCurrent(runId)) setAuthError(null);
+      } catch (e) {
+        console.error(`[auth] initial session check failed (${describeStage(stageRef.current)}):`, e);
+        // A failed *check* is not the same thing as "no session" — leave
+        // user/userRole/profiles untouched here. Only an explicit signal
+        // from Supabase (session === null, handled below) clears them.
+        if (isCurrent(runId)) setAuthError('Failed to verify your session.');
+      } finally {
+        if (isCurrent(runId)) setLoading(false);
+      }
     })();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (!isMounted.current) return;
+      if (!isCurrent(runId)) return;
+      // session here comes directly from the SDK's own event payload, not
+      // from our timed/retried getSession() call — a null session at this
+      // point is a real signal (the SDK itself says there's no session),
+      // so clearing user is correct, not a side effect of a slow check.
       setUser(session?.user ?? null);
-      await runSessionCheck('auth state change sync', async () => {
+      try {
         if (session?.user) {
-          await loadProfileForUser(session.user.id);
+          await loadProfileWithRetry(session.user.id);
         } else {
           setBrandProfile(null);
           setCreatorProfile(null);
           setUserRole(null);
         }
-      });
+        if (isCurrent(runId)) setAuthError(null);
+      } catch (e) {
+        console.error(`[auth] auth state change sync failed (${describeStage(stageRef.current)}):`, e);
+        // Same rule: a failed profile reload must not clear the session
+        // that setUser() above already (correctly) established.
+        if (isCurrent(runId)) setAuthError('Failed to verify your session.');
+      }
     });
 
     return () => {
