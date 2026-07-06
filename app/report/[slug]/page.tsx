@@ -89,7 +89,7 @@ export default async function ReportPage({
 
   const { data: report } = await supabase
     .from('brand_reports')
-    .select('brand_name, brand_handle, category, mode, competitor_names')
+    .select('brand_name, brand_handle, category, mode, competitor_names, excluded_creator_ids, pinned_creator_ids')
     .eq('slug', slug)
     .maybeSingle();
 
@@ -111,12 +111,15 @@ export default async function ReportPage({
 
   // allCreatorIds (every detected creator), not the engagement-scoreable-only `creators` list —
   // a competitor creator with too little post history to score still must not slip into Tier 3.
-  const excludeCreatorIds = new Set(competitors.flatMap((c) => c.allCreatorIds));
+  // Also folds in the admin's manual excluded_creator_ids — Tier 2 exclusion and manual removal
+  // are both just "never show this creator," merged into one set.
+  const excludeCreatorIds = new Set([...competitors.flatMap((c) => c.allCreatorIds), ...(report.excluded_creator_ids ?? [])]);
   const matched = await getMatchedCreators(supabase, {
     mode: report.mode,
     brandHandle: report.brand_handle,
     category: report.category,
     excludeCreatorIds,
+    pinnedCreatorIds: report.pinned_creator_ids ?? [],
     limit: 10,
   });
 
