@@ -41,16 +41,23 @@ function StatBlock({ label, value }: { label: string; value: string }) {
   );
 }
 
-function SectionHeading({ eyebrow, title, subtitle }: { eyebrow: string; title: string; subtitle?: string }) {
+// Matches home.css's dark (--muted-d on --bg) vs light (--muted-l on --surface) text rhythm.
+const SECTION_THEME = {
+  dark: { eyebrow: '#9B9890', title: '#F2F0EA', subtitle: '#9B9890' },
+  light: { eyebrow: '#6E6A5C', title: '#111111', subtitle: '#6E6A5C' },
+} as const;
+
+function SectionHeading({ eyebrow, title, subtitle, theme = 'dark' }: { eyebrow: string; title: string; subtitle?: string; theme?: 'dark' | 'light' }) {
+  const c = SECTION_THEME[theme];
   return (
     <div style={{ marginBottom: '28px' }}>
-      <div style={{ fontSize: '11.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#9B9890', marginBottom: '10px' }}>
+      <div style={{ fontSize: '11.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: c.eyebrow, marginBottom: '10px' }}>
         {eyebrow}
       </div>
-      <h2 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em', color: '#F2F0EA', margin: 0 }}>
+      <h2 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em', color: c.title, margin: 0 }}>
         {title}
       </h2>
-      {subtitle && <p style={{ fontSize: '14px', color: '#9B9890', marginTop: '10px', maxWidth: '620px' }}>{subtitle}</p>}
+      {subtitle && <p style={{ fontSize: '14px', color: c.subtitle, marginTop: '10px', maxWidth: '620px' }}>{subtitle}</p>}
     </div>
   );
 }
@@ -59,6 +66,15 @@ function CardGrid({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '16px' }}>
       {children}
+    </div>
+  );
+}
+
+/** Full-bleed section band (dark or light), matching the homepage's band/board rhythm — its own background, an inner max-width wrapper for content. */
+function Band({ theme, children }: { theme: 'dark' | 'light'; children: React.ReactNode }) {
+  return (
+    <div style={{ backgroundColor: theme === 'light' ? '#F1F2F4' : undefined, color: theme === 'light' ? '#111111' : undefined }}>
+      <div style={{ maxWidth: '1080px', margin: '0 auto', padding: '56px 24px' }}>{children}</div>
     </div>
   );
 }
@@ -73,7 +89,7 @@ export default async function ReportPage({
 
   const { data: report } = await supabase
     .from('brand_reports')
-    .select('brand_name, brand_handle, category, mode, competitor_names')
+    .select('brand_name, brand_handle, category, mode, competitor_names, excluded_creator_ids, pinned_creator_ids')
     .eq('slug', slug)
     .maybeSingle();
 
@@ -93,12 +109,17 @@ export default async function ReportPage({
     competitors = await suggestCompetitors(admin, { excludeCanonicalName: resolved.canonicalName, category: resolved.category });
   }
 
-  const excludeCreatorIds = new Set(competitors.flatMap((c) => c.creators.map((cr) => cr.creatorId)));
+  // allCreatorIds (every detected creator), not the engagement-scoreable-only `creators` list —
+  // a competitor creator with too little post history to score still must not slip into Tier 3.
+  // Also folds in the admin's manual excluded_creator_ids — Tier 2 exclusion and manual removal
+  // are both just "never show this creator," merged into one set.
+  const excludeCreatorIds = new Set([...competitors.flatMap((c) => c.allCreatorIds), ...(report.excluded_creator_ids ?? [])]);
   const matched = await getMatchedCreators(supabase, {
     mode: report.mode,
     brandHandle: report.brand_handle,
     category: report.category,
     excludeCreatorIds,
+    pinnedCreatorIds: report.pinned_creator_ids ?? [],
     limit: 10,
   });
 
@@ -143,11 +164,12 @@ export default async function ReportPage({
         </div>
       </div>
 
-      <main style={{ maxWidth: '1080px', margin: '0 auto', padding: '20px 24px 60px', display: 'flex', flexDirection: 'column', gap: '72px' }}>
-        {/* Tier 1 — Your creator activity */}
-        {tier1 && (
+      {/* Tier 1 — Your creator activity (dark, continues the hero) */}
+      {tier1 && (
+        <Band theme="dark">
           <section>
             <SectionHeading
+              theme="dark"
               eyebrow="Tier 1 · Open"
               title="Your creator activity"
               subtitle={`Creators we've detected posting sponsored content for ${resolved!.canonicalName}.`}
@@ -162,92 +184,102 @@ export default async function ReportPage({
               {tier1.creators.slice(0, 6).map((c) => (
                 <NamedCreatorCard
                   key={c.creatorId}
+                  theme="dark"
                   creator={{ handle: c.handle, displayName: c.displayName, platform: c.platform, followerCount: c.followerCount, engagementRate: c.engagementRate }}
                 />
               ))}
             </CardGrid>
           </section>
-        )}
+        </Band>
+      )}
 
-        {/* Tier 2 — Your competitive landscape */}
-        {competitors.length > 0 && (
+      {/* Tier 2 + Tier 3 — light section, same paper tone as the homepage leaderboard */}
+      <Band theme="light">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '64px' }}>
+          {competitors.length > 0 && (
+            <section>
+              <SectionHeading
+                theme="light"
+                eyebrow="Tier 2 · Open"
+                title="Your competitive landscape"
+                subtitle="Verified competitor brands in your category, and the creators actively posting sponsored content for them."
+              />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                {competitors.map((comp) => (
+                  <div key={comp.canonicalName} style={{ background: '#FFFFFF', border: '1px solid #E4E0D4', borderRadius: '18px', padding: '22px', boxShadow: '0 2px 24px rgba(20,18,10,0.06)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px', marginBottom: '18px' }}>
+                      <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#111111', margin: 0 }}>{comp.canonicalName}</h3>
+                      <div style={{ fontSize: '12.5px', color: '#6E6A5C' }}>
+                        {comp.distinctCreators.toLocaleString()} creators detected · most recent post {formatDate(comp.mostRecentPost)}
+                      </div>
+                    </div>
+                    <CardGrid>
+                      {comp.creators.slice(0, 3).map((c) => (
+                        <NamedCreatorCard
+                          key={c.creatorId}
+                          theme="light"
+                          creator={{ handle: c.handle, displayName: c.displayName, platform: c.platform, followerCount: c.followerCount, engagementRate: c.engagementRate }}
+                        />
+                      ))}
+                    </CardGrid>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <section>
             <SectionHeading
-              eyebrow="Tier 2 · Open"
-              title="Your competitive landscape"
-              subtitle="Verified competitor brands in your category, and the creators actively posting sponsored content for them."
+              theme="light"
+              eyebrow="Tier 3 · Partial"
+              title="Recommended for you"
+              subtitle="Creators matched to your brand's niche and partnership history — none currently work with the competitors above."
             />
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-              {competitors.map((comp) => (
-                <div key={comp.canonicalName} style={{ background: '#141414', border: '1px solid #262626', borderRadius: '18px', padding: '22px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '10px', marginBottom: '18px' }}>
-                    <h3 style={{ fontSize: '17px', fontWeight: 800, color: '#F2F0EA', margin: 0 }}>{comp.canonicalName}</h3>
-                    <div style={{ fontSize: '12.5px', color: '#9B9890' }}>
-                      {comp.distinctCreators.toLocaleString()} creators detected · most recent post {formatDate(comp.mostRecentPost)}
-                    </div>
-                  </div>
+            {competitors.length > 0 && (
+              <p style={{ fontSize: '13px', color: '#6E6A5C', margin: '-14px 0 24px' }}>
+                None of these creators currently post sponsored content for {competitors.map((c) => c.canonicalName).join(', ')}.
+              </p>
+            )}
+
+            {matched.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '48px 0', color: '#6E6A5C' }}>
+                <p style={{ fontSize: '15px' }}>No creator matches found for this report yet.</p>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                {topMatches.length > 0 && (
                   <CardGrid>
-                    {comp.creators.slice(0, 3).map((c) => (
+                    {topMatches.map((m) => (
                       <NamedCreatorCard
-                        key={c.creatorId}
-                        creator={{ handle: c.handle, displayName: c.displayName, platform: c.platform, followerCount: c.followerCount, engagementRate: c.engagementRate }}
+                        key={m.creatorId}
+                        theme="light"
+                        href={`/login?redirectTo=${encodeURIComponent(`/creators/${m.handle}`)}`}
+                        creator={{
+                          handle: m.handle,
+                          displayName: m.displayName,
+                          platform: m.platform,
+                          followerCount: m.followerCount,
+                          engagementRate: m.engagementRate,
+                        }}
                       />
                     ))}
                   </CardGrid>
-                </div>
-              ))}
-            </div>
+                )}
+                {blurredMatches.length > 0 && (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
+                    {blurredMatches.map((m, i) => (
+                      <CreatorCard key={i} creator={m.safe} signupUrl={signupUrl} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </section>
-        )}
+        </div>
+      </Band>
 
-        {/* Tier 3 — Recommended for you */}
-        <section>
-          <SectionHeading
-            eyebrow="Tier 3 · Partial"
-            title="Recommended for you"
-            subtitle="Creators matched to your brand's niche and partnership history — none currently work with the competitors above."
-          />
-          {competitors.length > 0 && (
-            <p style={{ fontSize: '13px', color: '#9B9890', margin: '-14px 0 24px' }}>
-              None of these creators currently post sponsored content for {competitors.map((c) => c.canonicalName).join(', ')}.
-            </p>
-          )}
-
-          {matched.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '48px 0', color: '#6E6A5C' }}>
-              <p style={{ fontSize: '15px' }}>No creator matches found for this report yet.</p>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-              {topMatches.length > 0 && (
-                <CardGrid>
-                  {topMatches.map((m) => (
-                    <NamedCreatorCard
-                      key={m.creatorId}
-                      href={`/login?redirectTo=${encodeURIComponent(`/creators/${m.handle}`)}`}
-                      creator={{
-                        handle: m.handle,
-                        displayName: m.displayName,
-                        platform: m.platform,
-                        followerCount: m.followerCount,
-                        engagementRate: m.engagementRate,
-                      }}
-                    />
-                  ))}
-                </CardGrid>
-              )}
-              {blurredMatches.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' }}>
-                  {blurredMatches.map((m, i) => (
-                    <CreatorCard key={i} creator={m.safe} signupUrl={signupUrl} />
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-        </section>
-
-        {/* CTA block */}
+      {/* CTA — back to dark */}
+      <Band theme="dark">
         <div style={{ borderRadius: '24px', padding: '48px 32px', textAlign: 'center', background: 'linear-gradient(135deg, #141414 0%, #0A0A0A 100%)', border: '1px solid #262626', position: 'relative', overflow: 'hidden' }}>
           <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '160px', height: '160px', borderRadius: '50%', background: '#FFD700', opacity: 0.12, filter: 'blur(40px)', pointerEvents: 'none' }} />
           <div style={{ position: 'relative', zIndex: 1 }}>
@@ -269,7 +301,7 @@ export default async function ReportPage({
             </p>
           </div>
         </div>
-      </main>
+      </Band>
 
       {/* Footer */}
       <footer style={{ textAlign: 'center', padding: '32px 24px', fontSize: '12px', color: '#6E6A5C', borderTop: '1px solid #262626' }}>

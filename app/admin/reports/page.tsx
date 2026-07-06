@@ -1,7 +1,7 @@
 // app/admin/reports/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -13,8 +13,10 @@ import {
   type BrandActivity,
   type ResolvedBrand,
 } from '@/lib/reports/brand-activity';
+import { getMatchedCreators, type MatchedCreator } from '@/lib/reports/matching';
 
 const MAX_COMPETITORS = 3;
+const TIER3_PREVIEW_LIMIT = 10;
 
 interface BrandReport {
   id: string;
@@ -24,6 +26,8 @@ interface BrandReport {
   category: string | null;
   mode: 'auto' | 'manual';
   competitor_names: string[] | null;
+  excluded_creator_ids: string[] | null;
+  pinned_creator_ids: string[] | null;
   created_at: string;
 }
 
@@ -50,6 +54,25 @@ async function loadDetail(report: Pick<BrandReport, 'brand_handle' | 'brand_name
   return { loading: false, resolved, tier1, competitors };
 }
 
+/** Recomputes the Tier 3 preview for the report editor exactly as the live report page would, given the in-progress edits. */
+async function loadTier3Preview(
+  report: Pick<BrandReport, 'mode' | 'brand_handle' | 'category'>,
+  competitorNames: string[],
+  excludedIds: string[],
+  pinnedIds: string[],
+): Promise<MatchedCreator[]> {
+  const competitors = competitorNames.length > 0 ? await getCompetitorActivities(supabase, competitorNames) : [];
+  const excludeCreatorIds = new Set([...competitors.flatMap((c) => c.allCreatorIds), ...excludedIds]);
+  return getMatchedCreators(supabase, {
+    mode: report.mode,
+    brandHandle: report.brand_handle,
+    category: report.category,
+    excludeCreatorIds,
+    pinnedCreatorIds: pinnedIds,
+    limit: TIER3_PREVIEW_LIMIT,
+  });
+}
+
 function CopyButton({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
   return (
@@ -68,6 +91,17 @@ function ActivitySummary({ detail }: { detail: ReportDetail | undefined }) {
   return (
     <span style={{ fontSize: '12px', color: '#16a34a' }}>
       {detail.tier1.sponsoredPosts.toLocaleString()} posts · {detail.tier1.distinctCreators.toLocaleString()} creators
+    </span>
+  );
+}
+
+function Tier3Summary({ report }: { report: BrandReport }) {
+  const pinned = report.pinned_creator_ids?.length ?? 0;
+  const excluded = report.excluded_creator_ids?.length ?? 0;
+  if (pinned === 0 && excluded === 0) return <span style={{ fontSize: '12px', color: '#9CA3AF' }}>Auto (no manual curation)</span>;
+  return (
+    <span style={{ fontSize: '12px', color: '#3A3A3A' }}>
+      {pinned > 0 && `${pinned} pinned`}{pinned > 0 && excluded > 0 && ' · '}{excluded > 0 && `${excluded} removed`}
     </span>
   );
 }
@@ -150,15 +184,81 @@ function CompetitorPicker({
   );
 }
 
+function Tier3Editor({
+  matches,
+  loading,
+  pinnedIds,
+  excludedCount,
+  onTogglePin,
+  onRemove,
+  onClearRemovals,
+}: {
+  matches: MatchedCreator[];
+  loading: boolean;
+  pinnedIds: string[];
+  excludedCount: number;
+  onTogglePin: (creatorId: string) => void;
+  onRemove: (creatorId: string) => void;
+  onClearRemovals: () => void;
+}) {
+  return (
+    <div>
+      {loading ? (
+        <p style={{ fontSize: '12px', color: '#9CA3AF' }}>Computing matches…</p>
+      ) : matches.length === 0 ? (
+        <p style={{ fontSize: '12px', color: '#9CA3AF' }}>No matches — nothing to curate yet.</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          {matches.map((m) => {
+            const isPinned = pinnedIds.includes(m.creatorId);
+            return (
+              <div key={m.creatorId} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '6px 10px', borderRadius: '8px', backgroundColor: isPinned ? 'rgba(255,215,0,0.12)' : '#F9FAFB', border: '1px solid #F3F4F6' }}>
+                <button
+                  type="button"
+                  onClick={() => onTogglePin(m.creatorId)}
+                  title={isPinned ? 'Unpin' : 'Pin to always appear first'}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', padding: 0, opacity: isPinned ? 1 : 0.35 }}
+                >
+                  📌
+                </button>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#3A3A3A' }}>{m.displayName}</span>
+                  <span style={{ fontSize: '11.5px', color: '#9CA3AF', marginLeft: '6px' }}>@{m.handle} · {m.platform} · {m.engagementRate.toFixed(1)}% eng.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onRemove(m.creatorId)}
+                  title="Remove from Tier 3"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EF4444', fontWeight: 700, fontSize: '13px', padding: '0 4px' }}
+                >
+                  ×
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {excludedCount > 0 && (
+        <button type="button" onClick={onClearRemovals} style={{ marginTop: '8px', fontSize: '11px', color: '#3AAFF4', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
+          Clear {excludedCount} manual removal{excludedCount === 1 ? '' : 's'}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export default function AdminReportsPage() {
   const { user, userRole, loading } = useAuth();
   const router = useRouter();
 
   const [reports, setReports] = useState<BrandReport[]>([]);
   const [details, setDetails] = useState<Record<string, ReportDetail>>({});
-  const [editingCompetitorsId, setEditingCompetitorsId] = useState<string | null>(null);
-  const [editingNames, setEditingNames] = useState<string[]>([]);
-  const [savingCompetitors, setSavingCompetitors] = useState(false);
+  const [editingReportId, setEditingReportId] = useState<string | null>(null);
+  const [editingCompetitorNames, setEditingCompetitorNames] = useState<string[]>([]);
+  const [editingExcludedIds, setEditingExcludedIds] = useState<string[]>([]);
+  const [editingPinnedIds, setEditingPinnedIds] = useState<string[]>([]);
+  const [tier3Preview, setTier3Preview] = useState<{ loading: boolean; matches: MatchedCreator[] }>({ loading: false, matches: [] });
+  const [savingReport, setSavingReport] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
@@ -290,9 +390,26 @@ export default function AdminReportsPage() {
     }
   };
 
-  function startEditingCompetitors(report: BrandReport) {
-    setEditingCompetitorsId(report.id);
-    setEditingNames(report.competitor_names ?? details[report.id]?.competitors.map((c) => c.canonicalName) ?? []);
+  async function refreshTier3Preview(report: BrandReport, competitorNames: string[], excludedIds: string[], pinnedIds: string[]) {
+    setTier3Preview({ loading: true, matches: [] });
+    const matches = await loadTier3Preview(report, competitorNames, excludedIds, pinnedIds);
+    setTier3Preview({ loading: false, matches });
+  }
+
+  function startEditingReport(report: BrandReport) {
+    const competitorNames = report.competitor_names ?? details[report.id]?.competitors.map((c) => c.canonicalName) ?? [];
+    const excludedIds = report.excluded_creator_ids ?? [];
+    const pinnedIds = report.pinned_creator_ids ?? [];
+    setEditingReportId(report.id);
+    setEditingCompetitorNames(competitorNames);
+    setEditingExcludedIds(excludedIds);
+    setEditingPinnedIds(pinnedIds);
+    refreshTier3Preview(report, competitorNames, excludedIds, pinnedIds);
+  }
+
+  function handleEditCompetitorsChange(report: BrandReport, names: string[]) {
+    setEditingCompetitorNames(names);
+    refreshTier3Preview(report, names, editingExcludedIds, editingPinnedIds);
   }
 
   async function handleRowSuggest(report: BrandReport) {
@@ -301,27 +418,62 @@ export default function AdminReportsPage() {
       const resolved = await resolveCanonicalBrand(supabase, { brandHandle: report.brand_handle, brandName: report.brand_name });
       if (!resolved) { setToast({ message: 'Could not resolve this brand', type: 'error' }); return; }
       const suggestions = await suggestCompetitors(supabase, { excludeCanonicalName: resolved.canonicalName, category: resolved.category });
-      setEditingNames(suggestions.map((s) => s.canonicalName));
+      const names = suggestions.map((s) => s.canonicalName);
+      setEditingCompetitorNames(names);
+      refreshTier3Preview(report, names, editingExcludedIds, editingPinnedIds);
     } finally {
       setRowSuggesting(false);
     }
   }
 
-  async function saveCompetitors(report: BrandReport) {
-    setSavingCompetitors(true);
+  function handleTogglePin(report: BrandReport, creatorId: string) {
+    const newPinned = editingPinnedIds.includes(creatorId)
+      ? editingPinnedIds.filter((id) => id !== creatorId)
+      : [...editingPinnedIds, creatorId];
+    setEditingPinnedIds(newPinned);
+    refreshTier3Preview(report, editingCompetitorNames, editingExcludedIds, newPinned);
+  }
+
+  function handleRemoveMatch(report: BrandReport, creatorId: string) {
+    const newExcluded = [...editingExcludedIds, creatorId];
+    const newPinned = editingPinnedIds.filter((id) => id !== creatorId);
+    setEditingExcludedIds(newExcluded);
+    setEditingPinnedIds(newPinned);
+    refreshTier3Preview(report, editingCompetitorNames, newExcluded, newPinned);
+  }
+
+  function handleClearRemovals(report: BrandReport) {
+    setEditingExcludedIds([]);
+    refreshTier3Preview(report, editingCompetitorNames, [], editingPinnedIds);
+  }
+
+  async function saveReportChanges(report: BrandReport) {
+    setSavingReport(true);
     try {
-      const { error } = await supabase.from('brand_reports').update({ competitor_names: editingNames }).eq('id', report.id);
+      const { error } = await supabase
+        .from('brand_reports')
+        .update({
+          competitor_names: editingCompetitorNames,
+          excluded_creator_ids: editingExcludedIds,
+          pinned_creator_ids: editingPinnedIds,
+        })
+        .eq('id', report.id);
       if (error) throw error;
-      const updated = { ...report, competitor_names: editingNames };
+      const updated = {
+        ...report,
+        competitor_names: editingCompetitorNames,
+        excluded_creator_ids: editingExcludedIds,
+        pinned_creator_ids: editingPinnedIds,
+      };
       setReports((prev) => prev.map((r) => (r.id === report.id ? updated : r)));
       loadReportDetails([updated]);
-      setEditingCompetitorsId(null);
-      setToast({ message: 'Competitors updated', type: 'success' });
+      setEditingReportId(null);
+      setToast({ message: 'Report updated', type: 'success' });
     } catch (err) {
-      console.error('Failed to update competitors:', err);
-      setToast({ message: 'Failed to update competitors', type: 'error' });
+      console.error('Failed to update report:', err);
+      setToast({ message: 'Failed to update report', type: 'error' });
     } finally {
-      setSavingCompetitors(false);
+      setSavingReport(false);
     }
   }
 
@@ -420,7 +572,7 @@ export default function AdminReportsPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ backgroundColor: '#F9FAFB' }}>
-                {['Brand', 'Detected activity', 'Competitors', 'URL', 'Mode', ''].map(h => (
+                {['Brand', 'Detected activity', 'Competitors', 'Tier 3', 'URL', 'Mode', ''].map(h => (
                   <th key={h} style={{ textAlign: 'left', padding: '10px 20px', fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
                 ))}
               </tr>
@@ -429,76 +581,99 @@ export default function AdminReportsPage() {
               {reports.map(report => {
                 const url = `${baseUrl}/report/${report.slug}`;
                 const detail = details[report.id];
-                const isEditing = editingCompetitorsId === report.id;
+                const isEditing = editingReportId === report.id;
                 return (
-                  <tr key={report.id} style={{ borderTop: '1px solid #F3F4F6', verticalAlign: 'top' }}>
-                    <td style={{ padding: '14px 20px' }}>
-                      <p style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: 0 }}>{report.brand_name}</p>
-                      {report.brand_handle && <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '2px 0 0' }}>@{report.brand_handle}</p>}
-                    </td>
-                    <td style={{ padding: '14px 20px' }}>
-                      <ActivitySummary detail={detail} />
-                    </td>
-                    <td style={{ padding: '14px 20px', minWidth: '260px' }}>
-                      {isEditing ? (
-                        <div>
-                          <CompetitorPicker
-                            id={report.id}
-                            names={editingNames}
-                            onChange={setEditingNames}
-                            verifiedOptions={verifiedBrandOptions}
-                            onSuggest={() => handleRowSuggest(report)}
-                            suggesting={rowSuggesting}
-                          />
-                          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-                            <button onClick={() => saveCompetitors(report)} disabled={savingCompetitors} style={{ padding: '5px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, border: 'none', backgroundColor: '#16a34a', color: 'white', cursor: 'pointer' }}>
-                              {savingCompetitors ? 'Saving…' : 'Save'}
+                  <Fragment key={report.id}>
+                    <tr style={{ borderTop: '1px solid #F3F4F6', verticalAlign: 'top' }}>
+                      <td style={{ padding: '14px 20px' }}>
+                        <p style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: 0 }}>{report.brand_name}</p>
+                        {report.brand_handle && <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '2px 0 0' }}>@{report.brand_handle}</p>}
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        <ActivitySummary detail={detail} />
+                      </td>
+                      <td style={{ padding: '14px 20px', minWidth: '160px' }}>
+                        {!detail || detail.loading ? (
+                          <span style={{ fontSize: '12px', color: '#9CA3AF' }}>Loading…</span>
+                        ) : detail.competitors.length === 0 ? (
+                          <span style={{ fontSize: '12px', color: '#9CA3AF' }}>None{report.competitor_names === null ? ' (no auto-suggestion qualified)' : ''}</span>
+                        ) : (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                            {detail.competitors.map((c) => (
+                              <span key={c.canonicalName} style={{ display: 'inline-block', padding: '3px 8px', borderRadius: '999px', fontSize: '11px', fontWeight: 500, backgroundColor: 'rgba(255,215,0,0.15)', color: '#92660b' }}>
+                                {c.canonicalName}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        <Tier3Summary report={report} />
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <a href={url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: '#3AAFF4', textDecoration: 'none', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
+                            /report/{report.slug}
+                          </a>
+                          <CopyButton url={url} />
+                        </div>
+                      </td>
+                      <td style={{ padding: '14px 20px' }}>
+                        <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 500, backgroundColor: report.mode === 'auto' ? 'rgba(58,175,244,0.1)' : 'rgba(255,77,148,0.1)', color: report.mode === 'auto' ? '#1e7fbf' : '#c0195d' }}>
+                          {report.mode === 'auto' ? 'Auto' : 'Manual'}{report.category && ` · ${report.category}`}
+                        </span>
+                      </td>
+                      <td style={{ padding: '14px 20px', textAlign: 'right' }}>
+                        <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                          <button onClick={() => (isEditing ? setEditingReportId(null) : startEditingReport(report))} style={{ fontSize: '12px', color: '#3AAFF4', background: 'none', border: 'none', cursor: 'pointer' }}>
+                            {isEditing ? 'Close' : 'Edit'}
+                          </button>
+                          <button onClick={() => handleDelete(report.id)} disabled={deletingId === report.id} style={{ fontSize: '12px', color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', opacity: deletingId === report.id ? 0.4 : 1 }}>
+                            {deletingId === report.id ? 'Deleting…' : 'Delete'}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                    {isEditing && (
+                      <tr key={`${report.id}-editor`} style={{ borderTop: '1px solid #F3F4F6', backgroundColor: '#FAFAFA' }}>
+                        <td colSpan={7} style={{ padding: '20px' }}>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                            <div>
+                              <p style={{ fontSize: '12px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 10px' }}>Competitors (Tier 2)</p>
+                              <CompetitorPicker
+                                id={report.id}
+                                names={editingCompetitorNames}
+                                onChange={(names) => handleEditCompetitorsChange(report, names)}
+                                verifiedOptions={verifiedBrandOptions}
+                                onSuggest={() => handleRowSuggest(report)}
+                                suggesting={rowSuggesting}
+                              />
+                            </div>
+                            <div>
+                              <p style={{ fontSize: '12px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 10px' }}>Recommended for you (Tier 3)</p>
+                              <Tier3Editor
+                                matches={tier3Preview.matches}
+                                loading={tier3Preview.loading}
+                                pinnedIds={editingPinnedIds}
+                                excludedCount={editingExcludedIds.length}
+                                onTogglePin={(creatorId) => handleTogglePin(report, creatorId)}
+                                onRemove={(creatorId) => handleRemoveMatch(report, creatorId)}
+                                onClearRemovals={() => handleClearRemovals(report)}
+                              />
+                            </div>
+                          </div>
+                          <div style={{ display: 'flex', gap: '8px', marginTop: '18px' }}>
+                            <button onClick={() => saveReportChanges(report)} disabled={savingReport} style={{ padding: '7px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, border: 'none', backgroundColor: '#16a34a', color: 'white', cursor: 'pointer' }}>
+                              {savingReport ? 'Saving…' : 'Save changes'}
                             </button>
-                            <button onClick={() => setEditingCompetitorsId(null)} style={{ padding: '5px 12px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, border: '1px solid #E5E7EB', backgroundColor: 'white', color: '#6B7280', cursor: 'pointer' }}>
+                            <button onClick={() => setEditingReportId(null)} style={{ padding: '7px 16px', borderRadius: '8px', fontSize: '12px', fontWeight: 600, border: '1px solid #E5E7EB', backgroundColor: 'white', color: '#6B7280', cursor: 'pointer' }}>
                               Cancel
                             </button>
                           </div>
-                        </div>
-                      ) : (
-                        <div>
-                          {!detail || detail.loading ? (
-                            <span style={{ fontSize: '12px', color: '#9CA3AF' }}>Loading…</span>
-                          ) : detail.competitors.length === 0 ? (
-                            <span style={{ fontSize: '12px', color: '#9CA3AF' }}>None{report.competitor_names === null ? ' (no auto-suggestion qualified)' : ''}</span>
-                          ) : (
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                              {detail.competitors.map((c) => (
-                                <span key={c.canonicalName} style={{ display: 'inline-block', padding: '3px 8px', borderRadius: '999px', fontSize: '11px', fontWeight: 500, backgroundColor: 'rgba(255,215,0,0.15)', color: '#92660b' }}>
-                                  {c.canonicalName}
-                                </span>
-                              ))}
-                            </div>
-                          )}
-                          <button onClick={() => startEditingCompetitors(report)} style={{ marginTop: '6px', fontSize: '11px', color: '#3AAFF4', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>
-                            Edit competitors
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                    <td style={{ padding: '14px 20px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <a href={url} target="_blank" rel="noopener noreferrer" style={{ fontSize: '12px', color: '#3AAFF4', textDecoration: 'none', maxWidth: '180px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
-                          /report/{report.slug}
-                        </a>
-                        <CopyButton url={url} />
-                      </div>
-                    </td>
-                    <td style={{ padding: '14px 20px' }}>
-                      <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 500, backgroundColor: report.mode === 'auto' ? 'rgba(58,175,244,0.1)' : 'rgba(255,77,148,0.1)', color: report.mode === 'auto' ? '#1e7fbf' : '#c0195d' }}>
-                        {report.mode === 'auto' ? 'Auto' : 'Manual'}{report.category && ` · ${report.category}`}
-                      </span>
-                    </td>
-                    <td style={{ padding: '14px 20px', textAlign: 'right' }}>
-                      <button onClick={() => handleDelete(report.id)} disabled={deletingId === report.id} style={{ fontSize: '12px', color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', opacity: deletingId === report.id ? 0.4 : 1 }}>
-                        {deletingId === report.id ? 'Deleting…' : 'Delete'}
-                      </button>
-                    </td>
-                  </tr>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 );
               })}
             </tbody>

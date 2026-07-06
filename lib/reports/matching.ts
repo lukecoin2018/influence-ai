@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { toSafeCreator, type SafeCreator } from '@/lib/discover/config';
-import { computeMedianEngagement } from '@/lib/reports/engagement';
+import { scoreProfilesByMedianEngagement } from '@/lib/reports/engagement';
 
 /**
  * Tier 3 ("Recommended for you") match logic — lifted from the original
@@ -17,6 +17,13 @@ import { computeMedianEngagement } from '@/lib/reports/engagement';
  *    that column has no post-count floor or outlier cap and can be wildly
  *    wrong (observed 174.6%/99.5% on a live report). A candidate that can't
  *    be scored (fewer than 8 posts) is dropped, not shown with a fallback.
+ *  - accept pinnedCreatorIds (brand_reports.pinned_creator_ids): fetched
+ *    directly by creator_id rather than relying on them surfacing in the
+ *    normal category/follower-range pool, so a pin is honored even for a
+ *    creator who wouldn't otherwise rank or match. Still subject to scoring
+ *    (fewer than 8 posts = can't be shown) and to excludeCreatorIds — a
+ *    pinned creator who also overlaps a Tier 2 competitor stays excluded;
+ *    Tier 2 exclusion always wins over a pin.
  */
 
 export type MatchedCreator = {
@@ -136,26 +143,38 @@ async function fetchManualMatch(
   return (rawCreators ?? []).map((r) => toCandidate(r as unknown as RawRow));
 }
 
+/** Fetches candidates by creator_id directly, bypassing the category/follower-range pool — used to guarantee a pin is honored. */
+async function fetchCandidatesByCreatorIds(supabase: SupabaseClient, creatorIds: string[]): Promise<Candidate[]> {
+  if (creatorIds.length === 0) return [];
+  const { data } = await supabase
+    .from('social_profiles')
+    .select(BASE_SELECT)
+    .in('creator_id', creatorIds);
+  return (data ?? []).map((r) => toCandidate(r as unknown as RawRow));
+}
+
+/** Keeps one MatchedCreator per creator_id — a creator can have multiple platform profiles, keep whichever scores higher. */
+function dedupeByCreator(matches: MatchedCreator[]): MatchedCreator[] {
+  const byCreator = new Map<string, MatchedCreator>();
+  for (const m of matches) {
+    const existing = byCreator.get(m.creatorId);
+    if (!existing || m.engagementRate > existing.engagementRate) byCreator.set(m.creatorId, m);
+  }
+  return [...byCreator.values()];
+}
+
 /** Scores each candidate via computeMedianEngagement(); drops anyone who can't be scored (fewer than 8 posts). */
 async function rankByMedianEngagement(supabase: SupabaseClient, candidates: Candidate[]): Promise<MatchedCreator[]> {
   if (candidates.length === 0) return [];
 
-  const profileIds = candidates.map((c) => c.profileId);
-  const { data: posts } = await supabase
-    .from('creator_posts')
-    .select('social_profile_id, likes_count, comments_count')
-    .in('social_profile_id', profileIds);
-
-  const postsByProfile = new Map<string, { likes_count: number | null; comments_count: number | null }[]>();
-  for (const p of posts ?? []) {
-    const list = postsByProfile.get(p.social_profile_id) ?? [];
-    list.push({ likes_count: p.likes_count, comments_count: p.comments_count });
-    postsByProfile.set(p.social_profile_id, list);
-  }
+  const scores = await scoreProfilesByMedianEngagement(
+    supabase,
+    candidates.map((c) => ({ profileId: c.profileId, followerCount: c.followerCount, platform: c.platform })),
+  );
 
   const scored: MatchedCreator[] = [];
   for (const c of candidates) {
-    const engagementRate = computeMedianEngagement(postsByProfile.get(c.profileId) ?? [], c.followerCount, c.platform);
+    const engagementRate = scores.get(c.profileId);
     if (engagementRate == null) continue; // fewer than 8 posts — can't be scored, not shown
     scored.push({
       creatorId: c.creatorId,
@@ -178,12 +197,15 @@ export async function getMatchedCreators(
     brandHandle,
     category,
     excludeCreatorIds,
+    pinnedCreatorIds = [],
     limit,
   }: {
     mode: 'auto' | 'manual';
     brandHandle: string | null;
     category: string | null;
     excludeCreatorIds: Set<string>;
+    /** Admin-curated brand_reports.pinned_creator_ids — always ranked first among eligible matches. */
+    pinnedCreatorIds?: string[];
     limit: number;
   },
 ): Promise<MatchedCreator[]> {
@@ -200,6 +222,19 @@ export async function getMatchedCreators(
     candidates = [];
   }
 
-  const ranked = await rankByMedianEngagement(supabase, candidates);
-  return ranked.filter((m) => !excludeCreatorIds.has(m.creatorId)).slice(0, limit);
+  // Pinned creators are fetched directly so a pin works even outside the normal pool.
+  if (pinnedCreatorIds.length > 0) {
+    candidates = [...candidates, ...(await fetchCandidatesByCreatorIds(supabase, pinnedCreatorIds))];
+  }
+
+  const ranked = dedupeByCreator(await rankByMedianEngagement(supabase, candidates)).sort(
+    (a, b) => b.engagementRate - a.engagementRate,
+  );
+  const eligible = ranked.filter((m) => !excludeCreatorIds.has(m.creatorId));
+
+  const pinnedSet = new Set(pinnedCreatorIds);
+  const pinned = eligible.filter((m) => pinnedSet.has(m.creatorId));
+  const rest = eligible.filter((m) => !pinnedSet.has(m.creatorId));
+
+  return [...pinned, ...rest].slice(0, limit);
 }

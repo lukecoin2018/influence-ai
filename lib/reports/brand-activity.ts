@@ -1,4 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { scoreProfilesByMedianEngagement } from '@/lib/reports/engagement';
 
 /**
  * Shared by both the public /report/[slug] page (using a service-role client,
@@ -13,6 +14,13 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  * by creator_id) but re-implemented in JS rather than queried through the
  * view, because the view's RLS-inherited access is admin-only and because
  * Tier 1/Tier 2 need different alias sets (all brand aliases vs. verified-only).
+ *
+ * Engagement is never read from the raw social_profiles.engagement_rate
+ * column — see lib/reports/engagement.ts. distinctCreators/sponsoredPosts/
+ * mostRecentPost are partnership-detection facts and stay based on every
+ * detected creator regardless of whether their engagement can be scored;
+ * `creators` (used for card display + the median stat) is narrowed to only
+ * creators with enough post history to score, per computeMedianEngagement().
  */
 
 export type CreatorStat = {
@@ -21,7 +29,7 @@ export type CreatorStat = {
   displayName: string;
   platform: 'instagram' | 'tiktok';
   followerCount: number | null;
-  engagementRate: number | null;
+  engagementRate: number;
 };
 
 export type BrandActivity = {
@@ -31,8 +39,10 @@ export type BrandActivity = {
   distinctCreators: number;
   medianEngagement: number | null;
   mostRecentPost: string | null;
-  /** Deduped one-per-creator, sorted by engagement_rate desc. */
+  /** Deduped one-per-creator, engagement-scoreable only, sorted by engagementRate desc. */
   creators: CreatorStat[];
+  /** Every distinct creator_id detected for this brand, regardless of engagement scorability — use this for exclusion sets, not `creators`. */
+  allCreatorIds: string[];
 };
 
 export type ResolvedBrand = {
@@ -109,28 +119,38 @@ export async function getBrandActivity(
   const profileIds = [...new Set(posts.map((p) => p.social_profile_id))];
   const { data: profiles } = await supabase
     .from('social_profiles')
-    .select('id, creator_id, platform, handle, follower_count, engagement_rate, creators!inner(display_name)')
+    .select('id, creator_id, platform, handle, follower_count, creators!inner(display_name)')
     .in('id', profileIds);
+
+  const allCreatorIds = [...new Set((profiles ?? []).map((p) => p.creator_id))];
+
+  const scores = await scoreProfilesByMedianEngagement(
+    supabase,
+    (profiles ?? []).map((p) => ({ profileId: p.id, followerCount: p.follower_count, platform: p.platform })),
+  );
 
   const byCreator = new Map<string, CreatorStat>();
   for (const p of profiles ?? []) {
+    const engagementRate = scores.get(p.id);
+    if (engagementRate == null) continue; // fewer than 8 posts — can't be scored, excluded from display/ranking
+
     const displayNameRaw = (p as unknown as { creators: { display_name: string } | { display_name: string }[] }).creators;
     const displayName = Array.isArray(displayNameRaw) ? displayNameRaw[0]?.display_name : displayNameRaw?.display_name;
     const existing = byCreator.get(p.creator_id);
-    // Keep the higher-engagement profile when a creator has posted from multiple platforms for this brand.
-    if (!existing || (p.engagement_rate ?? 0) > (existing.engagementRate ?? 0)) {
+    // Keep the higher-scoring profile when a creator has posted from multiple platforms for this brand.
+    if (!existing || engagementRate > existing.engagementRate) {
       byCreator.set(p.creator_id, {
         creatorId: p.creator_id,
         handle: p.handle,
         displayName: displayName ?? p.handle,
         platform: p.platform,
         followerCount: p.follower_count,
-        engagementRate: p.engagement_rate,
+        engagementRate,
       });
     }
   }
 
-  const creators = [...byCreator.values()].sort((a, b) => (b.engagementRate ?? 0) - (a.engagementRate ?? 0));
+  const creators = [...byCreator.values()].sort((a, b) => b.engagementRate - a.engagementRate);
   const mostRecentPost = posts.reduce<string | null>(
     (max, p) => (!max || (p.posted_at && p.posted_at > max) ? p.posted_at : max),
     null,
@@ -140,10 +160,11 @@ export async function getBrandActivity(
     canonicalName,
     category,
     sponsoredPosts: posts.length,
-    distinctCreators: creators.length,
-    medianEngagement: median(creators.map((c) => c.engagementRate).filter((v): v is number => v != null)),
+    distinctCreators: allCreatorIds.length,
+    medianEngagement: median(creators.map((c) => c.engagementRate)),
     mostRecentPost,
     creators,
+    allCreatorIds,
   };
 }
 
