@@ -450,15 +450,24 @@ export default function AdminReportsPage() {
   async function saveReportChanges(report: BrandReport) {
     setSavingReport(true);
     try {
-      const { error } = await supabase
+      // .select() after .update() isn't just for the return value — it's the only way to
+      // detect a write silently blocked by RLS. Postgres/PostgREST doesn't error when a
+      // policy excludes the row from an UPDATE; it just matches zero rows, and `error`
+      // stays null. Without checking the returned rows, a blocked save looks identical to
+      // a successful one (this exact bug: saves appeared to succeed but never persisted).
+      const { data, error } = await supabase
         .from('brand_reports')
         .update({
           competitor_names: editingCompetitorNames,
           excluded_creator_ids: editingExcludedIds,
           pinned_creator_ids: editingPinnedIds,
         })
-        .eq('id', report.id);
+        .eq('id', report.id)
+        .select('id');
       if (error) throw error;
+      if (!data || data.length === 0) {
+        throw new Error('Update affected no rows — check that brand_reports has an UPDATE policy for admins.');
+      }
       const updated = {
         ...report,
         competitor_names: editingCompetitorNames,

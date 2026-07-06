@@ -196,7 +196,15 @@ export async function suggestCompetitors(
     .slice(0, limit);
 }
 
-/** Activity for a specific, admin-chosen list of competitor canonical names (verified aliases only), preserving that order. */
+/**
+ * Activity for a specific, admin-chosen list of competitor canonical names, preserving that
+ * order. { verifiedOnly: true } is the only render-time gate — never a distinctCreators/
+ * minCreators floor. That floor is suggestCompetitors()'s auto-suggest heuristic (it exists so
+ * auto-suggest doesn't surface a competitor with only 1-2 detected creators); manual overrides
+ * exist precisely so an admin can name a smaller-but-relevant competitor below it. A brand
+ * only drops out here if it has zero *verified* aliases (getBrandActivity returns null), or
+ * zero detected sponsored activity at all — never for having too few creators.
+ */
 export async function getCompetitorActivities(
   supabase: SupabaseClient,
   canonicalNames: string[],
