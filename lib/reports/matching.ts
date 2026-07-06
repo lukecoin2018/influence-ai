@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { toSafeCreator, type SafeCreator } from '@/lib/discover/config';
-import { computeMedianEngagement } from '@/lib/reports/engagement';
+import { scoreProfilesByMedianEngagement } from '@/lib/reports/engagement';
 
 /**
  * Tier 3 ("Recommended for you") match logic — lifted from the original
@@ -140,22 +140,14 @@ async function fetchManualMatch(
 async function rankByMedianEngagement(supabase: SupabaseClient, candidates: Candidate[]): Promise<MatchedCreator[]> {
   if (candidates.length === 0) return [];
 
-  const profileIds = candidates.map((c) => c.profileId);
-  const { data: posts } = await supabase
-    .from('creator_posts')
-    .select('social_profile_id, likes_count, comments_count')
-    .in('social_profile_id', profileIds);
-
-  const postsByProfile = new Map<string, { likes_count: number | null; comments_count: number | null }[]>();
-  for (const p of posts ?? []) {
-    const list = postsByProfile.get(p.social_profile_id) ?? [];
-    list.push({ likes_count: p.likes_count, comments_count: p.comments_count });
-    postsByProfile.set(p.social_profile_id, list);
-  }
+  const scores = await scoreProfilesByMedianEngagement(
+    supabase,
+    candidates.map((c) => ({ profileId: c.profileId, followerCount: c.followerCount, platform: c.platform })),
+  );
 
   const scored: MatchedCreator[] = [];
   for (const c of candidates) {
-    const engagementRate = computeMedianEngagement(postsByProfile.get(c.profileId) ?? [], c.followerCount, c.platform);
+    const engagementRate = scores.get(c.profileId);
     if (engagementRate == null) continue; // fewer than 8 posts — can't be scored, not shown
     scored.push({
       creatorId: c.creatorId,

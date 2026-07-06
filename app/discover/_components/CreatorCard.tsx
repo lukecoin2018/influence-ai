@@ -3,6 +3,23 @@
 // ─────────────────────────────────────────────────────────────
 import type { SafeCreator } from '@/lib/discover/config';
 
+/**
+ * Code-point-safe split for the blur effect — same treatment as app/_data.ts's
+ * initialsFrom(). Slicing the raw string (`name.slice(0, 4)`) can split a
+ * surrogate pair (emoji, etc.) in half, which renders differently between
+ * server and client and causes a hydration mismatch. Array.from() splits on
+ * whole code points instead, so both the visible and blurred halves are
+ * built from — and padded/truncated as — whole characters.
+ */
+function splitForBlur(name: string): { visible: string; hidden: string } {
+  const chars = Array.from(name);
+  const visible = chars.slice(0, 4).join('');
+  const hiddenChars = chars.slice(4);
+  const hiddenLength = Math.max(4, chars.length - 4);
+  while (hiddenChars.length < hiddenLength) hiddenChars.push('x');
+  return { visible, hidden: hiddenChars.slice(0, hiddenLength).join('') };
+}
+
 function InstagramIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -86,6 +103,8 @@ interface CreatorCardProps {
 
 export default function CreatorCard({ creator, signupUrl }: CreatorCardProps) {
   const avatarStyle = getAvatarStyle(creator.firstName);
+  const { visible, hidden } = splitForBlur(creator.firstName);
+  const avatarInitial = Array.from(creator.firstName)[0]?.toUpperCase() ?? '?';
 
   return (
     <div className="group relative flex flex-col bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden">
@@ -106,13 +125,13 @@ export default function CreatorCard({ creator, signupUrl }: CreatorCardProps) {
             className="w-11 h-11 rounded-full flex items-center justify-center font-semibold text-base flex-shrink-0 select-none"
             style={{ backgroundColor: avatarStyle.bg, color: avatarStyle.text }}
           >
-            {creator.firstName.charAt(0).toUpperCase()}
+            {avatarInitial}
           </div>
           <div>
           <p className="font-semibold text-gray-900 text-[15px] leading-tight flex items-center gap-0.5">
-  <span>{creator.firstName.slice(0, 4)}</span>
+  <span>{visible}</span>
   <span className="select-none blur-[4px]">
-    {creator.firstName.slice(4).padEnd(4, 'xxxx').slice(0, Math.max(4, creator.firstName.length - 4))}
+    {hidden}
   </span>
 </p>
             <p className="text-xs text-gray-400 mt-0.5 capitalize">
