@@ -58,17 +58,14 @@ function StatBlock({ label, value }: { label: string; value: string }) {
 
 // Matches home.css's dark (--muted-d on --bg) vs light (--muted-l on --surface) text rhythm.
 const SECTION_THEME = {
-  dark: { eyebrow: '#9B9890', title: '#F2F0EA', subtitle: '#9B9890' },
-  light: { eyebrow: '#6E6A5C', title: '#111111', subtitle: '#6E6A5C' },
+  dark: { title: '#F2F0EA', subtitle: '#9B9890' },
+  light: { title: '#111111', subtitle: '#6E6A5C' },
 } as const;
 
-function SectionHeading({ eyebrow, title, subtitle, theme = 'dark' }: { eyebrow: string; title: string; subtitle?: string; theme?: 'dark' | 'light' }) {
+function SectionHeading({ title, subtitle, theme = 'dark' }: { title: string; subtitle?: string; theme?: 'dark' | 'light' }) {
   const c = SECTION_THEME[theme];
   return (
     <div style={{ marginBottom: '28px' }}>
-      <div style={{ fontSize: '11.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: c.eyebrow, marginBottom: '10px' }}>
-        {eyebrow}
-      </div>
       <h2 style={{ fontSize: 'clamp(1.5rem, 3vw, 2rem)', fontWeight: 800, letterSpacing: '-0.02em', color: c.title, margin: 0 }}>
         {title}
       </h2>
@@ -134,11 +131,16 @@ export default async function ReportPage({
     category: report.category,
     excludeCreatorIds,
     pinnedCreatorIds: report.pinned_creator_ids ?? [],
-    limit: 10,
+    limit: 12,
   });
 
   const topMatches = matched.slice(0, 3);
-  const blurredMatches = matched.slice(3, 10);
+  // The blurred grid is 3 columns at desktop width — a partial final row (e.g. 7 or 8 cards)
+  // reads as broken. Truncate to the largest multiple of 3 (9, 6, 3, or 0) rather than ever
+  // rendering a ragged last row. Narrower breakpoints collapse to 1-2 columns, where any card
+  // count already renders as complete rows, so no separate mobile-specific count is needed.
+  const blurredMatchesRaw = matched.slice(3, 12);
+  const blurredMatches = blurredMatchesRaw.slice(0, Math.floor(blurredMatchesRaw.length / 3) * 3);
 
   const signupUrl = '/signup?role=brand';
 
@@ -184,13 +186,12 @@ export default async function ReportPage({
           <section>
             <SectionHeading
               theme="dark"
-              eyebrow="Tier 1 · Open"
               title="Your creator activity"
               subtitle={`Creators we've detected posting sponsored content for ${resolved!.canonicalName}.`}
             />
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap', backgroundColor: '#FFD700', borderRadius: '16px', padding: '24px 28px', marginBottom: '28px' }}>
               <div style={{ flex: '1 1 160px' }}><StatBlock label="Sponsored posts" value={tier1.sponsoredPosts.toLocaleString()} /></div>
-              <div style={{ flex: '1 1 160px' }}><StatBlock label="Distinct creators" value={tier1.distinctCreators.toLocaleString()} /></div>
+              <div style={{ flex: '1 1 160px' }}><StatBlock label="Creators found" value={tier1.distinctCreators.toLocaleString()} /></div>
               <div style={{ flex: '1 1 160px' }}><StatBlock label="Median engagement" value={formatEngagementRate(tier1.medianEngagement)} /></div>
               <div style={{ flex: '1 1 160px' }}><StatBlock label="Most recent post" value={formatDate(tier1.mostRecentPost)} /></div>
             </div>
@@ -207,16 +208,15 @@ export default async function ReportPage({
         </Band>
       )}
 
-      {/* Tier 2 + Tier 3 — light section, same paper tone as the homepage leaderboard */}
+      {/* Tier 2 (flat on the grey section) + Tier 3 (elevated white frame — the deliverable) */}
       <Band theme="light">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '64px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '56px' }}>
           {competitors.length > 0 && (
             <section>
               <SectionHeading
                 theme="light"
-                eyebrow="Tier 2 · Open"
                 title="Your competitive landscape"
-                subtitle="Verified competitor brands in your category, and the creators actively posting sponsored content for them."
+                subtitle="Competitor brands in your category, and the creators actively posting sponsored content for them."
               />
               <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
                 {competitors.map((comp) => (
@@ -242,12 +242,17 @@ export default async function ReportPage({
             </section>
           )}
 
-          <section>
+          {/* Elevated white frame: Tiers 1-2 are context, this is the deliverable being handed over. */}
+          <section style={{ position: 'relative', background: '#FFFFFF', borderRadius: '24px', padding: 'clamp(28px, 5vw, 56px)', boxShadow: '0 16px 48px rgba(20,18,10,0.12)', overflow: 'hidden' }}>
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '6px', background: '#FFD700' }} />
             <SectionHeading
               theme="light"
-              eyebrow="Tier 3 · Partial"
               title="Recommended for you"
-              subtitle="Creators matched to your brand's niche and partnership history — none currently work with the competitors above."
+              subtitle={
+                competitors.length > 0
+                  ? "Creators matched to your brand's niche and partnership history — none currently work with the competitors above."
+                  : "Creators matched to your brand's niche and partnership history."
+              }
             />
             {competitors.length > 0 && (
               <p style={{ fontSize: '13px', color: '#6E6A5C', margin: '-14px 0 24px' }}>
@@ -311,7 +316,7 @@ export default async function ReportPage({
               Sign up free →
             </a>
             <p style={{ color: '#6E6A5C', fontSize: '12px', marginTop: '16px' }}>
-              No credit card required · Free forever plan available
+              No credit card required
             </p>
           </div>
         </div>
