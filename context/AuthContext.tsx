@@ -217,28 +217,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     })();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!isCurrent(runId)) return;
       // session here comes directly from the SDK's own event payload, not
       // from our timed/retried getSession() call — a null session at this
       // point is a real signal (the SDK itself says there's no session),
       // so clearing user is correct, not a side effect of a slow check.
       setUser(session?.user ?? null);
-      try {
-        if (session?.user) {
-          await loadProfileWithRetry(session.user.id);
-        } else {
-          setBrandProfile(null);
-          setCreatorProfile(null);
-          setUserRole(null);
-        }
-        if (isCurrent(runId)) setAuthError(null);
-      } catch (e) {
-        console.error(`[auth] auth state change sync failed (${describeStage(stageRef.current)}):`, e);
-        // Same rule: a failed profile reload must not clear the session
-        // that setUser() above already (correctly) established.
-        if (isCurrent(runId)) setAuthError('Failed to verify your session.');
-      }
+
+      // Deliberately not awaited inside this callback. supabase-js awaits
+      // whatever this callback returns as part of _notifyAllSubscribers(),
+      // which runs *while GoTrueClient holds its internal auth lock* — and
+      // that lock is shared across every tab of this origin (it's keyed by
+      // storage key, via the Web Locks API). getSession()/initialize() in
+      // *any other tab* acquire that same lock. If this callback awaited
+      // loadProfileWithRetry() directly (up to 30s worst case), the lock
+      // would stay held for that whole window, and any other tab's
+      // concurrent getSession() would queue behind it and abort at
+      // GoTrueClient's own hardcoded lockAcquireTimeout (10s) — reproduced
+      // directly: opening a second tab (or a tab regaining focus, which
+      // triggers GoTrueClient's own visibilitychange-driven refresh) threw
+      // "AbortError: signal is aborted without reason" from inside
+      // _acquireLock on the *other* tab. setTimeout(..., 0) here returns
+      // control to supabase-js immediately, releasing the lock right away;
+      // the profile reload still happens, just outside its synchronous,
+      // lock-held notification chain.
+      setTimeout(() => {
+        (async () => {
+          try {
+            if (session?.user) {
+              await loadProfileWithRetry(session.user.id);
+            } else {
+              setBrandProfile(null);
+              setCreatorProfile(null);
+              setUserRole(null);
+            }
+            if (isCurrent(runId)) setAuthError(null);
+          } catch (e) {
+            console.error(`[auth] auth state change sync failed (${describeStage(stageRef.current)}):`, e);
+            // Same rule: a failed profile reload must not clear the session
+            // that setUser() above already (correctly) established.
+            if (isCurrent(runId)) setAuthError('Failed to verify your session.');
+          }
+        })();
+      }, 0);
     });
 
     return () => {
