@@ -29,7 +29,7 @@ export default function AdminCreatorsPage() {
     setDataLoading(true);
     setLoadError(null);
     try {
-      let query = supabase.from('creator_profiles').select('*, creators!creator_id(name, instagram_handle, tiktok_handle)').order('created_at', { ascending: false });
+      let query = supabase.from('creator_profiles').select('*, creators!creator_id(display_name, instagram_handle)').order('created_at', { ascending: false });
       if (filter !== 'all') query = query.eq('claim_status', filter);
       const { data, error } = await query;
       if (error) throw error;
@@ -111,9 +111,9 @@ export default function AdminCreatorsPage() {
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '6px' }}>
                       <div style={{ width: '32px', height: '32px', borderRadius: '50%', backgroundColor: '#F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#6B7280' }}>{(creatorData.name ?? handle ?? '?').slice(0, 2).toUpperCase()}</span>
+                        <span style={{ fontSize: '11px', fontWeight: 700, color: '#6B7280' }}>{(creatorData.display_name ?? handle ?? '?').slice(0, 2).toUpperCase()}</span>
                       </div>
-                      <span style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A' }}>{cp.display_name ?? creatorData.name ?? `@${handle}`}</span>
+                      <span style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A' }}>{cp.display_name ?? creatorData.display_name ?? `@${handle}`}</span>
                       {statusBadge(cp.claim_status)}
                     </div>
                     <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 2px 0' }}>@{handle}</p>

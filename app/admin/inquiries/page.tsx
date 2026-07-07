@@ -24,7 +24,7 @@ export default function AdminInquiriesPage() {
     try {
       const { data, error } = await supabase
         .from('inquiries')
-        .select('*, brand_profiles(company_name, email), creators!creator_id(name, instagram_handle, tiktok_handle, contact_email)')
+        .select('*, brand_profiles(company_name, email), creators!creator_id(display_name, instagram_handle, contact_email)')
         .order('created_at', { ascending: false });
       if (error) throw error;
       setInquiries(data ?? []);
