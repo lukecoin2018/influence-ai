@@ -1,7 +1,7 @@
 // app/report/[slug]/page.tsx
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
-import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { supabase } from '@/lib/supabase';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { getPublicStats } from '@/app/_queries';
 import {
@@ -17,13 +17,28 @@ import { formatEngagementRate, formatDate } from '@/lib/formatters';
 import { NamedCreatorCard } from './_components/NamedCreatorCard';
 import CreatorCard from '@/app/discover/_components/CreatorCard';
 
+// Recomputing Tier 1/2/3 (median engagement over creator_posts, competitor
+// scans, etc.) on every single request was the main source of the Postgres
+// load spikes that starved other queries (including auth session checks —
+// see context/AuthContext.tsx's history). ISR caches a render for this long
+// per slug; a save in the admin editor calls revalidatePath() (see
+// app/api/admin/reports/revalidate/route.ts) so an edit still appears on
+// the very next request instead of waiting out this window.
+//
+// Uses lib/supabase.ts (anon-key client, no cookies) rather than
+// lib/supabase-server.ts's cookie-aware client, same reason as
+// app/_queries.ts: calling cookies() forces a route into fully dynamic,
+// per-request rendering, which is incompatible with `revalidate` below. All
+// reads here are public/anon-readable (brand_reports, social_profiles,
+// creator_posts) or go through the service-role client already.
+export const revalidate = 60;
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const supabase = await createSupabaseServerClient();
   const { data: report } = await supabase.from('brand_reports').select('brand_name').eq('slug', slug).maybeSingle();
 
   return {
@@ -85,7 +100,6 @@ export default async function ReportPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const supabase = await createSupabaseServerClient();
 
   const { data: report } = await supabase
     .from('brand_reports')

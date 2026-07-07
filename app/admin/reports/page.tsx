@@ -1,7 +1,7 @@
 // app/admin/reports/page.tsx
 'use client';
 
-import { useState, useEffect, useCallback, Fragment } from 'react';
+import { useState, useEffect, useCallback, useRef, Fragment } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -17,6 +17,12 @@ import { getMatchedCreators, type MatchedCreator } from '@/lib/reports/matching'
 
 const MAX_COMPETITORS = 3;
 const TIER3_PREVIEW_LIMIT = 10;
+// Each Tier 3 preview recompute runs getCompetitorActivities() + getMatchedCreators() — real
+// queries, including a batched engagement-scoring pass over creator_posts. Pin/remove/suggest
+// clicks made in quick succession (or React re-firing an edit handler) would otherwise queue up
+// one of these per click; debouncing coalesces a burst of edits into a single recompute after
+// the admin pauses.
+const TIER3_PREVIEW_DEBOUNCE_MS = 400;
 
 interface BrandReport {
   id: string;
@@ -276,6 +282,7 @@ export default function AdminReportsPage() {
   const [formCompetitors, setFormCompetitors] = useState<string[]>([]);
   const [formSuggesting, setFormSuggesting] = useState(false);
   const [rowSuggesting, setRowSuggesting] = useState(false);
+  const tier3DebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Wait for auth exactly like other admin pages do
   useEffect(() => {
@@ -284,6 +291,10 @@ export default function AdminReportsPage() {
     loadReports();
     loadVerifiedBrandOptions();
   }, [loading, user, userRole]);
+
+  useEffect(() => {
+    return () => { if (tier3DebounceRef.current) clearTimeout(tier3DebounceRef.current); };
+  }, []);
 
   useEffect(() => {
     if (!slugEdited) setSlug(toSlug(brandName));
@@ -374,14 +385,23 @@ export default function AdminReportsPage() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (report: BrandReport) => {
     if (!confirm('Delete this report? This cannot be undone.')) return;
-    setDeletingId(id);
+    setDeletingId(report.id);
     try {
-      const { error } = await supabase.from('brand_reports').delete().eq('id', id);
+      const { error } = await supabase.from('brand_reports').delete().eq('id', report.id);
       if (error) throw error;
       setToast({ message: 'Report deleted', type: 'success' });
-      loadReports();
+      // Remove locally instead of loadReports() — a full reload would re-run
+      // loadReportDetails() (Tier 1 + competitor lookups) for every *other*
+      // report on the page too, none of which changed.
+      setReports((prev) => prev.filter((r) => r.id !== report.id));
+      setDetails((prev) => {
+        const next = { ...prev };
+        delete next[report.id];
+        return next;
+      });
+      revalidateReportPage(report.slug);
     } catch (err) {
       console.error('Failed to delete report:', err);
       setToast({ message: 'Failed to delete report', type: 'error' });
@@ -390,10 +410,28 @@ export default function AdminReportsPage() {
     }
   };
 
-  async function refreshTier3Preview(report: BrandReport, competitorNames: string[], excludedIds: string[], pinnedIds: string[]) {
-    setTier3Preview({ loading: true, matches: [] });
-    const matches = await loadTier3Preview(report, competitorNames, excludedIds, pinnedIds);
-    setTier3Preview({ loading: false, matches });
+  function refreshTier3Preview(report: BrandReport, competitorNames: string[], excludedIds: string[], pinnedIds: string[]) {
+    setTier3Preview((prev) => ({ ...prev, loading: true }));
+    if (tier3DebounceRef.current) clearTimeout(tier3DebounceRef.current);
+    tier3DebounceRef.current = setTimeout(async () => {
+      const matches = await loadTier3Preview(report, competitorNames, excludedIds, pinnedIds);
+      setTier3Preview({ loading: false, matches });
+    }, TIER3_PREVIEW_DEBOUNCE_MS);
+  }
+
+  // Bumps /report/[slug]'s ISR cache (revalidate = 60s there) so a just-saved edit shows up on
+  // the very next request instead of waiting out the cache window. Best-effort: a failure here
+  // just means the edit appears after the normal 60s window instead of instantly, not a lost save.
+  async function revalidateReportPage(slug: string) {
+    try {
+      await fetch('/api/admin/reports/revalidate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ slug }),
+      });
+    } catch (err) {
+      console.error('Failed to revalidate report page:', err);
+    }
   }
 
   function startEditingReport(report: BrandReport) {
@@ -478,6 +516,7 @@ export default function AdminReportsPage() {
       loadReportDetails([updated]);
       setEditingReportId(null);
       setToast({ message: 'Report updated', type: 'success' });
+      revalidateReportPage(report.slug);
     } catch (err) {
       console.error('Failed to update report:', err);
       setToast({ message: 'Failed to update report', type: 'error' });
@@ -637,7 +676,7 @@ export default function AdminReportsPage() {
                           <button onClick={() => (isEditing ? setEditingReportId(null) : startEditingReport(report))} style={{ fontSize: '12px', color: '#3AAFF4', background: 'none', border: 'none', cursor: 'pointer' }}>
                             {isEditing ? 'Close' : 'Edit'}
                           </button>
-                          <button onClick={() => handleDelete(report.id)} disabled={deletingId === report.id} style={{ fontSize: '12px', color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', opacity: deletingId === report.id ? 0.4 : 1 }}>
+                          <button onClick={() => handleDelete(report)} disabled={deletingId === report.id} style={{ fontSize: '12px', color: '#EF4444', background: 'none', border: 'none', cursor: 'pointer', opacity: deletingId === report.id ? 0.4 : 1 }}>
                             {deletingId === report.id ? 'Deleting…' : 'Delete'}
                           </button>
                         </div>

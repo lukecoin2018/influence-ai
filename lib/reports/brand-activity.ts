@@ -168,6 +168,63 @@ export async function getBrandActivity(
   };
 }
 
+/**
+ * Cheap first pass for suggestCompetitors(): ranks every category candidate by distinct
+ * creator count using 3 total queries (regardless of how many candidates there are), instead
+ * of running full getBrandActivity() — with its per-profile engagement-scoring pass over
+ * *all* of that profile's post history — for every single candidate. A category like Beauty
+ * has ~40 verified canonical brands; the old code ran getBrandActivity() (4+ queries each,
+ * including a scoring query per matched profile) for all 40 on every uncached report-page
+ * request just to throw away the ~37 that don't make the top 3. This only computes the cheap
+ * distinctCreators ranking for all of them, then callers run the expensive full
+ * getBrandActivity() for just the handful that actually win.
+ */
+async function rankCandidatesByCreatorCount(
+  supabase: SupabaseClient,
+  { excludeCanonicalName, category }: { excludeCanonicalName: string; category: string },
+): Promise<{ canonicalName: string; distinctCreators: number }[]> {
+  const { data: aliasRows } = await supabase
+    .from('brand_aliases')
+    .select('alias, canonical_name')
+    .eq('entity_type', 'brand')
+    .eq('verified', true)
+    .eq('category', category)
+    .neq('canonical_name', excludeCanonicalName)
+    .not('canonical_name', 'is', null);
+
+  const aliasToCanonical = new Map<string, string>();
+  for (const row of aliasRows ?? []) aliasToCanonical.set(row.alias, row.canonical_name as string);
+  const allAliases = [...aliasToCanonical.keys()];
+  if (allAliases.length === 0) return [];
+
+  const { data: posts } = await supabase
+    .from('creator_posts')
+    .select('social_profile_id, detected_brands')
+    .overlaps('detected_brands', allAliases)
+    .eq('is_sponsored', true);
+  if (!posts || posts.length === 0) return [];
+
+  const profileIdsByCanonical = new Map<string, Set<string>>();
+  for (const post of posts) {
+    for (const rawBrand of post.detected_brands ?? []) {
+      const canonicalName = aliasToCanonical.get(String(rawBrand).toLowerCase());
+      if (!canonicalName) continue;
+      const set = profileIdsByCanonical.get(canonicalName) ?? new Set<string>();
+      set.add(post.social_profile_id);
+      profileIdsByCanonical.set(canonicalName, set);
+    }
+  }
+
+  const allProfileIds = [...new Set(posts.map((p) => p.social_profile_id))];
+  const { data: profiles } = await supabase.from('social_profiles').select('id, creator_id').in('id', allProfileIds);
+  const creatorIdByProfile = new Map((profiles ?? []).map((p) => [p.id, p.creator_id]));
+
+  return [...profileIdsByCanonical.entries()].map(([canonicalName, profileIds]) => ({
+    canonicalName,
+    distinctCreators: new Set([...profileIds].map((id) => creatorIdByProfile.get(id)).filter(Boolean)).size,
+  }));
+}
+
 /** Auto-suggests up to `limit` competitor brands: same category, verified aliases only, >= minCreators distinct creators, ordered by creator count desc. */
 export async function suggestCompetitors(
   supabase: SupabaseClient,
@@ -175,25 +232,17 @@ export async function suggestCompetitors(
 ): Promise<BrandActivity[]> {
   if (!category) return [];
 
-  const { data: candidateRows } = await supabase
-    .from('brand_aliases')
-    .select('canonical_name')
-    .eq('entity_type', 'brand')
-    .eq('verified', true)
-    .eq('category', category)
-    .neq('canonical_name', excludeCanonicalName)
-    .not('canonical_name', 'is', null);
-
-  const candidateNames = [...new Set((candidateRows ?? []).map((r) => r.canonical_name as string))];
-
-  const activities = await Promise.all(
-    candidateNames.map((name) => getBrandActivity(supabase, name, { verifiedOnly: true })),
-  );
-
-  return activities
-    .filter((a): a is BrandActivity => a != null && a.distinctCreators >= minCreators)
+  const ranked = await rankCandidatesByCreatorCount(supabase, { excludeCanonicalName, category });
+  const winners = ranked
+    .filter((r) => r.distinctCreators >= minCreators)
     .sort((a, b) => b.distinctCreators - a.distinctCreators)
     .slice(0, limit);
+
+  // Only the winners get the expensive full computation (engagement scoring, creator cards, etc.).
+  const activities = await Promise.all(
+    winners.map((w) => getBrandActivity(supabase, w.canonicalName, { verifiedOnly: true })),
+  );
+  return activities.filter((a): a is BrandActivity => a != null);
 }
 
 /**
