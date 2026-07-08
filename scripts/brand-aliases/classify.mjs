@@ -157,6 +157,11 @@ But note the inverse trap too: some real, well-known brands have names that are 
 classify it as a brand even though the string looks generic — the "prefer unknown" rule is about
 uncertainty, not about penalizing common-word names you DO recognize.
 
+A trailing "_official", "_shop", "_store", or "_hq" suffix is weak evidence the string is a
+brand or venue rather than a personal creator — lean brand-or-unknown over creator for these, and
+make a real effort to resolve the underlying name before falling back to unknown. This is only a
+nudge; if you still can't identify it, unknown is correct.
+
 ## canonical_name
 
 Resolve to the CONSUMER-FACING brand a creator would actually tag — the recognizable name, at its
@@ -169,13 +174,21 @@ Collapse LOCALE variants of the same brand into ONE canonical name, and put the 
 country/locale. Do NOT merge genuinely distinct product lines or sister brands that operate
 independently ("lorealparis" and "lorealpro" stay separate: "L'Oréal Paris" and "L'Oréal Pro").
 
-canonical_name is null for creator, celebrity, media, fragment, and unknown — leave it null, do NOT
-fall back to echoing the raw alias.
+canonical_name is null for creator, celebrity, media, fragment, and unknown.
+For brand and venue, canonical_name MUST be a real, non-null name that you actually know —
+NOT a value you produced by cleaning up the alias itself (do not just strip a suffix and title-case
+the handle: "wdirara_us" → "WDirara" is NOT a valid canonical). If the only name you can give is one
+derived from the alias string because you don't actually recognize the entity, then you don't know it
+well enough to call it a brand — return entity_type "unknown" instead, with a null canonical_name.
 
 ## category
 
-Short label for brands and venues — "Beauty", "Fashion", "Fitness & Wellness", "Tech", "Food",
-"Hospitality", "Jewelry", etc. null for everything else.
+Pick the SINGLE closest label from this list — do not invent compound labels like
+"Fashion & Accessories" or "Tech & Social Media":
+Beauty, Fashion, Jewelry, Fitness & Wellness, Food, Spirits, Tech, Home Appliances, Consumer
+Electronics, Automotive, Retail, Hospitality, Travel & Tourism, Pet Care, Wellness, Media &
+Entertainment, Sportswear, Events. If none fit, use the closest single word (e.g. "Other").
+category is null for creator, celebrity, media, fragment, and unknown.
 
 ## region
 
@@ -204,9 +217,21 @@ im_intensity — how heavily does this brand/venue run creator/influencer market
   2 = occasional/light creator activity
   1 = little to no evidence of any influencer marketing
 
+im_intensity cannot exceed recognizability when recognizability is 2 or below. The reason: if you
+don't recognize a brand well enough to place it (recognizability <= 2), you cannot actually know how
+heavily it runs influencer marketing — a confident im_intensity of 3–4 on a brand you barely recognize
+is fabricated. So when recognizability is 1 or 2, im_intensity must be <= recognizability. This is a
+CEILING, not a target: a recognizability-2 brand may still be im_intensity 1 if it shows no creator
+activity. The ceiling does NOT apply at recognizability 3+ — a well-known brand can score any
+im_intensity 1–5 on its own merits.
+
 If you are confident it's a real brand but unsure of an exact score, pick the middle (3) rather than
-guessing high. Do not inflate scores for names you only half-recognize — low recognizability should
-pull the score down honestly.
+guessing high. Do not inflate scores for names you only half-recognize.
+
+## notes
+
+A short one-line string (always present, never null) explaining the classification and score —
+e.g. "recognized global fashion brand, heavy creator programs" or "reads as a personal handle".
 
 ## Aliases to classify:
 ${lines}
@@ -220,10 +245,12 @@ in this exact shape:
 
 Rules for the shape:
 - entity_type is always one of the seven allowed values.
-- canonical_name / category / region are null when not applicable (see above).
-- recognizability and im_intensity are integers 1–5 for brand and venue, and null for every other type.
-- notes is a short one-line string explaining the classification and score (e.g. "recognized global fashion brand, heavy creator programs"); always present, never null.
-- Include an object for EVERY alias in the list, even ones you mark unknown or fragment.`;
+- For brand and venue: canonical_name is a real non-null name (not alias-derived), category is from
+  the list above, and both scores are integers 1–5 (with the im_intensity ceiling rule applied).
+- For creator, celebrity, media, fragment, unknown: canonical_name, category, region, and BOTH scores
+  are null.
+- notes is always a non-null one-line string.
+- Include an object for EVERY alias in the list.`;
 }
 
 function parseJsonArray(text) {
@@ -246,7 +273,7 @@ async function classifyBatch(batch) {
     },
     body: JSON.stringify({
       model: MODEL,
-      max_tokens: 4000,
+      max_tokens: 8000,
       messages: [{ role: 'user', content: buildPrompt(batch) }],
     }),
   });
