@@ -30,16 +30,20 @@ newly-discovered or newly-unclassified rows):
 ```bash
 npm run brand-aliases:seed      # scan creator_posts, upsert every distinct alias + creators_count
 npm run brand-aliases:prepass   # handle matches -> creator, stoplist matches -> fragment (no AI)
-npm run brand-aliases:classify  # AI batch classification for the rest (creators_count >= 2 only)
+npm run brand-aliases:classify  # AI batch classification for the rest (creators_count >= 2 only, by default)
 ```
 
 Re-run `seed` periodically as new posts/creators are scraped — it only ever
 updates `creators_count`, never touching already-classified rows. Re-run
 `classify` any time; it only selects `classified_at IS NULL` rows.
 
-Aliases with a single detected creator are never sent to the AI (low signal,
-not worth the cost) — they stay unclassified and show up in the
-"Unclassified" tab of the admin Brand Index (`/admin/brand-index`), which
-also has "Unverified brands" (the human triage worklist — `verified` is
-never set by this pipeline, only by an admin in that UI) and "Review —
-unknown" (the small number of aliases the AI genuinely couldn't place).
+By default, aliases with a single detected creator are not sent to the AI
+(low signal, not worth the cost by default) — they stay unclassified and
+show up in the "Unclassified" tab of the admin Brand Index
+(`/admin/brand-index`), which also has "Unverified brands" (the human
+triage worklist — `verified` is never set by this pipeline, only by an
+admin in that UI) and "Review — unknown" (the small number of aliases the
+AI genuinely couldn't place). Pass `--min-count 1` to `classify` to include
+singletons — the classify prompt scores `brand`/`venue` results
+(`recognizability`, `im_intensity`) as scraping-target signal; see
+`classify.mjs` for the `--preview` test-batch flow.
