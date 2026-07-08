@@ -18,7 +18,7 @@
 // This pipeline never writes `verified` — that flag is human-only and gates
 // visitor-facing data; the columns here are internal discovery signal only.
 //
-// Run: node scripts/brand-aliases/classify.mjs [--limit N] [--min-count N] [--preview]
+// Run: node scripts/brand-aliases/classify.mjs [--limit N] [--min-count N] [--preview] [--test-sample]
 //   --limit N       process at most N batches (~50 aliases each) then stop —
 //                   useful for reviewing raw model output before committing
 //                   to a full run. Omit to process every eligible batch.
@@ -27,6 +27,15 @@
 //                   instead of the live columns, and don't set
 //                   classified_at — for stress-testing the prompt on a test
 //                   batch before a real run.
+//   --test-sample   swap the normal eligible-alias query for a stratified
+//                   ~80-row sample (regional-suffix / handle-shaped /
+//                   clean-word / random control) drawn from the same
+//                   eligible pool — stress-tests prompt boundary cases
+//                   instead of sampling whatever happens to sort first.
+//                   Only the row selection changes; prompt, batching, and
+//                   writeback are untouched. Requires --preview (refuses to
+//                   write a hand-picked boundary-case sample to live
+//                   columns).
 import { supabase, paginate, env_ } from './_supabase.mjs';
 import { aggregateDetectedBrands } from './_aggregate.mjs';
 
@@ -70,6 +79,43 @@ async function loadEligibleAliases(minCount) {
     (rows) => aliases.push(...rows)
   );
   return aliases;
+}
+
+function shuffle(items) {
+  const copy = [...items];
+  for (let i = copy.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
+
+// Loose, heuristic bucket shapes mirroring the SQL in the handoff doc —
+// they only need to guarantee a spread of shapes for the model to be
+// tested against, not classify anything themselves.
+const REGIONAL_SUFFIX_RE = /(brasil|_es|_uk|usa|_us|_de|_fr|_it)$/i;
+const HANDLE_SHAPED_RE = /_/;
+const CLEAN_WORD_NOISE_RE = /[_0-9]/;
+
+// Same eligible pool as a normal run — only the row selection differs, so
+// this exercises the exact selection/prompt/writeback path a real run does.
+async function loadStratifiedTestSample(minCount) {
+  const pool = await loadEligibleAliases(minCount);
+
+  const regional = pool.filter((row) => REGIONAL_SUFFIX_RE.test(row.alias)).slice(0, 15);
+  const handleShaped = pool
+    .filter((row) => HANDLE_SHAPED_RE.test(row.alias) && !REGIONAL_SUFFIX_RE.test(row.alias))
+    .slice(0, 20);
+  const cleanWord = pool
+    .filter((row) => !CLEAN_WORD_NOISE_RE.test(row.alias) && row.alias.length >= 4 && row.alias.length <= 12)
+    .slice(0, 25);
+  const random = shuffle(pool).slice(0, 20);
+
+  console.log(
+    `  Stratified test sample: ${regional.length} regional-suffix, ${handleShaped.length} handle-shaped, ` +
+      `${cleanWord.length} clean-word, ${random.length} random control (buckets may overlap, matching the reference SQL).`
+  );
+  return [...regional, ...handleShaped, ...cleanWord, ...random];
 }
 
 function buildPrompt(batch) {
@@ -247,12 +293,20 @@ async function writePreview(updates) {
 async function main() {
   const minCount = parseMinCountArg();
   const preview = process.argv.includes('--preview');
+  const testSample = process.argv.includes('--test-sample');
+
+  if (testSample && !preview) {
+    throw new Error('--test-sample requires --preview (refusing to write a hand-picked boundary-case sample to live columns).');
+  }
 
   console.log('Aggregating post counts from creator_posts...');
   const aggregate = await aggregateDetectedBrands();
 
-  console.log(`Loading eligible aliases (classified_at IS NULL, creators_count >= ${minCount})...`);
-  const eligible = await loadEligibleAliases(minCount);
+  console.log(
+    `Loading eligible aliases (classified_at IS NULL, creators_count >= ${minCount})` +
+      (testSample ? ', stratified test sample...' : '...')
+  );
+  const eligible = testSample ? await loadStratifiedTestSample(minCount) : await loadEligibleAliases(minCount);
   console.log(`  ${eligible.length} aliases eligible for AI classification.${preview ? ' (--preview: writing to classification_preview only)' : ''}`);
 
   if (eligible.length === 0) {
