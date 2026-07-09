@@ -62,7 +62,8 @@ function applyFilter(query: any, filter: FilterType): any {
 }
 
 const ENTITY_TYPES: EntityType[] = ['brand', 'creator', 'celebrity', 'media', 'venue', 'fragment', 'unknown'];
-const ROW_LIMIT = 500;
+const PAGE_SIZE = 100;
+const SEARCH_DEBOUNCE_MS = 300;
 
 const ENTITY_TYPE_COLORS: Record<EntityType, { color: string; bg: string }> = {
   brand: { color: '#065F46', bg: '#ECFDF5' },
@@ -83,6 +84,10 @@ export default function AdminBrandIndexPage() {
   const [typeFilter, setTypeFilter] = useState<TypeFilterValue>('all_types');
   const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+  const [searchInput, setSearchInput] = useState('');
+  const [searchTerm, setSearchTerm] = useState(''); // debounced value that actually drives the query
+  const [page, setPage] = useState(1); // 1-indexed
+  const [matchedCount, setMatchedCount] = useState(0); // rows matching the active tab+type+search — drives page count
   const [totalCount, setTotalCount] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [unclassifiedCount, setUnclassifiedCount] = useState(0);
@@ -94,15 +99,29 @@ export default function AdminBrandIndexPage() {
   const [saveError, setSaveError] = useState<string | null>(null);
   const requestSeq = useRef(0);
 
+  // Debounce the raw input into the value that actually drives the query, so
+  // typing doesn't fire a request per keystroke. Resets to page 1 once the
+  // debounced term actually changes (not on every keystroke).
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const trimmed = searchInput.trim();
+      setSearchTerm((prev) => {
+        if (prev !== trimmed) setPage(1);
+        return trimmed;
+      });
+    }, SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
   useEffect(() => {
     if (loading) return;
     if (!user || userRole !== 'admin') { router.push('/login'); return; }
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, user, userRole, filter, typeFilter, sortColumn, sortDirection]);
+  }, [loading, user, userRole, filter, typeFilter, sortColumn, sortDirection, searchTerm, page]);
 
-  // Counts for every tab are fetched independently of which tab is active, so
-  // badges stay accurate no matter which one you're looking at.
+  // Counts for every tab are fetched independently of which tab/type-filter/search
+  // is active, so badges stay accurate no matter what's currently displayed.
   async function loadCounts() {
     const [{ count: total }, { count: review }, { count: unclassified }, { count: unverifiedBrands }, { count: preview }] = await Promise.all([
       supabase.from('brand_aliases').select('*', { count: 'exact', head: true }),
@@ -118,53 +137,59 @@ export default function AdminBrandIndexPage() {
     setPreviewCount(preview ?? 0);
   }
 
+  // Shared query-building path for both the page's data and its matching
+  // count — every view (any tab, any type filter, any search term) is a
+  // bounded server-side query built from this, never a client-side slice.
+  function buildFilteredQuery(select: string, opts: { count?: 'exact' } = {}) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let query: any = supabase.from('brand_aliases').select(select, opts.count ? { count: opts.count, head: true } : undefined);
+    if (filter === 'preview') {
+      query = query.not('classification_preview', 'is', null);
+    } else {
+      query = applyFilter(query, filter);
+      if (filter === 'all' && typeFilter !== 'all_types') query = query.eq('entity_type', typeFilter);
+    }
+    if (searchTerm) {
+      // Strip characters meaningful to PostgREST's filter grammar (, ( ) %)
+      // so a search term can't break or reshape the .or() expression itself.
+      const term = searchTerm.replace(/[,()%]/g, '');
+      if (term) query = query.or(`alias.ilike.%${term}%,canonical_name.ilike.%${term}%`);
+    }
+    return query;
+  }
+
   async function load() {
     const seq = ++requestSeq.current;
     setDataLoading(true);
     setLoadError(null);
     try {
+      const select = filter === 'preview' ? 'alias, classification_preview' : '*';
+      let dataQuery = buildFilteredQuery(select);
       if (filter === 'preview') {
-        const query = supabase
-          .from('brand_aliases')
-          .select('alias, classification_preview')
-          .not('classification_preview', 'is', null)
-          .order('alias', { ascending: true })
-          .limit(ROW_LIMIT);
-        const [{ data, error }] = await Promise.all([query, loadCounts()]);
-        if (error) throw error;
-        if (seq !== requestSeq.current) return; // a newer load() (e.g. filter change) already superseded this one
+        dataQuery = dataQuery.order('alias', { ascending: true });
+      } else if (filter === 'all' && sortColumn) {
+        dataQuery = dataQuery.order(sortColumn, { ascending: sortDirection === 'asc', nullsFirst: false });
+      } else {
+        dataQuery = dataQuery.order('creators_count', { ascending: false });
+      }
+      const offset = (page - 1) * PAGE_SIZE;
+      dataQuery = dataQuery.range(offset, offset + PAGE_SIZE - 1);
+
+      const countQuery = buildFilteredQuery(select, { count: 'exact' });
+
+      const [{ data, error }, { count: matched, error: countError }] = await Promise.all([dataQuery, countQuery, loadCounts()]);
+      if (error) throw error;
+      if (countError) throw countError;
+      if (seq !== requestSeq.current) return; // a newer load() (e.g. filter change) already superseded this one
+      setMatchedCount(matched ?? 0);
+      if (filter === 'preview') {
         setPreviewRows(
           ((data ?? []) as { alias: string; classification_preview: PreviewVerdict }[]).map((r) => ({
             ...r.classification_preview,
             alias: r.alias, // classification_preview.alias should already match, but the row's own alias is authoritative
           }))
         );
-      } else if (filter === 'all') {
-        // Type filter needs its own server-side query rather than a client-side
-        // filter over the default creators_count-sorted page: creators_count
-        // >= 2 alone already accounts for 517 rows, more than ROW_LIMIT, so the
-        // default query's top-500-by-creators_count page never reaches down to
-        // the creators_count=1 rows where nearly all venue/etc. types live —
-        // filtering that page client-side would show ~0 venues, not ~129.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let query: any = supabase.from('brand_aliases').select('*');
-        if (typeFilter !== 'all_types') query = query.eq('entity_type', typeFilter);
-        query = sortColumn
-          ? query.order(sortColumn, { ascending: sortDirection === 'asc', nullsFirst: false })
-          : query.order('creators_count', { ascending: false });
-        query = query.limit(ROW_LIMIT);
-        const [{ data, error }] = await Promise.all([query, loadCounts()]);
-        if (error) throw error;
-        if (seq !== requestSeq.current) return;
-        setRows((data ?? []) as BrandAlias[]);
       } else {
-        const query = applyFilter(
-          supabase.from('brand_aliases').select('*').order('creators_count', { ascending: false }).limit(ROW_LIMIT),
-          filter
-        );
-        const [{ data, error }] = await Promise.all([query, loadCounts()]);
-        if (error) throw error;
-        if (seq !== requestSeq.current) return;
         setRows((data ?? []) as BrandAlias[]);
       }
     } catch (err) {
@@ -198,7 +223,7 @@ export default function AdminBrandIndexPage() {
   const filterBtn = (value: FilterType, label: string) => (
     <button
       key={value}
-      onClick={() => setFilter(value)}
+      onClick={() => { setFilter(value); setPage(1); }}
       style={{ padding: '6px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 500, cursor: 'pointer', border: 'none', backgroundColor: filter === value ? '#FFD700' : '#F3F4F6', color: filter === value ? 'white' : '#374151' }}
     >
       {label}
@@ -211,7 +236,7 @@ export default function AdminBrandIndexPage() {
   const typeFilterBtn = (value: TypeFilterValue, label: string) => (
     <button
       key={value}
-      onClick={() => setTypeFilter(value)}
+      onClick={() => { setTypeFilter(value); setPage(1); }}
       style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', border: 'none', backgroundColor: typeFilter === value ? '#3A3A3A' : '#F3F4F6', color: typeFilter === value ? 'white' : '#374151' }}
     >
       {label}
@@ -225,6 +250,7 @@ export default function AdminBrandIndexPage() {
       setSortColumn(column);
       setSortDirection('desc');
     }
+    setPage(1);
   }
 
   // Sortable only within the 'all' tab, where the type filter also lives —
@@ -245,7 +271,8 @@ export default function AdminBrandIndexPage() {
   if (loading) return null;
   if (!user || userRole !== 'admin') return null;
 
-  const activeRowCount = filter === 'preview' ? previewRows.length : rows.length;
+  const activeRows = filter === 'preview' ? previewRows : rows;
+  const totalPages = Math.max(1, Math.ceil(matchedCount / PAGE_SIZE));
 
   return (
     <div>
@@ -263,6 +290,16 @@ export default function AdminBrandIndexPage() {
         {filterBtn('preview', `Preview (${previewCount})`)}
       </div>
 
+      <div style={{ marginBottom: '16px' }}>
+        <input
+          type="text"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          placeholder="Search alias or canonical name..."
+          style={{ padding: '8px 12px', borderRadius: '8px', border: '1px solid #E5E7EB', fontSize: '13px', width: '280px' }}
+        />
+      </div>
+
       {filter === 'all' && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Type:</span>
@@ -270,7 +307,7 @@ export default function AdminBrandIndexPage() {
           {ENTITY_TYPES.map((t) => typeFilterBtn(t, t))}
           {typeFilter !== 'all_types' && !dataLoading && (
             <span style={{ fontSize: '13px', color: '#6B7280' }}>
-              {rows.length} {typeFilter}{rows.length === 1 ? '' : 's'}
+              {matchedCount} {typeFilter}{matchedCount === 1 ? '' : 's'}
             </span>
           )}
         </div>
@@ -292,7 +329,9 @@ export default function AdminBrandIndexPage() {
       ) : filter === 'preview' ? (
         previewRows.length === 0 ? (
           <p style={{ color: '#9CA3AF', fontSize: '14px' }}>
-            No preview data yet — run <code>classify.mjs</code> with <code>--preview</code> to populate this tab.
+            {searchTerm
+              ? `No preview rows match "${searchTerm}".`
+              : <>No preview data yet — run <code>classify.mjs</code> with <code>--preview</code> to populate this tab.</>}
           </p>
         ) : (
           <>
@@ -342,10 +381,16 @@ export default function AdminBrandIndexPage() {
         )
       ) : rows.length === 0 ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>
-          {filter === 'review' && 'No unknown classifications right now.'}
-          {filter === 'unverified_brands' && 'Every classified brand has been verified.'}
-          {filter === 'unclassified' && 'Nothing unclassified — the AI/pre-pass has covered everything eligible.'}
-          {filter === 'all' && (typeFilter === 'all_types' ? 'No aliases found — run the seed script first.' : `No ${typeFilter} rows found.`)}
+          {searchTerm
+            ? `No rows match "${searchTerm}" in this view.`
+            : (
+              <>
+                {filter === 'review' && 'No unknown classifications right now.'}
+                {filter === 'unverified_brands' && 'Every classified brand has been verified.'}
+                {filter === 'unclassified' && 'Nothing unclassified — the AI/pre-pass has covered everything eligible.'}
+                {filter === 'all' && (typeFilter === 'all_types' ? 'No aliases found — run the seed script first.' : `No ${typeFilter} rows found.`)}
+              </>
+            )}
         </p>
       ) : (
         <div style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
@@ -423,10 +468,27 @@ export default function AdminBrandIndexPage() {
           </table>
         </div>
       )}
-      {activeRowCount === ROW_LIMIT && (
-        <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '10px' }}>
-          Showing the top {ROW_LIMIT}{filter === 'all' && typeFilter === 'all_types' ? ` of ${totalCount}` : ' within this filter'}.
-        </p>
+      {!dataLoading && !loadError && activeRows.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '12px', flexWrap: 'wrap', gap: '8px' }}>
+          <span style={{ fontSize: '12px', color: '#9CA3AF' }}>{matchedCount} row{matchedCount === 1 ? '' : 's'}</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+              style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: page <= 1 ? 'default' : 'pointer', border: '1px solid #E5E7EB', backgroundColor: 'white', color: page <= 1 ? '#D1D5DB' : '#374151' }}
+            >
+              Prev
+            </button>
+            <span style={{ fontSize: '12px', color: '#6B7280' }}>Page {page} of {totalPages}</span>
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+              style={{ padding: '5px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: page >= totalPages ? 'default' : 'pointer', border: '1px solid #E5E7EB', backgroundColor: 'white', color: page >= totalPages ? '#D1D5DB' : '#374151' }}
+            >
+              Next
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
