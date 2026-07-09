@@ -388,16 +388,36 @@ async function main() {
         console.warn(`  Skipping unrecognized/hallucinated result: ${JSON.stringify(result)}`);
         continue;
       }
-      const entityType = VALID_ENTITY_TYPES.has(result.entity_type) ? result.entity_type : 'unknown';
+      let entityType = VALID_ENTITY_TYPES.has(result.entity_type) ? result.entity_type : 'unknown';
+
+      // Deterministic invariant guard — runs on every classified row. The
+      // prompt has been sharpened twice for these two failure modes and they
+      // still slip through some of the time (a prompt guides, it doesn't
+      // enforce) — this is the code-level backstop so they can't reach the DB
+      // regardless of what the model returns.
+      // 1. brand/venue with no real canonical name -> not a confident entity, downgrade to unknown.
+      if (
+        (entityType === 'brand' || entityType === 'venue') &&
+        (result.canonical_name == null || String(result.canonical_name).trim() === '')
+      ) {
+        entityType = 'unknown';
+      }
+      // 2. Only brand/venue may carry canonical_name, category, region, and scores. Everything else nulls them.
       const scorable = entityType === 'brand' || entityType === 'venue';
+      const canonical = scorable ? (result.canonical_name ?? null) : null;
+      const category = scorable ? (result.category ?? null) : null;
+      const region = scorable ? (result.region ?? null) : null;
+      const recognizability = scorable ? clampScore(result.recognizability) : null;
+      const im_intensity = scorable ? clampScore(result.im_intensity) : null;
+
       updates.push({
         alias: result.alias,
-        canonical_name: result.canonical_name ?? null, // do NOT echo raw alias for junk singletons
+        canonical_name: canonical, // do NOT echo raw alias for junk singletons
         entity_type: entityType,
-        category: result.category ?? null,
-        region: result.region ?? null,
-        recognizability: scorable ? clampScore(result.recognizability) : null,
-        im_intensity: scorable ? clampScore(result.im_intensity) : null,
+        category,
+        region,
+        recognizability,
+        im_intensity,
         classification_notes: typeof result.notes === 'string' ? result.notes : null,
         classified_at: now,
       });
