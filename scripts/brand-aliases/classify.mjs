@@ -180,6 +180,10 @@ NOT a value you produced by cleaning up the alias itself (do not just strip a su
 the handle: "wdirara_us" → "WDirara" is NOT a valid canonical). If the only name you can give is one
 derived from the alias string because you don't actually recognize the entity, then you don't know it
 well enough to call it a brand — return entity_type "unknown" instead, with a null canonical_name.
+This applies to VENUES too: if you can tell it's a restaurant, bar, or hotel but cannot identify the
+SPECIFIC named place (e.g. "elparche_parrilla" — you know it's a grill but not WHICH one), that is
+not a confident venue. Return entity_type "unknown" with null canonical, exactly as for an
+unidentifiable brand. Only use "venue" when you can name the actual place.
 
 ## category
 
