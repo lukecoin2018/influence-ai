@@ -38,6 +38,14 @@ type PreviewVerdict = {
 
 type FilterType = 'all' | 'review' | 'unclassified' | 'unverified_brands' | 'preview';
 
+// Additive, orthogonal to FilterType — a second filter axis that only
+// applies within the 'all' tab (see the "Why" in the handoff: tabs filter on
+// verified/classified_at state, this filters on entity_type so venues and
+// other non-brand types are findable at all).
+type TypeFilterValue = EntityType | 'all_types';
+type SortColumn = 'recognizability' | 'im_intensity';
+type SortDirection = 'asc' | 'desc';
+
 // `verified` is a purely human-set trust flag — nothing in the classification
 // pipeline (prepass.mjs, classify.mjs) ever writes it, so it means exactly
 // "an admin looked at this row," not "the AI was confident."
@@ -72,6 +80,9 @@ export default function AdminBrandIndexPage() {
   const [rows, setRows] = useState<BrandAlias[]>([]);
   const [previewRows, setPreviewRows] = useState<PreviewVerdict[]>([]);
   const [filter, setFilter] = useState<FilterType>('all');
+  const [typeFilter, setTypeFilter] = useState<TypeFilterValue>('all_types');
+  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
   const [totalCount, setTotalCount] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [unclassifiedCount, setUnclassifiedCount] = useState(0);
@@ -88,7 +99,7 @@ export default function AdminBrandIndexPage() {
     if (!user || userRole !== 'admin') { router.push('/login'); return; }
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [loading, user, userRole, filter]);
+  }, [loading, user, userRole, filter, typeFilter, sortColumn, sortDirection]);
 
   // Counts for every tab are fetched independently of which tab is active, so
   // badges stay accurate no matter which one you're looking at.
@@ -128,6 +139,24 @@ export default function AdminBrandIndexPage() {
             alias: r.alias, // classification_preview.alias should already match, but the row's own alias is authoritative
           }))
         );
+      } else if (filter === 'all') {
+        // Type filter needs its own server-side query rather than a client-side
+        // filter over the default creators_count-sorted page: creators_count
+        // >= 2 alone already accounts for 517 rows, more than ROW_LIMIT, so the
+        // default query's top-500-by-creators_count page never reaches down to
+        // the creators_count=1 rows where nearly all venue/etc. types live —
+        // filtering that page client-side would show ~0 venues, not ~129.
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let query: any = supabase.from('brand_aliases').select('*');
+        if (typeFilter !== 'all_types') query = query.eq('entity_type', typeFilter);
+        query = sortColumn
+          ? query.order(sortColumn, { ascending: sortDirection === 'asc', nullsFirst: false })
+          : query.order('creators_count', { ascending: false });
+        query = query.limit(ROW_LIMIT);
+        const [{ data, error }] = await Promise.all([query, loadCounts()]);
+        if (error) throw error;
+        if (seq !== requestSeq.current) return;
+        setRows((data ?? []) as BrandAlias[]);
       } else {
         const query = applyFilter(
           supabase.from('brand_aliases').select('*').order('creators_count', { ascending: false }).limit(ROW_LIMIT),
@@ -176,6 +205,43 @@ export default function AdminBrandIndexPage() {
     </button>
   );
 
+  // Different active color from filterBtn (dark gray, not yellow) — a visual
+  // cue that this is a second, independent filter axis on top of the tabs,
+  // not another tab.
+  const typeFilterBtn = (value: TypeFilterValue, label: string) => (
+    <button
+      key={value}
+      onClick={() => setTypeFilter(value)}
+      style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: 'pointer', border: 'none', backgroundColor: typeFilter === value ? '#3A3A3A' : '#F3F4F6', color: typeFilter === value ? 'white' : '#374151' }}
+    >
+      {label}
+    </button>
+  );
+
+  function toggleSort(column: SortColumn) {
+    if (sortColumn === column) {
+      setSortDirection((d) => (d === 'desc' ? 'asc' : 'desc'));
+    } else {
+      setSortColumn(column);
+      setSortDirection('desc');
+    }
+  }
+
+  // Sortable only within the 'all' tab, where the type filter also lives —
+  // the other tabs keep their fixed creators_count-desc order, untouched.
+  const scoreTh = (column: SortColumn, label: string) =>
+    filter === 'all' ? (
+      <th
+        style={{ ...thStyle, textAlign: 'right', cursor: 'pointer', userSelect: 'none' }}
+        onClick={() => toggleSort(column)}
+      >
+        {label}
+        {sortColumn === column ? (sortDirection === 'desc' ? ' ▼' : ' ▲') : ''}
+      </th>
+    ) : (
+      <th style={{ ...thStyle, textAlign: 'right' }}>{label}</th>
+    );
+
   if (loading) return null;
   if (!user || userRole !== 'admin') return null;
 
@@ -196,6 +262,19 @@ export default function AdminBrandIndexPage() {
         {filterBtn('unclassified', `Unclassified (${unclassifiedCount})`)}
         {filterBtn('preview', `Preview (${previewCount})`)}
       </div>
+
+      {filter === 'all' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Type:</span>
+          {typeFilterBtn('all_types', 'All types')}
+          {ENTITY_TYPES.map((t) => typeFilterBtn(t, t))}
+          {typeFilter !== 'all_types' && !dataLoading && (
+            <span style={{ fontSize: '13px', color: '#6B7280' }}>
+              {rows.length} {typeFilter}{rows.length === 1 ? '' : 's'}
+            </span>
+          )}
+        </div>
+      )}
 
       {saveError && (
         <p style={{ color: '#DC2626', fontSize: '13px', margin: '0 0 12px 0' }}>{saveError}</p>
@@ -266,7 +345,7 @@ export default function AdminBrandIndexPage() {
           {filter === 'review' && 'No unknown classifications right now.'}
           {filter === 'unverified_brands' && 'Every classified brand has been verified.'}
           {filter === 'unclassified' && 'Nothing unclassified — the AI/pre-pass has covered everything eligible.'}
-          {filter === 'all' && 'No aliases found — run the seed script first.'}
+          {filter === 'all' && (typeFilter === 'all_types' ? 'No aliases found — run the seed script first.' : `No ${typeFilter} rows found.`)}
         </p>
       ) : (
         <div style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', overflow: 'hidden' }}>
@@ -277,8 +356,8 @@ export default function AdminBrandIndexPage() {
                 <th style={thStyle}>Canonical name</th>
                 <th style={thStyle}>Type</th>
                 <th style={thStyle}>Category</th>
-                <th style={{ ...thStyle, textAlign: 'right' }}>Recognizability</th>
-                <th style={{ ...thStyle, textAlign: 'right' }}>IM Intensity</th>
+                {scoreTh('recognizability', 'Recognizability')}
+                {scoreTh('im_intensity', 'IM Intensity')}
                 <th style={thStyle}>Region</th>
                 <th style={{ ...thStyle, textAlign: 'right' }}>Creators</th>
                 <th style={{ ...thStyle, textAlign: 'center' }}>Verified</th>
@@ -346,7 +425,7 @@ export default function AdminBrandIndexPage() {
       )}
       {activeRowCount === ROW_LIMIT && (
         <p style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '10px' }}>
-          Showing the top {ROW_LIMIT}{filter === 'all' ? ` of ${totalCount}` : ' within this filter'}.
+          Showing the top {ROW_LIMIT}{filter === 'all' && typeFilter === 'all_types' ? ` of ${totalCount}` : ' within this filter'}.
         </p>
       )}
     </div>
