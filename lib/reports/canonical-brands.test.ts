@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { aggregateCanonicalBrands, type AliasCreatorReach, type BrandAliasRow } from './canonical-brands';
+import { aggregateCanonicalBrands, buildAliasToCanonicalMap, type AliasCreatorReach, type BrandAliasRow } from './canonical-brands';
 
 function alias(overrides: Partial<BrandAliasRow> & { alias: string }): BrandAliasRow {
   return {
@@ -123,5 +123,26 @@ describe('aggregateCanonicalBrands', () => {
     const aliases = [alias({ alias: 'shein', category: null })];
     const result = aggregateCanonicalBrands(aliases, []);
     expect(result[0].category).toBeNull();
+  });
+});
+
+describe('buildAliasToCanonicalMap', () => {
+  it('maps every eligible alias to its canonical name, excluding unverified and non-brand rows', () => {
+    const aliases = [
+      alias({ alias: 'shein' }),
+      alias({ alias: 'sheinofficial' }),
+      alias({ alias: 'sheinleaked', verified: false }),
+      alias({ alias: 'sheinvenue', entityType: 'venue' }),
+      alias({ alias: 'unverifiedbrand', canonicalName: 'Nivea', verified: false }),
+    ];
+
+    const map = buildAliasToCanonicalMap(aliases);
+
+    expect(map.get('shein')).toBe('Shein');
+    expect(map.get('sheinofficial')).toBe('Shein');
+    expect(map.has('sheinleaked')).toBe(false);
+    expect(map.has('sheinvenue')).toBe(false);
+    expect(map.has('unverifiedbrand')).toBe(false);
+    expect(map.size).toBe(2);
   });
 });

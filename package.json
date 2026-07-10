@@ -10,7 +10,8 @@
     "test": "vitest run",
     "brand-aliases:seed": "node scripts/brand-aliases/seed.mjs",
     "brand-aliases:prepass": "node scripts/brand-aliases/prepass.mjs",
-    "brand-aliases:classify": "node scripts/brand-aliases/classify.mjs"
+    "brand-aliases:classify": "node scripts/brand-aliases/classify.mjs",
+    "refresh:brand-brackets": "tsx scripts/brand-brackets/refresh.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
@@ -41,6 +42,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
+    "tsx": "^4.23.0",
     "typescript": "^5",
     "vitest": "^4.1.10"
   }

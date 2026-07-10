@@ -55,6 +55,22 @@ function pickCategory(categoryCounts: Map<string, number>): string | null {
   return best;
 }
 
+/**
+ * Alias -> canonical_name lookup, restricted to the same eligibility rule
+ * aggregateCanonicalBrands() uses (verified, entity_type='brand', canonical_name
+ * set). For callers that need to resolve a raw creator_posts.detected_brands
+ * alias to its canonical brand without running the full aggregation (e.g. the
+ * brand_brackets refresh script, which needs per-platform grouping this module
+ * doesn't do).
+ */
+export function buildAliasToCanonicalMap(aliasRows: BrandAliasRow[]): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const row of aliasRows) {
+    if (isAggregatable(row)) map.set(row.alias, row.canonicalName);
+  }
+  return map;
+}
+
 export function aggregateCanonicalBrands(
   aliasRows: BrandAliasRow[],
   aliasCreatorReach: AliasCreatorReach[],
