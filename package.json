@@ -11,7 +11,8 @@
     "brand-aliases:seed": "node scripts/brand-aliases/seed.mjs",
     "brand-aliases:prepass": "node scripts/brand-aliases/prepass.mjs",
     "brand-aliases:classify": "node scripts/brand-aliases/classify.mjs",
-    "refresh:brand-brackets": "tsx scripts/brand-brackets/refresh.ts"
+    "refresh:brand-brackets": "tsx scripts/brand-brackets/refresh.ts",
+    "check-creator-matches": "tsx scripts/creator-brand-matches/check.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
