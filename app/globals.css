@@ -3,6 +3,21 @@
 @plugin "@tailwindcss/typography";
 
 @theme {
+  /* ─── Canonical LMG brand palette ─────────────────────────────────
+   * Full-strength, source-of-truth hexes for identity-carrying accents:
+   * CTAs, the logo, active-state markers, badges, key accents. This hex
+   * is authoritative even over a design mock that shows a softened
+   * version — never quietly desaturate one of these for a "soft" UI
+   * treatment; derive an explicit tint from the hex instead (see the
+   * -light variants below) rather than eyeballing a washed-out value.
+   * (--color-brand-pink below is a DIFFERENT, deliberately-different pink
+   * already used throughout app/dashboard/brief/* — not this palette,
+   * not touched here.)
+   */
+  --color-lmg-yellow: #FFD700;
+  --color-lmg-pink:   #FF4D94;
+  --color-lmg-blue:   #3AAFF4;
+  --color-lmg-grey:           #3A3A3A;
   --color-lmg-gold:           #FFD700;
   --color-lmg-gold-dark:      #E6C200;
   --color-lmg-gold-light:     #FFF9E0;
@@ -13,7 +28,6 @@
   --color-lmg-brand:          #3AAFF4;
   --color-lmg-brand-light:    #EBF7FF;
   --color-lmg-brand-border:   #A3D9FF;
-  --color-lmg-grey:           #3A3A3A;
   --color-brand-grey:   #3A3A3A;
   --color-brand-yellow: #FFD700;
   --color-brand-blue:   #3AAFF4;

@@ -25,6 +25,16 @@ export const dynamic = 'force-dynamic';
 
 const READ_TIMEOUT_MS = 15_000;
 
+// Canonical LMG brand accents (app/globals.css's @theme) — full-strength,
+// referenced by CSS variable rather than inline hex so this page can't drift
+// from the source of truth again. Reserved for identity-carrying elements
+// (CTA, logo, badges, active-state markers) per the founder's correction —
+// backgrounds/surfaces stay neutral, deliberately not tokenized here.
+const YELLOW = 'var(--color-lmg-yellow)'; // #FFD700
+const PINK = 'var(--color-lmg-pink)'; // #FF4D94
+const BLUE = 'var(--color-lmg-blue)'; // #3AAFF4
+const GREY = 'var(--color-lmg-grey)'; // #3A3A3A
+
 function signupHref(handle: string): string {
   return `/auth/signup?handle=${encodeURIComponent(handle)}&role=creator`;
 }
@@ -48,8 +58,8 @@ function TeaserCard({ children }: { children: React.ReactNode }) {
 function TopBar({ handle }: { handle: string }) {
   return (
     <header style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em', color: '#3A3A3A' }}>
-        Influence<span style={{ color: '#E6B800' }}>IT</span>
+      <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em', color: GREY }}>
+        Influence<span style={{ color: YELLOW }}>IT</span>
       </span>
       <span
         style={{
@@ -66,8 +76,8 @@ function TopBar({ handle }: { handle: string }) {
 function Badge({ kind }: { kind: BadgeKind }) {
   if (kind === 'repeat-hirer') {
     return (
-      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 999, background: '#FFF4B0', color: '#6E5600', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>
-        <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#E6B800', display: 'inline-block' }} />
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 999, background: YELLOW, color: GREY, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>
+        <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREY, display: 'inline-block' }} />
         Repeat hirer
       </span>
     );
@@ -88,11 +98,11 @@ function Badge({ kind }: { kind: BadgeKind }) {
 
 function RecencyRow({ bucket, mostRecentPost }: { bucket: RecencyBucket; mostRecentPost: string | null }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: '#3A3A3A' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: GREY }}>
       {bucket !== 'neutral' && (
         <span
           style={{
-            width: 7, height: 7, borderRadius: '50%', background: '#E6B800', flexShrink: 0,
+            width: 7, height: 7, borderRadius: '50%', background: YELLOW, flexShrink: 0,
             animation: bucket === 'active' ? 'pulseDot 2.4s ease-in-out infinite' : undefined,
           }}
         />
@@ -110,7 +120,7 @@ function Headline({ greetingName, totalMatchCount, creatorFollowers }: { greetin
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <h1 style={{ margin: 0, fontSize: 28, lineHeight: 1.2, fontWeight: 800, letterSpacing: '-0.02em', color: '#3A3A3A' }}>{headline}</h1>
+      <h1 style={{ margin: 0, fontSize: 28, lineHeight: 1.2, fontWeight: 800, letterSpacing: '-0.02em', color: GREY }}>{headline}</h1>
       {creatorFollowers != null && (
         <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: '#6D6B65' }}>
           Real hires we detected around {formatCount(creatorFollowers)} followers. Your strongest match, in full:
@@ -136,14 +146,14 @@ function HeroCard({ match, creatorFollowers, handle }: { match: MatchedBrand; cr
       <header style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
         <div
           style={{
-            width: 44, height: 44, borderRadius: 12, background: '#FFF4B0', border: '1px solid rgba(230,184,0,0.25)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, color: '#8A6D00', flexShrink: 0,
+            width: 44, height: 44, borderRadius: 12, background: YELLOW, border: '1px solid rgba(255,215,0,0.4)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 18, color: GREY, flexShrink: 0,
           }}
         >
           {initialOf(match.canonicalName)}
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, flex: 1 }}>
-          <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em', color: '#3A3A3A', overflowWrap: 'anywhere' }}>{match.canonicalName}</div>
+          <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em', color: GREY, overflowWrap: 'anywhere' }}>{match.canonicalName}</div>
           {match.category && <div style={{ fontSize: 13, color: '#6D6B65' }}>{match.category}</div>}
         </div>
         <Badge kind={badge} />
@@ -152,7 +162,7 @@ function HeroCard({ match, creatorFollowers, handle }: { match: MatchedBrand; cr
       {markerPct != null && (
         <div style={{ background: '#FAFAF8', border: '1px solid #E8E6DF', borderRadius: 12, padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#3A3A3A' }}>Hires creators your size</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: GREY }}>Hires creators your size</span>
             <span style={{ fontSize: 12, color: '#6D6B65' }}>
               {match.p25Followers === match.p75Followers
                 ? `around ${formatCount(match.p25Followers)} followers`
@@ -160,14 +170,14 @@ function HeroCard({ match, creatorFollowers, handle }: { match: MatchedBrand; cr
             </span>
           </div>
           <div style={{ position: 'relative', height: 26 }}>
-            <div style={{ position: 'absolute', left: 0, right: 0, top: 15, height: 8, borderRadius: 999, background: 'linear-gradient(90deg, #FFF4B0, #FFD700)' }} />
+            <div style={{ position: 'absolute', left: 0, right: 0, top: 15, height: 8, borderRadius: 999, background: YELLOW }} />
             <div style={{ position: 'absolute', top: 11, left: `${markerPct}%`, transform: 'translateX(-50%)' }}>
-              <div style={{ width: 16, height: 16, borderRadius: '50%', background: '#3A3A3A', border: '3px solid #fff', boxShadow: '0 2px 6px rgba(20,18,12,0.06)' }} />
+              <div style={{ width: 16, height: 16, borderRadius: '50%', background: GREY, border: '3px solid #fff', boxShadow: '0 2px 6px rgba(20,18,12,0.06)' }} />
             </div>
             <div
               style={{
                 position: 'absolute', top: -6, left: `${markerPct}%`, transform: 'translateX(-50%)', fontSize: 11, fontWeight: 700,
-                color: '#3A3A3A', whiteSpace: 'nowrap', background: '#fff', border: '1px solid #E8E6DF', borderRadius: 999,
+                color: GREY, whiteSpace: 'nowrap', background: '#fff', border: '1px solid #E8E6DF', borderRadius: 999,
                 padding: '1px 8px', boxShadow: '0 1px 2px rgba(20,18,12,0.04)',
               }}
             >
@@ -179,7 +189,7 @@ function HeroCard({ match, creatorFollowers, handle }: { match: MatchedBrand; cr
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.01em', color: '#3A3A3A', lineHeight: 1 }}>{match.distinctCreators}</span>
+          <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.01em', color: GREY, lineHeight: 1 }}>{match.distinctCreators}</span>
           <span style={{ fontSize: 13, color: '#6D6B65', lineHeight: 1.3 }}>
             creator{match.distinctCreators === 1 ? '' : 's'} detected
             <br />
@@ -190,7 +200,7 @@ function HeroCard({ match, creatorFollowers, handle }: { match: MatchedBrand; cr
       </div>
 
       {match.regionMatch && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: '#D2EEFB', color: '#14618E', fontSize: 13, fontWeight: 600 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: BLUE, color: '#FFFFFF', fontSize: 13, fontWeight: 600 }}>
           <MapPin size={14} aria-hidden="true" />
           Hiring in your region — {match.regionMatch.label}
         </div>
@@ -205,7 +215,7 @@ function HeroCard({ match, creatorFollowers, handle }: { match: MatchedBrand; cr
             href={href}
             style={{
               flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7, height: 42,
-              borderRadius: 999, border: 'none', background: '#3A3A3A', color: '#fff', fontSize: 13, fontWeight: 700, textDecoration: 'none',
+              borderRadius: 999, border: 'none', background: GREY, color: '#fff', fontSize: 13, fontWeight: 700, textDecoration: 'none',
             }}
           >
             <Pencil size={13} aria-hidden="true" />
@@ -215,7 +225,7 @@ function HeroCard({ match, creatorFollowers, handle }: { match: MatchedBrand; cr
             href={href}
             style={{
               flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7, height: 42,
-              borderRadius: 999, border: '1.5px solid #3A3A3A', background: '#fff', color: '#3A3A3A', fontSize: 13, fontWeight: 700, textDecoration: 'none',
+              borderRadius: 999, border: '1.5px solid #3A3A3A', background: '#fff', color: GREY, fontSize: 13, fontWeight: 700, textDecoration: 'none',
             }}
           >
             <Calculator size={13} aria-hidden="true" />
@@ -227,13 +237,13 @@ function HeroCard({ match, creatorFollowers, handle }: { match: MatchedBrand; cr
   );
 }
 
-// Cycled per row position, matching the design's own row-to-row color variety
-// (it isn't tied to real per-brand identity — we don't have that data for a
-// blurred row — just a decorative echo of the mock's look).
+// Cycled per row position through the full canonical palette — not tied to
+// real per-brand identity (we don't have that data for a blurred row), just
+// a decorative echo of the mock's row-to-row color variety, at full strength.
 const BLURRED_AVATAR_PALETTE = [
-  { bg: '#FFF4B0', fg: '#8A6D00' },
-  { bg: '#D2EEFB', fg: '#14618E' },
-  { bg: '#F4F3EF', fg: '#6D6B65' },
+  { bg: YELLOW, fg: GREY },
+  { bg: BLUE, fg: '#FFFFFF' },
+  { bg: PINK, fg: '#FFFFFF' },
 ];
 
 function BlurredRow({ match, index, faded }: { match: BlurredMatch; index: number; faded: boolean }) {
@@ -263,7 +273,7 @@ function BlurredRow({ match, index, faded }: { match: BlurredMatch; index: numbe
         •
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 16, fontWeight: 800, color: '#3A3A3A', filter: 'blur(7px)', userSelect: 'none' }} aria-hidden="true">
+        <div style={{ fontSize: 16, fontWeight: 800, color: GREY, filter: 'blur(7px)', userSelect: 'none' }} aria-hidden="true">
           Hidden brand
         </div>
         <div style={{ fontSize: 12, color: '#6D6B65' }}>
@@ -286,7 +296,7 @@ function MoreBrandsSection({ teaserPreview, totalMatchCount }: { teaserPreview: 
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <span style={{ fontSize: 16, fontWeight: 800, color: '#3A3A3A' }}>
+      <span style={{ fontSize: 16, fontWeight: 800, color: GREY }}>
         + {moreCount} more brand{moreCount === 1 ? '' : 's'} we&apos;ve detected hiring creators your size
       </span>
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -305,7 +315,7 @@ function ClaimCta({ handle, totalMatchCount }: { handle: string; totalMatchCount
         href={signupHref(handle)}
         style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, padding: '0 28px',
-          borderRadius: 999, border: 'none', background: '#FFD700', color: '#3A3A3A', fontSize: 15, fontWeight: 800,
+          borderRadius: 999, border: 'none', background: YELLOW, color: GREY, fontSize: 15, fontWeight: 800,
           textDecoration: 'none', boxShadow: '0 8px 24px rgba(20,18,12,0.08)',
         }}
       >
@@ -371,7 +381,7 @@ function ZeroMatchState({
     <TeaserCard>
       <TopBar handle={handle} />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <h1 style={{ margin: 0, fontSize: 26, lineHeight: 1.25, fontWeight: 800, letterSpacing: '-0.02em', color: '#3A3A3A' }}>
+        <h1 style={{ margin: 0, fontSize: 26, lineHeight: 1.25, fontWeight: 800, letterSpacing: '-0.02em', color: GREY }}>
           {greetingName ? `${greetingName}, ` : ''}we haven&apos;t detected a brand match for you yet.
         </h1>
         <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: '#6D6B65' }}>
@@ -384,11 +394,11 @@ function ZeroMatchState({
       {proof && (
         <div style={{ display: 'flex', gap: 24, padding: '16px 18px', borderRadius: 12, background: '#FAFAF8', border: '1px solid #E8E6DF' }}>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#3A3A3A' }}>{formatCount(proof.creators)}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: GREY }}>{formatCount(proof.creators)}</div>
             <div style={{ fontSize: 12, color: '#6D6B65' }}>creators indexed</div>
           </div>
           <div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#3A3A3A' }}>{formatCount(proof.brandDeals)}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: GREY }}>{formatCount(proof.brandDeals)}</div>
             <div style={{ fontSize: 12, color: '#6D6B65' }}>real brand deals detected</div>
           </div>
         </div>
@@ -399,7 +409,7 @@ function ZeroMatchState({
           href={signupHref(handle)}
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, padding: '0 28px',
-            borderRadius: 999, border: 'none', background: '#FFD700', color: '#3A3A3A', fontSize: 15, fontWeight: 800, textDecoration: 'none',
+            borderRadius: 999, border: 'none', background: YELLOW, color: GREY, fontSize: 15, fontWeight: 800, textDecoration: 'none',
           }}
         >
           Claim your profile anyway
@@ -418,13 +428,13 @@ function RetryState({ handle }: { handle: string }) {
     <TeaserCard>
       <div style={{ textAlign: 'center', padding: '24px 0' }}>
         <RefreshCw size={40} color="#CFCDC4" style={{ margin: '0 auto 16px' }} aria-hidden="true" />
-        <h1 style={{ fontSize: 20, fontWeight: 700, color: '#3A3A3A', margin: '0 0 8px 0' }}>This is taking longer than expected</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, color: GREY, margin: '0 0 8px 0' }}>This is taking longer than expected</h1>
         <p style={{ fontSize: 14, color: '#6D6B65', margin: '0 0 20px 0' }}>
           We couldn&apos;t load @{handle}&apos;s matches in time. This is usually temporary.
         </p>
         <Link
           href={`/claim/${encodeURIComponent(handle)}`}
-          style={{ display: 'inline-flex', padding: '10px 20px', borderRadius: 8, backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: 14, fontWeight: 600, textDecoration: 'none' }}
+          style={{ display: 'inline-flex', padding: '10px 20px', borderRadius: 8, backgroundColor: YELLOW, color: GREY, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}
         >
           Try again
         </Link>
