@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowRight, Calculator, MapPin, Pencil, RefreshCw } from 'lucide-react';
+import { ArrowRight, Calculator, Lock, MapPin, Pencil, RefreshCw } from 'lucide-react';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { withTimeout, TimeoutError } from '@/lib/withTimeout';
 import { formatCount } from '@/lib/formatters';
 import { getCreatorBrandMatches, type BlurredMatch, type CreatorBrandMatches, type MatchedBrand } from '@/lib/reports/creator-brand-matches';
 import type { RecencyBucket } from '@/lib/reports/recency-bucket';
+import { consolidateCategory, summarizeCategories, type CategoryCount } from '@/lib/reports/category-consolidation';
 import {
   badgeFor,
   bracketMarkerPercent,
@@ -114,18 +115,81 @@ function RecencyRow({ bucket, mostRecentPost }: { bucket: RecencyBucket; mostRec
 
 function Headline({ greetingName, totalMatchCount, creatorFollowers }: { greetingName: string | null; totalMatchCount: number; creatorFollowers: number | null }) {
   const brandsWord = totalMatchCount === 1 ? 'brand' : 'brands';
-  const headline = greetingName
-    ? `${greetingName} — ${totalMatchCount} ${brandsWord} we've detected hiring creators your size.`
-    : `${totalMatchCount} ${brandsWord} we've detected hiring creators your size.`;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <h1 style={{ margin: 0, fontSize: 28, lineHeight: 1.2, fontWeight: 800, letterSpacing: '-0.02em', color: GREY }}>{headline}</h1>
+      <h1 style={{ margin: 0, fontSize: 28, lineHeight: 1.25, fontWeight: 800, letterSpacing: '-0.02em', color: GREY }}>
+        {greetingName ? `${greetingName} — ` : ''}
+        <span style={{ color: YELLOW }}>
+          {totalMatchCount} {brandsWord}
+        </span>{' '}
+        we&apos;ve detected hiring creators your size.
+      </h1>
       {creatorFollowers != null && (
         <p style={{ margin: 0, fontSize: 15, lineHeight: 1.55, color: '#6D6B65' }}>
           Real hires we detected around {formatCount(creatorFollowers)} followers. Your strongest match, in full:
         </p>
       )}
+    </div>
+  );
+}
+
+/**
+ * Read-only brand-category breakdown (design 2a) — NOT the tappable dashboard
+ * filter (2b), which is out of scope until the dashboard itself exists. Shows
+ * the *brand's* category, never a creator-niche lookup: the copy is always
+ * "N {category} brands", identical for a creator with no assigned niche.
+ */
+function CategoryPills({ categories, handle }: { categories: CategoryCount[]; handle: string }) {
+  if (categories.length === 0) return null;
+  const shown = categories.slice(0, 4);
+  const moreCount = categories.length - shown.length;
+
+  const [first, second] = shown;
+  const incentiveText = second
+    ? `Claim your profile to filter by category — see just the ${first.name} ones, or just ${second.name}.`
+    : `Claim your profile to filter by category — see just the ${first.name} ones.`;
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        {shown.map((c) => (
+          <span
+            key={c.name}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 999,
+              background: '#fff', border: '1px solid #CFCDC4', fontSize: 13, fontWeight: 600, color: GREY, whiteSpace: 'nowrap',
+            }}
+          >
+            <strong style={{ fontWeight: 800, color: PINK }}>{c.count}</strong> {c.name}
+          </span>
+        ))}
+        {moreCount > 0 && (
+          <span style={{ display: 'inline-flex', alignItems: 'center', padding: '6px 12px', borderRadius: 999, fontSize: 13, fontWeight: 600, color: '#6D6B65', whiteSpace: 'nowrap' }}>
+            + {moreCount} more categor{moreCount === 1 ? 'y' : 'ies'}
+          </span>
+        )}
+      </div>
+      <Link href={signupHref(handle)} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: '#6D6B65', textDecoration: 'none' }}>
+        <Lock size={12} aria-hidden="true" />
+        {incentiveText}
+      </Link>
+    </div>
+  );
+}
+
+function BadgeLegend() {
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', columnGap: 16, rowGap: 4, fontSize: 12, lineHeight: 1.5, color: '#6D6B65' }}>
+      <span>
+        <strong style={{ fontWeight: 700, color: GREY }}>Program</strong> — hires multiple creators your size, ongoing
+      </span>
+      <span>
+        <strong style={{ fontWeight: 700, color: GREY }}>Repeat hirer</strong> — works with creators repeatedly, often ambassador-style
+      </span>
+      <span>
+        <strong style={{ fontWeight: 700, color: GREY }}>Sighting</strong> — spotted hiring your size at least once
+      </span>
     </div>
   );
 }
@@ -154,7 +218,7 @@ function HeroCard({ match, creatorFollowers, handle }: { match: MatchedBrand; cr
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, flex: 1 }}>
           <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em', color: GREY, overflowWrap: 'anywhere' }}>{match.canonicalName}</div>
-          {match.category && <div style={{ fontSize: 13, color: '#6D6B65' }}>{match.category}</div>}
+          <div style={{ fontSize: 13, color: '#6D6B65' }}>{consolidateCategory(match.category)}</div>
         </div>
         <Badge kind={badge} />
       </header>
@@ -277,7 +341,7 @@ function BlurredRow({ match, index, faded }: { match: BlurredMatch; index: numbe
           Hidden brand
         </div>
         <div style={{ fontSize: 12, color: '#6D6B65' }}>
-          {match.category ?? 'Uncategorized'} · {match.distinctCreators} creator{match.distinctCreators === 1 ? '' : 's'} detected · {recencyLineCompact(match.recencyBucket)}
+          {consolidateCategory(match.category)} · {match.distinctCreators} creator{match.distinctCreators === 1 ? '' : 's'} detected · {recencyLineCompact(match.recencyBucket)}
         </div>
       </div>
       <Badge kind={badge} />
@@ -308,7 +372,7 @@ function MoreBrandsSection({ teaserPreview, totalMatchCount }: { teaserPreview: 
   );
 }
 
-function ClaimCta({ handle, totalMatchCount }: { handle: string; totalMatchCount: number }) {
+function ClaimCta({ handle, totalMatchCount, strongestMatchName }: { handle: string; totalMatchCount: number; strongestMatchName: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, paddingTop: 4 }}>
       <Link
@@ -323,7 +387,7 @@ function ClaimCta({ handle, totalMatchCount }: { handle: string; totalMatchCount
         <ArrowRight size={15} aria-hidden="true" />
       </Link>
       <p style={{ margin: 0, fontSize: 12, lineHeight: 1.5, color: '#9C9A91', textAlign: 'center' }}>
-        Free for creators. {totalMatchCount} is what we&apos;ve actually detected — we don&apos;t pad the list.
+        Free for creators. Every count above is a real, detected hirer — {strongestMatchName} is 1 of {totalMatchCount}.
       </p>
     </div>
   );
@@ -347,6 +411,7 @@ function TeaserPage({
   totalMatchCount,
   teaserPreview,
   creatorFollowers,
+  categoryBreakdown,
 }: {
   handle: string;
   greetingName: string | null;
@@ -354,14 +419,17 @@ function TeaserPage({
   totalMatchCount: number;
   teaserPreview: BlurredMatch[];
   creatorFollowers: number | null;
+  categoryBreakdown: CategoryCount[];
 }) {
   return (
     <TeaserCard>
       <TopBar handle={handle} />
       <Headline greetingName={greetingName} totalMatchCount={totalMatchCount} creatorFollowers={creatorFollowers} />
+      <CategoryPills categories={categoryBreakdown} handle={handle} />
       <HeroCard match={strongestMatch} creatorFollowers={creatorFollowers} handle={handle} />
+      <BadgeLegend />
       <MoreBrandsSection teaserPreview={teaserPreview} totalMatchCount={totalMatchCount} />
-      <ClaimCta handle={handle} totalMatchCount={totalMatchCount} />
+      <ClaimCta handle={handle} totalMatchCount={totalMatchCount} strongestMatchName={strongestMatch.canonicalName} />
     </TeaserCard>
   );
 }
@@ -465,6 +533,12 @@ export default async function ClaimHandlePage({ params }: { params: Promise<{ ha
     return <ZeroMatchState handle={handle} greetingName={greetingName} creatorFollowers={result.creatorFollowers} proof={proof} />;
   }
 
+  // Computed here, from the full result.matches[], and never passed further
+  // than this narrow {name,count}[] summary — same discipline as
+  // strongestMatch/teaserPreview below: the full match list itself never
+  // becomes a prop anywhere (see TeaserPage's docstring for why).
+  const categoryBreakdown = summarizeCategories(result.matches);
+
   return (
     <TeaserPage
       handle={handle}
@@ -473,6 +547,7 @@ export default async function ClaimHandlePage({ params }: { params: Promise<{ ha
       totalMatchCount={result.totalMatchCount}
       teaserPreview={result.teaserPreview}
       creatorFollowers={result.creatorFollowers}
+      categoryBreakdown={categoryBreakdown}
     />
   );
 }
