@@ -13,8 +13,12 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
   // /report/[slug] also ships its own dark nav/footer (matches the homepage's
   // dark/yellow identity for shareable brand reports) — same reasoning as isHome.
   const isReport = pathname.startsWith('/report/');
+  // /claim/[handle] is a cold-DM conversion landing page — the site nav's exit
+  // routes (Discover/Compare/About/Sign up) compete with its one job (claim).
+  // It ships its own minimal logo + legal-only footer instead of the full shell.
+  const isClaim = pathname.startsWith('/claim/');
 
-  if (isAdmin || isHome || isReport) {
+  if (isAdmin || isHome || isReport || isClaim) {
     return <>{children}</>;
   }
 
