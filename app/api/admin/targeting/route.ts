@@ -14,18 +14,25 @@ export const maxDuration = 60;
 
 const DB_TIMEOUT_MS = 10_000;
 const STRENGTH_CALL_TIMEOUT_MS = 15_000;
-// Cheap pre-filter caps the segment at this many creators (by follower_count
-// desc) before the expensive per-creator getCreatorBrandMatches pass runs —
-// running that for an entire large segment (e.g. ~460 for "all Colombia")
-// synchronously is exactly the all-creator cost the read layer's design
-// avoids. "Compute next window" (the `batch` param) advances through the
-// segment in windows of this size rather than silently truncating it.
+// Cheap pre-filter caps the segment at this many creators per batch before
+// the expensive per-creator getCreatorBrandMatches pass runs — running that
+// for an entire large segment (e.g. ~460 for "all Colombia") synchronously is
+// exactly the all-creator cost the read layer's design avoids. Batches are
+// windowed in a NEUTRAL row order (id, below) — never by follower_count.
+// Teaser strength is independent of follower size (bracket-matching means
+// even a zero-post creator gets a strong teaser), and this creator base
+// clusters 30K-500K followers, so sorting the pool by followers would just
+// float a handful of big accounts for no reason. Follower count stays a
+// filter (min/max) and a display column only. "Compute next window" (the
+// `batch` param) advances through the segment in windows of this size rather
+// than silently truncating it.
 const PREFILTER_WINDOW_SIZE = 150;
 // Bounded concurrency for the getCreatorBrandMatches pass — sequential
 // chunks, never one unbounded Promise.all over the whole window.
 const STRENGTH_CHUNK_SIZE = 10;
 
 type SocialProfileCandidateRow = {
+  id: string;
   creator_id: string;
   handle: string;
   platform: Platform;
@@ -79,7 +86,7 @@ type FilterParams = { country: string | null; niche: string | null; followerMin:
 // server-side query built from the same filters, never a client-side slice.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildFilteredQuery(admin: any, params: FilterParams, opts: { count?: 'exact'; select?: string } = {}) {
-  const select = opts.select ?? (opts.count ? '*' : 'creator_id, handle, platform, follower_count, detected_country, detected_niche, creators!inner(display_name)');
+  const select = opts.select ?? (opts.count ? '*' : 'id, creator_id, handle, platform, follower_count, detected_country, detected_niche, creators!inner(display_name)');
   let query = admin
     .from('social_profiles')
     .select(select, opts.count ? { count: opts.count, head: true } : undefined)
@@ -145,8 +152,12 @@ export async function GET(req: NextRequest) {
     const filterParams: FilterParams = { country, niche, followerMin, followerMax };
     const offset = batch * PREFILTER_WINDOW_SIZE;
 
+    // Neutral row order — id, not follower_count — so batching never floats
+    // big accounts to the front of the pool. Teaser strength (computed below)
+    // is what actually ranks the results; this just picks which bounded
+    // slice of the filtered segment gets computed in this batch.
     const windowQuery = buildFilteredQuery(admin, filterParams)
-      .order('follower_count', { ascending: false })
+      .order('id', { ascending: true })
       .range(offset, offset + PREFILTER_WINDOW_SIZE - 1);
     const countQuery = buildFilteredQuery(admin, filterParams, { count: 'exact' });
     const spanishCountQuery = buildFilteredQuery(admin, filterParams, { count: 'exact' }).in('detected_country', SPANISH_COUNTRIES);
