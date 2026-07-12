@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 
@@ -121,6 +122,11 @@ export default function AdminCreatorsPage() {
                     <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '6px 0 0 0' }}>Claimed: {new Date(cp.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {handle !== 'unknown' && (
+                      <Link href={`/admin/preview/creator/${encodeURIComponent(handle)}`} style={{ padding: '7px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: '1px solid #E5E7EB', backgroundColor: 'white', color: '#374151', textDecoration: 'none' }}>
+                        👁 Preview Dashboard
+                      </Link>
+                    )}
                     {cp.claim_status !== 'verified' && <button onClick={() => updateStatus(cp.id, 'verified')} disabled={actionLoading === cp.id + 'verified'} style={{ padding: '7px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#ECFDF5', color: '#065F46' }}>✅ Verify</button>}
                     {cp.claim_status !== 'rejected' && <button onClick={() => updateStatus(cp.id, 'rejected')} disabled={actionLoading === cp.id + 'rejected'} style={{ padding: '7px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FEF2F2', color: '#991B1B' }}>❌ Reject</button>}
                   </div>
