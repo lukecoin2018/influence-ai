@@ -6,7 +6,7 @@ import { withTimeout, TimeoutError } from '@/lib/withTimeout';
 import { formatCount } from '@/lib/formatters';
 import { getCreatorBrandMatches, type BlurredMatch, type CreatorBrandMatches, type MatchedBrand } from '@/lib/reports/creator-brand-matches';
 import type { RecencyBucket } from '@/lib/reports/recency-bucket';
-import { consolidateCategory, summarizeCategories, type CategoryCount } from '@/lib/reports/category-consolidation';
+import { consolidateCategory, nicheLeadBucket, orderCategoriesForDisplay, summarizeCategories, type CategoryCount } from '@/lib/reports/category-consolidation';
 import {
   badgeFor,
   bracketMarkerPercent,
@@ -14,7 +14,7 @@ import {
   recencyLineCompact,
   recencyLineFull,
   resolveAggregateProof,
-  resolveCreatorDisplayName,
+  resolveCreatorProfileInfo,
   resolveGreetingName,
   type AggregateProof,
   type BadgeKind,
@@ -120,7 +120,7 @@ function Headline({ greetingName, totalMatchCount, creatorFollowers }: { greetin
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
       <h1 style={{ margin: 0, fontSize: 28, lineHeight: 1.25, fontWeight: 800, letterSpacing: '-0.02em', color: GREY }}>
         {greetingName ? `${greetingName} — ` : ''}
-        <span style={{ color: YELLOW }}>
+        <span style={{ color: PINK }}>
           {totalMatchCount} {brandsWord}
         </span>{' '}
         we&apos;ve detected hiring creators your size.
@@ -525,8 +525,8 @@ export default async function ClaimHandlePage({ params }: { params: Promise<{ ha
 
   if (!result) notFound();
 
-  const displayName = await resolveCreatorDisplayName(supabase, handle).catch(() => null);
-  const greetingName = resolveGreetingName(displayName, handle);
+  const profileInfo = await resolveCreatorProfileInfo(supabase, handle).catch(() => ({ displayName: null, detectedNiche: null }));
+  const greetingName = resolveGreetingName(profileInfo.displayName, handle);
 
   if (result.totalMatchCount === 0 || !result.strongestMatch) {
     const proof = await resolveAggregateProof(supabase).catch(() => null);
@@ -538,6 +538,10 @@ export default async function ClaimHandlePage({ params }: { params: Promise<{ ha
   // strongestMatch/teaserPreview below: the full match list itself never
   // becomes a prop anywhere (see TeaserPage's docstring for why).
   const categoryBreakdown = summarizeCategories(result.matches);
+  // Lead with the creator's own detected niche when it maps to a bucket they
+  // actually have matches in; otherwise unchanged (top-by-count).
+  const leadBucket = nicheLeadBucket(profileInfo.detectedNiche);
+  const orderedCategoryBreakdown = orderCategoriesForDisplay(categoryBreakdown, leadBucket);
 
   return (
     <TeaserPage
@@ -547,7 +551,7 @@ export default async function ClaimHandlePage({ params }: { params: Promise<{ ha
       totalMatchCount={result.totalMatchCount}
       teaserPreview={result.teaserPreview}
       creatorFollowers={result.creatorFollowers}
-      categoryBreakdown={categoryBreakdown}
+      categoryBreakdown={orderedCategoryBreakdown}
     />
   );
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { consolidateCategory, summarizeCategories } from './category-consolidation';
+import { consolidateCategory, nicheLeadBucket, orderCategoriesForDisplay, summarizeCategories } from './category-consolidation';
 
 describe('consolidateCategory', () => {
   it('merges fragmented raw categories into their approved bucket', () => {
@@ -84,5 +84,58 @@ describe('summarizeCategories', () => {
   it('routes a null category into Other rather than dropping the brand from the count', () => {
     const matches = [{ category: null }, { category: null }];
     expect(summarizeCategories(matches)).toEqual([{ name: 'Other', count: 2 }]);
+  });
+});
+
+describe('nicheLeadBucket', () => {
+  it('maps the seven clean niches to their approved bucket', () => {
+    expect(nicheLeadBucket('beauty')).toBe('Beauty');
+    expect(nicheLeadBucket('fashion')).toBe('Fashion');
+    expect(nicheLeadBucket('fitness')).toBe('Fitness & Wellness');
+    expect(nicheLeadBucket('food')).toBe('Food');
+    expect(nicheLeadBucket('travel')).toBe('Travel & Hospitality');
+    expect(nicheLeadBucket('tech')).toBe('Tech & Electronics');
+    expect(nicheLeadBucket('ecommerce')).toBe('Retail');
+  });
+
+  it('returns null for luxury, gaming, lifestyle, and null — the approved fall-back cases', () => {
+    expect(nicheLeadBucket('luxury')).toBeNull();
+    expect(nicheLeadBucket('gaming')).toBeNull();
+    expect(nicheLeadBucket('lifestyle')).toBeNull();
+    expect(nicheLeadBucket(null)).toBeNull();
+  });
+
+  it('returns null for an unrecognized future niche value rather than guessing', () => {
+    expect(nicheLeadBucket('some-new-niche-nobody-has-seen-yet')).toBeNull();
+  });
+});
+
+describe('orderCategoriesForDisplay', () => {
+  const categories = [
+    { name: 'Beauty', count: 179 },
+    { name: 'Fashion', count: 96 },
+    { name: 'Fitness & Wellness', count: 21 },
+    { name: 'Retail', count: 21 },
+  ];
+
+  it('moves the niche-mapped bucket to lead when the creator has matches in it', () => {
+    const result = orderCategoriesForDisplay(categories, 'Fashion');
+    expect(result.map((c) => c.name)).toEqual(['Fashion', 'Beauty', 'Fitness & Wellness', 'Retail']);
+    // counts travel with their bucket, nothing invented or dropped
+    expect(result.find((c) => c.name === 'Fashion')?.count).toBe(96);
+  });
+
+  it('leaves the order unchanged when leadBucket is null (fallback niches / no niche)', () => {
+    expect(orderCategoriesForDisplay(categories, null)).toEqual(categories);
+  });
+
+  it('leaves the order unchanged when the creator has zero matches in their niche bucket — never fabricates a pill', () => {
+    const result = orderCategoriesForDisplay(categories, 'Jewelry');
+    expect(result).toEqual(categories);
+  });
+
+  it('leaves the order unchanged when the niche bucket already leads', () => {
+    const result = orderCategoriesForDisplay(categories, 'Beauty');
+    expect(result).toEqual(categories);
   });
 });

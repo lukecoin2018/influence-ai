@@ -8,30 +8,41 @@ function normalizeHandle(handle: string): string {
   return handle.trim().replace(/^@/, '').toLowerCase();
 }
 
-type RawDisplayNameRow = { creators: { display_name: string | null } | { display_name: string | null }[] | null };
+type RawCreatorProfileRow = {
+  detected_niche: string | null;
+  creators: { display_name: string | null } | { display_name: string | null }[] | null;
+};
+
+export type CreatorProfileInfo = {
+  displayName: string | null;
+  /** social_profiles.detected_niche — the clean, ~98%-populated content-niche field. NOT platform_data->>category_name (Instagram's noisy account-type label) — deliberately not that column. */
+  detectedNiche: string | null;
+};
 
 /**
- * Resolves a creator's display name for personalizing the headline —
- * separate from getCreatorBrandMatches(), which is deliberately scoped to
- * brand-match data only, not creator profile display fields.
+ * Resolves a creator's display name + detected niche in one query — both are
+ * creator-profile display fields, separate from getCreatorBrandMatches(),
+ * which is deliberately scoped to brand-match data only. One round trip
+ * against social_profiles (detected_niche lives there directly; display_name
+ * is a joined creators column) rather than two.
  */
-export async function resolveCreatorDisplayName(supabase: SupabaseClient, handle: string): Promise<string | null> {
+export async function resolveCreatorProfileInfo(supabase: SupabaseClient, handle: string): Promise<CreatorProfileInfo> {
   const { data } = await withTimeout(
     Promise.resolve(
       supabase
         .from('social_profiles')
-        .select('creators!inner(display_name)')
+        .select('detected_niche, creators!inner(display_name)')
         .eq('handle', normalizeHandle(handle))
         .limit(1)
         .maybeSingle(),
     ),
     DB_TIMEOUT_MS,
   );
-  const row = data as RawDisplayNameRow | null;
-  if (!row) return null;
+  const row = data as RawCreatorProfileRow | null;
+  if (!row) return { displayName: null, detectedNiche: null };
   const creators = row.creators;
   const displayName = Array.isArray(creators) ? creators[0]?.display_name : creators?.display_name;
-  return displayName ?? null;
+  return { displayName: displayName ?? null, detectedNiche: row.detected_niche ?? null };
 }
 
 /**
