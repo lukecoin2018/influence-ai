@@ -3,8 +3,11 @@ import { UserX } from 'lucide-react';
 
 export default function ClaimNotFound() {
   return (
-    <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#FAFAFA' }}>
-      <div style={{ textAlign: 'center', padding: '40px' }}>
+    // <main>, full viewport height: this route opts out of the shared SiteShell
+    // chrome (components/SiteShell.tsx) entirely, so there's no surrounding
+    // nav/footer — and no <main> landmark from SiteShell either, hence one here.
+    <main style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24, backgroundColor: '#FAFAFA', padding: '40px 20px' }}>
+      <div style={{ textAlign: 'center' }}>
         <UserX size={48} color="#D1D5DB" style={{ margin: '0 auto 16px' }} />
         <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--color-lmg-grey)', margin: '0 0 8px 0' }}>
           We don&apos;t have this creator yet
@@ -23,6 +26,15 @@ export default function ClaimNotFound() {
           Back to InfluenceIT
         </Link>
       </div>
-    </div>
+      <div style={{ textAlign: 'center', fontSize: 12, color: '#9C9A91' }}>
+        <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>
+          Privacy
+        </Link>
+        {' · '}
+        <Link href="/terms" style={{ color: 'inherit', textDecoration: 'underline' }}>
+          Terms
+        </Link>
+      </div>
+    </main>
   );
 }

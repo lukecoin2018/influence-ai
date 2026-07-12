@@ -40,19 +40,47 @@ function signupHref(handle: string): string {
   return `/auth/signup?handle=${encodeURIComponent(handle)}&role=creator`;
 }
 
-function TeaserCard({ children }: { children: React.ReactNode }) {
+/**
+ * A minimal legitimacy line, not a site footer — this route deliberately
+ * opts out of the shared SiteShell chrome (see components/SiteShell.tsx)
+ * since it's a cold-DM conversion landing page and the site nav's exit
+ * routes compete with its one job. Privacy/Terms are the one exception: a
+ * standard legal footer reads as legitimate, not as a competing action.
+ */
+function LegalFooter() {
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#FAFAFA', display: 'flex', justifyContent: 'center', padding: '56px 20px' }}>
-      <div
-        style={{
-          width: '100%', maxWidth: 560, background: '#FDFDFB', border: '1px solid #E8E6DF', borderRadius: 24,
-          boxShadow: '0 18px 48px rgba(20,18,12,0.12), 0 4px 12px rgba(20,18,12,0.06)',
-          padding: '36px 36px 32px', display: 'flex', flexDirection: 'column', gap: 24,
-        }}
-      >
-        {children}
-      </div>
+    <div style={{ textAlign: 'center', fontSize: 12, color: '#9C9A91' }}>
+      <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>
+        Privacy
+      </Link>
+      {' · '}
+      <Link href="/terms" style={{ color: 'inherit', textDecoration: 'underline' }}>
+        Terms
+      </Link>
     </div>
+  );
+}
+
+function TeaserCard({ children }: { children: React.ReactNode }) {
+  // <main>, not <div>: this route opts out of SiteShell entirely (see
+  // components/SiteShell.tsx), which is where the page's <main> landmark
+  // used to come from — without one here, the page loses that accessibility
+  // landmark entirely.
+  return (
+    <main style={{ minHeight: '100vh', backgroundColor: '#FAFAFA', display: 'flex', justifyContent: 'center', padding: '56px 20px' }}>
+      <div style={{ width: '100%', maxWidth: 560, display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div
+          style={{
+            background: '#FDFDFB', border: '1px solid #E8E6DF', borderRadius: 24,
+            boxShadow: '0 18px 48px rgba(20,18,12,0.12), 0 4px 12px rgba(20,18,12,0.06)',
+            padding: '36px 36px 32px', display: 'flex', flexDirection: 'column', gap: 24,
+          }}
+        >
+          {children}
+        </div>
+        <LegalFooter />
+      </div>
+    </main>
   );
 }
 
