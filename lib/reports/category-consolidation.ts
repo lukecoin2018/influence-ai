@@ -86,3 +86,46 @@ export function summarizeCategories(matches: { category: string | null }[]): Cat
     .map(([name, count]) => ({ name, count }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 }
+
+/**
+ * Maps a creator's `social_profiles.detected_niche` (content-niche vocabulary,
+ * NOT `platform_data->>category_name`) to the brand bucket that should lead
+ * the pills, when there's a clean equivalent. Approved map (founder review):
+ * luxury/gaming/lifestyle/null deliberately have NO mapping — each was
+ * checked (luxury empirically: sampling 25 real luxury-niche creators' actual
+ * matches showed Beauty 278 > Fashion 218, so forcing luxury->Fashion would
+ * reintroduce the exact "Beauty always leads" noise this feature removes) or
+ * has no honest brand-bucket equivalent (gaming, lifestyle) or no niche at
+ * all (null). All four fall back to top-by-count — the pre-existing,
+ * already-correct behavior, never a fabricated lead.
+ */
+const NICHE_TO_BUCKET: Record<string, string> = {
+  beauty: 'Beauty',
+  fashion: 'Fashion',
+  fitness: 'Fitness & Wellness',
+  food: 'Food',
+  travel: 'Travel & Hospitality',
+  tech: 'Tech & Electronics',
+  ecommerce: 'Retail',
+};
+
+/** Returns the bucket that should lead, or null when there's no clean equivalent (caller falls back to top-by-count). */
+export function nicheLeadBucket(detectedNiche: string | null): string | null {
+  if (!detectedNiche) return null;
+  return NICHE_TO_BUCKET[detectedNiche] ?? null;
+}
+
+/**
+ * Reorders already-summarized categories so the creator's niche bucket leads,
+ * when they actually have a match in it — never fabricates a pill for a
+ * bucket they have zero matches in. Otherwise returns the list unchanged
+ * (top-by-count, the existing order from summarizeCategories()).
+ */
+export function orderCategoriesForDisplay(categories: CategoryCount[], leadBucket: string | null): CategoryCount[] {
+  if (!leadBucket) return categories;
+  const leadIndex = categories.findIndex((c) => c.name === leadBucket);
+  if (leadIndex <= 0) return categories; // not present, or already leading — nothing to reorder
+  const lead = categories[leadIndex];
+  const rest = categories.filter((_, i) => i !== leadIndex);
+  return [lead, ...rest];
+}
