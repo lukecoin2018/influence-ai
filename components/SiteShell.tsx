@@ -16,7 +16,8 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
   // /claim/[handle] is a cold-DM conversion landing page — the site nav's exit
   // routes (Discover/Compare/About/Sign up) compete with its one job (claim).
   // It ships its own minimal logo + legal-only footer instead of the full shell.
-  const isClaim = pathname.startsWith('/claim/');
+  // /es/claim/[handle] is the same page, localized — same reasoning applies.
+  const isClaim = pathname.startsWith('/claim/') || pathname.startsWith('/es/claim/');
 
   if (isAdmin || isHome || isReport || isClaim) {
     return <>{children}</>;

@@ -1,6 +1,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { withTimeout } from '@/lib/withTimeout';
 import type { RecencyBucket } from '@/lib/reports/recency-bucket';
+import { getClaimStrings, type Locale } from './_strings';
 
 const DB_TIMEOUT_MS = 10_000;
 
@@ -88,16 +89,13 @@ function monthsSince(iso: string): number {
   return Math.max(1, Math.round(daysSince(iso) / 30));
 }
 
-function pluralize(n: number, unit: string): string {
-  return `${n} ${unit}${n === 1 ? '' : 's'}`;
-}
-
-/** Full-card recency wording — the editorializing, locked per-bucket copy. Computed here at render time from the raw date, never stored. */
-export function recencyLineFull(bucket: RecencyBucket, mostRecentPost: string | null): string {
-  if (!mostRecentPost) return 'Recency unknown';
-  if (bucket === 'neutral') return `Last detected ${pluralize(monthsSince(mostRecentPost), 'month')} ago`;
-  const weeksAgo = pluralize(weeksSince(mostRecentPost), 'week');
-  return bucket === 'active' ? `Hiring right now — last detected ${weeksAgo} ago` : `Last hired ${weeksAgo} ago — often a good window to reach out`;
+/** Full-card recency wording — the editorializing, locked per-bucket copy. Computed here at render time from the raw date, never stored. Locale defaults to 'en' so existing (dashboard, English teaser) callers are unaffected. */
+export function recencyLineFull(bucket: RecencyBucket, mostRecentPost: string | null, locale: Locale = 'en'): string {
+  const t = getClaimStrings(locale).recencyFull;
+  if (!mostRecentPost) return t.unknown;
+  if (bucket === 'neutral') return t.neutral(monthsSince(mostRecentPost));
+  const weeksAgo = weeksSince(mostRecentPost);
+  return bucket === 'active' ? t.active(weeksAgo) : t.window(weeksAgo);
 }
 
 /**
@@ -105,11 +103,13 @@ export function recencyLineFull(bucket: RecencyBucket, mostRecentPost: string | 
  * deliberately doesn't carry mostRecentPost (only the bucket enum — the read
  * layer's own gated-row contract), so this can't compute an exact "{n} weeks
  * ago" the way the full card does. Bucket-only phrasing, no invented number.
+ * Locale defaults to 'en' so existing callers are unaffected.
  */
-export function recencyLineCompact(bucket: RecencyBucket): string {
-  if (bucket === 'active') return 'hiring right now';
-  if (bucket === 'window') return 'hired in the last few months';
-  return 'detected a while back';
+export function recencyLineCompact(bucket: RecencyBucket, locale: Locale = 'en'): string {
+  const t = getClaimStrings(locale).recencyCompact;
+  if (bucket === 'active') return t.active;
+  if (bucket === 'window') return t.window;
+  return t.neutral;
 }
 
 /** Percent position (design mock's exact formula: 8 + pct*0.84) for the "You · X" bracket marker, clamped into [p25, p75]. */

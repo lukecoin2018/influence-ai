@@ -24,7 +24,6 @@ type RankedCreator = {
   outreachStatus: 'not_contacted' | 'dmed';
   dmedAt: string | null;
   isSpanish: boolean;
-  teaserLive: boolean;
   dmLink: string;
   strength: { totalMatchCount: number; programCount: number; strongestRecencyRank: number; hasRegionMatch: boolean; hasDetectedNiche: boolean };
 };
@@ -33,7 +32,7 @@ type TargetingResponse = {
   results: RankedCreator[];
   window: { batch: number; size: number; candidateCount: number; hasMore: boolean };
   matchedCount: number;
-  language: { spanishCount: number; liveCount: number };
+  language: { spanishCount: number; englishCount: number };
 };
 
 const FETCH_TIMEOUT_MS = 45_000;
@@ -58,7 +57,7 @@ export default function AdminTargetingPage() {
 
   const [segmentLoaded, setSegmentLoaded] = useState(false);
   const [matchedCount, setMatchedCount] = useState(0);
-  const [language, setLanguage] = useState<{ spanishCount: number; liveCount: number } | null>(null);
+  const [language, setLanguage] = useState<{ spanishCount: number; englishCount: number } | null>(null);
   const [nextBatch, setNextBatch] = useState(0);
   const [hasMoreBatches, setHasMoreBatches] = useState(false);
   const [rankedSoFar, setRankedSoFar] = useState(0);
@@ -230,7 +229,7 @@ export default function AdminTargetingPage() {
             <strong>{matchedCount}</strong> creators match this filter — ranked <strong>{rankedSoFar}</strong> of them so far (window size 150 per batch).
             {language && (
               <>
-                {' '}<strong>{language.liveCount}</strong> have a live English teaser; <strong>{language.spanishCount}</strong> need the Spanish teaser (not live yet).
+                {' '}<strong>{language.englishCount}</strong> get the English teaser (/claim); <strong>{language.spanishCount}</strong> get the Spanish teaser (/es/claim).
               </>
             )}
             {hasMoreBatches && (
@@ -299,20 +298,11 @@ export default function AdminTargetingPage() {
                           )}
                         </td>
                         <td style={tdStyle}>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                            {!row.teaserLive && (
-                              <span style={{ ...badgeStyle('#991B1B', '#FEF2F2'), width: 'fit-content' }}>Spanish teaser not live — do not send</span>
-                            )}
-                            <div style={{ display: 'flex', gap: '6px' }}>
-                              <button onClick={() => copyLink(row)} disabled={!row.teaserLive} style={linkBtnStyle(!row.teaserLive)} title={!row.teaserLive ? 'Spanish teaser not live yet' : 'Copy link'}>
-                                {copiedHandle === row.handle ? 'Copied!' : 'Copy link'}
-                              </button>
-                              {row.teaserLive ? (
-                                <a href={row.dmLink} target="_blank" rel="noreferrer" style={previewLinkStyle}>Preview</a>
-                              ) : (
-                                <span style={{ ...previewLinkStyle, color: '#D1D5DB', cursor: 'default' }} title="Would 404 — Spanish teaser not live">Preview</span>
-                              )}
-                            </div>
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <button onClick={() => copyLink(row)} style={linkBtnStyle(false)} title="Copy link">
+                              {copiedHandle === row.handle ? 'Copied!' : 'Copy link'}
+                            </button>
+                            <a href={row.dmLink} target="_blank" rel="noreferrer" style={previewLinkStyle}>Preview</a>
                           </div>
                         </td>
                       </tr>
