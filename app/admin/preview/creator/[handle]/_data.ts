@@ -14,18 +14,24 @@ interface AdminPreviewContext {
   admin: SupabaseClient;
   creatorId: string;
   normalized: string;
+  // null for an unclaimed creator — there's no creator_profiles row yet.
+  // Callers must degrade gracefully (fall back to scraped social_profiles /
+  // v_creator_summary data), same as app/creators/[handle]/page.tsx already
+  // does for the public directory.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  creatorProfile: any;
+  creatorProfile: any | null;
 }
 
 /**
  * Shared server-side gate for every /admin/preview/creator/[handle]/* route:
- * checks the caller is an admin (session + user_roles), resolves the handle
- * to a creator_id via the service-role client, and 404s if the handle hasn't
- * claimed a profile yet (no creator-dashboard data model to preview for
- * them). Mirrors requireAdmin() in app/api/admin/targeting/route.ts. Each
- * route still fetches its own page-specific data (brand matches, inquiries,
- * etc.) after this.
+ * checks the caller is an admin (session + user_roles), and resolves the
+ * handle to a creator_id via the service-role client. 404s only when the
+ * handle doesn't exist in social_profiles/creators at all — claimed and
+ * unclaimed creators both resolve fine, since the most important creators to
+ * preview (rich DM targets) are unclaimed by definition. Mirrors
+ * requireAdmin() in app/api/admin/targeting/route.ts. Each route still
+ * fetches its own page-specific data (brand matches, inquiries, etc.) after
+ * this.
  */
 export async function requireAdminPreviewAccess(handle: string): Promise<AdminPreviewContext> {
   const session = await createSupabaseServerClient();
@@ -49,7 +55,6 @@ export async function requireAdminPreviewAccess(handle: string): Promise<AdminPr
     Promise.resolve(admin.from('creator_profiles').select('*').eq('creator_id', creatorId).maybeSingle()),
     DB_TIMEOUT_MS,
   );
-  if (!creatorProfile) notFound();
 
-  return { admin, creatorId, normalized, creatorProfile };
+  return { admin, creatorId, normalized, creatorProfile: creatorProfile ?? null };
 }
