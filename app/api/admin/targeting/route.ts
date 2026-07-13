@@ -58,7 +58,6 @@ export type RankedCreator = {
   outreachStatus: 'not_contacted' | 'dmed';
   dmedAt: string | null;
   isSpanish: boolean;
-  teaserLive: boolean;
   dmLink: string;
   strength: TeaserStrengthInput;
 };
@@ -125,10 +124,6 @@ function buildRankedCreator(
     outreachStatus: (outreach?.status === 'dmed' ? 'dmed' : 'not_contacted'),
     dmedAt: outreach?.dmed_at ?? null,
     isSpanish,
-    // /es/claim/[handle] does not exist yet — the Spanish teaser hasn't shipped.
-    // Generate the language-correct link anyway so it's ready the day it does,
-    // but teaserLive tells the UI to warn/disable rather than send it today.
-    teaserLive: !isSpanish,
     dmLink: `${isSpanish ? '/es' : ''}/claim/${row.handle}`,
     strength,
   };
@@ -245,7 +240,7 @@ export async function GET(req: NextRequest) {
         hasMore: offset + PREFILTER_WINDOW_SIZE < matchedCount,
       },
       matchedCount,
-      language: { spanishCount, liveCount: matchedCount - spanishCount },
+      language: { spanishCount, englishCount: matchedCount - spanishCount },
     });
   } catch (err) {
     console.error('Targeting panel load failed:', err);

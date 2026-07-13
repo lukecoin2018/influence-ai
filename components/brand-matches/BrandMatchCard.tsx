@@ -2,8 +2,9 @@ import Link from 'next/link';
 import { MapPin, type LucideIcon } from 'lucide-react';
 import { formatCount } from '@/lib/formatters';
 import type { MatchedBrand } from '@/lib/reports/creator-brand-matches';
-import { consolidateCategory } from '@/lib/reports/category-consolidation';
+import { categoryBucketLabel, consolidateCategory } from '@/lib/reports/category-consolidation';
 import { badgeFor, bracketMarkerPercent, initialOf, recencyLineFull, type BadgeKind } from '@/app/claim/[handle]/_data';
+import { getClaimStrings, type Locale } from '@/app/claim/[handle]/_strings';
 
 // Canonical LMG brand accents (app/globals.css's @theme) — see the same
 // constant comment in app/claim/[handle]/page.tsx, which this file was
@@ -13,30 +14,31 @@ const YELLOW = 'var(--color-lmg-yellow)'; // #FFD700
 const BLUE = 'var(--color-lmg-blue)'; // #3AAFF4
 const GREY = 'var(--color-lmg-grey)'; // #3A3A3A
 
-export function Badge({ kind }: { kind: BadgeKind }) {
+export function Badge({ kind, locale = 'en' }: { kind: BadgeKind; locale?: Locale }) {
+  const t = getClaimStrings(locale).badge;
   if (kind === 'repeat-hirer') {
     return (
       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 999, background: YELLOW, color: GREY, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>
         <span style={{ width: 6, height: 6, borderRadius: '50%', background: GREY, display: 'inline-block' }} />
-        Repeat hirer
+        {t.repeatHirer}
       </span>
     );
   }
   if (kind === 'program') {
     return (
       <span style={{ display: 'inline-flex', alignItems: 'center', padding: '4px 10px', borderRadius: 999, border: '1px solid #CFCDC4', color: '#4A4946', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>
-        Program
+        {t.program}
       </span>
     );
   }
   return (
     <span style={{ display: 'inline-flex', alignItems: 'center', padding: '4px 10px', borderRadius: 999, border: '1px solid #CFCDC4', color: '#6D6B65', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>
-      Sighting
+      {t.sighting}
     </span>
   );
 }
 
-export function RecencyRow({ bucket, mostRecentPost }: { bucket: MatchedBrand['recencyBucket']; mostRecentPost: string | null }) {
+export function RecencyRow({ bucket, mostRecentPost, locale = 'en' }: { bucket: MatchedBrand['recencyBucket']; mostRecentPost: string | null; locale?: Locale }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 600, color: GREY }}>
       {bucket !== 'neutral' && (
@@ -47,7 +49,7 @@ export function RecencyRow({ bucket, mostRecentPost }: { bucket: MatchedBrand['r
           }}
         />
       )}
-      <span>{recencyLineFull(bucket, mostRecentPost)}</span>
+      <span>{recencyLineFull(bucket, mostRecentPost, locale)}</span>
     </div>
   );
 }
@@ -67,6 +69,8 @@ export interface BrandMatchCardProps {
    * signup CTAs here unchanged.
    */
   actions?: BrandMatchCardAction[];
+  /** Defaults to 'en' so the dashboard (which never passes this) is unaffected. */
+  locale?: Locale;
 }
 
 /**
@@ -75,7 +79,8 @@ export interface BrandMatchCardProps {
  * creator dashboard can render the exact same card with different (or no)
  * action buttons, instead of forking the markup.
  */
-export function BrandMatchCard({ match, creatorFollowers, actions }: BrandMatchCardProps) {
+export function BrandMatchCard({ match, creatorFollowers, actions, locale = 'en' }: BrandMatchCardProps) {
+  const t = getClaimStrings(locale).brandMatchCard;
   const badge = badgeFor(match.isProgram, match.isRepeatHirer);
   const markerPct = creatorFollowers != null ? bracketMarkerPercent(creatorFollowers, match.p25Followers, match.p75Followers) : null;
 
@@ -98,19 +103,19 @@ export function BrandMatchCard({ match, creatorFollowers, actions }: BrandMatchC
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0, flex: 1 }}>
           <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: '-0.01em', color: GREY, overflowWrap: 'anywhere' }}>{match.canonicalName}</div>
-          <div style={{ fontSize: 13, color: '#6D6B65' }}>{consolidateCategory(match.category)}</div>
+          <div style={{ fontSize: 13, color: '#6D6B65' }}>{categoryBucketLabel(consolidateCategory(match.category), locale)}</div>
         </div>
-        <Badge kind={badge} />
+        <Badge kind={badge} locale={locale} />
       </header>
 
       {markerPct != null && (
         <div style={{ background: '#FAFAF8', border: '1px solid #E8E6DF', borderRadius: 12, padding: '14px 16px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: GREY }}>Hires creators your size</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: GREY }}>{t.hiresYourSize}</span>
             <span style={{ fontSize: 12, color: '#6D6B65' }}>
               {match.p25Followers === match.p75Followers
-                ? `around ${formatCount(match.p25Followers)} followers`
-                : `${formatCount(match.p25Followers)} – ${formatCount(match.p75Followers)} followers`}
+                ? t.followersAround(formatCount(match.p25Followers))
+                : t.followersRange(formatCount(match.p25Followers), formatCount(match.p75Followers))}
             </span>
           </div>
           <div style={{ position: 'relative', height: 26 }}>
@@ -125,7 +130,7 @@ export function BrandMatchCard({ match, creatorFollowers, actions }: BrandMatchC
                 padding: '1px 8px', boxShadow: '0 1px 2px rgba(20,18,12,0.04)',
               }}
             >
-              You · {formatCount(creatorFollowers)}
+              {t.youMarker} · {formatCount(creatorFollowers)}
             </div>
           </div>
         </div>
@@ -135,25 +140,25 @@ export function BrandMatchCard({ match, creatorFollowers, actions }: BrandMatchC
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.01em', color: GREY, lineHeight: 1 }}>{match.distinctCreators}</span>
           <span style={{ fontSize: 13, color: '#6D6B65', lineHeight: 1.3 }}>
-            creator{match.distinctCreators === 1 ? '' : 's'} detected
+            {t.creatorsDetectedLine1(match.distinctCreators)}
             <br />
-            hiring your size
+            {t.hiringYourSizeLine2}
           </span>
         </div>
-        <RecencyRow bucket={match.recencyBucket} mostRecentPost={match.mostRecentPost} />
+        <RecencyRow bucket={match.recencyBucket} mostRecentPost={match.mostRecentPost} locale={locale} />
       </div>
 
       {match.regionMatch && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: BLUE, color: '#FFFFFF', fontSize: 13, fontWeight: 600 }}>
           <MapPin size={14} aria-hidden="true" />
-          Hiring in your region — {match.regionMatch.label}
+          {t.regionMatch(match.regionMatch.label)}
         </div>
       )}
 
       {actions && actions.length > 0 && (
         <footer style={{ display: 'flex', flexDirection: 'column', gap: 8, borderTop: '1px solid #E8E6DF', paddingTop: 12 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#6D6B65' }}>
-            Act on it now — both tools are pre-filled with {match.canonicalName}&apos;s context:
+            {t.actOnItNow(match.canonicalName)}
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             {actions.map((action, i) => {

@@ -68,6 +68,38 @@ export function consolidateCategory(raw: string | null): string {
   return RAW_TO_BUCKET[raw] ?? OTHER_BUCKET;
 }
 
+/**
+ * Spanish display labels for the same 14 buckets + Other — display-only,
+ * keyed by the canonical English bucket (consolidateCategory's return value,
+ * which stays the internal identity used for filtering/matching everywhere
+ * else, e.g. BrandsHiring's category filter). Native LatAm Spanish, not a
+ * literal word-for-word translation (e.g. "Spirits" -> "Licores", the term
+ * creators would actually recognize, not the more formal "Bebidas
+ * alcohólicas").
+ */
+const BUCKET_LABEL_ES: Record<string, string> = {
+  Beauty: 'Belleza',
+  Fashion: 'Moda',
+  Retail: 'Retail',
+  'Fitness & Wellness': 'Fitness y bienestar',
+  Food: 'Comida',
+  'Tech & Electronics': 'Tecnología y electrónica',
+  Home: 'Hogar',
+  'Travel & Hospitality': 'Viajes y hotelería',
+  Entertainment: 'Entretenimiento',
+  Automotive: 'Automotriz',
+  Spirits: 'Licores',
+  Jewelry: 'Joyería',
+  'Pet Care': 'Mascotas',
+  [OTHER_BUCKET]: 'Otro',
+};
+
+/** Locale-aware display label for an already-consolidated bucket (e.g. from consolidateCategory or a CategoryCount.name). English is the identity function — the bucket name itself IS the English label. */
+export function categoryBucketLabel(bucket: string, locale: 'en' | 'es' = 'en'): string {
+  if (locale === 'es') return BUCKET_LABEL_ES[bucket] ?? bucket;
+  return bucket;
+}
+
 export type CategoryCount = { name: string; count: number };
 
 /**
