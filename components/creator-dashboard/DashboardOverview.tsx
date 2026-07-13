@@ -14,12 +14,14 @@ import type { CreatorBrandMatches } from '@/lib/reports/creator-brand-matches';
 const PINK = '#FF4D94';
 
 interface DashboardOverviewProps {
+  // null for an unclaimed creator being previewed — degrade to scraped
+  // creatorData/socialProfiles fields rather than crashing on a missing row.
   creatorProfile: {
     creator_id: string;
     claim_status: string;
     custom_bio: string | null;
     display_name: string | null;
-  };
+  } | null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   creatorData: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,11 +85,11 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
   const primaryProfile = socialProfiles.find(p => p.platform === 'instagram') ?? socialProfiles[0];
   const enrichment = primaryProfile?.enrichment_data as any;
   const aiSummary = socialProfiles.find(p => p.ai_summary)?.ai_summary ?? null;
-  const displayBio = creatorProfile.custom_bio ?? aiSummary ?? primaryProfile?.bio ?? null;
+  const displayBio = creatorProfile?.custom_bio ?? aiSummary ?? primaryProfile?.bio ?? null;
   const handle = creatorData?.instagram_handle ?? creatorData?.tiktok_handle ?? '';
-  const isVerified = creatorProfile.claim_status === 'verified';
-  const isPending = creatorProfile.claim_status === 'pending';
-  const displayName = creatorProfile.display_name ?? creatorData?.name ?? `@${handle}`;
+  const isVerified = creatorProfile?.claim_status === 'verified';
+  const isPending = creatorProfile?.claim_status === 'pending';
+  const displayName = creatorProfile?.display_name ?? creatorData?.name ?? `@${handle}`;
   const initials = displayName.slice(0, 2).toUpperCase();
 
   const detectedNiche = primaryProfile?.detected_niche ?? null;
