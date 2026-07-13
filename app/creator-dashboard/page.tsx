@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { DashboardOverview } from '@/components/creator-dashboard/DashboardOverview';
+import type { CreatorBrandMatches } from '@/lib/reports/creator-brand-matches';
 
 export default function CreatorDashboardPage() {
   const { user, creatorProfile, userRole, loading } = useAuth();
@@ -13,6 +14,7 @@ export default function CreatorDashboardPage() {
   const [creatorData, setCreatorData] = useState<any>(null);
   const [socialProfiles, setSocialProfiles] = useState<any[]>([]);
   const [inquiries, setInquiries] = useState<any[]>([]);
+  const [brandMatches, setBrandMatches] = useState<CreatorBrandMatches | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export default function CreatorDashboardPage() {
 
     async function loadData() {
       setDataLoading(true);
-      const [creatorRes, socialRes, inquiryRes] = await Promise.all([
+      const [creatorRes, socialRes, inquiryRes, brandMatchesRes] = await Promise.all([
         supabase.from('v_creator_summary').select('*').eq('creator_id', creatorId).single(),
         supabase.from('social_profiles').select('*').eq('creator_id', creatorId),
         supabase.from('inquiries')
@@ -32,10 +34,12 @@ export default function CreatorDashboardPage() {
           .eq('creator_id', creatorId)
           .order('created_at', { ascending: false })
           .limit(10),
+        fetch('/api/creator/brand-matches').then((res) => (res.ok ? res.json() : null)),
       ]);
       setCreatorData(creatorRes.data ?? null);
       setSocialProfiles(socialRes.data ?? []);
       setInquiries(inquiryRes.data ?? []);
+      setBrandMatches(brandMatchesRes);
       setDataLoading(false);
     }
 
@@ -61,6 +65,8 @@ export default function CreatorDashboardPage() {
       creatorData={creatorData}
       socialProfiles={socialProfiles}
       inquiries={inquiries}
+      brandMatches={brandMatches}
+      brandsHiringHref="/creator-dashboard/brands-hiring"
     />
   );
 }

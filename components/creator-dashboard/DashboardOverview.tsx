@@ -8,6 +8,10 @@
 
 import Link from 'next/link';
 import { formatCount } from '@/lib/formatters';
+import { nicheLeadBucket, orderCategoriesForDisplay, summarizeCategories, type CategoryCount } from '@/lib/reports/category-consolidation';
+import type { CreatorBrandMatches } from '@/lib/reports/creator-brand-matches';
+
+const PINK = '#FF4D94';
 
 interface DashboardOverviewProps {
   creatorProfile: {
@@ -22,9 +26,60 @@ interface DashboardOverviewProps {
   socialProfiles: any[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inquiries: any[];
+  brandMatches: CreatorBrandMatches | null;
+  brandsHiringHref: string;
 }
 
-export function DashboardOverview({ creatorProfile, creatorData, socialProfiles, inquiries }: DashboardOverviewProps) {
+function BrandsHiringHero({ totalMatchCount, categories, brandsHiringHref }: { totalMatchCount: number; categories: CategoryCount[]; brandsHiringHref: string }) {
+  const shown = categories.slice(0, 4);
+  const moreCount = categories.length - shown.length;
+
+  return (
+    <div style={{
+      backgroundColor: '#fff', borderRadius: '16px', padding: '24px',
+      border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+      marginBottom: '24px',
+    }}>
+      <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 12px 0' }}>
+        Brands Hiring
+      </p>
+      {totalMatchCount === 0 ? (
+        <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>
+          We&apos;re detecting brands hiring creators your size — check back as we scan more.
+        </p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A', margin: 0, letterSpacing: '-0.01em' }}>
+            <span style={{ color: PINK }}>{totalMatchCount}</span> brand{totalMatchCount === 1 ? '' : 's'} we&apos;ve detected hiring creators your size
+          </h2>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+            {shown.map((c) => (
+              <span key={c.name} style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '999px',
+                backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: 600, color: '#3A3A3A',
+              }}>
+                <strong style={{ fontWeight: 800, color: PINK }}>{c.count}</strong> {c.name}
+              </span>
+            ))}
+            {moreCount > 0 && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', fontSize: '13px', fontWeight: 600, color: '#9CA3AF' }}>
+                + {moreCount} more categor{moreCount === 1 ? 'y' : 'ies'}
+              </span>
+            )}
+          </div>
+          <Link href={brandsHiringHref} style={{
+            fontSize: '13px', fontWeight: 700, color: PINK, textDecoration: 'none',
+            display: 'inline-flex', alignItems: 'center', gap: '4px',
+          }}>
+            View all →
+          </Link>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function DashboardOverview({ creatorProfile, creatorData, socialProfiles, inquiries, brandMatches, brandsHiringHref }: DashboardOverviewProps) {
   const primaryProfile = socialProfiles.find(p => p.platform === 'instagram') ?? socialProfiles[0];
   const enrichment = primaryProfile?.enrichment_data as any;
   const aiSummary = socialProfiles.find(p => p.ai_summary)?.ai_summary ?? null;
@@ -34,6 +89,9 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
   const isPending = creatorProfile.claim_status === 'pending';
   const displayName = creatorProfile.display_name ?? creatorData?.name ?? `@${handle}`;
   const initials = displayName.slice(0, 2).toUpperCase();
+
+  const detectedNiche = primaryProfile?.detected_niche ?? null;
+  const brandCategories = brandMatches ? orderCategoriesForDisplay(summarizeCategories(brandMatches.matches), nicheLeadBucket(detectedNiche)) : [];
 
   return (
     <div style={{ maxWidth: '900px' }}>
@@ -47,6 +105,14 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
           Here's an overview of your creator profile and tools.
         </p>
       </div>
+
+      {/* ── Brands Hiring hero — outbound discovery, distinct from the ── */}
+      {/* ── inbound "Brand Interest" section further down.             ── */}
+      <BrandsHiringHero
+        totalMatchCount={brandMatches?.totalMatchCount ?? 0}
+        categories={brandCategories}
+        brandsHiringHref={brandsHiringHref}
+      />
 
       {/* ── Stat Cards ─────────────────────────────────────────────── */}
       {creatorData && (
