@@ -1,12 +1,31 @@
 import { ImageResponse } from 'next/og';
 import { getPublicStats } from './_queries';
+import { withTimeout } from '@/lib/withTimeout';
+import type { PublicStats } from './_data';
 
 export const alt = 'InfluenceIT — creator intelligence database';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
+const STATS_TIMEOUT_MS = 5_000;
+
+// This route is statically prerendered at build time — a slow or failing
+// public_stats() RPC (it's hit a statement timeout at least once) must never
+// be able to fail `next build`. Last-known-good snapshot, used only on
+// timeout/error: this is a social-preview image, not live user-facing data,
+// so briefly-stale numbers here are the right trade for "the build always
+// succeeds." Update this if it's ever actually shown for a long stretch.
+const FALLBACK_STATS: PublicStats = {
+  creators: 5112,
+  postsAnalyzed: 69451,
+  brandDeals: 3798,
+  igMedian: 0.6,
+  tiktokMedian: 0.4,
+  lastIndex: 'Jul 3, 2026',
+};
+
 export default async function OpengraphImage() {
-  const stats = await getPublicStats();
+  const stats = await withTimeout(getPublicStats(), STATS_TIMEOUT_MS).catch(() => FALLBACK_STATS);
 
   return new ImageResponse(
     (
