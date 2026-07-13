@@ -23,7 +23,7 @@ export function AdminPreviewShell({ handle, children }: AdminPreviewShellProps) 
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#FAFAFA' }}>
-      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(prev => !prev)} />
+      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(prev => !prev)} previewHandle={handle} />
       <main style={{
         flex: 1,
         marginLeft: sidebarOpen ? '240px' : '64px',

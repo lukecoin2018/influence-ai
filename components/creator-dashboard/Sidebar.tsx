@@ -11,10 +11,19 @@ import { supabase } from "@/lib/supabase";
 interface SidebarProps {
   isOpen: boolean;
   onToggle: () => void;
+  /**
+   * Set only when rendered inside AdminPreviewShell. Overview and Brands
+   * Hiring are the two routes the admin preview actually covers, so those
+   * two (and only those two) get rewritten to their preview-route
+   * equivalents — every other nav item keeps its real href and bounces the
+   * admin back out on click, same as before this route existed.
+   */
+  previewHandle?: string;
 }
 
 const NAV_ITEMS = [
-  { href: "/creator-dashboard", label: "Overview", icon: "📊", exact: true },
+  { key: "overview", href: "/creator-dashboard", label: "Overview", icon: "📊", exact: true },
+  { key: "brands-hiring", href: "/creator-dashboard/brands-hiring", label: "Brands Hiring", icon: "🏢" },
   { href: "/creator-dashboard/calculator", label: "Rate Calculator", icon: "🧮" },
   { href: "/creator-dashboard/negotiate", label: "Negotiation", icon: "🤝" },
   { href: "/creator-dashboard/contract", label: "Contract Builder", icon: "📄" },
@@ -22,13 +31,25 @@ const NAV_ITEMS = [
   { href: "/creator-dashboard/media-kit", label: "Media Kit", icon: "📎" },
 ];
 
+const PREVIEWABLE_ROUTES: Record<string, string> = {
+  overview: "",
+  "brands-hiring": "/brands-hiring",
+};
+
+function resolveHref(item: { key?: string; href: string }, previewHandle: string | undefined): string {
+  if (!previewHandle || !item.key) return item.href;
+  const suffix = PREVIEWABLE_ROUTES[item.key];
+  if (suffix == null) return item.href;
+  return `/admin/preview/creator/${previewHandle}${suffix}`;
+}
+
 const TIER_LABELS: Record<string, string> = {
   free: "Free",
   starter: "Starter",
   active: "Active",
 };
 
-export function Sidebar({ isOpen, onToggle }: SidebarProps) {
+export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
   const [tokenBalance, setTokenBalance] = useState<number | null>(null);
@@ -167,11 +188,13 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
             </p>
           )}
 
-          {NAV_ITEMS.map(({ href, label, icon, exact }) => {
+          {NAV_ITEMS.map((item) => {
+            const { label, icon, exact } = item;
+            const href = resolveHref(item, previewHandle);
             const active = isActive(href, exact);
             return (
               <Link
-                key={href}
+                key={item.key ?? href}
                 href={href}
                 title={!isOpen ? label : undefined}
                 style={{

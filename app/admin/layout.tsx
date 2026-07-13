@@ -65,7 +65,18 @@ function AdminSidebar() {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const { user, userRole, loading, authError, retryAuth } = useAuth();
+
+  // /admin/preview/* renders its own complete chrome (AdminPreviewShell, with
+  // the real creator-dashboard Sidebar) and does its own server-side admin
+  // gate (requireAdminPreviewAccess) — it's a route under app/admin/ only for
+  // URL purposes. Without this, Next.js's file-based layout nesting wraps it
+  // in AdminSidebar too: two fixed-position sidebars stack at the same
+  // coordinates, and clicks silently land on the wrong (hidden) one.
+  if (pathname.startsWith('/admin/preview')) {
+    return <>{children}</>;
+  }
 
   // While loading, show a minimal shell with sidebar so it doesn't flash
   if (loading) {
