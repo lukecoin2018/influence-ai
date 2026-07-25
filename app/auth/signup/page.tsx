@@ -140,7 +140,7 @@ function SignUpContent() {
       return;
     }
 
-    const res = await fetch('/api/creator/claim', {
+    const res = await fetch('/api/creators/claim', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -184,7 +184,7 @@ function SignUpContent() {
     setVerifying(true);
     setVerifyError('');
 
-    const res = await fetch('/api/creator/verify-bio', {
+    const res = await fetch('/api/creators/verify-bio', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

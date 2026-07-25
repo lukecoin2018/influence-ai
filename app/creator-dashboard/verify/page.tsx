@@ -75,7 +75,7 @@ export default function VerifyPage() {
           new Date(profile.verification_code_expires_at) < new Date());
 
       if (isExpired) {
-        const res = await fetch('/api/creator/regenerate-code', {
+        const res = await fetch('/api/creators/regenerate-code', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ creatorProfileId: user.id }),
@@ -95,7 +95,7 @@ export default function VerifyPage() {
     setVerifying(true);
     setVerifyError('');
 
-    const res = await fetch('/api/creator/verify-bio', {
+    const res = await fetch('/api/creators/verify-bio', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
