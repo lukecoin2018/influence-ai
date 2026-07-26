@@ -35,8 +35,15 @@ function claimPath(locale: Locale, handle: string): string {
   return `${locale === 'es' ? '/es' : ''}/claim/${encodeURIComponent(handle)}`;
 }
 
-function signupHref(handle: string): string {
-  return `/auth/signup?handle=${encodeURIComponent(handle)}&role=creator`;
+/**
+ * The one forward path out of this page. Carries locale so the signup flow —
+ * and, via the claim API, the persisted creator record — knows which language
+ * the creator was actually shown. The param is emitted for BOTH locales, never
+ * omitted for `en`: an absent param is indistinguishable from broken plumbing,
+ * so the default is written out explicitly rather than implied.
+ */
+function signupHref(handle: string, locale: Locale): string {
+  return `/auth/signup?handle=${encodeURIComponent(handle)}&role=creator&locale=${locale}`;
 }
 
 /**
@@ -164,7 +171,7 @@ function CategoryPills({ categories, handle, locale }: { categories: CategoryCou
           </span>
         )}
       </div>
-      <Link href={signupHref(handle)} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: '#6D6B65', textDecoration: 'none' }}>
+      <Link href={signupHref(handle, locale)} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 600, color: '#6D6B65', textDecoration: 'none' }}>
         <Lock size={12} aria-hidden="true" />
         {incentiveText}
       </Link>
@@ -267,7 +274,7 @@ function ClaimCta({ handle, totalMatchCount, strongestMatchName, locale }: { han
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, paddingTop: 4 }}>
       <Link
-        href={signupHref(handle)}
+        href={signupHref(handle, locale)}
         style={{
           display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, padding: '0 28px',
           borderRadius: 999, border: 'none', background: YELLOW, color: GREY, fontSize: 15, fontWeight: 800,
@@ -325,8 +332,8 @@ function TeaserPage({
         creatorFollowers={creatorFollowers}
         locale={locale}
         actions={[
-          { label: t.draftOutreach, href: signupHref(handle), icon: Pencil },
-          { label: t.calculateRate, href: signupHref(handle), icon: Calculator },
+          { label: t.draftOutreach, href: signupHref(handle, locale), icon: Pencil },
+          { label: t.calculateRate, href: signupHref(handle, locale), icon: Calculator },
         ]}
       />
       <BadgeLegend locale={locale} />
@@ -377,7 +384,7 @@ function ZeroMatchState({
 
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, paddingTop: 4 }}>
         <Link
-          href={signupHref(handle)}
+          href={signupHref(handle, locale)}
           style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8, height: 48, padding: '0 28px',
             borderRadius: 999, border: 'none', background: YELLOW, color: GREY, fontSize: 15, fontWeight: 800, textDecoration: 'none',
