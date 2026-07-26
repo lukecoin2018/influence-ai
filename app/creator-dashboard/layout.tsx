@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/creator-dashboard/Sidebar";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 
 export default function CreatorDashboardLayout({
@@ -15,6 +15,8 @@ export default function CreatorDashboardLayout({
   const [claimStatus, setClaimStatus] = useState<string | null>(null);
   const [statusLoading, setStatusLoading] = useState(true);
   const router = useRouter();
+  const pathname = usePathname();
+  const isVerifyPage = pathname === '/creator-dashboard/verify';
 
   useEffect(() => {
     async function checkVerification() {
@@ -63,18 +65,19 @@ export default function CreatorDashboardLayout({
 
         <div style={{ padding: "32px 32px 80px", position: "relative" }}>
 
-          {/* Greyed out children when pending */}
+          {/* Greyed out children when pending — never on the verify page itself,
+              since that's the one page a pending creator must be able to use. */}
           <div style={{
-            opacity: isPending ? 0.3 : 1,
-            pointerEvents: isPending ? 'none' : 'auto',
-            filter: isPending ? 'blur(1px)' : 'none',
+            opacity: isPending && !isVerifyPage ? 0.3 : 1,
+            pointerEvents: isPending && !isVerifyPage ? 'none' : 'auto',
+            filter: isPending && !isVerifyPage ? 'blur(1px)' : 'none',
             transition: 'opacity 0.2s',
           }}>
             {children}
           </div>
 
           {/* Verification lock overlay */}
-          {!statusLoading && isPending && (
+          {!statusLoading && isPending && !isVerifyPage && (
             <div style={{
               position: 'fixed',
               top: '50%',
