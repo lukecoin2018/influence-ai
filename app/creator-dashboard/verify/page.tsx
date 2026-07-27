@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { HtmlLangSync } from '@/app/claim/[handle]/_HtmlLangSync';
 import type { Locale } from '@/app/claim/[handle]/_strings';
+import { getAuthStrings } from '@/lib/i18n/auth-strings';
 
 /**
  * creator_profiles.locale is nullable — NULL means "unknown", which covers
@@ -33,6 +34,9 @@ export default function VerifyPage() {
   // Read back from the creator record, not from a URL — this page is reached
   // long after the claim link is gone.
   const [locale, setLocale] = useState<Locale>('en');
+  // Client component, so it resolves its own strings rather than receiving them
+  // as a prop — function-valued entries don't cross the server/client boundary.
+  const t = getAuthStrings(locale);
 
   useEffect(() => {
     async function load() {
@@ -133,7 +137,7 @@ export default function VerifyPage() {
     }
 
     setVerifyError(
-      data.message ?? data.error ?? 'Verification failed. Please try again.'
+      data.message ?? data.error ?? t.errors.verificationFailed
     );
   }
 
@@ -153,7 +157,7 @@ export default function VerifyPage() {
           justifyContent: 'center',
         }}
       >
-        <p style={{ color: '#9CA3AF' }}>Loading...</p>
+        <p style={{ color: '#9CA3AF' }}>{t.common.loading}</p>
       </div>
     );
   }
@@ -180,7 +184,7 @@ export default function VerifyPage() {
               margin: '0 0 8px 0',
             }}
           >
-            Already verified!
+            {t.standaloneVerify.alreadyVerifiedTitle}
           </h1>
           <p
             style={{
@@ -189,7 +193,7 @@ export default function VerifyPage() {
               margin: '0 0 20px 0',
             }}
           >
-            Your profile is verified and active.
+            {t.standaloneVerify.alreadyVerifiedBody}
           </p>
           <Link
             href="/creator-dashboard"
@@ -199,7 +203,7 @@ export default function VerifyPage() {
               textDecoration: 'none',
             }}
           >
-            Go to dashboard →
+            {t.standaloneVerify.goToDashboard} →
           </Link>
         </div>
       </div>
@@ -245,18 +249,19 @@ export default function VerifyPage() {
                 margin: '0 0 6px 0',
               }}
             >
-              Verify Your Profile
+              {t.standaloneVerify.title}
             </h1>
             {handle && (
               <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
-                Proving you own @{handle}
+                {t.standaloneVerify.subtitle(handle)}
               </p>
             )}
           </div>
 
           <p style={{ fontSize: '14px', color: '#374151', margin: '0 0 12px 0' }}>
-            Add this code to your{' '}
-            {platform === 'instagram' ? 'Instagram' : 'TikTok'} bio:
+            {t.bioCode.addCodePrompt(
+              platform === 'instagram' ? 'Instagram' : 'TikTok'
+            )}
           </p>
 
           {/* Code display */}
@@ -279,7 +284,7 @@ export default function VerifyPage() {
                 fontFamily: 'monospace',
               }}
             >
-              {code || 'Loading...'}
+              {code || t.common.loading}
             </div>
           </div>
 
@@ -299,7 +304,7 @@ export default function VerifyPage() {
               marginBottom: '20px',
             }}
           >
-            {copied ? '✓ Copied!' : '📋 Copy Code'}
+            {copied ? `✓ ${t.bioCode.copied}` : `📋 ${t.bioCode.copyCode}`}
           </button>
 
           {/* Instructions */}
@@ -323,31 +328,31 @@ export default function VerifyPage() {
               {platform === 'instagram' ? (
                 <>
                   <li style={{ fontSize: '13px', color: '#374151' }}>
-                    Open Instagram → tap your profile → Edit Profile
+                    {t.bioCode.instagram.openProfile}
                   </li>
                   <li style={{ fontSize: '13px', color: '#374151' }}>
-                    Paste the code anywhere in your bio
+                    {t.bioCode.instagram.pasteCode}
                   </li>
                   <li style={{ fontSize: '13px', color: '#374151' }}>
-                    Tap Done / Save
+                    {t.bioCode.instagram.save}
                   </li>
                   <li style={{ fontSize: '13px', color: '#374151' }}>
-                    Come back and click Verify below
+                    {t.bioCode.comeBack}
                   </li>
                 </>
               ) : (
                 <>
                   <li style={{ fontSize: '13px', color: '#374151' }}>
-                    Open TikTok → tap your profile → Edit Profile
+                    {t.bioCode.tiktok.openProfile}
                   </li>
                   <li style={{ fontSize: '13px', color: '#374151' }}>
-                    Paste the code in your bio
+                    {t.bioCode.tiktok.pasteCode}
                   </li>
                   <li style={{ fontSize: '13px', color: '#374151' }}>
-                    Tap Save
+                    {t.bioCode.tiktok.save}
                   </li>
                   <li style={{ fontSize: '13px', color: '#374151' }}>
-                    Come back and click Verify below
+                    {t.bioCode.comeBack}
                   </li>
                 </>
               )}
@@ -359,7 +364,7 @@ export default function VerifyPage() {
                 margin: '10px 0 0 0',
               }}
             >
-              You can remove the code from your bio once verified.
+              {t.standaloneVerify.codeNote}
             </p>
           </div>
 
@@ -395,7 +400,7 @@ export default function VerifyPage() {
               marginBottom: '10px',
             }}
           >
-            {verifying ? 'Checking your bio...' : "I've added it — Verify Now"}
+            {verifying ? t.bioCode.verifying : t.bioCode.verifyButton}
           </button>
 
           <Link
@@ -413,7 +418,7 @@ export default function VerifyPage() {
               textDecoration: 'none',
             }}
           >
-            Back to dashboard
+            {t.standaloneVerify.backToDashboard}
           </Link>
         </div>
       </div>
