@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { HtmlLangSync } from '@/app/claim/[handle]/_HtmlLangSync';
 import type { Locale } from '@/app/claim/[handle]/_strings';
+import { getAuthStrings } from '@/lib/i18n/auth-strings';
 
 type Role = 'brand' | 'creator' | null;
 type Step = 'role' | 'form' | 'verify';
@@ -35,6 +36,10 @@ function SignUpContent() {
   // survives the step: 'form' -> 'verify' transition, which stays on this same
   // URL rather than navigating.
   const [locale, setLocale] = useState<Locale>('en');
+  // Client component, so it resolves its own strings rather than receiving them
+  // as a prop — function-valued entries don't cross the server/client boundary.
+  // Same approach as components/brand-matches/BrandMatchCard.tsx.
+  const t = getAuthStrings(locale);
 
   // Pre-fill from URL params
   // (e.g. /auth/signup?handle=vikyvarga&role=creator&locale=es)
@@ -128,7 +133,7 @@ function SignUpContent() {
     });
 
     if (authError || !authData.user) {
-      setError(authError?.message ?? 'Signup failed.');
+      setError(authError?.message ?? t.errors.signupFailed);
       setLoading(false);
       return;
     }
@@ -154,9 +159,7 @@ function SignUpContent() {
     setError('');
 
     if (handleStatus === 'not-found') {
-      setError(
-        "We don't have a profile for this handle yet. We'll add you to our database and notify you when your profile is ready."
-      );
+      setError(t.errors.handleNotIndexed);
       setLoading(false);
       return;
     }
@@ -178,7 +181,7 @@ function SignUpContent() {
     const data = await res.json();
 
     if (!res.ok || !data.success) {
-      setError(data.error ?? 'Signup failed.');
+      setError(data.error ?? t.errors.signupFailed);
       setLoading(false);
       return;
     }
@@ -226,7 +229,7 @@ function SignUpContent() {
     }
 
     setVerifyError(
-      data.message ?? data.error ?? 'Verification failed. Please try again.'
+      data.message ?? data.error ?? t.errors.verificationFailed
     );
   }
 
@@ -513,7 +516,7 @@ function SignUpContent() {
                   gap: '4px',
                 }}
               >
-                ← Back
+                ← {t.common.back}
               </button>
               <h1
                 style={{
@@ -523,7 +526,7 @@ function SignUpContent() {
                   margin: '0 0 6px 0',
                 }}
               >
-                ✨ Claim Your Profile
+                ✨ {t.claimForm.title}
               </h1>
               <p
                 style={{
@@ -532,8 +535,7 @@ function SignUpContent() {
                   margin: '0 0 24px 0',
                 }}
               >
-                We'll verify you own this account before activating your creator
-                dashboard.
+                {t.claimForm.subtitle}
               </p>
 
               <form
@@ -541,7 +543,7 @@ function SignUpContent() {
                 style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
               >
                 <div>
-                  <label style={labelStyle}>Instagram or TikTok Handle</label>
+                  <label style={labelStyle}>{t.claimForm.handleLabel}</label>
                   <div style={{ position: 'relative' }}>
                     <span
                       style={{
@@ -569,7 +571,7 @@ function SignUpContent() {
                       value={handle}
                       onChange={(e) => checkHandle(e.target.value)}
                       required
-                      placeholder="yourhandle"
+                      placeholder={t.claimForm.handlePlaceholder}
                     />
                   </div>
                   {handleStatus === 'checking' && (
@@ -580,7 +582,7 @@ function SignUpContent() {
                         margin: '4px 0 0 0',
                       }}
                     >
-                      Checking...
+                      {t.claimForm.handleChecking}
                     </p>
                   )}
                   {handleStatus === 'found' && (
@@ -591,7 +593,7 @@ function SignUpContent() {
                         margin: '4px 0 0 0',
                       }}
                     >
-                      ✓ Profile found in our database
+                      ✓ {t.claimForm.handleFound}
                     </p>
                   )}
                   {handleStatus === 'not-found' && (
@@ -602,19 +604,19 @@ function SignUpContent() {
                         margin: '4px 0 0 0',
                       }}
                     >
-                      Profile not found. You can still sign up and we'll add you.
+                      {t.claimForm.handleNotFound}
                     </p>
                   )}
                 </div>
                 <div>
-                  <label style={labelStyle}>Email</label>
+                  <label style={labelStyle}>{t.claimForm.emailLabel}</label>
                   <input
                     style={inputStyle}
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    placeholder="you@example.com"
+                    placeholder={t.claimForm.emailPlaceholder}
                   />
                   {detectedEmail &&
                     email &&
@@ -626,19 +628,19 @@ function SignUpContent() {
                           margin: '4px 0 0 0',
                         }}
                       >
-                        ✓ Email matches — you'll be auto-verified!
+                        ✓ {t.claimForm.emailAutoVerified}
                       </p>
                     )}
                 </div>
                 <div>
-                  <label style={labelStyle}>Password</label>
+                  <label style={labelStyle}>{t.claimForm.passwordLabel}</label>
                   <input
                     style={inputStyle}
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    placeholder="Min. 8 characters"
+                    placeholder={t.claimForm.passwordPlaceholder}
                     minLength={8}
                   />
                 </div>
@@ -663,7 +665,7 @@ function SignUpContent() {
                     opacity: loading ? 0.7 : 1,
                   }}
                 >
-                  {loading ? 'Creating account...' : 'Create Account'}
+                  {loading ? t.claimForm.submitting : t.claimForm.submit}
                 </button>
               </form>
             </>
@@ -682,16 +684,17 @@ function SignUpContent() {
                     margin: '0 0 6px 0',
                   }}
                 >
-                  Account created!
+                  {t.inlineVerify.title}
                 </h1>
                 <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
-                  One more step — verify you own @{verifyHandle}
+                  {t.inlineVerify.subtitle(verifyHandle)}
                 </p>
               </div>
 
               <p style={{ fontSize: '14px', color: '#374151', margin: '0 0 12px 0' }}>
-                Add this code to your{' '}
-                {verifyPlatform === 'instagram' ? 'Instagram' : 'TikTok'} bio:
+                {t.bioCode.addCodePrompt(
+                  verifyPlatform === 'instagram' ? 'Instagram' : 'TikTok'
+                )}
               </p>
 
               {/* Code display */}
@@ -733,7 +736,7 @@ function SignUpContent() {
                   marginBottom: '20px',
                 }}
               >
-                {copied ? '✓ Copied!' : '📋 Copy Code'}
+                {copied ? `✓ ${t.bioCode.copied}` : `📋 ${t.bioCode.copyCode}`}
               </button>
 
               {/* Instructions */}
@@ -757,31 +760,31 @@ function SignUpContent() {
                   {verifyPlatform === 'instagram' ? (
                     <>
                       <li style={{ fontSize: '13px', color: '#374151' }}>
-                        Open Instagram → tap your profile → Edit Profile
+                        {t.bioCode.instagram.openProfile}
                       </li>
                       <li style={{ fontSize: '13px', color: '#374151' }}>
-                        Paste the code anywhere in your bio
+                        {t.bioCode.instagram.pasteCode}
                       </li>
                       <li style={{ fontSize: '13px', color: '#374151' }}>
-                        Tap Done / Save
+                        {t.bioCode.instagram.save}
                       </li>
                       <li style={{ fontSize: '13px', color: '#374151' }}>
-                        Come back and click Verify below
+                        {t.bioCode.comeBack}
                       </li>
                     </>
                   ) : (
                     <>
                       <li style={{ fontSize: '13px', color: '#374151' }}>
-                        Open TikTok → tap your profile → Edit Profile
+                        {t.bioCode.tiktok.openProfile}
                       </li>
                       <li style={{ fontSize: '13px', color: '#374151' }}>
-                        Paste the code in your bio
+                        {t.bioCode.tiktok.pasteCode}
                       </li>
                       <li style={{ fontSize: '13px', color: '#374151' }}>
-                        Tap Save
+                        {t.bioCode.tiktok.save}
                       </li>
                       <li style={{ fontSize: '13px', color: '#374151' }}>
-                        Come back and click Verify below
+                        {t.bioCode.comeBack}
                       </li>
                     </>
                   )}
@@ -793,8 +796,7 @@ function SignUpContent() {
                     margin: '10px 0 0 0',
                   }}
                 >
-                  You can remove the code from your bio once verified. Code expires
-                  in 24 hours.
+                  {t.inlineVerify.codeNote}
                 </p>
               </div>
 
@@ -830,7 +832,7 @@ function SignUpContent() {
                   marginBottom: '10px',
                 }}
               >
-                {verifying ? 'Checking your bio...' : "I've added it — Verify Now"}
+                {verifying ? t.bioCode.verifying : t.bioCode.verifyButton}
               </button>
 
             
@@ -888,6 +890,14 @@ function RoleCard({
 
 export default function SignUpPage() {
   return (
+    // This fallback stays English on purpose, and is the one string on the
+    // creator path that Phase 2 could not localize. The locale is only
+    // knowable from useSearchParams(), and useSearchParams() inside
+    // SignUpContent is precisely what forces this Suspense boundary to exist —
+    // reading it out here would suspend SignUpPage itself, leaving no boundary
+    // to render a fallback. The route is also statically prerendered, so this
+    // shell is one shared HTML for every locale. Localizing it would mean
+    // changing the render mode, which is out of scope for a string swap.
     <Suspense
       fallback={
         <div
