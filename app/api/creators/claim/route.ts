@@ -9,6 +9,17 @@ const supabaseAdmin = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
+/**
+ * The UI locale the creator was shown on the claim teaser, forwarded by
+ * app/auth/signup/page.tsx. Anything that isn't exactly 'en' or 'es' — absent,
+ * misspelled, a region tag, a non-string — persists as NULL, which app code
+ * reads as 'en'. Deliberately never throws and never 400s: a locale bug must
+ * not be able to block a signup.
+ */
+function normalizeLocale(raw: unknown): 'en' | 'es' | null {
+  return raw === 'en' || raw === 'es' ? raw : null;
+}
+
 function generateCode(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous chars
   let code = 'IIT-';
@@ -20,7 +31,7 @@ function generateCode(): string {
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, handle, creatorId, platform, detectedEmail } =
+    const { email, password, handle, creatorId, platform, detectedEmail, locale } =
       await req.json();
 
     // Create auth user via admin (bypasses email confirmation)
@@ -62,6 +73,7 @@ export async function POST(req: NextRequest) {
         verification_code: code,
         verification_code_expires_at: expiresAt,
         verification_attempts: 0,
+        locale: normalizeLocale(locale),
       });
 
     if (profileError) throw profileError;

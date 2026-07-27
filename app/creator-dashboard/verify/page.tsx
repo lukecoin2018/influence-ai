@@ -7,6 +7,17 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { HtmlLangSync } from '@/app/claim/[handle]/_HtmlLangSync';
+import type { Locale } from '@/app/claim/[handle]/_strings';
+
+/**
+ * creator_profiles.locale is nullable — NULL means "unknown", which covers
+ * every row claimed before the locale plumbing landed, plus any claim where
+ * the param didn't survive. Those read as 'en'.
+ */
+function localeFromRecord(raw: string | null | undefined): Locale {
+  return raw === 'es' ? 'es' : 'en';
+}
 
 export default function VerifyPage() {
   const router = useRouter();
@@ -19,6 +30,9 @@ export default function VerifyPage() {
   const [verifying, setVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState('');
   const [alreadyVerified, setAlreadyVerified] = useState(false);
+  // Read back from the creator record, not from a URL — this page is reached
+  // long after the claim link is gone.
+  const [locale, setLocale] = useState<Locale>('en');
 
   useEffect(() => {
     async function load() {
@@ -36,7 +50,7 @@ export default function VerifyPage() {
       const { data: profile } = await supabase
         .from('creator_profiles')
         .select(
-          'claim_status, verification_code, verification_code_expires_at, creator_id'
+          'claim_status, verification_code, verification_code_expires_at, creator_id, locale'
         )
         .eq('id', user.id)
         .single();
@@ -45,6 +59,10 @@ export default function VerifyPage() {
         router.push('/creator-dashboard');
         return;
       }
+
+      // Before the already-verified early return below, so the <html lang>
+      // signal is set on that branch too.
+      setLocale(localeFromRecord(profile.locale));
 
       // Already verified
       if (profile.claim_status === 'verified') {
@@ -151,6 +169,7 @@ export default function VerifyPage() {
           padding: '24px',
         }}
       >
+        <HtmlLangSync lang={locale} />
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
           <h1
@@ -198,6 +217,7 @@ export default function VerifyPage() {
         padding: '24px',
       }}
     >
+      <HtmlLangSync lang={locale} />
       <div style={{ width: '100%', maxWidth: '440px' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <Link

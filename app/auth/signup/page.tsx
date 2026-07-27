@@ -8,9 +8,22 @@ import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { HtmlLangSync } from '@/app/claim/[handle]/_HtmlLangSync';
+import type { Locale } from '@/app/claim/[handle]/_strings';
 
 type Role = 'brand' | 'creator' | null;
 type Step = 'role' | 'form' | 'verify';
+
+/**
+ * The `locale` param arrives from /claim/[handle] or /es/claim/[handle] (see
+ * signupHref in app/claim/[handle]/_teaser.tsx) and is untrusted URL input.
+ * Anything that isn't exactly 'es' — absent, misspelled, a region tag like
+ * 'es-ES', a repeated param — reads as 'en'. Never throws: a bad locale must
+ * not be able to block a signup.
+ */
+function normalizeLocale(raw: string | null): Locale {
+  return raw === 'es' ? 'es' : 'en';
+}
 
 function SignUpContent() {
   const router = useRouter();
@@ -18,8 +31,13 @@ function SignUpContent() {
   const [step, setStep] = useState<Step>('role');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // The locale the creator was shown on the claim teaser. Held here so it
+  // survives the step: 'form' -> 'verify' transition, which stays on this same
+  // URL rather than navigating.
+  const [locale, setLocale] = useState<Locale>('en');
 
-  // Pre-fill from URL params (e.g. /auth/signup?handle=vikyvarga&role=creator)
+  // Pre-fill from URL params
+  // (e.g. /auth/signup?handle=vikyvarga&role=creator&locale=es)
   const searchParams = useSearchParams();
   useEffect(() => {
     const handleParam = searchParams.get('handle');
@@ -33,6 +51,9 @@ function SignUpContent() {
       setRole('creator');
       setStep('form');
     }
+    // Unconditional: normalizeLocale() folds absent/unknown values to 'en', so
+    // there's no case where leaving the previous state in place is correct.
+    setLocale(normalizeLocale(searchParams.get('locale')));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
 
@@ -150,6 +171,7 @@ function SignUpContent() {
         creatorId: foundCreatorId,
         platform: foundPlatform,
         detectedEmail,
+        locale,
       }),
     });
 
@@ -244,6 +266,11 @@ function SignUpContent() {
         padding: '24px',
       }}
     >
+      {/* Root layout hardcodes <html lang="en"> (app/layout.tsx) — this syncs
+          the attribute to the locale carried over from the claim teaser. The
+          page's copy is not translated in this phase; this is the plumbing
+          signal only. */}
+      <HtmlLangSync lang={locale} />
       <div style={{ width: '100%', maxWidth: '440px' }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
