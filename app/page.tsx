@@ -30,8 +30,30 @@ const FALLBACK_STATS: PublicStats = {
   lastIndex: 'Jul 3, 2026',
 };
 
+/**
+ * Every data call here degrades to a fallback so a slow database can't fail
+ * `next build`. That was silent: a genuine query error and a timeout produced
+ * the same empty section with no trace anywhere, which is how an intermittent
+ * anon-role statement_timeout went undiagnosed while ISR cached each bad roll
+ * for an hour. Log which call failed and why, then fall back exactly as before.
+ *
+ * `err.name` is the part worth reading — `TimeoutError` means withTimeout's
+ * timer fired, anything else means the query itself came back with an error.
+ */
+function logAndFallback<T>(label: string, fallback: T) {
+  return (err: unknown): T => {
+    console.error(
+      `[home] ${label} failed, using fallback — ` +
+        (err instanceof Error ? `${err.name}: ${err.message}` : String(err))
+    );
+    return fallback;
+  };
+}
+
 export async function generateMetadata(): Promise<Metadata> {
-  const stats = await withTimeout(getPublicStats(), STATS_TIMEOUT_MS).catch(() => FALLBACK_STATS);
+  const stats = await withTimeout(getPublicStats(), STATS_TIMEOUT_MS).catch(
+    logAndFallback('getPublicStats (metadata)', FALLBACK_STATS)
+  );
   const title = `InfluenceIT — ${stats.creators.toLocaleString()}+ creators. Zero guesswork.`;
   const description = `InfluenceIT indexes real engagement, content mix, and detected brand deals across Instagram and TikTok — browse ${stats.creators.toLocaleString()} creators ranked by real data, not follower counts.`;
 
@@ -56,12 +78,20 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function HomePage() {
-  const stats = await withTimeout(getPublicStats(), STATS_TIMEOUT_MS).catch(() => FALLBACK_STATS);
+  const stats = await withTimeout(getPublicStats(), STATS_TIMEOUT_MS).catch(
+    logAndFallback('getPublicStats', FALLBACK_STATS)
+  );
   const [instagram, tiktok] = await Promise.all([
-    withTimeout(getTopCreators('instagram', 10), STATS_TIMEOUT_MS).catch(() => []),
-    withTimeout(getTopCreators('tiktok', 10), STATS_TIMEOUT_MS).catch(() => []),
+    withTimeout(getTopCreators('instagram', 10), STATS_TIMEOUT_MS).catch(
+      logAndFallback('getTopCreators(instagram)', [])
+    ),
+    withTimeout(getTopCreators('tiktok', 10), STATS_TIMEOUT_MS).catch(
+      logAndFallback('getTopCreators(tiktok)', [])
+    ),
   ]);
-  const pool = await withTimeout(getFeaturedCreatorPool(instagram, stats), STATS_TIMEOUT_MS).catch(() => []);
+  const pool = await withTimeout(getFeaturedCreatorPool(instagram, stats), STATS_TIMEOUT_MS).catch(
+    logAndFallback('getFeaturedCreatorPool', [])
+  );
   // Captured once here and passed down as a prop — the pool index must be derived
   // from this single value, not a fresh Date.now() independently on server/client.
   const now = getRenderTimestamp();
