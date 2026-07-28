@@ -331,7 +331,23 @@ export function verificationErrorMessage(
       return t.verification.invalidCode;
     case 'profile_not_found':
       return t.verification.profileNotFound;
+    // Recognised, and the generic message is the right answer for it — the
+    // server sends this for an unhandled 500, where there is nothing specific
+    // to say. Listed explicitly so it doesn't trip the warning below.
+    case 'unexpected':
+      return t.verificationFailed;
     default:
+      // Reaching here means the response didn't carry a reason we know, so the
+      // creator gets the generic message instead of the specific one. That is
+      // silent by design otherwise, and it has already cost one debugging
+      // session: a browser running a pre-reason-code bundle against the new
+      // server produced exactly this, and the only visible symptom was the
+      // wrong copy. Name it in the console so the next occurrence is obvious.
+      console.warn(
+        `[auth-strings] Unmapped verify-bio reason: ${JSON.stringify(reason)}. ` +
+          'Falling back to the generic message. Usually a stale client bundle ' +
+          'running against a newer server — hard-reload before digging further.'
+      );
       return t.verificationFailed;
   }
 }
