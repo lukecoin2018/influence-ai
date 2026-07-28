@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { generateVerificationCode, verificationCodeExpiresAt } from '@/lib/verification-code';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,15 +19,6 @@ const supabaseAdmin = createClient(
  */
 function normalizeLocale(raw: unknown): 'en' | 'es' | null {
   return raw === 'en' || raw === 'es' ? raw : null;
-}
-
-function generateCode(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous chars
-  let code = 'IIT-';
-  for (let i = 0; i < 6; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return code;
 }
 
 export async function POST(req: NextRequest) {
@@ -52,10 +44,8 @@ export async function POST(req: NextRequest) {
       !!detectedEmail &&
       detectedEmail.toLowerCase() === email.toLowerCase();
 
-    const code = autoVerified ? null : generateCode();
-    const expiresAt = autoVerified
-      ? null
-      : new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const code = autoVerified ? null : generateVerificationCode();
+    const expiresAt = autoVerified ? null : verificationCodeExpiresAt();
 
     // Create user role
     await supabaseAdmin
