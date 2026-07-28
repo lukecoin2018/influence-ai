@@ -95,6 +95,8 @@ interface AuthStrings {
     signupFailed: string;
     handleNotIndexed: string;
     verificationFailed: string;
+    /** Shown when /api/creators/regenerate-code fails and no code can be displayed. */
+    codeRegenerationFailed: string;
   };
 }
 
@@ -156,6 +158,8 @@ const en: AuthStrings = {
     handleNotIndexed:
       "We don't have a profile for this handle yet. We'll add you to our database and notify you when your profile is ready.",
     verificationFailed: 'Verification failed. Please try again.',
+    codeRegenerationFailed:
+      "We couldn't create a new verification code. Reload the page to try again.",
   },
 };
 
@@ -218,6 +222,8 @@ const es: AuthStrings = {
     handleNotIndexed:
       'Todavía no tenemos un perfil para ese usuario. Te agregaremos a nuestra base de datos y te avisaremos cuando tu perfil esté listo.',
     verificationFailed: 'No pudimos verificarte. Inténtalo de nuevo.',
+    codeRegenerationFailed:
+      'No pudimos crear un código de verificación nuevo. Recarga la página para intentarlo de nuevo.',
   },
 };
 

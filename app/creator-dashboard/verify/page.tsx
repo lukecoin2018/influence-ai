@@ -65,8 +65,12 @@ export default function VerifyPage() {
       }
 
       // Before the already-verified early return below, so the <html lang>
-      // signal is set on that branch too.
-      setLocale(localeFromRecord(profile.locale));
+      // signal is set on that branch too. Kept in a local as well as state:
+      // `t` in this closure is the value from the render that mounted this
+      // effect, so it is still 'en' here even after setLocale — anything shown
+      // from inside load() has to resolve its strings from this local.
+      const nextLocale = localeFromRecord(profile.locale);
+      setLocale(nextLocale);
 
       // Already verified
       if (profile.claim_status === 'verified') {
@@ -97,13 +101,19 @@ export default function VerifyPage() {
           new Date(profile.verification_code_expires_at) < new Date());
 
       if (isExpired) {
-        const res = await fetch('/api/creators/regenerate-code', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ creatorProfileId: user.id }),
-        });
-        const data = await res.json();
-        if (data.code) setCode(data.code);
+        // No body: the endpoint resolves whose code to mint from the session
+        // cookie, so there is nothing here a caller could point at another row.
+        const res = await fetch('/api/creators/regenerate-code', { method: 'POST' });
+        const data = await res.json().catch(() => null);
+
+        if (res.ok && data?.code) {
+          setCode(data.code);
+        } else {
+          // Previously this failure was invisible: res.ok went unchecked, so a
+          // 400 left `code` empty and the box showed its loading placeholder
+          // for good, with no explanation and both buttons disabled.
+          setVerifyError(getAuthStrings(nextLocale).errors.codeRegenerationFailed);
+        }
       } else {
         setCode(profile.verification_code ?? '');
       }
