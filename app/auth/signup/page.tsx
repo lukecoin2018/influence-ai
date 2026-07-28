@@ -10,7 +10,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { HtmlLangSync } from '@/app/claim/[handle]/_HtmlLangSync';
 import type { Locale } from '@/app/claim/[handle]/_strings';
-import { getAuthStrings } from '@/lib/i18n/auth-strings';
+import { getAuthStrings, verificationErrorMessage } from '@/lib/i18n/auth-strings';
 
 type Role = 'brand' | 'creator' | null;
 type Step = 'role' | 'form' | 'verify';
@@ -220,16 +220,18 @@ function SignUpContent() {
       }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => null);
     setVerifying(false);
 
-    if (data.verified) {
+    if (data?.verified) {
       window.location.href = '/creator-dashboard';
       return;
     }
 
+    // Same shared mapper as the standalone verify page — see
+    // verificationErrorMessage's docstring for why this isn't inlined twice.
     setVerifyError(
-      data.message ?? data.error ?? t.errors.verificationFailed
+      verificationErrorMessage(locale, data?.reason, data?.minutesRemaining)
     );
   }
 
