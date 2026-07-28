@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { recordFunnelEvent } from '@/lib/funnel/events';
 import { checkBioForCode } from '@/lib/apify';
 
 const supabaseAdmin = createClient(
@@ -134,6 +135,27 @@ export async function POST(req: NextRequest) {
           last_verification_attempt_at: null,
         })
         .eq('id', creatorProfileId);
+
+      // The bio-code half of `verified`. The other half is the auto-verify
+      // branch in app/api/creators/claim/route.ts, which never reaches this
+      // route — both must fire or the event undercounts.
+      //
+      // Deliberately NOT fired by the already-verified early return above:
+      // that path is an idempotent re-check of a creator who was verified at
+      // some earlier point, and counting it would let one creator inflate the
+      // funnel by reloading.
+      recordFunnelEvent({
+        eventType: 'verified',
+        handle,
+        // profile came from select('*'), so these are present when the columns
+        // exist and undefined when they don't (0009 unapplied) — either way
+        // this coalesces to null rather than failing the write.
+        creatorId: profile.creator_id ?? null,
+        creatorProfileId,
+        locale: profile.locale ?? null,
+        userAgent: req.headers.get('user-agent'),
+        details: { path: 'bio_code', platform },
+      });
 
       return NextResponse.json({ ok: true, verified: true });
     }

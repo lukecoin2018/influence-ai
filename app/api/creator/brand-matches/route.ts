@@ -32,7 +32,11 @@ export async function GET() {
     ]);
 
     return NextResponse.json({
-      ...(result ?? { creatorFollowers: null, totalMatchCount: 0, matches: [], strongestMatch: null, teaserPreview: [] }),
+      // creatorId keeps the null-result fallback structurally identical to a
+      // real CreatorBrandMatches — which is how both dashboard callers type
+      // this response. profile.creator_id is non-null here (the 403 above
+      // guarantees it), so the shape holds on every branch.
+      ...(result ?? { creatorId: profile.creator_id, creatorFollowers: null, totalMatchCount: 0, matches: [], strongestMatch: null, teaserPreview: [] }),
       detectedNiche: socialRow.data?.detected_niche ?? null,
     });
   } catch (err) {
