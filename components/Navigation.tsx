@@ -5,19 +5,26 @@ import { usePathname } from 'next/navigation';
 import { BarChart2, Sparkles, User, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useState } from 'react';
+import { getNavStrings } from '@/lib/i18n/nav-strings';
+import { useLocale } from '@/lib/i18n/use-locale';
 
+// Labels are resolved per locale at render (see `t` below) rather than stored
+// here, so the desktop and mobile menus keep sharing one source of truth.
 const navLinks = [
-  { href: '/creators', label: 'Creators' },
-  { href: '/match', label: 'Find Creators', highlight: true },
-  { href: '/compare', label: 'Compare' },
-  { href: '/discover', label: 'Discover' },
-  { href: '/about', label: 'About' },
+  { href: '/creators', key: 'creators' as const },
+  { href: '/match', key: 'findCreators' as const, highlight: true },
+  { href: '/compare', key: 'compare' as const },
+  { href: '/discover', key: 'discover' as const },
+  { href: '/about', key: 'about' as const },
 ];
 
 export function Navigation() {
   const pathname = usePathname();
   const { user, brandProfile, userRole, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Client component, so it resolves its own strings rather than receiving them
+  // as a prop — same approach as the other localized surfaces.
+  const t = getNavStrings(useLocale());
 
   return (
     <header
@@ -38,7 +45,8 @@ export function Navigation() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-1">
-          {navLinks.map(({ href, label, highlight }) => {
+          {navLinks.map(({ href, key, highlight }) => {
+            const label = t.links[key];
             const isActive = pathname === href || pathname.startsWith(`${href}/`);
             return (
               <Link
@@ -67,7 +75,7 @@ export function Navigation() {
                   }`}
                 >
                   <User size={14} />
-                  My Profile
+                  {t.account.myProfile}
                 </Link>
               ) : userRole === 'brand' ? (
                 <Link
@@ -77,7 +85,7 @@ export function Navigation() {
                   }`}
                 >
                   <User size={14} />
-                  {brandProfile?.company_name ?? 'Dashboard'}
+                  {brandProfile?.company_name ?? t.account.dashboardFallback}
                 </Link>
               ) : null}
               <button
@@ -91,10 +99,10 @@ export function Navigation() {
           ) : (
             <>
               <Link href="/login" className="rounded-lg font-medium no-underline px-4 py-2 text-sm text-secondary hover:text-primary hover:bg-subtle">
-                Log in
+                {t.account.logIn}
               </Link>
               <Link href="/signup" className="bg-purple rounded-lg font-medium no-underline px-4 py-2 text-sm" style={{ color: '#3A3A3A' }}>
-                Sign up
+                {t.account.signUp}
               </Link>
             </>
           )}
@@ -118,7 +126,8 @@ export function Navigation() {
         >
           {/* Nav links */}
           <div style={{ padding: '8px 16px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            {navLinks.map(({ href, label, highlight }) => {
+            {navLinks.map(({ href, key, highlight }) => {
+              const label = t.links[key];
               const isActive = pathname === href || pathname.startsWith(`${href}/`);
               return (
                 <Link
@@ -150,7 +159,7 @@ export function Navigation() {
                     className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium no-underline text-secondary hover:text-primary hover:bg-subtle"
                   >
                     <User size={14} />
-                    My Profile
+                    {t.account.myProfile}
                   </Link>
                 )}
                 {userRole === 'brand' && (
@@ -160,7 +169,7 @@ export function Navigation() {
                     className="flex items-center gap-2 rounded-lg px-4 py-3 text-sm font-medium no-underline text-secondary hover:text-primary hover:bg-subtle"
                   >
                     <User size={14} />
-                    {brandProfile?.company_name ?? 'Dashboard'}
+                    {brandProfile?.company_name ?? t.account.dashboardFallback}
                   </Link>
                 )}
                 <button
@@ -169,7 +178,7 @@ export function Navigation() {
                   style={{ border: 'none', backgroundColor: 'transparent', cursor: 'pointer', textAlign: 'left' }}
                 >
                   <LogOut size={14} />
-                  Log out
+                  {t.account.logOut}
                 </button>
               </>
             ) : (
@@ -179,7 +188,7 @@ export function Navigation() {
                   onClick={() => setMenuOpen(false)}
                   className="rounded-lg font-medium no-underline px-4 py-3 text-sm text-secondary hover:text-primary hover:bg-subtle"
                 >
-                  Log in
+                  {t.account.logIn}
                 </Link>
                 <Link
                   href="/signup"
@@ -187,7 +196,7 @@ export function Navigation() {
                   className="rounded-lg font-medium no-underline px-4 py-3 text-sm text-center"
                   style={{ backgroundColor: '#FFD700', color: '#3A3A3A' }}
                 >
-                  Sign up
+                  {t.account.signUp}
                 </Link>
               </>
             )}

@@ -79,6 +79,13 @@ interface CreatorProfile {
   website: string | null;
   preferred_categories: string[] | null;
   min_budget: number | null;
+  /**
+   * UI locale captured at claim time. The select('*') below already returns
+   * this column; declaring it here only makes it visible to TypeScript so
+   * shared chrome (lib/i18n/use-locale.ts) can read it. NULL = unknown, read
+   * as 'en'.
+   */
+  locale?: 'en' | 'es' | null;
 }
 
 interface AuthContextType {
