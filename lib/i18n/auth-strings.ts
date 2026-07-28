@@ -94,9 +94,30 @@ interface AuthStrings {
   errors: {
     signupFailed: string;
     handleNotIndexed: string;
+    /** Last-resort fallback for a reason code this build doesn't recognise. */
     verificationFailed: string;
     /** Shown when /api/creators/regenerate-code fails and no code can be displayed. */
     codeRegenerationFailed: string;
+    /**
+     * One message per failure reason returned by /api/creators/verify-bio.
+     * That route returns reason codes and no user-facing prose, so these are
+     * the only copy a creator ever sees on a failed check — in their language,
+     * which the server's English strings used to override.
+     */
+    verification: {
+      /**
+       * The common case. Names both things that actually cause it: not
+       * saving, and the platform taking a moment to serve the edited bio.
+       */
+      codeAbsent: string;
+      /** Our side failed. Must not imply the creator did anything wrong. */
+      checkUnavailable: string;
+      /** Says when they can retry — never "contact support". */
+      tooManyAttempts: (minutes: number) => string;
+      codeExpired: string;
+      invalidCode: string;
+      profileNotFound: string;
+    };
   };
 }
 
@@ -160,6 +181,19 @@ const en: AuthStrings = {
     verificationFailed: 'Verification failed. Please try again.',
     codeRegenerationFailed:
       "We couldn't create a new verification code. Reload the page to try again.",
+    verification: {
+      codeAbsent:
+        "We couldn't find the code in your bio yet. Check that you tapped Save — and if you just did, wait a minute and try again, because Instagram and TikTok can take a moment to show the change.",
+      checkUnavailable:
+        "We couldn't check your bio just now — that's a problem on our side, not yours. This didn't count as an attempt. Try again in a few minutes.",
+      tooManyAttempts: (minutes) =>
+        `That's a lot of tries in a short time. You can try again in ${minutes} minute${minutes === 1 ? '' : 's'}.`,
+      codeExpired: 'This code has expired. Reload the page to get a new one.',
+      invalidCode:
+        "That code doesn't match the one we're expecting. Reload the page to get a fresh one.",
+      profileNotFound:
+        "We couldn't find your creator profile. Try signing out and back in.",
+    },
   },
 };
 
@@ -224,6 +258,19 @@ const es: AuthStrings = {
     verificationFailed: 'No pudimos verificarte. Inténtalo de nuevo.',
     codeRegenerationFailed:
       'No pudimos crear un código de verificación nuevo. Recarga la página para intentarlo de nuevo.',
+    verification: {
+      codeAbsent:
+        'Todavía no encontramos el código en tu biografía. Revisa que hayas tocado Guardar — y si acabas de hacerlo, espera un minuto e inténtalo de nuevo, porque Instagram y TikTok pueden tardar un momento en mostrar el cambio.',
+      checkUnavailable:
+        'No pudimos revisar tu biografía en este momento — es un problema nuestro, no tuyo. Esto no contó como intento. Inténtalo de nuevo en unos minutos.',
+      tooManyAttempts: (minutes) =>
+        `Son muchos intentos en poco tiempo. Puedes volver a intentarlo en ${minutes} minuto${minutes === 1 ? '' : 's'}.`,
+      codeExpired: 'Este código ya expiró. Recarga la página para obtener uno nuevo.',
+      invalidCode:
+        'Ese código no coincide con el que esperamos. Recarga la página para obtener uno nuevo.',
+      profileNotFound:
+        'No encontramos tu perfil de creador. Cierra sesión y vuelve a entrar.',
+    },
   },
 };
 
@@ -231,4 +278,60 @@ const TABLE: Record<Locale, AuthStrings> = { en, es };
 
 export function getAuthStrings(locale: Locale): AuthStrings {
   return TABLE[locale];
+}
+
+/** The reason codes /api/creators/verify-bio can return on a failed check. */
+export type VerificationReason =
+  | 'profile_not_found'
+  | 'invalid_code'
+  | 'code_expired'
+  | 'too_many_attempts'
+  | 'code_absent'
+  | 'check_unavailable'
+  | 'unexpected';
+
+/**
+ * Maps a verify-bio failure response to localized copy.
+ *
+ * Lives here, as one function, on purpose: the two surfaces that call that
+ * route — app/creator-dashboard/verify/page.tsx and the inline verify step in
+ * app/auth/signup/page.tsx — previously held byte-identical error-handling
+ * expressions, which is exactly the shape that gets half-fixed. Now there is
+ * one place to change.
+ *
+ * `reason` is deliberately typed loose: it arrives from a JSON response, so an
+ * older deploy, a proxy error page, or a future reason code this build doesn't
+ * know about all land on the generic fallback rather than rendering
+ * `undefined`.
+ */
+export function verificationErrorMessage(
+  locale: Locale,
+  reason: string | null | undefined,
+  minutesRemaining?: unknown
+): string {
+  const t = TABLE[locale].errors;
+
+  switch (reason as VerificationReason) {
+    case 'code_absent':
+      return t.verification.codeAbsent;
+    case 'check_unavailable':
+      return t.verification.checkUnavailable;
+    case 'too_many_attempts': {
+      // The server always sends a positive integer, but this is untrusted
+      // JSON — fall back to the window length rather than printing NaN.
+      const minutes =
+        typeof minutesRemaining === 'number' && Number.isFinite(minutesRemaining)
+          ? Math.max(1, Math.ceil(minutesRemaining))
+          : 60;
+      return t.verification.tooManyAttempts(minutes);
+    }
+    case 'code_expired':
+      return t.verification.codeExpired;
+    case 'invalid_code':
+      return t.verification.invalidCode;
+    case 'profile_not_found':
+      return t.verification.profileNotFound;
+    default:
+      return t.verificationFailed;
+  }
 }

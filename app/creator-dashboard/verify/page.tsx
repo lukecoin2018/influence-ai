@@ -9,7 +9,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { HtmlLangSync } from '@/app/claim/[handle]/_HtmlLangSync';
 import type { Locale } from '@/app/claim/[handle]/_strings';
-import { getAuthStrings } from '@/lib/i18n/auth-strings';
+import { getAuthStrings, verificationErrorMessage } from '@/lib/i18n/auth-strings';
 
 /**
  * creator_profiles.locale is nullable — NULL means "unknown", which covers
@@ -138,16 +138,18 @@ export default function VerifyPage() {
       }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => null);
     setVerifying(false);
 
-    if (data.verified) {
+    if (data?.verified) {
       window.location.href = '/creator-dashboard';
       return;
     }
 
+    // Keyed off the reason code, never the server's prose — that prose was
+    // English and used to win over this table for Spanish creators.
     setVerifyError(
-      data.message ?? data.error ?? t.errors.verificationFailed
+      verificationErrorMessage(locale, data?.reason, data?.minutesRemaining)
     );
   }
 
