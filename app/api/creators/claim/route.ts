@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { recordFunnelEvent } from '@/lib/funnel/events';
 import { generateVerificationCode, verificationCodeExpiresAt } from '@/lib/verification-code';
 
 const supabaseAdmin = createClient(
@@ -67,6 +68,45 @@ export async function POST(req: NextRequest) {
       });
 
     if (profileError) throw profileError;
+
+    // ── Funnel capture ──────────────────────────────────────────────────────
+    // The stitch. This is the only place in the codebase where the pre-claim
+    // key (handle) and both post-claim keys (creator_id, and userId — which is
+    // creator_profiles.id) are in scope at once, so it is the one point where
+    // the two halves of the funnel can be joined.
+    const userAgent = req.headers.get('user-agent');
+    const normalizedLocale = normalizeLocale(locale);
+
+    recordFunnelEvent({
+      eventType: 'claim_completed',
+      handle,
+      // Client-supplied and nullable (see the insert above) — a claim can
+      // complete without one, and those rows are exactly the ones that would
+      // otherwise look like drop-off. Recorded as null rather than skipped.
+      creatorId: creatorId ?? null,
+      creatorProfileId: userId,
+      locale: normalizedLocale,
+      userAgent,
+      details: { autoVerified },
+    });
+
+    // The auto-verify path never touches /api/creators/verify-bio: it writes
+    // claim_status 'verified' in the insert above and the client goes straight
+    // to the dashboard (app/auth/signup/_SignUpForm.tsx). Instrumenting only
+    // the verify-bio route would drop this population from `verified`
+    // entirely — and it is the population that converted with the least
+    // friction, so its absence would skew the rate in the flattering direction.
+    if (autoVerified) {
+      recordFunnelEvent({
+        eventType: 'verified',
+        handle,
+        creatorId: creatorId ?? null,
+        creatorProfileId: userId,
+        locale: normalizedLocale,
+        userAgent,
+        details: { path: 'auto_email_match' },
+      });
+    }
 
     return NextResponse.json({
       success: true,

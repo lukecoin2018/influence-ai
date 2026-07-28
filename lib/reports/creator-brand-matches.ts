@@ -70,7 +70,12 @@ export type BlurredMatch = {
   recencyBucket: RecencyBucket;
 };
 
-export type CreatorBrandMatches = {
+/**
+ * Everything derivable from brackets + profiles alone. buildCreatorBrandMatches()
+ * is pure and never learns WHICH creator it ran for, so creator identity is
+ * added by the I/O wrapper rather than threaded through the matcher.
+ */
+export type BrandMatchResult = {
   /** Follower count of the platform that produced strongestMatch, so the page headline agrees with the hero card. Null when there's no match to anchor it to. */
   creatorFollowers: number | null;
   totalMatchCount: number;
@@ -79,6 +84,20 @@ export type CreatorBrandMatches = {
   strongestMatch: MatchedBrand | null;
   /** Up to 3 additional matches beyond strongestMatch, blurred-shape — for the teaser's "+N more" preview stack. */
   teaserPreview: BlurredMatch[];
+};
+
+export type CreatorBrandMatches = BrandMatchResult & {
+  /**
+   * The resolved creators.id. Always present: getCreatorBrandMatches() returns
+   * null whenever resolution fails, so a result existing at all means the id
+   * is known.
+   *
+   * Carried out because resolveCreatorId() below already paid for it. The
+   * claim teaser calls this function with a handle and then needs the id for
+   * funnel capture — without this field that would be a second, identical
+   * social_profiles lookup on every teaser render.
+   */
+  creatorId: string;
 };
 
 function toBlurred(m: MatchedBrand): BlurredMatch {
@@ -118,7 +137,7 @@ export function buildCreatorBrandMatches(
   profiles: CreatorProfile[],
   candidateBrackets: BrandBracketRow[],
   now: Date,
-): CreatorBrandMatches {
+): BrandMatchResult {
   const followerCountByPlatform = new Map(profiles.map((p) => [p.platform, p.followerCount]));
 
   const candidates: MatchedBrand[] = candidateBrackets
@@ -218,7 +237,7 @@ export async function getCreatorBrandMatches(supabase: SupabaseClient, handleOrI
     .map((p) => ({ platform: p.platform, followerCount: p.follower_count }));
 
   if (profiles.length === 0) {
-    return { creatorFollowers: null, totalMatchCount: 0, matches: [], strongestMatch: null, teaserPreview: [] };
+    return { creatorId, creatorFollowers: null, totalMatchCount: 0, matches: [], strongestMatch: null, teaserPreview: [] };
   }
 
   // Pushed down to the idx_brand_brackets_platform_bracket index (supabase/migrations/0007):
@@ -254,5 +273,5 @@ export async function getCreatorBrandMatches(supabase: SupabaseClient, handleOrI
     })),
   );
 
-  return buildCreatorBrandMatches(creatorRow.country, profiles, candidateBrackets, new Date());
+  return { creatorId, ...buildCreatorBrandMatches(creatorRow.country, profiles, candidateBrackets, new Date()) };
 }

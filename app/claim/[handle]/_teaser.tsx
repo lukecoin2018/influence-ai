@@ -1,7 +1,9 @@
 import Link from 'next/link';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { ArrowRight, Calculator, Lock, Pencil, RefreshCw, UserX } from 'lucide-react';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
+import { recordFunnelEvent, type TeaserVariant } from '@/lib/funnel/events';
 import { withTimeout, TimeoutError } from '@/lib/withTimeout';
 import { formatCount } from '@/lib/formatters';
 import { getCreatorBrandMatches, type BlurredMatch, type CreatorBrandMatches, type MatchedBrand } from '@/lib/reports/creator-brand-matches';
@@ -482,6 +484,35 @@ export async function ClaimTeaser({ handle, locale }: { handle: string; locale: 
   }
 
   if (!result) notFound();
+
+  // ── Funnel capture ────────────────────────────────────────────────────────
+  // Placed here on purpose, not at the top of the function. Both early exits
+  // above are non-views and must not be counted: the RetryState return is a
+  // render that timed out before the creator saw anything, and notFound()
+  // THROWS, so a hit for a handle that doesn't resolve never reaches this line.
+  // What's left is exactly "a creator who exists had their teaser rendered".
+  //
+  // The user-agent is read here and handed to recordFunnelEvent rather than
+  // read inside it — see FunnelEvent.userAgent's docstring for why that's
+  // structural. headers() costs nothing on this route: both page.tsx wrappers
+  // are already force-dynamic, so the request is per-render regardless.
+  const userAgent = (await headers()).get('user-agent');
+  // The zero-match predicate, written out again rather than hoisted into a
+  // shared boolean and reused below: hoisting it costs TypeScript's narrowing
+  // of result.strongestMatch to non-null on the full-teaser path, which
+  // TeaserPage's strongestMatch prop depends on.
+  const teaserVariant: TeaserVariant =
+    result.totalMatchCount === 0 || !result.strongestMatch ? 'zero_match' : 'full';
+  recordFunnelEvent({
+    eventType: 'teaser_viewed',
+    handle,
+    // Free — getCreatorBrandMatches already resolved the handle to this id
+    // internally, and now carries it out (lib/reports/creator-brand-matches.ts).
+    creatorId: result.creatorId,
+    locale,
+    userAgent,
+    teaserVariant,
+  });
 
   const profileInfo = await resolveCreatorProfileInfo(supabase, handle).catch(() => ({ displayName: null, detectedNiche: null }));
   const greetingName = resolveGreetingName(profileInfo.displayName, handle);
