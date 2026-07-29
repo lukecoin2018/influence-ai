@@ -26,6 +26,20 @@ const PROGRAM_MIN_DISTINCT_CREATORS = 3;
 const REPEAT_HIRER_MIN_RATIO = 2;
 const TEASER_PREVIEW_MAX = 3;
 
+/**
+ * How many canonical_names go into one `.in()` when looking up brand handles.
+ *
+ * Chunked rather than issued as a single query, for two independent reasons —
+ * either one alone would be enough:
+ *  - PostgREST puts `.in()` values in the query string, and a creator can match
+ *    up to ~1,050 brands. One request would build a multi-kilobyte URL.
+ *  - Supabase enforces a server-side max-rows cap (1,000 by default) that a
+ *    client `.limit()` cannot raise. A single unchunked read could be silently
+ *    truncated — the failure mode being brands quietly losing their handles,
+ *    with no error anywhere.
+ */
+const HANDLE_LOOKUP_CHUNK = 100;
+
 export type Platform = 'instagram' | 'tiktok';
 
 export type BrandBracketRow = {
@@ -45,6 +59,30 @@ export type CreatorProfile = {
   followerCount: number;
 };
 
+/**
+ * One Instagram handle belonging to a brand.
+ *
+ * `brand_aliases.alias` IS the Instagram handle — there is no separate handle
+ * column, and the `brands` table is deliberately not used for this (its
+ * brand_name is null for ~99% of rows and it joins at ~2%). Coverage via
+ * brand_aliases is structural rather than lucky: brand_brackets is built FROM
+ * verified aliases (scripts/brand-brackets/refresh.ts), so every bracketed
+ * brand has at least one.
+ */
+export type BrandHandle = {
+  /** Normalized: trimmed, leading @ stripped, lowercased — same rule as social_profiles.handle. */
+  handle: string;
+  /** brand_aliases.region for THIS alias, raw and unnormalized. Null when the alias carries no region tag. */
+  region: string | null;
+  /**
+   * True when this alias's own region resolves to the creator's country.
+   * An ORDERING signal only — never a filter and never a penalty, per the
+   * additive-region rule. A creator may deliberately approach a regional
+   * account over the global one, so every handle is always returned.
+   */
+  isRegionMatch: boolean;
+};
+
 export type MatchedBrand = {
   canonicalName: string;
   category: string | null;
@@ -59,6 +97,16 @@ export type MatchedBrand = {
   mostRecentPost: string | null;
   recencyBucket: RecencyBucket;
   regionMatch: RegionMatch;
+  /**
+   * Every verified Instagram handle for this brand, region-matching ones first
+   * (then alphabetical, so the order is stable across renders).
+   *
+   * Populated only by getCreatorBrandMatches() — the pure builder below has no
+   * I/O and always emits []. Empty is a legitimate value, not an error: the
+   * lookup degrades to [] if brand_aliases is unreadable, because a missing
+   * handle must never cost a creator their Brands Hiring list.
+   */
+  handles: BrandHandle[];
 };
 
 /** The gated-row shape: category, distinctCreators, recencyBucket, and the program/repeat-hirer badge — never canonicalName or the exact bracket. */
@@ -159,6 +207,10 @@ export function buildCreatorBrandMatches(
       mostRecentPost: b.mostRecentPost,
       recencyBucket: bucketRecency(b.mostRecentPost, now),
       regionMatch: matchRegion(country, b.regions),
+      // Always [] here. This function is pure and does no I/O; the handles are
+      // attached by getCreatorBrandMatches() after ranking, so only the brands
+      // that actually matched are ever looked up.
+      handles: [],
     }));
 
   // Cross-platform dedupe: one row per canonicalName, keep the higher-ranked platform match.
@@ -200,6 +252,88 @@ type RawBracketRow = {
   most_recent_post: string | null;
   regions: string[] | null;
 };
+
+type RawAliasRow = { alias: string; canonical_name: string; region: string | null };
+
+/** Region-matching handles first, then alphabetical so the order never shuffles between renders. */
+function compareHandles(a: BrandHandle, b: BrandHandle): number {
+  if (a.isRegionMatch !== b.isRegionMatch) return a.isRegionMatch ? -1 : 1;
+  return a.handle.localeCompare(b.handle);
+}
+
+/**
+ * Looks up the Instagram handles for a set of matched brands.
+ *
+ * `brand_aliases` is admin-only via RLS (supabase/migrations/0001), so this
+ * relies on the same service-role client the rest of this module already
+ * requires. Filtered to entity_type='brand' AND verified=true — the exact
+ * population brand_brackets is built from, which is why coverage is structural.
+ *
+ * Never throws and never rejects the caller: any failure returns an empty map
+ * and the brands simply render without handles. Brands Hiring existed before
+ * handles did and must keep working if this lookup does not.
+ */
+async function fetchBrandHandles(
+  supabase: SupabaseClient,
+  canonicalNames: string[],
+  country: string | null,
+): Promise<Map<string, BrandHandle[]>> {
+  const byCanonical = new Map<string, BrandHandle[]>();
+  if (canonicalNames.length === 0) return byCanonical;
+
+  const chunks: string[][] = [];
+  for (let i = 0; i < canonicalNames.length; i += HANDLE_LOOKUP_CHUNK) {
+    chunks.push(canonicalNames.slice(i, i + HANDLE_LOOKUP_CHUNK));
+  }
+
+  try {
+    const results = await Promise.all(
+      chunks.map((chunk) =>
+        withTimeout(
+          Promise.resolve(
+            supabase
+              .from('brand_aliases')
+              .select('alias, canonical_name, region')
+              .eq('entity_type', 'brand')
+              .eq('verified', true)
+              .in('canonical_name', chunk),
+          ),
+          DB_TIMEOUT_MS,
+        ),
+      ),
+    );
+
+    for (const result of results) {
+      if (result.error) {
+        // Warned rather than swallowed, for the same reason lib/funnel/events.ts
+        // warns: a partial result and a broken query look identical otherwise.
+        console.warn(`[brand-matches] handle lookup failed, continuing without handles: ${result.error.message}`);
+        continue;
+      }
+
+      for (const row of (result.data ?? []) as RawAliasRow[]) {
+        const handle = normalizeHandle(row.alias);
+        if (!handle) continue;
+        const list = byCanonical.get(row.canonical_name) ?? [];
+        list.push({
+          handle,
+          region: row.region,
+          // matchRegion takes a LIST of brand regions; an alias carries at most
+          // one. Null country or an unmapped region degrades to false, which
+          // only affects ordering — the handle is still returned.
+          isRegionMatch: matchRegion(country, row.region ? [row.region] : []) != null,
+        });
+        byCanonical.set(row.canonical_name, list);
+      }
+    }
+  } catch (err) {
+    console.warn('[brand-matches] handle lookup threw, continuing without handles:', err);
+    return byCanonical;
+  }
+
+  for (const list of byCanonical.values()) list.sort(compareHandles);
+  return byCanonical;
+}
 
 async function resolveCreatorId(supabase: SupabaseClient, handleOrId: string): Promise<string | null> {
   if (isUuid(handleOrId)) return handleOrId;
@@ -273,5 +407,21 @@ export async function getCreatorBrandMatches(supabase: SupabaseClient, handleOrI
     })),
   );
 
-  return { creatorId, ...buildCreatorBrandMatches(creatorRow.country, profiles, candidateBrackets, new Date()) };
+  const result = buildCreatorBrandMatches(creatorRow.country, profiles, candidateBrackets, new Date());
+
+  // Handles are looked up AFTER ranking, against the matched brands only —
+  // typically a fraction of the ~1,160 bracket rows scanned above.
+  const handlesByCanonical = await fetchBrandHandles(
+    supabase,
+    result.matches.map((m) => m.canonicalName),
+    creatorRow.country,
+  );
+
+  // Rebuilt rather than mutated, and strongestMatch is re-derived from the new
+  // array rather than spread separately: buildCreatorBrandMatches() returns
+  // matches[0] AS strongestMatch (same object), and callers rely on the two
+  // agreeing. Re-deriving keeps that identity intact.
+  const matches = result.matches.map((m) => ({ ...m, handles: handlesByCanonical.get(m.canonicalName) ?? [] }));
+
+  return { creatorId, ...result, matches, strongestMatch: matches[0] ?? null };
 }

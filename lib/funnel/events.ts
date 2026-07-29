@@ -37,8 +37,22 @@ import { isBotUserAgent } from './bot-detection';
 /**
  * Kept in lockstep with the CHECK constraint on funnel_events.event_type.
  * Changing one without the other means silent write failures.
+ *
+ * The first four are the claim funnel (0011). The three outreach events are
+ * added by supabase/migrations/0013 — which, like every migration here, is
+ * applied by hand and so may not be live when this code is. Until it is, those
+ * three inserts fail the CHECK, land in the warned branch of writeFunnelEvent()
+ * below, and nothing else notices. That is the intended degrade: the outreach
+ * tool must not depend on its own instrumentation having been applied.
  */
-export type FunnelEventType = 'teaser_viewed' | 'signup_arrived' | 'claim_completed' | 'verified';
+export type FunnelEventType =
+  | 'teaser_viewed'
+  | 'signup_arrived'
+  | 'claim_completed'
+  | 'verified'
+  | 'outreach_opened'
+  | 'message_copied'
+  | 'message_marked_sent';
 
 /** Which of the two /claim/[handle] states rendered. They convert differently. */
 export type TeaserVariant = 'full' | 'zero_match';

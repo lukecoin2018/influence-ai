@@ -44,6 +44,7 @@ export default function BrandsHiringPage() {
       matches={data.matches}
       creatorFollowers={data.creatorFollowers}
       detectedNiche={data.detectedNiche}
+      outreachBasePath="/creator-dashboard/outreach"
     />
   );
 }
