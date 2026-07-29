@@ -11,13 +11,16 @@
  * and its personalizeTemplate() hardcodes seven negotiation-specific tokens, so
  * there was nothing to reuse without translating the whole English-only deck.
  *
- * Two things deliberately live OUTSIDE the locale table:
+ * Message ASSEMBLY deliberately lives OUTSIDE the locale table (which parts, in
+ * what order, separated how). Every locale builds the same six-part first
+ * message, so the order belongs in one place rather than being duplicated and
+ * allowed to drift.
  *
- *  - Message ASSEMBLY (which parts, in what order, separated how). Every locale
- *    builds the same six-part first message, so the order belongs in one place
- *    rather than being duplicated and allowed to drift.
- *  - The TIMING labels. Those are dashboard chrome, and the dashboard UI is
- *    English by design — only the message the creator sends is translated.
+ * This file is ONLY what the creator sends. Every word wrapped around the
+ * message — the page title, the section headings, the per-message timing
+ * labels — is chrome and lives in lib/outreach/ui-strings.ts. Both tables are
+ * driven by the same language toggle, so the page and the message it contains
+ * can never end up in different languages.
  *
  * Product rules this file is bound by:
  *  - Nothing is stated as absolute. The relevance line is phrased as the
@@ -48,6 +51,16 @@ export type OutreachStep = 1 | 2 | 3;
  * and the clause that would have used it is dropped entirely.
  */
 export type OutreachIdentity = {
+  /**
+   * FIRST name only, e.g. "Andrea" — a DM opening with a full legal name reads
+   * like a form letter. Resolved by the caller through the same chain the
+   * Overview page uses, so the two screens agree on who the creator is.
+   *
+   * Empty when no name resolves at all, and empty is a supported value rather
+   * than a caller error: the identify line then names the creator ONCE, by
+   * handle, instead of printing the same identifier on both sides of a
+   * parenthesis. The sign-off falls back to the handle too — see signatureOf().
+   */
   name: string;
   /** Without a leading @; the templates add it. */
   handle: string;
@@ -55,6 +68,15 @@ export type OutreachIdentity = {
   /** The percentage WITHOUT its sign, e.g. "2.4". The templates add the %. */
   engagement: string;
 };
+
+/**
+ * What the creator signs off as. Their first name when we have one, otherwise
+ * their handle — never an empty string, which is why the locale tables can take
+ * this as a plain required value and never branch on it.
+ */
+function signatureOf(identity: OutreachIdentity): string {
+  return identity.name || `@${identity.handle}`;
+}
 
 /**
  * What we detected about the brand. Only the two additive signals are used —
@@ -78,18 +100,17 @@ export type OutreachBrandContext = {
 
 export type OutreachMessage = {
   step: OutreachStep;
-  /**
-   * When to send it. English regardless of message locale: this is dashboard
-   * chrome shown around the message, not part of what the creator sends.
-   */
-  timing: string;
   body: string;
 };
 
 interface OutreachStrings {
   /** Part 1 of 6. */
   greeting: (brandName: string) => string;
-  /** Part 2 of 6 — who the creator is. Drops whichever stats are missing; never invents one. */
+  /**
+   * Part 2 of 6 — who the creator is. Drops whichever stats are missing; never
+   * invents one. With no name, names the creator by handle alone rather than
+   * repeating the handle either side of a parenthesis.
+   */
   identify: (identity: OutreachIdentity) => string;
   /** Part 3 of 6 — evidence-based relevance, in the creator's voice. */
   relevance: (recentlyActive: boolean, regionLabel: string | null) => string;
@@ -101,12 +122,12 @@ interface OutreachStrings {
   placeholder: string;
   /** Part 5 of 6 — the ask. Low pressure by construction: no deadline, no urgency, no close. */
   ask: string;
-  /** Part 6 of 6. */
-  signoff: (name: string) => string;
+  /** Part 6 of 6. Receives signatureOf(), so it is never handed an empty string. */
+  signoff: (signature: string) => string;
   /** Whole message. Brief, warm, references the first, offers the media kit. */
-  followUpOne: (brandName: string, name: string) => string;
+  followUpOne: (brandName: string, signature: string) => string;
   /** Whole message. Graceful exit — leaves the door open, and does not ask again. */
-  followUpTwo: (brandName: string, name: string, handle: string) => string;
+  followUpTwo: (brandName: string, signature: string, handle: string) => string;
 }
 
 const en: OutreachStrings = {
@@ -118,9 +139,9 @@ const en: OutreachStrings = {
       engagement ? `around ${engagement}% engagement` : null,
     ].filter(Boolean);
 
-    return stats.length > 0
-      ? `I'm ${name} (@${handle}) — ${stats.join(', ')}.`
-      : `I'm ${name} (@${handle}).`;
+    const who = name ? `${name} (@${handle})` : `@${handle}`;
+
+    return stats.length > 0 ? `I'm ${who} — ${stats.join(', ')}.` : `I'm ${who}.`;
   },
 
   relevance: (recentlyActive, regionLabel) => {
@@ -134,24 +155,24 @@ const en: OutreachStrings = {
 
   ask: "If you're planning any creator collaborations soon, I'd love to be considered. No rush — happy to share more whenever it's useful.",
 
-  signoff: (name) => `— ${name}`,
+  signoff: (signature) => `— ${signature}`,
 
-  followUpOne: (brandName, name) =>
+  followUpOne: (brandName, signature) =>
     [
       `Hi ${brandName}, just following up on my message from last week — no problem at all if it got buried.`,
       '',
       'If it helps, I can send over my media kit with my audience numbers and recent collaborations.',
       '',
-      `— ${name}`,
+      `— ${signature}`,
     ].join('\n'),
 
-  followUpTwo: (brandName, name, handle) =>
+  followUpTwo: (brandName, signature, handle) =>
     [
       `Hi ${brandName}, I'll leave it here so I'm not cluttering your inbox.`,
       '',
       `If creator collaborations come up later on, I'd be glad to hear from you — @${handle} is the best place to reach me. All the best with what you're building.`,
       '',
-      `— ${name}`,
+      `— ${signature}`,
     ].join('\n'),
 };
 
@@ -167,9 +188,9 @@ const es: OutreachStrings = {
       engagement ? `un engagement de alrededor del ${engagement}%` : null,
     ].filter(Boolean);
 
-    return stats.length > 0
-      ? `Soy ${name} (@${handle}) — ${stats.join(', ')}.`
-      : `Soy ${name} (@${handle}).`;
+    const who = name ? `${name} (@${handle})` : `@${handle}`;
+
+    return stats.length > 0 ? `Soy ${who} — ${stats.join(', ')}.` : `Soy ${who}.`;
   },
 
   relevance: (recentlyActive, regionLabel) => {
@@ -185,24 +206,24 @@ const es: OutreachStrings = {
   // neutral to both, and it carries the low-pressure intent more directly.
   ask: 'Si tienen pensada alguna colaboración con creadores próximamente, me encantaría que me tuvieran en cuenta. Sin compromiso — con gusto les comparto más detalles cuando les sirva.',
 
-  signoff: (name) => `— ${name}`,
+  signoff: (signature) => `— ${signature}`,
 
-  followUpOne: (brandName, name) =>
+  followUpOne: (brandName, signature) =>
     [
       `Hola ${brandName}: les escribo para retomar mi mensaje de la semana pasada — sin problema si se perdió entre los mensajes.`,
       '',
       'Si les sirve, puedo enviarles mi media kit con los números de mi audiencia y mis colaboraciones recientes.',
       '',
-      `— ${name}`,
+      `— ${signature}`,
     ].join('\n'),
 
-  followUpTwo: (brandName, name, handle) =>
+  followUpTwo: (brandName, signature, handle) =>
     [
       `Hola ${brandName}: lo dejo aquí para no llenarles la bandeja de entrada.`,
       '',
       `Si más adelante surge alguna colaboración con creadores, me encantaría saber de ustedes — me encuentran en @${handle}. Mucho éxito con lo que están construyendo.`,
       '',
-      `— ${name}`,
+      `— ${signature}`,
     ].join('\n'),
 };
 
@@ -213,17 +234,6 @@ export function getOutreachStrings(locale: Locale): OutreachStrings {
 }
 
 /**
- * English, and intentionally so — see the file header. Shown as chrome beside
- * each message so the creator can see the whole sequence is coming before they
- * send the first one.
- */
-const TIMING: Record<OutreachStep, string> = {
-  1: 'Send now',
-  2: '5–7 days later',
-  3: '5–7 days after that, then stop',
-};
-
-/**
  * The six-part first message. Locale-independent assembly: each locale supplies
  * the parts, this decides the order and the spacing.
  *
@@ -231,7 +241,12 @@ const TIMING: Record<OutreachStep, string> = {
  * there is no subject line and the preview truncates early — which is also why
  * the identify line sits immediately after the greeting rather than at the end.
  */
-function firstMessage(t: OutreachStrings, identity: OutreachIdentity, brand: OutreachBrandContext): string {
+function firstMessage(
+  t: OutreachStrings,
+  identity: OutreachIdentity,
+  brand: OutreachBrandContext,
+  signature: string,
+): string {
   return [
     t.greeting(brand.brandName),
     '',
@@ -243,7 +258,7 @@ function firstMessage(t: OutreachStrings, identity: OutreachIdentity, brand: Out
     '',
     t.ask,
     '',
-    t.signoff(identity.name),
+    t.signoff(signature),
   ].join('\n');
 }
 
@@ -258,10 +273,13 @@ export function buildOutreachSequence(
   brand: OutreachBrandContext,
 ): OutreachMessage[] {
   const t = getOutreachStrings(locale);
+  // Resolved once, here, so all three messages sign off identically — and so a
+  // creator with no resolvable name signs as their handle rather than as "— ".
+  const signature = signatureOf(identity);
 
   return [
-    { step: 1, timing: TIMING[1], body: firstMessage(t, identity, brand) },
-    { step: 2, timing: TIMING[2], body: t.followUpOne(brand.brandName, identity.name) },
-    { step: 3, timing: TIMING[3], body: t.followUpTwo(brand.brandName, identity.name, identity.handle) },
+    { step: 1, body: firstMessage(t, identity, brand, signature) },
+    { step: 2, body: t.followUpOne(brand.brandName, signature) },
+    { step: 3, body: t.followUpTwo(brand.brandName, signature, identity.handle) },
   ];
 }

@@ -64,7 +64,22 @@ interface ClaimStrings {
     hiringYourSizeLine2: string;
     youMarker: string;
     regionMatch: (label: string) => string;
+    /**
+     * Caption above a TWO-action footer — the teaser, which offers both the
+     * outreach draft and the rate calculator. Its "both tools" wording is only
+     * correct there.
+     */
     actOnItNow: (name: string) => string;
+    /**
+     * Caption above a ONE-action footer — the dashboard, which offers outreach
+     * alone. Deliberately makes no pre-filled-context claim on behalf of the
+     * rate calculator: that tool takes no brand context and never did, so the
+     * two-action string was already promising something untrue about half of
+     * what it described.
+     */
+    contactPrompt: (name: string) => string;
+    /** The single dashboard action's label. */
+    contactBrand: (name: string) => string;
     draftOutreach: string;
     calculateRate: string;
   };
@@ -149,6 +164,8 @@ const en: ClaimStrings = {
     youMarker: 'You',
     regionMatch: (label) => `Hiring in your region — ${label}`,
     actOnItNow: (name) => `Act on it now — both tools are pre-filled with ${name}'s context:`,
+    contactPrompt: (name) => `We'll draft your first message to ${name}, using your detected numbers:`,
+    contactBrand: (name) => `Contact ${name}`,
     draftOutreach: 'Draft outreach',
     calculateRate: 'Calculate my rate',
   },
@@ -233,6 +250,12 @@ const es: ClaimStrings = {
     youMarker: 'Tú',
     regionMatch: (label) => `Contratando en tu región — ${label}`,
     actOnItNow: (name) => `Actúa ahora — ambas herramientas ya vienen con el contexto de ${name}:`,
+    contactPrompt: (name) => `Redactamos tu primer mensaje para ${name}, con tus números detectados:`,
+    // "Escribir a", not "Contactar a": it sidesteps the contactar a (LatAm) /
+    // contactar con (Spain) split, and it is the more accurate verb for a DM.
+    // Same wording as the page title this button leads to
+    // (lib/outreach/ui-strings.ts), so the two never disagree.
+    contactBrand: (name) => `Escribir a ${name}`,
     draftOutreach: 'Redactar mensaje',
     calculateRate: 'Calcular mi tarifa',
   },

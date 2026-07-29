@@ -23,6 +23,7 @@ import { OutreachSequence, type OutreachSend } from '@/components/creator-dashbo
 import type { Locale } from '@/app/claim/[handle]/_strings';
 import type { CreatorBrandMatches, MatchedBrand } from '@/lib/reports/creator-brand-matches';
 import type { OutreachIdentity, OutreachStep } from '@/lib/outreach/messages';
+import { getOutreachUiStrings } from '@/lib/outreach/ui-strings';
 
 const GREY = '#3A3A3A';
 
@@ -36,6 +37,29 @@ function instagramProfileOf(profiles: any[]): any | null {
   return profiles.find((p) => p.platform === 'instagram') ?? null;
 }
 
+/**
+ * The creator's first name, resolved through the SAME chain the Overview page
+ * uses — creator_profiles.display_name, then v_creator_summary.name
+ * (components/creator-dashboard/DashboardOverview.tsx:92) — so the two screens
+ * can never disagree about who the creator is. display_name is null for plenty
+ * of claimed creators, which is why the second source is not optional.
+ *
+ * First name only, by the same `.split()` Overview's "Welcome back, Andrea"
+ * greeting uses. A DM that opens with a full legal name reads like a form
+ * letter.
+ *
+ * Returns '' — never the handle — when nothing resolves. The handle is already
+ * the other half of the identify line, so falling back to it there is what
+ * produced "I'm @andreasolarteoficial (@andreasolarteoficial)". The message
+ * layer drops the parenthetical instead.
+ */
+function resolveFirstName(displayName: string | null | undefined, summaryName: string | null | undefined): string {
+  // `||` rather than `??`: an empty or whitespace-only display_name has to fall
+  // through to the summary, and `??` would stop at ''.
+  const full = (displayName?.trim() || summaryName?.trim() || '');
+  return full ? full.split(/\s+/)[0] : '';
+}
+
 function Centered({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
@@ -44,7 +68,7 @@ function Centered({ children }: { children: React.ReactNode }) {
   );
 }
 
-function EmptyState({ title, body }: { title: string; body: string }) {
+function EmptyState({ title, body, backLabel }: { title: string; body: string; backLabel: string }) {
   return (
     <div style={{
       backgroundColor: '#fff', borderRadius: '16px', padding: '48px 24px',
@@ -56,7 +80,7 @@ function EmptyState({ title, body }: { title: string; body: string }) {
         href="/creator-dashboard/brands-hiring"
         style={{ fontSize: '13px', fontWeight: 700, color: '#FF4D94', textDecoration: 'none' }}
       >
-        ← Back to Brands Hiring
+        {backLabel}
       </Link>
     </div>
   );
@@ -71,6 +95,10 @@ function OutreachPageInner() {
   const [match, setMatch] = useState<MatchedBrand | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [socialProfiles, setSocialProfiles] = useState<any[]>([]);
+  // v_creator_summary, for its `name` — the second link in Overview's name
+  // chain, and the only one populated for a creator whose display_name is null.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [creatorSummary, setCreatorSummary] = useState<any>(null);
   const [sends, setSends] = useState<OutreachSend[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -103,9 +131,14 @@ function OutreachPageInner() {
         // reads. Refetching rather than passing numbers through the query
         // string also means the message can never quote a figure that has since
         // changed underneath it.
-        const [matchesRes, profilesRes, sendsRes] = await Promise.all([
+        const [matchesRes, profilesRes, summaryRes, sendsRes] = await Promise.all([
           fetch('/api/creator/brand-matches').then((r) => (r.ok ? r.json() : null)),
           supabase.from('social_profiles').select('*').eq('creator_id', creatorId),
+          // maybeSingle(), where Overview uses single() — the one deliberate
+          // deviation. single() turns "this creator has no summary row" into an
+          // error object, and a missing name must degrade quietly here, not
+          // look like a failed load.
+          supabase.from('v_creator_summary').select('*').eq('creator_id', creatorId).maybeSingle(),
           fetch(`/api/creator/outreach?brand=${encodeURIComponent(brandParam!)}`).then((r) => (r.ok ? r.json() : null)),
         ]);
 
@@ -116,6 +149,7 @@ function OutreachPageInner() {
         const data = matchesRes as CreatorBrandMatches;
         setMatch(data.matches.find((m) => m.canonicalName === brandParam) ?? null);
         setSocialProfiles(profilesRes.data ?? []);
+        setCreatorSummary(summaryRes.data ?? null);
         setSends((sendsRes?.sends ?? []) as OutreachSend[]);
       } catch {
         if (!cancelled) setLoadFailed(true);
@@ -129,7 +163,19 @@ function OutreachPageInner() {
   }, [creatorId, brandParam]);
 
   const instagramProfile = useMemo(() => instagramProfileOf(socialProfiles), [socialProfiles]);
-  const locale = localeFromRecord(creatorProfile?.locale);
+
+  // The toggle owns the whole page's language, so its state lives here rather
+  // than inside OutreachSequence — the header sits outside that component and
+  // has to move with it. A header in one language above a message in another is
+  // worse than either language on its own.
+  //
+  // Derived-with-override rather than useState(initialLocale): creatorProfile
+  // arrives asynchronously, so a state seeded on the first render would latch
+  // 'en' before the stored locale ever loaded. Until the creator touches the
+  // toggle, the page follows creator_profiles.locale and updates when it lands.
+  const storedLocale = localeFromRecord(creatorProfile?.locale);
+  const [localeOverride, setLocaleOverride] = useState<Locale | null>(null);
+  const locale = localeOverride ?? storedLocale;
 
   const identity: OutreachIdentity | null = useMemo(() => {
     if (!instagramProfile) return null;
@@ -142,12 +188,12 @@ function OutreachPageInner() {
     const engagement = instagramProfile.enrichment_data?.calculated_engagement_rate;
 
     return {
-      name: creatorProfile?.display_name ?? `@${instagramProfile.handle}`,
+      name: resolveFirstName(creatorProfile?.display_name, creatorSummary?.name),
       handle: instagramProfile.handle ?? '',
       followers: instagramProfile.follower_count != null ? formatCount(instagramProfile.follower_count) : '',
       engagement: engagement != null ? Number(engagement).toFixed(1) : '',
     };
-  }, [instagramProfile, creatorProfile?.display_name]);
+  }, [instagramProfile, creatorProfile?.display_name, creatorSummary?.name]);
 
   // Fired once per brand, not once per render — this is an opened event, and a
   // re-render is not an opening.
@@ -188,18 +234,29 @@ function OutreachPageInner() {
     if (refreshed) setSends((refreshed.sends ?? []) as OutreachSend[]);
   }, [brandParam]);
 
-  if (loading || dataLoading) return <Centered><p style={{ color: '#9CA3AF' }}>Loading…</p></Centered>;
+  const ui = getOutreachUiStrings(locale);
+
+  if (loading || dataLoading) return <Centered><p style={{ color: '#9CA3AF' }}>{ui.loading}</p></Centered>;
   if (!user) return null;
+
+  // Titled for the brand once we know which one. Before that — no ?brand=, or a
+  // brand that isn't in the creator's matches — there is no name to title it
+  // with, so it falls back to the generic form rather than printing "Contact
+  // undefined" or echoing an unvalidated query param back at the creator.
+  const headerTitle = match ? ui.title(match.canonicalName) : ui.titleNoBrand;
 
   const header = (
     <ToolHeader
       icon="✉️"
-      title="Draft outreach"
-      description="A first message to a brand we've detected hiring creators your size"
+      title={headerTitle}
+      description={ui.subtitle}
+      // The first two crumbs stay English in both locales: they name other
+      // dashboard screens, which are English, and a breadcrumb that disagrees
+      // with its own destination's title is worse than an untranslated one.
       crumbs={[
         { label: 'Dashboard', href: '/creator-dashboard' },
         { label: 'Brands Hiring', href: '/creator-dashboard/brands-hiring' },
-        { label: 'Draft outreach' },
+        { label: match?.canonicalName ?? headerTitle },
       ]}
     />
   );
@@ -208,10 +265,7 @@ function OutreachPageInner() {
     return (
       <div style={{ maxWidth: '760px' }}>
         {header}
-        <EmptyState
-          title="Pick a brand first"
-          body="Open this from any brand in Brands Hiring and we'll draft a message for that brand."
-        />
+        <EmptyState title={ui.pickBrandTitle} body={ui.pickBrandBody} backLabel={ui.backToBrandsHiring} />
       </div>
     );
   }
@@ -220,10 +274,7 @@ function OutreachPageInner() {
     return (
       <div style={{ maxWidth: '760px' }}>
         {header}
-        <EmptyState
-          title="We couldn't load your brand matches"
-          body="Something went wrong fetching your matches just now. Try again from Brands Hiring."
-        />
+        <EmptyState title={ui.loadFailedTitle} body={ui.loadFailedBody} backLabel={ui.backToBrandsHiring} />
       </div>
     );
   }
@@ -232,10 +283,7 @@ function OutreachPageInner() {
     return (
       <div style={{ maxWidth: '760px' }}>
         {header}
-        <EmptyState
-          title={`${brandParam} isn't in your matches`}
-          body="This brand isn't currently detected as hiring creators your size — your matches update as we scan more brands."
-        />
+        <EmptyState title={ui.notMatchedTitle(brandParam)} body={ui.notMatchedBody} backLabel={ui.backToBrandsHiring} />
       </div>
     );
   }
@@ -244,10 +292,7 @@ function OutreachPageInner() {
     return (
       <div style={{ maxWidth: '760px' }}>
         {header}
-        <EmptyState
-          title="Instagram only, for now"
-          body="Outreach drafting uses your Instagram profile, and we haven't detected one on your account yet."
-        />
+        <EmptyState title={ui.instagramOnlyTitle} body={ui.instagramOnlyBody} backLabel={ui.backToBrandsHiring} />
       </div>
     );
   }
@@ -258,7 +303,8 @@ function OutreachPageInner() {
       <OutreachSequence
         match={match}
         identity={identity}
-        defaultLocale={locale}
+        locale={locale}
+        onLocaleChange={setLocaleOverride}
         sends={sends}
         onCopied={handleCopied}
         onMarkSent={handleMarkSent}
@@ -269,6 +315,9 @@ function OutreachPageInner() {
 
 export default function OutreachPage() {
   return (
+    // English: this renders before creator_profiles.locale has loaded, so there
+    // is no locale to resolve yet — the same reason the shared nav resolves 'en'
+    // first on a prerendered route.
     <Suspense fallback={<Centered><p style={{ color: '#9CA3AF' }}>Loading…</p></Centered>}>
       <OutreachPageInner />
     </Suspense>
