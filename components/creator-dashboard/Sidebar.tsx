@@ -7,6 +7,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { useLocale } from "@/lib/i18n/use-locale";
+import { getDashboardStrings } from "@/lib/i18n/dashboard-strings";
+
+type SidebarStrings = ReturnType<typeof getDashboardStrings>["sidebar"];
 
 interface SidebarProps {
   isOpen: boolean;
@@ -21,18 +25,35 @@ interface SidebarProps {
   previewHandle?: string;
 }
 
-const NAV_ITEMS = [
-  { key: "overview", href: "/creator-dashboard", label: "Overview", icon: "📊", exact: true },
-  { key: "brands-hiring", href: "/creator-dashboard/brands-hiring", label: "Brands Hiring", icon: "🏢" },
-  // No `key`, so the admin preview leaves this href alone and an admin clicking
-  // it bounces out of the preview — same as every other non-previewable route.
-  { href: "/creator-dashboard/outreach", label: "Outreach", icon: "✉️" },
-  { href: "/creator-dashboard/calculator", label: "Rate Calculator", icon: "🧮" },
-  { href: "/creator-dashboard/negotiate", label: "Negotiation", icon: "🤝" },
-  { href: "/creator-dashboard/contract", label: "Contract Builder", icon: "📄" },
-  { href: "/creator-dashboard/edit", label: "Edit Profile", icon: "✏️" },
-  { href: "/creator-dashboard/media-kit", label: "Media Kit", icon: "📎" },
-];
+/**
+ * A function of the string table rather than a module-level constant, so the
+ * three localized labels resolve per render alongside the five that don't.
+ *
+ * The split is deliberate and is the whole rule for this file: NAVIGATION
+ * CHROME follows the creator's language, TOOL NAMES follow their destinations.
+ * Overview, Brands Hiring and Outreach lead to pages that are (or become, in
+ * this same change) Spanish, so their labels are translated. The five below
+ * them lead to pages that are still English, so their labels stay English
+ * literals — a label that disagrees with its own destination is worse than an
+ * untranslated one, the same call lib/outreach/ui-strings.ts:24-27 made for
+ * "Brands Hiring". Translating those five tools is what should remove the
+ * inconsistency; until then, English here is the honest answer.
+ */
+function navItems(t: SidebarStrings) {
+  return [
+    { key: "overview", href: "/creator-dashboard", label: t.navOverview, icon: "📊", exact: true },
+    { key: "brands-hiring", href: "/creator-dashboard/brands-hiring", label: t.navBrandsHiring, icon: "🏢" },
+    // No `key`, so the admin preview leaves this href alone and an admin clicking
+    // it bounces out of the preview — same as every other non-previewable route.
+    { href: "/creator-dashboard/outreach", label: t.navOutreach, icon: "✉️" },
+    // ── English by design below this line — see the note above. ──
+    { href: "/creator-dashboard/calculator", label: "Rate Calculator", icon: "🧮" },
+    { href: "/creator-dashboard/negotiate", label: "Negotiation", icon: "🤝" },
+    { href: "/creator-dashboard/contract", label: "Contract Builder", icon: "📄" },
+    { href: "/creator-dashboard/edit", label: "Edit Profile", icon: "✏️" },
+    { href: "/creator-dashboard/media-kit", label: "Media Kit", icon: "📎" },
+  ];
+}
 
 const PREVIEWABLE_ROUTES: Record<string, string> = {
   overview: "",
@@ -46,6 +67,13 @@ function resolveHref(item: { key?: string; href: string }, previewHandle: string
   return `/admin/preview/creator/${previewHandle}${suffix}`;
 }
 
+/**
+ * English in both locales, along with the rest of the token/plan box below.
+ * Tokens exist to gate the five English tools, so the token chrome belongs with
+ * them. That is also why `TIER_LABELS[tier] + " Plan"` needs no string key: the
+ * concatenation's baked-in English word order never has to survive a
+ * translation, because it is never translated.
+ */
 const TIER_LABELS: Record<string, string> = {
   free: "Free",
   starter: "Starter",
@@ -55,6 +83,9 @@ const TIER_LABELS: Record<string, string> = {
 export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
+  // Client component, so it resolves its own strings rather than receiving them
+  // as a prop — same approach as components/Navigation.tsx.
+  const t = getDashboardStrings(useLocale()).sidebar;
   const [tokenBalance, setTokenBalance] = useState<number | null>(null);
   const [subscriptionTier, setSubscriptionTier] = useState<string>("free");
   const [manageLoading, setManageLoading] = useState(false);
@@ -187,11 +218,11 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
               textTransform: "uppercase", letterSpacing: "0.08em",
               padding: "8px 8px 4px", margin: 0,
             }}>
-              Menu
+              {t.menu}
             </p>
           )}
 
-          {NAV_ITEMS.map((item) => {
+          {navItems(t).map((item) => {
             const { label, icon, exact } = item;
             const href = resolveHref(item, previewHandle);
             const active = isActive(href, exact);
@@ -418,7 +449,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
           {/* Collapse toggle */}
           <button
             onClick={onToggle}
-            title={isOpen ? "Collapse sidebar" : "Expand sidebar"}
+            title={isOpen ? t.collapseTooltip : t.expandTooltip}
             style={{
               display: "flex", alignItems: "center", gap: "10px",
               padding: isOpen ? "9px 10px" : "9px 0",
@@ -431,7 +462,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
             <span style={{ fontSize: "16px" }}>{isOpen ? "◀" : "▶"}</span>
             {isOpen && (
               <span style={{ fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap" }}>
-                Collapse
+                {t.collapse}
               </span>
             )}
           </button>
@@ -453,7 +484,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
               await supabase.auth.signOut();
               window.location.href = '/';
             }}
-            title={!isOpen ? "Sign out" : undefined}
+            title={!isOpen ? t.signOut : undefined}
             style={{
               display: "flex", alignItems: "center", gap: "10px",
               padding: isOpen ? "9px 10px" : "9px 0",
@@ -465,7 +496,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
             <span style={{ fontSize: "16px" }}>🚪</span>
             {isOpen && (
               <span style={{ fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap" }}>
-                Sign out
+                {t.signOut}
               </span>
             )}
           </button>

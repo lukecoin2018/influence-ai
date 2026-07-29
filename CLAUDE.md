@@ -168,7 +168,23 @@ These govern anything a creator sees:
   client-side elsewhere via path → `?locale=` → DB → `'en'`.
 - String tables are typed with a `Record<Locale, T>` so a missing key is a
   **compile error**. Follow that pattern; don't introduce an i18n library.
-- The dashboard UI is English by design. Only the conversion path is translated.
+- The dashboard is **partly** translated, and the line is drawn by destination,
+  not by file. Bilingual: the chrome (sidebar nav, the layout's verification
+  gate), the Overview, Brands Hiring, `/creator-dashboard/verify` and
+  `/creator-dashboard/outreach`. Still English: Rate Calculator, Negotiation,
+  Contract Builder, Edit Profile, Media Kit — plus **anything that names or
+  describes one of those five**, wherever it appears. So the sidebar's five tool
+  labels, both "Edit Profile" controls and the whole Creator Tools block on the
+  Overview stay English on a Spanish page, on purpose: a label that disagrees
+  with its own destination is worse than an untranslated one. Translating a tool
+  is what earns its label a translation.
+- The sidebar token box and plan badge are English in both locales — tokens gate
+  the five English tools, so the token chrome belongs with them. This is why
+  `TIER_LABELS[tier] + " Plan"` is allowed to keep its English word order.
+- Consolidated category buckets have **two identities**: the English bucket name
+  is the data identity (filtering, niche-lead matching) and must never be
+  translated; `categoryBucketLabel(bucket, locale)` is the display label. Wrap
+  render sites only. Same rule for `BrandsHiring.tsx`'s `ALL_CATEGORY` sentinel.
 - `useSearchParams()` in root-layout chrome would de-opt every static route from
   prerendering. Read `window.location.search` via `useSyncExternalStore` instead.
 

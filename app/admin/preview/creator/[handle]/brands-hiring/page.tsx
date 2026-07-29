@@ -28,6 +28,8 @@ export default async function AdminBrandsHiringPreviewPage({ params }: { params:
         matches={brandMatches?.matches ?? []}
         creatorFollowers={brandMatches?.creatorFollowers ?? null}
         detectedNiche={socialRow.data?.detected_niche ?? null}
+        // Explicitly English — same reasoning as the Overview preview route.
+        locale="en"
       />
     </AdminPreviewShell>
   );

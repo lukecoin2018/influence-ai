@@ -8,10 +8,14 @@
 
 import Link from 'next/link';
 import { formatCount } from '@/lib/formatters';
-import { nicheLeadBucket, orderCategoriesForDisplay, summarizeCategories, type CategoryCount } from '@/lib/reports/category-consolidation';
+import { categoryBucketLabel, nicheLeadBucket, orderCategoriesForDisplay, summarizeCategories, type CategoryCount } from '@/lib/reports/category-consolidation';
 import type { CreatorBrandMatches } from '@/lib/reports/creator-brand-matches';
+import { getDashboardStrings } from '@/lib/i18n/dashboard-strings';
+import type { Locale } from '@/app/claim/[handle]/_strings';
 
 const PINK = '#FF4D94';
+
+type OverviewStrings = ReturnType<typeof getDashboardStrings>['overview'];
 
 interface DashboardOverviewProps {
   // null for an unclaimed creator being previewed — degrade to scraped
@@ -30,9 +34,21 @@ interface DashboardOverviewProps {
   inquiries: any[];
   brandMatches: CreatorBrandMatches | null;
   brandsHiringHref: string;
+  /**
+   * Passed in rather than resolved here, because this component is shared with
+   * the admin preview (app/admin/preview/creator/[handle]/page.tsx), which
+   * renders it from a force-dynamic SERVER component. Calling useLocale() in
+   * here would break the props-only contract in the header above, and in the
+   * preview it would read the ADMIN's creator_profiles row — which does not
+   * exist, so it would land on 'en' by accident rather than by choice. The
+   * preview passes 'en' explicitly instead.
+   *
+   * Defaults to 'en' so any caller that has not been updated is unaffected.
+   */
+  locale?: Locale;
 }
 
-function BrandsHiringHero({ totalMatchCount, categories, brandsHiringHref }: { totalMatchCount: number; categories: CategoryCount[]; brandsHiringHref: string }) {
+function BrandsHiringHero({ totalMatchCount, categories, brandsHiringHref, locale, t }: { totalMatchCount: number; categories: CategoryCount[]; brandsHiringHref: string; locale: Locale; t: OverviewStrings }) {
   const shown = categories.slice(0, 4);
   const moreCount = categories.length - shown.length;
 
@@ -43,16 +59,19 @@ function BrandsHiringHero({ totalMatchCount, categories, brandsHiringHref }: { t
       marginBottom: '24px',
     }}>
       <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 12px 0' }}>
-        Brands Hiring
+        {t.brandsHiringEyebrow}
       </p>
       {totalMatchCount === 0 ? (
         <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>
-          We&apos;re detecting brands hiring creators your size — check back as we scan more.
+          {t.heroZero}
         </p>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#3A3A3A', margin: 0, letterSpacing: '-0.01em' }}>
-            <span style={{ color: PINK }}>{totalMatchCount}</span> brand{totalMatchCount === 1 ? '' : 's'} we&apos;ve detected hiring creators your size
+            {/* Two keys, not one: the count has to stay inside its own pink
+                span, so the sentence is split around it. Same decomposition as
+                the teaser headline (_strings.ts headline.brandWord + suffix). */}
+            <span style={{ color: PINK }}>{totalMatchCount}</span> {t.heroBrandWord(totalMatchCount)} {t.heroSuffix}
           </h2>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {shown.map((c) => (
@@ -60,12 +79,15 @@ function BrandsHiringHero({ totalMatchCount, categories, brandsHiringHref }: { t
                 display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 12px', borderRadius: '999px',
                 backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', fontSize: '13px', fontWeight: 600, color: '#3A3A3A',
               }}>
-                <strong style={{ fontWeight: 800, color: PINK }}>{c.count}</strong> {c.name}
+                {/* DISPLAY label only. `c.name` stays the canonical English
+                    bucket everywhere it is used as an identity (filtering,
+                    niche-lead matching) — see BrandsHiring.tsx. */}
+                <strong style={{ fontWeight: 800, color: PINK }}>{c.count}</strong> {categoryBucketLabel(c.name, locale)}
               </span>
             ))}
             {moreCount > 0 && (
               <span style={{ display: 'inline-flex', alignItems: 'center', fontSize: '13px', fontWeight: 600, color: '#9CA3AF' }}>
-                + {moreCount} more categor{moreCount === 1 ? 'y' : 'ies'}
+                {t.moreCategories(moreCount)}
               </span>
             )}
           </div>
@@ -73,7 +95,7 @@ function BrandsHiringHero({ totalMatchCount, categories, brandsHiringHref }: { t
             fontSize: '13px', fontWeight: 700, color: PINK, textDecoration: 'none',
             display: 'inline-flex', alignItems: 'center', gap: '4px',
           }}>
-            View all →
+            {t.viewAll}
           </Link>
         </div>
       )}
@@ -81,7 +103,8 @@ function BrandsHiringHero({ totalMatchCount, categories, brandsHiringHref }: { t
   );
 }
 
-export function DashboardOverview({ creatorProfile, creatorData, socialProfiles, inquiries, brandMatches, brandsHiringHref }: DashboardOverviewProps) {
+export function DashboardOverview({ creatorProfile, creatorData, socialProfiles, inquiries, brandMatches, brandsHiringHref, locale = 'en' }: DashboardOverviewProps) {
+  const t = getDashboardStrings(locale).overview;
   const primaryProfile = socialProfiles.find(p => p.platform === 'instagram') ?? socialProfiles[0];
   const enrichment = primaryProfile?.enrichment_data as any;
   const aiSummary = socialProfiles.find(p => p.ai_summary)?.ai_summary ?? null;
@@ -101,10 +124,10 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
       {/* ── Welcome Banner ─────────────────────────────────────────── */}
       <div style={{ marginBottom: '28px' }}>
         <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 4px 0', letterSpacing: '-0.02em' }}>
-          Welcome back, {displayName.split(' ')[0]} 👋
+          {t.welcome(displayName.split(' ')[0])}
         </h1>
         <p style={{ fontSize: '14px', color: '#6B7280', margin: 0 }}>
-          Here's an overview of your creator profile and tools.
+          {t.subtitle}
         </p>
       </div>
 
@@ -114,16 +137,18 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
         totalMatchCount={brandMatches?.totalMatchCount ?? 0}
         categories={brandCategories}
         brandsHiringHref={brandsHiringHref}
+        locale={locale}
+        t={t}
       />
 
       {/* ── Stat Cards ─────────────────────────────────────────────── */}
       {creatorData && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px', marginBottom: '24px' }}>
           {[
-            { label: 'Followers', value: formatCount(creatorData.total_followers), icon: '👥', color: '#3AAFF4' },
-            { label: 'Engagement', value: enrichment?.calculated_engagement_rate != null ? `${enrichment.calculated_engagement_rate.toFixed(1)}%` : '—', icon: '📈', color: '#FF4D94' },
-            { label: 'Avg Likes', value: enrichment?.avg_likes != null ? formatCount(enrichment.avg_likes) : '—', icon: '❤️', color: '#FFD700' },
-            { label: 'Brand Inquiries', value: inquiries.length.toString(), icon: '🏢', color: '#10B981' },
+            { label: t.statFollowers, value: formatCount(creatorData.total_followers), icon: '👥', color: '#3AAFF4' },
+            { label: t.statEngagement, value: enrichment?.calculated_engagement_rate != null ? `${enrichment.calculated_engagement_rate.toFixed(1)}%` : '—', icon: '📈', color: '#FF4D94' },
+            { label: t.statAvgLikes, value: enrichment?.avg_likes != null ? formatCount(enrichment.avg_likes) : '—', icon: '❤️', color: '#FFD700' },
+            { label: t.statBrandInquiries, value: inquiries.length.toString(), icon: '🏢', color: '#10B981' },
           ].map(({ label, value, icon, color }) => (
             <div key={label} style={{
               backgroundColor: '#fff', borderRadius: '14px', padding: '18px',
@@ -152,7 +177,7 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: 0 }}>
-                Profile Preview
+                {t.profilePreview}
               </p>
               <div style={{
                 display: 'inline-flex', alignItems: 'center', gap: '5px',
@@ -162,10 +187,13 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
               }}>
                 <span style={{ fontSize: '11px' }}>{isVerified ? '✅' : '⏳'}</span>
                 <span style={{ fontSize: '11px', fontWeight: 600, color: isVerified ? '#065F46' : '#92400E' }}>
-                  {isVerified ? 'Verified' : isPending ? 'Pending' : 'Unclaimed'}
+                  {isVerified ? t.statusVerified : isPending ? t.statusPending : t.statusUnclaimed}
                 </span>
               </div>
             </div>
+            {/* English in both locales — it names the Edit Profile tool, and
+                that page is still English. Same rule as the sidebar's five
+                tool labels; see lib/i18n/dashboard-strings.ts's header. */}
             <Link href="/creator-dashboard/edit" style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
               padding: '7px 14px', borderRadius: '8px', backgroundColor: '#FFD700',
@@ -204,8 +232,9 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
               fontSize: '13px', fontWeight: 600, color: '#FF4D94', textDecoration: 'none',
               padding: '6px 14px', border: '1px solid #FFB3D1', borderRadius: '8px',
             }}>
-              View Public Profile ↗
+              {t.viewPublicProfile}
             </Link>
+            {/* English in both locales — Edit Profile tool again, as above. */}
             <Link href="/creator-dashboard/edit" style={{
               fontSize: '13px', fontWeight: 600, color: '#6B7280', textDecoration: 'none',
               padding: '6px 14px', border: '1px solid #E5E7EB', borderRadius: '8px',
@@ -217,6 +246,11 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
       </div>
 
       {/* ── Creator Tools ──────────────────────────────────────────── */}
+      {/* ENGLISH IN BOTH LOCALES, as one block: the heading, the three titles,
+          the three descriptions and the "Open tool →" CTA all name or describe
+          the legacy tools that stay English. An English heading over English
+          content reads as deliberate; a Spanish CTA into an English tool reads
+          as broken. This block becomes translatable when the tools do. */}
       <div style={{
         backgroundColor: '#fff', borderRadius: '16px', padding: '24px',
         border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
@@ -260,28 +294,31 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
         border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
       }}>
         <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 16px 0' }}>
-          Brand Interest
+          {t.brandInterest}
         </p>
 
         {!isVerified ? (
           <div style={{ textAlign: 'center', padding: '24px 0' }}>
             <div style={{ fontSize: '32px', marginBottom: '12px' }}>🏢</div>
             <p style={{ fontSize: '15px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 6px 0' }}>
+              {/* One whole sentence per locale. The English form pulled the verb
+                  into the plural marker ("s have" / " has"), which no key swap
+                  survives — Spanish conjugates it separately ("ha" / "han"). */}
               {inquiries.length > 0
-                ? `${inquiries.length} brand${inquiries.length !== 1 ? 's have' : ' has'} expressed interest`
-                : 'Brands can find you here'}
+                ? t.inquiriesInterest(inquiries.length)
+                : t.brandsCanFindYou}
             </p>
             <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
               {isPending
-                ? 'Your profile is pending verification. Full details will be visible once verified.'
-                : 'Claim your profile to see full details.'}
+                ? t.pendingVerificationBody
+                : t.claimToSeeDetails}
             </p>
           </div>
         ) : inquiries.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '24px 0' }}>
             <div style={{ fontSize: '32px', marginBottom: '12px' }}>📭</div>
             <p style={{ fontSize: '14px', color: '#9CA3AF', margin: 0 }}>
-              No brand inquiries yet. Make sure your profile is complete to attract brands.
+              {t.noInquiries}
             </p>
           </div>
         ) : (
@@ -301,14 +338,17 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <p style={{ fontSize: '14px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 2px 0' }}>
-                    {inq.brand_profiles?.company_name ?? 'A brand'}
+                    {inq.brand_profiles?.company_name ?? t.brandFallback}
                   </p>
                   <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>
-                    {inq.campaign_type ?? 'Campaign'}{inq.budget_range ? ` · ${inq.budget_range}` : ''}
+                    {inq.campaign_type ?? t.campaignFallback}{inq.budget_range ? ` · ${inq.budget_range}` : ''}
                   </p>
                 </div>
                 <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0, flexShrink: 0 }}>
-                  {new Date(inq.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}
+                  {/* Was a hardcoded 'en-GB', which left an English "5 Aug" in an
+                      otherwise Spanish list. Not copy, so it lives in the table
+                      as a BCP-47 tag beside the strings it has to agree with. */}
+                  {new Date(inq.created_at).toLocaleDateString(t.inquiryDateLocale, { day: 'numeric', month: 'short' })}
                 </p>
               </div>
             ))}
