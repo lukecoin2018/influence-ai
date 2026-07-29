@@ -5,6 +5,8 @@ import { Sidebar } from "@/components/creator-dashboard/Sidebar";
 import { supabase } from "@/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
+import { useLocale } from "@/lib/i18n/use-locale";
+import { getDashboardStrings } from "@/lib/i18n/dashboard-strings";
 
 export default function CreatorDashboardLayout({
   children,
@@ -17,6 +19,10 @@ export default function CreatorDashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const isVerifyPage = pathname === '/creator-dashboard/verify';
+  // The gate's CTA leads to /creator-dashboard/verify, which already reads
+  // creator_profiles.locale itself — so this makes the modal agree with the page
+  // behind it, rather than putting an English modal in front of a Spanish one.
+  const t = getDashboardStrings(useLocale()).layout;
 
   useEffect(() => {
     async function checkVerification() {
@@ -59,7 +65,7 @@ export default function CreatorDashboardLayout({
             padding: "6px 12px", borderRadius: "8px", border: "1px solid #E5E7EB",
             backgroundColor: "#F9FAFB",
           }}>
-            ← Back to site
+            {t.backToSite}
           </a>
         </div>
 
@@ -101,13 +107,13 @@ export default function CreatorDashboardLayout({
                   fontSize: '22px', fontWeight: 800, color: '#3A3A3A',
                   margin: '0 0 10px 0', letterSpacing: '-0.02em',
                 }}>
-                  Verify your profile to continue
+                  {t.verifyGateTitle}
                 </h2>
                 <p style={{
                   fontSize: '14px', color: '#6B7280', margin: '0 0 28px 0',
                   lineHeight: 1.6,
                 }}>
-                  Add your verification code to your Instagram or TikTok bio to prove you own this account and unlock your dashboard.
+                  {t.verifyGateBody}
                 </p>
                 <Link
                   href="/creator-dashboard/verify"
@@ -125,10 +131,10 @@ export default function CreatorDashboardLayout({
                     textDecoration: 'none',
                   }}
                 >
-                  Verify Now →
+                  {t.verifyGateCta}
                 </Link>
                 <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '16px 0 0 0' }}>
-                  Takes less than 2 minutes
+                  {t.verifyGateTime}
                 </p>
               </div>
             </div>

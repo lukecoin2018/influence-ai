@@ -7,9 +7,17 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { DashboardOverview } from '@/components/creator-dashboard/DashboardOverview';
 import type { CreatorBrandMatches } from '@/lib/reports/creator-brand-matches';
+import { useLocale } from '@/lib/i18n/use-locale';
+import { getDashboardStrings } from '@/lib/i18n/dashboard-strings';
 
 export default function CreatorDashboardPage() {
   const { user, creatorProfile, userRole, loading } = useAuth();
+  // This route owns the session, so it resolves the locale and hands it to
+  // DashboardOverview as a prop — that component is shared with the admin
+  // preview, which renders it from a server component and must keep passing
+  // plain props (see its header, and the note on the `locale` prop).
+  const locale = useLocale();
+  const t = getDashboardStrings(locale);
 
   const [creatorData, setCreatorData] = useState<any>(null);
   const [socialProfiles, setSocialProfiles] = useState<any[]>([]);
@@ -48,14 +56,14 @@ export default function CreatorDashboardPage() {
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-      <p style={{ color: '#9CA3AF' }}>Loading...</p>
+      <p style={{ color: '#9CA3AF' }}>{t.common.loading}</p>
     </div>
   );
   if (!user) { window.location.href = '/login'; return null; }
   if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; }
   if (dataLoading || !creatorProfile) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-      <p style={{ color: '#9CA3AF' }}>Loading your dashboard...</p>
+      <p style={{ color: '#9CA3AF' }}>{t.overview.loadingDashboard}</p>
     </div>
   );
 
@@ -67,6 +75,7 @@ export default function CreatorDashboardPage() {
       inquiries={inquiries}
       brandMatches={brandMatches}
       brandsHiringHref="/creator-dashboard/brands-hiring"
+      locale={locale}
     />
   );
 }

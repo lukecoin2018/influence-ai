@@ -39,6 +39,14 @@ export default async function AdminCreatorPreviewPage({ params }: { params: Prom
         inquiries={inquiriesRes.data ?? []}
         brandMatches={brandMatches}
         brandsHiringHref={`/admin/preview/creator/${normalized}/brands-hiring`}
+        // Explicitly English. The admin tooling is English throughout, and the
+        // alternative is worse than a default: this is a server component, so
+        // the locale would have to come from the LOGGED-IN user — the admin, who
+        // has no creator_profiles row of their own — and would land on 'en' by
+        // accident rather than by choice. Stating it here means a future change
+        // to the default cannot silently translate the admin's view of someone
+        // else's dashboard.
+        locale="en"
       />
     </AdminPreviewShell>
   );
