@@ -24,6 +24,9 @@ interface SidebarProps {
 const NAV_ITEMS = [
   { key: "overview", href: "/creator-dashboard", label: "Overview", icon: "📊", exact: true },
   { key: "brands-hiring", href: "/creator-dashboard/brands-hiring", label: "Brands Hiring", icon: "🏢" },
+  // No `key`, so the admin preview leaves this href alone and an admin clicking
+  // it bounces out of the preview — same as every other non-previewable route.
+  { href: "/creator-dashboard/outreach", label: "Outreach", icon: "✉️" },
   { href: "/creator-dashboard/calculator", label: "Rate Calculator", icon: "🧮" },
   { href: "/creator-dashboard/negotiate", label: "Negotiation", icon: "🤝" },
   { href: "/creator-dashboard/contract", label: "Contract Builder", icon: "📄" },

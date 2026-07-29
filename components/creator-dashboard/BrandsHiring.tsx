@@ -9,6 +9,7 @@
 // as DashboardOverview.tsx.
 
 import { useMemo, useState } from 'react';
+import { Pencil } from 'lucide-react';
 import type { MatchedBrand } from '@/lib/reports/creator-brand-matches';
 import { consolidateCategory, nicheLeadBucket, orderCategoriesForDisplay, summarizeCategories } from '@/lib/reports/category-consolidation';
 import { BrandMatchCard } from '@/components/brand-matches/BrandMatchCard';
@@ -22,9 +23,24 @@ interface BrandsHiringProps {
   matches: MatchedBrand[];
   creatorFollowers: number | null;
   detectedNiche: string | null;
+  /**
+   * Base path for the per-card outreach action, e.g.
+   * '/creator-dashboard/outreach'. Omitted = no action footer on any card,
+   * which is exactly what the admin preview wants: an admin looking at someone
+   * else's dashboard must not be handed a live control that drafts outreach as
+   * them.
+   *
+   * A plain string rather than a callback or a ready-made actions array, for
+   * two reasons. It keeps this component's props serializable, so the
+   * server-rendered admin preview can keep passing props to it unchanged. And
+   * it preserves the purity contract in the header above — this component still
+   * has no router, no auth and no fetch; it only appends a canonical name to a
+   * path the caller chose.
+   */
+  outreachBasePath?: string;
 }
 
-export function BrandsHiring({ matches, creatorFollowers, detectedNiche }: BrandsHiringProps) {
+export function BrandsHiring({ matches, creatorFollowers, detectedNiche, outreachBasePath }: BrandsHiringProps) {
   const [selectedCategory, setSelectedCategory] = useState<string>(ALL_CATEGORY);
 
   const categories = useMemo(() => {
@@ -116,7 +132,20 @@ export function BrandsHiring({ matches, creatorFollowers, detectedNiche }: Brand
           ) : (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
               {visibleMatches.map((match) => (
-                <BrandMatchCard key={match.canonicalName} match={match} creatorFollowers={creatorFollowers} />
+                <BrandMatchCard
+                  key={match.canonicalName}
+                  match={match}
+                  creatorFollowers={creatorFollowers}
+                  // The card's own `actions` prop, unchanged — it has taken
+                  // these since the teaser was extracted from it. An action is
+                  // a <Link href>, so this is a navigation, and the canonical
+                  // name is the only brand identifier that exists to carry.
+                  actions={outreachBasePath ? [{
+                    label: 'Draft outreach',
+                    href: `${outreachBasePath}?brand=${encodeURIComponent(match.canonicalName)}`,
+                    icon: Pencil,
+                  }] : undefined}
+                />
               ))}
             </div>
           )}
