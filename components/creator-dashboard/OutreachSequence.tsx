@@ -9,10 +9,12 @@
 // leaves through the three callbacks. That keeps the page (which owns the
 // session and the network) the only place either concern lives.
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { ExternalLink } from 'lucide-react';
 import type { Locale } from '@/app/claim/[handle]/_strings';
 import type { BrandHandle, MatchedBrand } from '@/lib/reports/creator-brand-matches';
 import { buildOutreachSequence, type OutreachIdentity, type OutreachStep } from '@/lib/outreach/messages';
+import { getOutreachUiStrings } from '@/lib/outreach/ui-strings';
 
 const GREY = '#3A3A3A';
 const PINK = '#FF4D94';
@@ -28,8 +30,15 @@ export type OutreachSend = {
 interface OutreachSequenceProps {
   match: MatchedBrand;
   identity: OutreachIdentity;
-  /** From creator_profiles.locale, already resolved to a real locale by the caller. */
-  defaultLocale: Locale;
+  /**
+   * The page's language, owned by the page rather than by this component. The
+   * toggle rendered here reports upward through onLocaleChange instead of
+   * holding its own state, because the page header outside this component has
+   * to change with it — the toggle drives the whole surface, not just the
+   * message bodies.
+   */
+  locale: Locale;
+  onLocaleChange: (locale: Locale) => void;
   sends: OutreachSend[];
   onCopied: (step: OutreachStep, handle: string | null, locale: Locale) => void;
   onMarkSent: (step: OutreachStep, handle: string | null, locale: Locale) => Promise<void>;
@@ -39,11 +48,16 @@ function labelForHandle(h: BrandHandle): string {
   return h.isRegionMatch && h.region ? `@${h.handle} · ${h.region}` : `@${h.handle}`;
 }
 
-/** Locale-independent, and short: this sits next to a "Marked as sent" line, not in a report. */
-function formatSentAt(iso: string): string {
+/**
+ * Short: this sits next to a "Marked as sent" line, not in a report. Formatted
+ * for the page's locale rather than the browser's, so the date agrees with the
+ * sentence around it — an es page reading "Marcado como enviado · Jul 29" would
+ * be the same half-and-half problem the toggle exists to prevent.
+ */
+function formatSentAt(iso: string, locale: Locale): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  return d.toLocaleDateString(locale === 'es' ? 'es' : 'en', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 const fieldStyle: React.CSSProperties = {
@@ -57,10 +71,9 @@ const labelStyle: React.CSSProperties = {
 };
 
 function MessageCard({
-  step, timing, body, isEdited, sends, selectedHandle, locale, onChange, onReset, onCopied, onMarkSent,
+  step, body, isEdited, sends, selectedHandle, locale, onChange, onReset, onCopied, onMarkSent,
 }: {
   step: OutreachStep;
-  timing: string;
   body: string;
   isEdited: boolean;
   sends: OutreachSend[];
@@ -74,6 +87,7 @@ function MessageCard({
   const [copied, setCopied] = useState(false);
   const [marking, setMarking] = useState(false);
   const [markError, setMarkError] = useState('');
+  const ui = getOutreachUiStrings(locale);
 
   // Only markings for the handle currently selected. The same message sent to a
   // brand's global account and to its regional one are two different sends, and
@@ -81,14 +95,24 @@ function MessageCard({
   const sendsForThisStep = sends.filter((s) => s.sequenceStep === step && s.brandHandle === selectedHandle);
   const lastSend = sendsForThisStep[0] ?? null;
 
-  // Same shape as app/creator-dashboard/verify/page.tsx's copyCode(): write,
-  // flag, clear after a beat.
+  // Same write-then-flag shape as app/creator-dashboard/verify/page.tsx's
+  // copyCode(), with one deliberate difference: no 2-second timer.
+  //
+  // There, "Copied!" is pure acknowledgement and nothing follows it. Here the
+  // copied state carries the DM link — the whole point of putting it there is
+  // that the creator has the message on their clipboard before they leave — and
+  // a control that vanishes two seconds after appearing cannot be clicked
+  // deliberately. It resets on the two events that actually invalidate a copy
+  // instead: editing the message, or switching destination handle.
   async function handleCopy() {
     await navigator.clipboard.writeText(body);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
     onCopied(step, selectedHandle, locale);
   }
+
+  useEffect(() => {
+    setCopied(false);
+  }, [body, selectedHandle]);
 
   async function handleMarkSent() {
     setMarking(true);
@@ -96,7 +120,7 @@ function MessageCard({
     try {
       await onMarkSent(step, selectedHandle, locale);
     } catch {
-      setMarkError('Could not save that — try again.');
+      setMarkError(ui.markError);
     } finally {
       setMarking(false);
     }
@@ -111,16 +135,16 @@ function MessageCard({
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
           <span style={{ fontSize: '13px', fontWeight: 800, color: PINK }}>{step}</span>
           <span style={{ fontSize: '14px', fontWeight: 700, color: GREY }}>
-            {step === 1 ? 'First contact' : `Follow-up ${step - 1}`}
+            {ui.messageTitle(step)}
           </span>
-          <span style={{ fontSize: '12px', color: '#9CA3AF' }}>{timing}</span>
+          <span style={{ fontSize: '12px', color: '#9CA3AF' }}>{ui.timing[step]}</span>
         </div>
         {isEdited && (
           <button
             onClick={onReset}
             style={{ fontSize: '12px', fontWeight: 600, color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
           >
-            Reset to generated
+            {ui.resetToGenerated}
           </button>
         )}
       </div>
@@ -133,17 +157,43 @@ function MessageCard({
       />
 
       <div style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
-        <button
-          onClick={handleCopy}
-          style={{
-            padding: '9px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 700, cursor: 'pointer',
-            backgroundColor: copied ? '#ECFDF5' : GREY,
-            color: copied ? '#10B981' : '#fff',
-            border: `1.5px solid ${copied ? '#10B981' : GREY}`,
-          }}
-        >
-          {copied ? '✓ Copied!' : 'Copy message'}
-        </button>
+        {copied && selectedHandle ? (
+          // Only reachable AFTER a copy, and that ordering is the point: the DM
+          // thread opens with an empty message box, so a creator who clicks
+          // through first arrives with nothing to paste.
+          //
+          // ig.me/m/<handle> over an instagram:// scheme deliberately. The web
+          // link resolves on desktop and on mobile web and lands in the thread
+          // with the box focused; the app scheme fails silently on desktop and
+          // on any device without the app installed, which is the worst
+          // possible failure for a control the creator only sees once.
+          <a
+            href={`https://ig.me/m/${encodeURIComponent(selectedHandle)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              padding: '9px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 700,
+              textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '6px',
+              backgroundColor: '#ECFDF5', color: '#10B981', border: '1.5px solid #10B981',
+            }}
+          >
+            {ui.copiedOpen(selectedHandle)} <ExternalLink size={13} aria-hidden="true" />
+          </a>
+        ) : (
+          <button
+            onClick={handleCopy}
+            style={{
+              padding: '9px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 700, cursor: 'pointer',
+              backgroundColor: copied ? '#ECFDF5' : GREY,
+              color: copied ? '#10B981' : '#fff',
+              border: `1.5px solid ${copied ? '#10B981' : GREY}`,
+            }}
+          >
+            {/* No handle to open — the brand has no verified alias, so this
+                stays a plain acknowledgement rather than a dead link. */}
+            {copied ? ui.copied : ui.copyMessage}
+          </button>
+        )}
         <button
           onClick={handleMarkSent}
           disabled={marking}
@@ -153,7 +203,7 @@ function MessageCard({
             backgroundColor: '#fff', color: GREY, border: '1.5px solid #E5E7EB',
           }}
         >
-          {marking ? 'Saving…' : 'Mark as sent'}
+          {marking ? ui.marking : ui.markAsSent}
         </button>
       </div>
 
@@ -163,16 +213,16 @@ function MessageCard({
 
       {lastSend && (
         <p style={{ fontSize: '12px', color: '#6B7280', margin: '10px 0 0 0' }}>
-          Marked as sent · {formatSentAt(lastSend.markedSentAt)}
-          {sendsForThisStep.length > 1 && ` · ${sendsForThisStep.length} times`}
+          {ui.markedSentAt(formatSentAt(lastSend.markedSentAt, locale))}
+          {sendsForThisStep.length > 1 && ui.markedTimes(sendsForThisStep.length)}
         </p>
       )}
     </div>
   );
 }
 
-export function OutreachSequence({ match, identity, defaultLocale, sends, onCopied, onMarkSent }: OutreachSequenceProps) {
-  const [locale, setLocale] = useState<Locale>(defaultLocale);
+export function OutreachSequence({ match, identity, locale, onLocaleChange, sends, onCopied, onMarkSent }: OutreachSequenceProps) {
+  const ui = getOutreachUiStrings(locale);
   const [fields, setFields] = useState<OutreachIdentity>(identity);
   const [selectedHandle, setSelectedHandle] = useState<string | null>(match.handles[0]?.handle ?? null);
 
@@ -204,11 +254,10 @@ export function OutreachSequence({ match, identity, defaultLocale, sends, onCopi
         backgroundColor: '#fff', borderRadius: '16px', padding: '20px',
         border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
       }}>
-        <span style={labelStyle}>Send to</span>
+        <span style={labelStyle}>{ui.sendTo}</span>
         {match.handles.length === 0 ? (
           <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
-            We haven&apos;t detected an Instagram account for {match.canonicalName}. You can still draft and
-            mark these messages — we just won&apos;t record which account you sent them to.
+            {ui.noHandleDetected(match.canonicalName)}
           </p>
         ) : (
           <>
@@ -233,7 +282,7 @@ export function OutreachSequence({ match, identity, defaultLocale, sends, onCopi
             </div>
             {match.handles.length > 1 && (
               <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '10px 0 0 0' }}>
-                We detected {match.handles.length} accounts for this brand. Accounts in your region are listed first.
+                {ui.multipleHandles(match.handles.length)}
               </p>
             )}
           </>
@@ -246,12 +295,15 @@ export function OutreachSequence({ match, identity, defaultLocale, sends, onCopi
         border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
       }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px', marginBottom: '14px', flexWrap: 'wrap' }}>
-          <span style={{ ...labelStyle, marginBottom: 0 }}>Your details</span>
+          <span style={{ ...labelStyle, marginBottom: 0 }}>{ui.yourDetails}</span>
+          {/* Language names stay in their own language in both locales — that is
+              how a language picker is read, and translating them would make the
+              option you cannot currently read the one you have to find. */}
           <div style={{ display: 'flex', gap: '6px' }}>
             {(['en', 'es'] as const).map((l) => (
               <button
                 key={l}
-                onClick={() => setLocale(l)}
+                onClick={() => onLocaleChange(l)}
                 style={{
                   padding: '5px 12px', borderRadius: '999px', fontSize: '12px', fontWeight: 600, cursor: 'pointer',
                   border: locale === l ? 'none' : '1px solid #E5E7EB',
@@ -267,40 +319,37 @@ export function OutreachSequence({ match, identity, defaultLocale, sends, onCopi
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
           <div>
-            <label style={labelStyle} htmlFor="outreach-name">Name</label>
+            <label style={labelStyle} htmlFor="outreach-name">{ui.fieldName}</label>
             <input id="outreach-name" style={fieldStyle} value={fields.name} onChange={(e) => setField('name', e.target.value)} />
           </div>
           <div>
-            <label style={labelStyle} htmlFor="outreach-handle">Handle</label>
+            <label style={labelStyle} htmlFor="outreach-handle">{ui.fieldHandle}</label>
             <input id="outreach-handle" style={fieldStyle} value={fields.handle} onChange={(e) => setField('handle', e.target.value)} />
           </div>
           <div>
-            <label style={labelStyle} htmlFor="outreach-followers">Followers</label>
+            <label style={labelStyle} htmlFor="outreach-followers">{ui.fieldFollowers}</label>
             <input id="outreach-followers" style={fieldStyle} value={fields.followers} onChange={(e) => setField('followers', e.target.value)} />
           </div>
           <div>
-            <label style={labelStyle} htmlFor="outreach-engagement">Engagement %</label>
+            <label style={labelStyle} htmlFor="outreach-engagement">{ui.fieldEngagement}</label>
             <input id="outreach-engagement" style={fieldStyle} value={fields.engagement} onChange={(e) => setField('engagement', e.target.value)} />
           </div>
         </div>
 
         <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '12px 0 0 0' }}>
-          Detected from your profile. Change anything here and the messages you haven&apos;t edited update with it.
-          Clear a field to leave it out of the message entirely.
+          {ui.detailsHint}
         </p>
       </div>
 
       {/* ── The sequence ────────────────────────────────────────────── */}
       <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0 0 0' }}>
-        Three messages, spaced out. Send the first one now — the follow-ups are already written, so you can see
-        where this goes before you start.
+        {ui.sequenceIntro}
       </p>
 
       {generated.map((message) => (
         <MessageCard
           key={message.step}
           step={message.step}
-          timing={message.timing}
           body={edits[message.step] ?? message.body}
           isEdited={edits[message.step] != null}
           sends={sends}
@@ -318,8 +367,7 @@ export function OutreachSequence({ match, identity, defaultLocale, sends, onCopi
       ))}
 
       <p style={{ fontSize: '12px', color: '#9CA3AF', margin: 0 }}>
-        &ldquo;Marked as sent&rdquo; is your own record — we can&apos;t detect whether a message was actually sent,
-        so nothing here is tracked for you automatically.
+        {ui.markedDisclaimer}
       </p>
     </div>
   );

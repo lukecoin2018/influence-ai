@@ -158,7 +158,12 @@ export function BrandMatchCard({ match, creatorFollowers, actions, locale = 'en'
       {actions && actions.length > 0 && (
         <footer style={{ display: 'flex', flexDirection: 'column', gap: 8, borderTop: '1px solid #E8E6DF', paddingTop: 12 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: '#6D6B65' }}>
-            {t.actOnItNow(match.canonicalName)}
+            {/* Caption follows the number of actions, not the surface. The
+                teaser passes two and keeps its "both tools" wording unchanged;
+                the dashboard passes one and gets a caption that describes that
+                one. The `actions` contract itself is untouched — this reads
+                the array's length, nothing more. */}
+            {actions.length === 1 ? t.contactPrompt(match.canonicalName) : t.actOnItNow(match.canonicalName)}
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             {actions.map((action, i) => {

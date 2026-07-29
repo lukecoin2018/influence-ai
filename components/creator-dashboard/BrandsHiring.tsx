@@ -13,6 +13,7 @@ import { Pencil } from 'lucide-react';
 import type { MatchedBrand } from '@/lib/reports/creator-brand-matches';
 import { consolidateCategory, nicheLeadBucket, orderCategoriesForDisplay, summarizeCategories } from '@/lib/reports/category-consolidation';
 import { BrandMatchCard } from '@/components/brand-matches/BrandMatchCard';
+import { getClaimStrings } from '@/app/claim/[handle]/_strings';
 import { BRANDS_HIRING_GATING_ENABLED, BRANDS_HIRING_FREE_TIER_LIMIT } from '@/lib/reports/brands-hiring-config';
 
 const GREY = '#3A3A3A';
@@ -140,8 +141,14 @@ export function BrandsHiring({ matches, creatorFollowers, detectedNiche, outreac
                   // these since the teaser was extracted from it. An action is
                   // a <Link href>, so this is a navigation, and the canonical
                   // name is the only brand identifier that exists to carry.
+                  // Label comes from the typed string table rather than a
+                  // literal, so the en and es wordings stay in one place and
+                  // the Spanish key exists the day this surface is localized.
+                  // Pinned to 'en': the dashboard UI is English by design.
+                  // getClaimStrings is already in this bundle via
+                  // BrandMatchCard, so this costs nothing extra.
                   actions={outreachBasePath ? [{
-                    label: 'Draft outreach',
+                    label: getClaimStrings('en').brandMatchCard.contactBrand(match.canonicalName),
                     href: `${outreachBasePath}?brand=${encodeURIComponent(match.canonicalName)}`,
                     icon: Pencil,
                   }] : undefined}
