@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
+import { withNoStore } from '@/lib/http/no-store';
 
 // Writes the manual "DMed" flag for the admin creator-targeting panel
 // (app/admin/targeting). creator_outreach has RLS enabled with no policies
 // (see supabase/migrations/0008_creator_outreach.sql) — only this
 // service-role-backed, admin-auth-gated route can write it.
-export async function POST(req: NextRequest) {
+export const POST = withNoStore(handlePOST);
+
+async function handlePOST(req: NextRequest) {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

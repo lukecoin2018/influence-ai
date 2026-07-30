@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { withNoStore } from '@/lib/http/no-store';
 
 // /report/[slug] is ISR-cached (revalidate = 60s, see that page) so a
 // bursty spike of visits to the same report doesn't recompute Tier 1/2/3
@@ -8,7 +9,9 @@ import { createSupabaseServerClient } from '@/lib/supabase-server';
 // purpose: without an auth check, this endpoint would itself be a way to
 // force constant regeneration — the exact load pattern the cache exists to
 // avoid.
-export async function POST(req: NextRequest) {
+export const POST = withNoStore(handlePOST);
+
+async function handlePOST(req: NextRequest) {
   try {
     const { slug } = await req.json();
     if (!slug || typeof slug !== 'string') {

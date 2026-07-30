@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { recordFunnelEvent, type FunnelEventType } from '@/lib/funnel/events';
+import { withNoStore } from '@/lib/http/no-store';
 
 /**
  * The two outreach funnel events that originate in the browser.
@@ -26,7 +27,9 @@ function isAllowed(value: unknown): value is FunnelEventType {
   return typeof value === 'string' && (ALLOWED as readonly string[]).includes(value);
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withNoStore(handlePOST);
+
+async function handlePOST(req: NextRequest) {
   const session = await createSupabaseServerClient();
   const { data: { user } } = await session.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -6,6 +6,7 @@ import { getCreatorBrandMatches, type CreatorBrandMatches, type Platform } from 
 import { computeTeaserStrengthInput, compareTeaserStrength, type TeaserStrengthInput } from '@/lib/reports/teaser-strength';
 import { SPANISH_COUNTRIES } from '@/lib/discover/es-config';
 import type { RecencyBucket } from '@/lib/reports/recency-bucket';
+import { withNoStore } from '@/lib/http/no-store';
 
 // Allow the chunked getCreatorBrandMatches pass (below) enough wall-clock
 // time on Vercel's serverless runtime, since a full window can be up to
@@ -129,7 +130,12 @@ function buildRankedCreator(
   };
 }
 
-export async function GET(req: NextRequest) {
+// Admin-gated (403 for non-admins below). A cached 200 replayed to a non-admin
+// who hit the same query string would be privilege escalation, not just a stale
+// read. See lib/http/no-store.ts.
+export const GET = withNoStore(handleGET);
+
+async function handleGET(req: NextRequest) {
   const auth = await requireAdmin();
   if ('error' in auth) return auth.error;
 

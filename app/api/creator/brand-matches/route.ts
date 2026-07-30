@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { withTimeout, TimeoutError } from '@/lib/withTimeout';
 import { getCreatorBrandMatches } from '@/lib/reports/creator-brand-matches';
+import { withNoStore } from '@/lib/http/no-store';
 
 const READ_TIMEOUT_MS = 15_000;
 
@@ -12,7 +13,13 @@ const READ_TIMEOUT_MS = 15_000;
 // no policies), so this bridges the client-side dashboard's anon-key session
 // to that service-role read, the same way app/claim/[handle]/page.tsx (a
 // server component) calls it directly.
-export async function GET() {
+// This response is per-creator, so it must never be stored by a shared cache.
+// It was: Webuzo's nginx keys on URI alone, and this URL has no per-user part,
+// so a headerless 200 was replayed to every session for an hour. See
+// lib/http/no-store.ts.
+export const GET = withNoStore(handleGET);
+
+async function handleGET() {
   const session = await createSupabaseServerClient();
   const { data: { user } } = await session.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
