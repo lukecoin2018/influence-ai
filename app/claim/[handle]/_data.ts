@@ -59,13 +59,57 @@ export function titleCase(word: string): string {
 }
 
 /**
- * First whitespace-separated token of the display name, title-cased; falls
- * back to the raw handle (also title-cased), then to null (meaning: render
- * the nameless headline variant — never a broken "— N brands" with a blank
- * in front of it).
+ * Emoji, pictographs, and the joiners and modifiers that decorate them —
+ * variation selectors, ZWJ, skin-tone modifiers, regional indicators.
+ *
+ * Replaced with a SPACE rather than deleted, so a name written "Ana🌸Sofia"
+ * splits into two tokens instead of fusing into one "Ana Sofia" word.
+ */
+const EMOJI_AND_MODIFIERS =
+  /[\p{Extended_Pictographic}\p{Emoji_Modifier}\p{Regional_Indicator}\u200D\uFE0E\uFE0F]/gu;
+
+/**
+ * A token can only serve as a name if it contains a letter. Skips the
+ * separators Instagram display names are full of ("|", "/", "·", "♡") and
+ * any stray digits left behind once emoji are gone.
+ *
+ * Deliberately not global: `.test()` on a /g regex is stateful across calls.
+ */
+const HAS_LETTER = /\p{L}/u;
+
+/**
+ * First usable token of the display name, title-cased; falls back to the raw
+ * handle (also title-cased), then to null (meaning: render the nameless
+ * headline variant — never a broken "— N brands" with a blank in front of
+ * it).
+ *
+ * "Usable" does real work here, because Instagram display names are not
+ * names. Three things happen before titleCase() sees a token:
+ *
+ *  1. NFKC normalization, which folds stylized code points back to plain
+ *     letters — "𝗔𝗡𝗔" -> "ANA", "𝒞𝒶𝓇𝑜𝓁𝒾𝓃𝒶" -> "Carolina". NFKC and not NFKD:
+ *     NFKD would decompose accents into base + combining mark, and titleCase
+ *     lowercases everything after the first code point, so "ANGÉLICA" would
+ *     come back as "Angélica" with a detached accent. NFKC keeps them
+ *     composed, which is the one case this function already got right.
+ *  2. Emoji stripped. A LEADING emoji used to become the entire greeting
+ *     name ("🌸 Christina" -> "🌸"), and a hugging one defeated titleCase
+ *     outright: "✨Sofía✨" -> "✨sofía✨", because ✨ has no uppercase, so
+ *     the first-character toUpperCase() was inert while the rest was still
+ *     lowercased — destroying the real initial.
+ *  3. The first token containing a letter, not simply the first token, so
+ *     "DANI DESAFIO XXI ♡" and "CAMILA VELEZ / CONTENT CREATOR 🦋" resolve
+ *     to the name rather than to punctuation.
+ *
+ * titleCase() itself is unchanged — with a clean token it was always
+ * correct, so the whole fix belongs in this caller.
+ *
+ * Known and deliberately NOT handled: hyphenated names still collapse
+ * ("JOSÉ-LUIS" -> "José-luis"). That is a separate concern from emoji.
  */
 export function resolveGreetingName(displayName: string | null, handle: string): string | null {
-  const token = displayName?.trim().split(/\s+/).filter(Boolean)[0];
+  const cleaned = (displayName ?? '').normalize('NFKC').replace(EMOJI_AND_MODIFIERS, ' ');
+  const token = cleaned.split(/\s+/).find((t) => HAS_LETTER.test(t));
   if (token) return titleCase(token);
   const trimmedHandle = handle.trim();
   return trimmedHandle ? titleCase(trimmedHandle) : null;
