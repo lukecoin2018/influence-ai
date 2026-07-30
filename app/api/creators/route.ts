@@ -2,8 +2,14 @@ import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { checkAndChargeAccess, FREE_ALLOWANCES } from '@/lib/tokens';
+import { withNoStore } from '@/lib/http/no-store';
 
-export async function GET(request: Request) {
+// Session-gated in a BILLING way: the token gate below charges per directory
+// page, so a cached response could hand out paid pages without charging, or pin
+// a paywall in front of an account that has paid. See lib/http/no-store.ts.
+export const GET = withNoStore(handleGET);
+
+async function handleGET(request: Request) {
   const { searchParams } = new URL(request.url);
 
   // ── Token gate ────────────────────────────────────────────────────────────

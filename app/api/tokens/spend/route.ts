@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { spendTokens, TOKEN_COSTS, type TokenAction } from '@/lib/tokens';
+import { withNoStore } from '@/lib/http/no-store';
 
-export async function POST(request: Request) {
+export const POST = withNoStore(handlePOST);
+
+async function handlePOST(request: Request) {
   try {
     const { action } = await request.json();
 

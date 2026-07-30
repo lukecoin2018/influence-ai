@@ -3,6 +3,7 @@ import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { withTimeout, TimeoutError } from '@/lib/withTimeout';
 import { recordFunnelEvent } from '@/lib/funnel/events';
+import { withNoStore } from '@/lib/http/no-store';
 
 const READ_TIMEOUT_MS = 10_000;
 
@@ -44,7 +45,13 @@ function normalizeHandle(handle: string | null | undefined): string | null {
   return normalized || null;
 }
 
-export async function GET(req: NextRequest) {
+// The most exposed route in the app before this header: `?brand=<name>` is the
+// SAME URL for every creator contacting a given brand, so a URI-keyed cache made
+// one creator's send history the shared entry for all of them. See
+// lib/http/no-store.ts.
+export const GET = withNoStore(handleGET);
+
+async function handleGET(req: NextRequest) {
   const resolved = await resolveCreatorProfile();
   if ('error' in resolved) return resolved.error;
 
@@ -89,7 +96,9 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(req: NextRequest) {
+export const POST = withNoStore(handlePOST);
+
+async function handlePOST(req: NextRequest) {
   const resolved = await resolveCreatorProfile();
   if ('error' in resolved) return resolved.error;
 

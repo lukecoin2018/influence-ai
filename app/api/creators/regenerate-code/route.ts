@@ -14,6 +14,7 @@ import {
   verificationCodeExpiresAt,
   VERIFICATION_CODE_TTL_MS,
 } from '@/lib/verification-code';
+import { withNoStore } from '@/lib/http/no-store';
 
 /**
  * Re-issuing inside this window returns the existing code rather than minting a
@@ -35,7 +36,9 @@ const REISSUE_THROTTLE_MS = 60_000;
  * permit a self-update of these columns. Same split as
  * app/api/creator/brand-matches/route.ts.
  */
-export async function POST() {
+export const POST = withNoStore(handlePOST);
+
+async function handlePOST() {
   try {
     const session = await createSupabaseServerClient();
     const {
