@@ -19,14 +19,22 @@ interface AdminPreviewShellProps {
 }
 
 export function AdminPreviewShell({ handle, children }: AdminPreviewShellProps) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // `null` = viewport decides, see components/creator-dashboard/sidebar.css.
+  // Unlike the creator layout this shell is rendered per page, so an admin's
+  // choice does not survive moving between the two preview routes — the same
+  // as before this change, and admin-only.
+  const [sidebarOpen, setSidebarOpen] = useState<boolean | null>(null);
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#FAFAFA' }}>
-      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(prev => !prev)} previewHandle={handle} />
+    <div
+      className="cd-shell"
+      data-open={sidebarOpen === null ? undefined : String(sidebarOpen)}
+      style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#FAFAFA' }}
+    >
+      <Sidebar isOpen={sidebarOpen} onToggle={setSidebarOpen} previewHandle={handle} />
       <main style={{
         flex: 1,
-        marginLeft: sidebarOpen ? '240px' : '64px',
+        marginLeft: 'var(--cd-sidebar-w, 240px)',
         transition: 'margin-left 0.2s ease',
         minWidth: 0,
       }}>

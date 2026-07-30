@@ -13,7 +13,12 @@ export default function CreatorDashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  // `null` until the creator uses the toggle: components/creator-dashboard/
+  // sidebar.css picks collapsed or expanded from the viewport before first
+  // paint, so a phone never renders the 240px sidebar and then animates it
+  // away. State still lives here, so it survives navigation between dashboard
+  // pages — this layout is not remounted by a <Link> to a sibling route.
+  const [sidebarOpen, setSidebarOpen] = useState<boolean | null>(null);
   const [claimStatus, setClaimStatus] = useState<string | null>(null);
   const [statusLoading, setStatusLoading] = useState(true);
   const router = useRouter();
@@ -47,11 +52,15 @@ export default function CreatorDashboardLayout({
   const isPending = claimStatus === 'pending';
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#FAFAFA" }}>
-      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(prev => !prev)} />
+    <div
+      className="cd-shell"
+      data-open={sidebarOpen === null ? undefined : String(sidebarOpen)}
+      style={{ display: "flex", minHeight: "100vh", backgroundColor: "#FAFAFA" }}
+    >
+      <Sidebar isOpen={sidebarOpen} onToggle={setSidebarOpen} />
       <main style={{
         flex: 1,
-        marginLeft: sidebarOpen ? "240px" : "64px",
+        marginLeft: "var(--cd-sidebar-w, 240px)",
         transition: "margin-left 0.2s ease",
         minWidth: 0,
       }}>

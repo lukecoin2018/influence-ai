@@ -1,0 +1,101 @@
+/* components/creator-dashboard/sidebar.css
+ *
+ * The creator dashboard sidebar's collapsed/expanded presentation lives here,
+ * not in React state, and that is the whole point of this file.
+ *
+ * The server cannot know the viewport, so any JS-decided default is decided
+ * one render too late: the first paint would show the 240px sidebar and a
+ * `useEffect` would then slide it to 64px on a phone — a 0.2s animated jump on
+ * the first screen a creator sees after verifying. CLAUDE.md accepts a locale
+ * flicker of that kind for text; a sidebar covering 64% of a 375px screen and
+ * then moving is a different order of disruption.
+ *
+ * A stylesheet in <head> is evaluated before first paint, so the media query
+ * below gets the initial state right with no hydration correction at all.
+ * React only sets `data-open` AFTER the creator has touched the toggle, and
+ * the attribute selectors below outrank the media query at every viewport
+ * (specificity 0,2,0 vs 0,1,0 — media queries add none), so an explicit choice
+ * always wins over the default.
+ *
+ * Custom properties rather than plain declarations because Sidebar.tsx styles
+ * everything inline, and inline styles beat a stylesheet. Inverting that with
+ * !important everywhere would be worse than letting the inline styles read
+ * `var(--cd-*)` and letting the cascade supply the value.
+ *
+ * Breakpoint: 1024px = Tailwind v4's default `lg` (app/globals.css's @theme
+ * sets no --breakpoint-* override). Sidebar.tsx already used `lg:hidden` for
+ * exactly this mobile/desktop split, so this introduces no new convention.
+ */
+
+/* Mobile-first default: collapsed. */
+.cd-shell {
+  --cd-sidebar-w: 64px;
+  --cd-item-pad: 9px 0;
+  --cd-item-justify: center;
+  --cd-token-pad: 8px 0 10px;
+  --cd-expanded-inline: none;
+  --cd-expanded-block: none;
+  --cd-expanded-flex: none;
+  --cd-collapsed-inline: inline;
+  --cd-collapsed-flex: flex;
+}
+
+@media (min-width: 1024px) {
+  .cd-shell {
+    --cd-sidebar-w: 240px;
+    --cd-item-pad: 9px 10px;
+    --cd-item-justify: flex-start;
+    --cd-token-pad: 8px 12px 10px;
+    --cd-expanded-inline: inline;
+    --cd-expanded-block: block;
+    --cd-expanded-flex: flex;
+    --cd-collapsed-inline: none;
+    --cd-collapsed-flex: none;
+  }
+}
+
+/* Set only once the creator has used the toggle. Wins at any viewport. */
+.cd-shell[data-open="true"] {
+  --cd-sidebar-w: 240px;
+  --cd-item-pad: 9px 10px;
+  --cd-item-justify: flex-start;
+  --cd-token-pad: 8px 12px 10px;
+  --cd-expanded-inline: inline;
+  --cd-expanded-block: block;
+  --cd-expanded-flex: flex;
+  --cd-collapsed-inline: none;
+  --cd-collapsed-flex: none;
+}
+
+.cd-shell[data-open="false"] {
+  --cd-sidebar-w: 64px;
+  --cd-item-pad: 9px 0;
+  --cd-item-justify: center;
+  --cd-token-pad: 8px 0 10px;
+  --cd-expanded-inline: none;
+  --cd-expanded-block: none;
+  --cd-expanded-flex: none;
+  --cd-collapsed-inline: inline;
+  --cd-collapsed-flex: flex;
+}
+
+/* Tap-outside backdrop. Previously `{isOpen && <div className="lg:hidden">}`;
+ * it cannot use a --cd-* variable because it is the one element whose value
+ * is not a function of open/closed alone — it must stay hidden on desktop even
+ * when the sidebar is expanded. Hence real rules, and hence the trailing media
+ * block, which has to come last to beat the descendant selector above it
+ * (equal specificity, later wins). */
+.cd-overlay {
+  display: none;
+}
+
+.cd-shell[data-open="true"] .cd-overlay {
+  display: block;
+}
+
+@media (min-width: 1024px) {
+  .cd-overlay,
+  .cd-shell[data-open="true"] .cd-overlay {
+    display: none;
+  }
+}

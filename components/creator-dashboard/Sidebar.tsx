@@ -2,19 +2,28 @@
 
 // Place at: components/creator-dashboard/Sidebar.tsx
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useLocale } from "@/lib/i18n/use-locale";
 import { getDashboardStrings } from "@/lib/i18n/dashboard-strings";
+import "./sidebar.css";
 
 type SidebarStrings = ReturnType<typeof getDashboardStrings>["sidebar"];
 
 interface SidebarProps {
-  isOpen: boolean;
-  onToggle: () => void;
+  /**
+   * `null` means "nobody has chosen" — the default state, in which sidebar.css
+   * decides from the viewport and this component renders no width at all. A
+   * boolean is an explicit choice by the creator and overrides the viewport.
+   * Read it for tooltips and aria only; never for layout, or the server render
+   * reintroduces the flash the stylesheet exists to remove.
+   */
+  isOpen: boolean | null;
+  /** Receives the next state, because inverting `null` needs the viewport. */
+  onToggle: (next: boolean) => void;
   /**
    * Set only when rendered inside AdminPreviewShell. Overview and Brands
    * Hiring are the two routes the admin preview actually covers, so those
@@ -80,6 +89,34 @@ const TIER_LABELS: Record<string, string> = {
   active: "Active",
 };
 
+/**
+ * Mirrors sidebar.css's `@media (min-width: 1024px)` so the toggle can invert
+ * the default state, and so `title` names the action it will actually perform.
+ *
+ * Nothing here feeds layout — the stylesheet owns that — so the post-hydration
+ * correction on a phone costs an attribute, not a reflow. The subscribe/
+ * getSnapshot pair is the same useSyncExternalStore shape as
+ * lib/i18n/use-locale.ts, for the same reason: no effect, no second paint.
+ */
+const DESKTOP_QUERY = "(min-width: 1024px)";
+
+function subscribeToDesktop(onChange: () => void) {
+  const mq = window.matchMedia(DESKTOP_QUERY);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+}
+
+function useIsDesktop() {
+  return useSyncExternalStore(
+    subscribeToDesktop,
+    () => window.matchMedia(DESKTOP_QUERY).matches,
+    // Server render and hydration. `true` is the honest answer for a no-JS
+    // client: the CSS still collapses the sidebar on a phone, but the toggle
+    // is a link-free button that does nothing without JS anyway.
+    () => true
+  );
+}
+
 export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
@@ -89,6 +126,10 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
   const [tokenBalance, setTokenBalance] = useState<number | null>(null);
   const [subscriptionTier, setSubscriptionTier] = useState<string>("free");
   const [manageLoading, setManageLoading] = useState(false);
+  const isDesktop = useIsDesktop();
+  // Tooltips and aria only — see the note on SidebarProps.isOpen.
+  const effectiveOpen = isOpen ?? isDesktop;
+  const toggle = useCallback(() => onToggle(!effectiveOpen), [onToggle, effectiveOpen]);
 
   // Fetch creator token balance + subscription tier + realtime subscription
   useEffect(() => {
@@ -159,14 +200,13 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile overlay */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-20 lg:hidden"
-          style={{ backgroundColor: "rgba(0,0,0,0.3)" }}
-          onClick={onToggle}
-        />
-      )}
+      {/* Mobile overlay. Always mounted now; sidebar.css decides whether it
+          shows, so it costs nothing on the server render. */}
+      <div
+        className="cd-overlay fixed inset-0 z-20"
+        style={{ backgroundColor: "rgba(0,0,0,0.3)" }}
+        onClick={() => onToggle(false)}
+      />
 
       {/* Sidebar */}
       <aside
@@ -175,7 +215,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
           top: 0,
           left: 0,
           height: "100vh",
-          width: isOpen ? "240px" : "64px",
+          width: "var(--cd-sidebar-w, 240px)",
           backgroundColor: "#fff",
           borderRight: "1px solid #E5E7EB",
           display: "flex",
@@ -203,24 +243,52 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
           }}>
             <span style={{ fontSize: "16px", fontWeight: 800, color: "#3A3A3A" }}>I</span>
           </div>
-          {isOpen && (
-            <span style={{ fontSize: "15px", fontWeight: 700, color: "#3A3A3A", whiteSpace: "nowrap", marginLeft: "8px" }}>
-              InfluenceIT
+          <span style={{
+            fontSize: "15px", fontWeight: 700, color: "#3A3A3A", whiteSpace: "nowrap",
+            marginLeft: "8px", display: "var(--cd-expanded-inline, inline)",
+          }}>
+            InfluenceIT
+          </span>
+        </div>
+
+        {/* Collapse toggle. Directly under the logo, and above the nav, because
+            on a phone the sidebar now starts collapsed and this is the control
+            that reveals the menu — at the bottom of a 100vh column it sat below
+            the fold, so the creator had to scroll to find the way in. */}
+        <div style={{ padding: "8px 8px 0", flexShrink: 0 }}>
+          <button
+            onClick={toggle}
+            title={effectiveOpen ? t.collapseTooltip : t.expandTooltip}
+            aria-expanded={effectiveOpen}
+            style={{
+              display: "flex", alignItems: "center", gap: "10px",
+              padding: "var(--cd-item-pad, 9px 10px)",
+              justifyContent: "var(--cd-item-justify, flex-start)",
+              borderRadius: "8px", background: "none", border: "none",
+              color: "#6B7280", cursor: "pointer", width: "100%",
+            }}
+          >
+            <span style={{ fontSize: "16px", display: "var(--cd-expanded-inline, inline)" }}>◀</span>
+            <span style={{ fontSize: "16px", display: "var(--cd-collapsed-inline, none)" }}>▶</span>
+            <span style={{
+              fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap",
+              display: "var(--cd-expanded-inline, inline)",
+            }}>
+              {t.collapse}
             </span>
-          )}
+          </button>
         </div>
 
         {/* Nav items */}
         <nav style={{ flex: 1, padding: "8px", overflowY: "auto", overflowX: "hidden" }}>
-          {isOpen && (
-            <p style={{
-              fontSize: "10px", fontWeight: 600, color: "#9CA3AF",
-              textTransform: "uppercase", letterSpacing: "0.08em",
-              padding: "8px 8px 4px", margin: 0,
-            }}>
-              {t.menu}
-            </p>
-          )}
+          <p style={{
+            fontSize: "10px", fontWeight: 600, color: "#9CA3AF",
+            textTransform: "uppercase", letterSpacing: "0.08em",
+            padding: "8px 8px 4px", margin: 0,
+            display: "var(--cd-expanded-block, block)",
+          }}>
+            {t.menu}
+          </p>
 
           {navItems(t).map((item) => {
             const { label, icon, exact } = item;
@@ -230,13 +298,13 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
               <Link
                 key={item.key ?? href}
                 href={href}
-                title={!isOpen ? label : undefined}
+                title={!effectiveOpen ? label : undefined}
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: "10px",
-                  padding: isOpen ? "9px 10px" : "9px 0",
-                  justifyContent: isOpen ? "flex-start" : "center",
+                  padding: "var(--cd-item-pad, 9px 10px)",
+                  justifyContent: "var(--cd-item-justify, flex-start)",
                   borderRadius: "8px",
                   marginBottom: "2px",
                   textDecoration: "none",
@@ -246,16 +314,15 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
                 }}
               >
                 <span style={{ fontSize: "16px", flexShrink: 0 }}>{icon}</span>
-                {isOpen && (
-                  <span style={{
-                    fontSize: "13px",
-                    fontWeight: active ? 600 : 500,
-                    color: active ? "#92400E" : "#4B5563",
-                    whiteSpace: "nowrap",
-                  }}>
-                    {label}
-                  </span>
-                )}
+                <span style={{
+                  fontSize: "13px",
+                  fontWeight: active ? 600 : 500,
+                  color: active ? "#92400E" : "#4B5563",
+                  whiteSpace: "nowrap",
+                  display: "var(--cd-expanded-inline, inline)",
+                }}>
+                  {label}
+                </span>
               </Link>
             );
           })}
@@ -265,7 +332,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
         <div style={{ borderTop: "1px solid #F3F4F6", flexShrink: 0 }}>
 
           {/* Zero tokens banner — subscribed creators get buy more option */}
-          {isOpen && tokenBalance === 0 && isPaidSubscriber && (
+          {tokenBalance === 0 && isPaidSubscriber && (
             <div style={{
               margin: "8px 12px 0",
               padding: "8px 10px",
@@ -275,7 +342,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
               fontSize: "12px",
               color: "#991B1B",
               lineHeight: 1.4,
-              display: "flex",
+              display: "var(--cd-expanded-flex, flex)",
               alignItems: "center",
               justifyContent: "space-between",
             }}>
@@ -293,7 +360,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
           )}
 
           {/* Zero tokens banner — free creators get subscribe prompt */}
-          {isOpen && tokenBalance === 0 && !isPaidSubscriber && (
+          {tokenBalance === 0 && !isPaidSubscriber && (
             <div style={{
               margin: "8px 12px 0",
               padding: "8px 10px",
@@ -303,7 +370,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
               fontSize: "12px",
               color: "#991B1B",
               lineHeight: 1.4,
-              display: "flex",
+              display: "var(--cd-expanded-flex, flex)",
               alignItems: "center",
               justifyContent: "space-between",
             }}>
@@ -321,58 +388,56 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
           )}
 
           {/* Plan badge + Manage/Upgrade */}
-          {isOpen && (
-            <div style={{
-              padding: "8px 12px 0",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
+          <div style={{
+            padding: "8px 12px 0",
+            display: "var(--cd-expanded-flex, flex)",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}>
+            <span style={{
+              fontSize: "11px",
+              fontWeight: 600,
+              color: isPaidSubscriber ? "#FF4D94" : "#9CA3AF",
+              textTransform: "uppercase",
+              letterSpacing: "0.04em",
             }}>
-              <span style={{
-                fontSize: "11px",
-                fontWeight: 600,
-                color: isPaidSubscriber ? "#FF4D94" : "#9CA3AF",
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-              }}>
-                {(TIER_LABELS[subscriptionTier] || "Free") + " Plan"}
-              </span>
+              {(TIER_LABELS[subscriptionTier] || "Free") + " Plan"}
+            </span>
 
-              {isPaidSubscriber ? (
-                <button
-                  onClick={handleManageSubscription}
-                  disabled={manageLoading}
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    color: "#FF4D94",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 0,
-                  }}
-                >
-                  {manageLoading ? "..." : "Manage"}
-                </button>
-              ) : (
-                <Link
-                  href="/pricing/creators"
-                  style={{
-                    fontSize: "11px",
-                    fontWeight: 600,
-                    color: "#FF4D94",
-                    textDecoration: "none",
-                  }}
-                >
-                  Upgrade
-                </Link>
-              )}
-            </div>
-          )}
+            {isPaidSubscriber ? (
+              <button
+                onClick={handleManageSubscription}
+                disabled={manageLoading}
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: "#FF4D94",
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  padding: 0,
+                }}
+              >
+                {manageLoading ? "..." : "Manage"}
+              </button>
+            ) : (
+              <Link
+                href="/pricing/creators"
+                style={{
+                  fontSize: "11px",
+                  fontWeight: 600,
+                  color: "#FF4D94",
+                  textDecoration: "none",
+                }}
+              >
+                Upgrade
+              </Link>
+            )}
+          </div>
 
           {/* Collapsed: upgrade icon for free users */}
-          {!isOpen && !isPaidSubscriber && (
-            <div style={{ display: "flex", justifyContent: "center", padding: "8px 0 0" }}>
+          {!isPaidSubscriber && (
+            <div style={{ display: "var(--cd-collapsed-flex, none)", justifyContent: "center", padding: "8px 0 0" }}>
               <Link href="/pricing/creators" title="Upgrade plan" style={{
                 display: "flex", alignItems: "center", justifyContent: "center",
                 width: "28px", height: "28px", borderRadius: "6px",
@@ -387,92 +452,71 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
           {/* Token balance */}
           {tokenBalance !== null && (
             <div
-              title={!isOpen ? `${tokenBalance} tokens` : undefined}
+              title={!effectiveOpen ? `${tokenBalance} tokens` : undefined}
               style={{
-                padding: isOpen ? "8px 12px 10px" : "8px 0 10px",
+                padding: "var(--cd-token-pad, 8px 12px 10px)",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: isOpen ? "flex-start" : "center",
+                justifyContent: "var(--cd-item-justify, flex-start)",
               }}
             >
-              {isOpen ? (
-                <div style={{
-                  display: "flex", alignItems: "center", justifyContent: "space-between",
-                  width: "100%",
+              <div style={{
+                display: "var(--cd-expanded-flex, flex)", alignItems: "center", justifyContent: "space-between",
+                width: "100%",
+                backgroundColor: tokenBalance === 0 ? "#FEE2E2" : tokenBalance <= 30 ? "#FEF3C7" : "#F0FDF4",
+                border: `1px solid ${tokenBalance === 0 ? "#FECACA" : tokenBalance <= 30 ? "#FDE68A" : "#BBF7D0"}`,
+                borderRadius: "8px",
+                padding: "8px 10px",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{ fontSize: "14px" }}>💰</span>
+                  <span style={{
+                    fontSize: "12px", fontWeight: 600,
+                    color: tokenBalance === 0 ? "#991B1B" : tokenBalance <= 30 ? "#92400E" : "#166534",
+                  }}>
+                    Tokens
+                  </span>
+                </div>
+                <span style={{
+                  fontSize: "13px", fontWeight: 700,
+                  color: tokenBalance === 0 ? "#991B1B" : tokenBalance <= 30 ? "#92400E" : "#166534",
+                }}>
+                  {tokenBalance}
+                </span>
+              </div>
+
+              <div style={{ position: "relative", display: "var(--cd-collapsed-flex, none)", alignItems: "center", justifyContent: "center" }}>
+                <span style={{ fontSize: "18px" }}>💰</span>
+                <span style={{
+                  position: "absolute", top: "-4px", right: "-6px",
                   backgroundColor: tokenBalance === 0 ? "#FEE2E2" : tokenBalance <= 30 ? "#FEF3C7" : "#F0FDF4",
                   border: `1px solid ${tokenBalance === 0 ? "#FECACA" : tokenBalance <= 30 ? "#FDE68A" : "#BBF7D0"}`,
-                  borderRadius: "8px",
-                  padding: "8px 10px",
+                  color: tokenBalance === 0 ? "#991B1B" : tokenBalance <= 30 ? "#92400E" : "#166534",
+                  fontSize: "9px", fontWeight: 700,
+                  borderRadius: "999px", padding: "0 3px", lineHeight: "14px",
+                  minWidth: "14px", textAlign: "center",
                 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <span style={{ fontSize: "14px" }}>💰</span>
-                    <span style={{
-                      fontSize: "12px", fontWeight: 600,
-                      color: tokenBalance === 0 ? "#991B1B" : tokenBalance <= 30 ? "#92400E" : "#166534",
-                    }}>
-                      Tokens
-                    </span>
-                  </div>
-                  <span style={{
-                    fontSize: "13px", fontWeight: 700,
-                    color: tokenBalance === 0 ? "#991B1B" : tokenBalance <= 30 ? "#92400E" : "#166534",
-                  }}>
-                    {tokenBalance}
-                  </span>
-                </div>
-              ) : (
-                <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <span style={{ fontSize: "18px" }}>💰</span>
-                  <span style={{
-                    position: "absolute", top: "-4px", right: "-6px",
-                    backgroundColor: tokenBalance === 0 ? "#FEE2E2" : tokenBalance <= 30 ? "#FEF3C7" : "#F0FDF4",
-                    border: `1px solid ${tokenBalance === 0 ? "#FECACA" : tokenBalance <= 30 ? "#FDE68A" : "#BBF7D0"}`,
-                    color: tokenBalance === 0 ? "#991B1B" : tokenBalance <= 30 ? "#92400E" : "#166534",
-                    fontSize: "9px", fontWeight: 700,
-                    borderRadius: "999px", padding: "0 3px", lineHeight: "14px",
-                    minWidth: "14px", textAlign: "center",
-                  }}>
-                    {tokenBalance > 99 ? "99+" : tokenBalance}
-                  </span>
-                </div>
-              )}
+                  {tokenBalance > 99 ? "99+" : tokenBalance}
+                </span>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Bottom: collapse + email + sign out */}
+        {/* Bottom: email + sign out. The collapse toggle used to live here; it
+            is now the first control under the logo. */}
         <div style={{
           padding: "12px",
           borderTop: "1px solid #F3F4F6",
           flexShrink: 0,
         }}>
-          {/* Collapse toggle */}
-          <button
-            onClick={onToggle}
-            title={isOpen ? t.collapseTooltip : t.expandTooltip}
-            style={{
-              display: "flex", alignItems: "center", gap: "10px",
-              padding: isOpen ? "9px 10px" : "9px 0",
-              justifyContent: isOpen ? "flex-start" : "center",
-              borderRadius: "8px", background: "none", border: "none",
-              color: "#6B7280", cursor: "pointer", width: "100%",
-              marginBottom: "4px",
-            }}
-          >
-            <span style={{ fontSize: "16px" }}>{isOpen ? "◀" : "▶"}</span>
-            {isOpen && (
-              <span style={{ fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap" }}>
-                {t.collapse}
-              </span>
-            )}
-          </button>
-
           {/* Email */}
-          {isOpen && user?.email && (
+          {user?.email && (
             <p style={{
-              fontSize: "11px", color: "#9CA3AF", margin: "4px 0 8px 0",
+              fontSize: "11px", color: "#9CA3AF", margin: "0 0 8px 0",
               whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
               padding: "0 4px",
+              display: "var(--cd-expanded-block, block)",
             }}>
               {user.email}
             </p>
@@ -484,21 +528,22 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
               await supabase.auth.signOut();
               window.location.href = '/';
             }}
-            title={!isOpen ? t.signOut : undefined}
+            title={!effectiveOpen ? t.signOut : undefined}
             style={{
               display: "flex", alignItems: "center", gap: "10px",
-              padding: isOpen ? "9px 10px" : "9px 0",
-              justifyContent: isOpen ? "flex-start" : "center",
+              padding: "var(--cd-item-pad, 9px 10px)",
+              justifyContent: "var(--cd-item-justify, flex-start)",
               borderRadius: "8px", background: "none", border: "none",
               color: "#6B7280", cursor: "pointer", width: "100%",
             }}
           >
             <span style={{ fontSize: "16px" }}>🚪</span>
-            {isOpen && (
-              <span style={{ fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap" }}>
-                {t.signOut}
-              </span>
-            )}
+            <span style={{
+              fontSize: "13px", fontWeight: 500, whiteSpace: "nowrap",
+              display: "var(--cd-expanded-inline, inline)",
+            }}>
+              {t.signOut}
+            </span>
           </button>
         </div>
       </aside>
