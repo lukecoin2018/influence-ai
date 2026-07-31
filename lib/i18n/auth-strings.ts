@@ -38,7 +38,6 @@ interface AuthStrings {
     handleNotFound: string;
     emailLabel: string;
     emailPlaceholder: string;
-    emailAutoVerified: string;
     passwordLabel: string;
     passwordPlaceholder: string;
     submit: string;
@@ -99,6 +98,12 @@ interface AuthStrings {
     /** Shown when /api/creators/regenerate-code fails and no code can be displayed. */
     codeRegenerationFailed: string;
     /**
+     * Someone else already claimed this creator. Returned by
+     * /api/creators/claim, which now detects it before creating an auth user —
+     * it used to surface as a raw Postgres unique-constraint error.
+     */
+    alreadyClaimed: string;
+    /**
      * One message per failure reason returned by /api/creators/verify-bio.
      * That route returns reason codes and no user-facing prose, so these are
      * the only copy a creator ever sees on a failed check — in their language,
@@ -117,6 +122,18 @@ interface AuthStrings {
       codeExpired: string;
       invalidCode: string;
       profileNotFound: string;
+      /**
+       * The session went away between claiming and verifying. Only reachable
+       * now that the route resolves identity from the cookie instead of from a
+       * profile id in the request body.
+       */
+      notSignedIn: string;
+      /**
+       * The profile names no account we can check — creator_id is NULL, or no
+       * social_profiles row resolves from it. Structurally impossible for a
+       * claim made after this change; possible for a row that predates it.
+       */
+      handleUnresolved: string;
     };
   };
 }
@@ -136,7 +153,6 @@ const en: AuthStrings = {
     handleNotFound: "Profile not found. You can still sign up and we'll add you.",
     emailLabel: 'Email',
     emailPlaceholder: 'you@example.com',
-    emailAutoVerified: "Email matches — you'll be auto-verified!",
     passwordLabel: 'Password',
     passwordPlaceholder: 'Min. 8 characters',
     submit: 'Create Account',
@@ -181,6 +197,8 @@ const en: AuthStrings = {
     verificationFailed: 'Verification failed. Please try again.',
     codeRegenerationFailed:
       "We couldn't create a new verification code. Reload the page to try again.",
+    alreadyClaimed:
+      'Someone has already claimed this profile. If that was you, sign in instead of creating a new account.',
     verification: {
       codeAbsent:
         "We couldn't find the code in your bio yet. Check that you tapped Save — and if you just did, wait a minute and try again, because Instagram and TikTok can take a moment to show the change.",
@@ -193,6 +211,10 @@ const en: AuthStrings = {
         "That code doesn't match the one we're expecting. Reload the page to get a fresh one.",
       profileNotFound:
         "We couldn't find your creator profile. Try signing out and back in.",
+      notSignedIn:
+        'Your session ended before we could check. Sign in again to finish verifying.',
+      handleUnresolved:
+        "We couldn't work out which account this profile belongs to, so there's nothing for us to check. Signing out and back in may help.",
     },
   },
 };
@@ -212,7 +234,6 @@ const es: AuthStrings = {
     handleNotFound: 'No encontramos ese perfil. Puedes registrarte igual y lo agregamos.',
     emailLabel: 'Correo electrónico',
     emailPlaceholder: 'tu@ejemplo.com',
-    emailAutoVerified: 'El correo coincide — te verificaremos automáticamente',
     passwordLabel: 'Contraseña',
     passwordPlaceholder: 'Mínimo 8 caracteres',
     submit: 'Crear cuenta',
@@ -258,6 +279,8 @@ const es: AuthStrings = {
     verificationFailed: 'No pudimos verificarte. Inténtalo de nuevo.',
     codeRegenerationFailed:
       'No pudimos crear un código de verificación nuevo. Recarga la página para intentarlo de nuevo.',
+    alreadyClaimed:
+      'Alguien ya reclamó este perfil. Si fuiste tú, inicia sesión en lugar de crear otra cuenta.',
     verification: {
       codeAbsent:
         'Todavía no encontramos el código en tu biografía. Revisa que hayas tocado Guardar — y si acabas de hacerlo, espera un minuto e inténtalo de nuevo, porque Instagram y TikTok pueden tardar un momento en mostrar el cambio.',
@@ -270,6 +293,10 @@ const es: AuthStrings = {
         'Ese código no coincide con el que esperamos. Recarga la página para obtener uno nuevo.',
       profileNotFound:
         'No encontramos tu perfil de creador. Cierra sesión y vuelve a entrar.',
+      notSignedIn:
+        'Tu sesión se cerró antes de que pudiéramos revisar. Vuelve a iniciar sesión para terminar la verificación.',
+      handleUnresolved:
+        'No pudimos determinar a qué cuenta pertenece este perfil, así que no hay nada que podamos revisar. Cerrar sesión y volver a entrar puede ayudar.',
     },
   },
 };
@@ -282,13 +309,64 @@ export function getAuthStrings(locale: Locale): AuthStrings {
 
 /** The reason codes /api/creators/verify-bio can return on a failed check. */
 export type VerificationReason =
+  | 'not_signed_in'
   | 'profile_not_found'
+  | 'handle_unresolved'
   | 'invalid_code'
   | 'code_expired'
   | 'too_many_attempts'
   | 'code_absent'
   | 'check_unavailable'
   | 'unexpected';
+
+/** The reason codes /api/creators/claim can return on a failed claim. */
+export type ClaimReason =
+  | 'handle_missing'
+  | 'handle_not_found'
+  | 'already_claimed'
+  | 'signup_failed'
+  | 'unexpected';
+
+/**
+ * Maps a claim failure response to localized copy.
+ *
+ * The sibling of verificationErrorMessage, and it exists for the same reason:
+ * that route now returns reason codes rather than `err.message`, which used to
+ * put raw Postgres and Supabase text — English, and sometimes a constraint
+ * name — in front of Spanish creators.
+ *
+ * `handle_missing` and `handle_not_found` share one message. The client blocks
+ * both before it ever POSTs (see handleStatus in _SignUpForm), so a creator
+ * reaching either has bypassed the form or raced a database change, and the
+ * distinction wouldn't help them.
+ */
+export function claimErrorMessage(
+  locale: Locale,
+  reason: string | null | undefined
+): string {
+  const t = TABLE[locale].errors;
+
+  switch (reason as ClaimReason) {
+    case 'handle_missing':
+    case 'handle_not_found':
+      return t.handleNotIndexed;
+    case 'already_claimed':
+      return t.alreadyClaimed;
+    case 'signup_failed':
+      return t.signupFailed;
+    case 'unexpected':
+      return t.signupFailed;
+    default:
+      // Same rationale as the verify-bio mapper below: silent fallback here
+      // has already cost one debugging session on the other route.
+      console.warn(
+        `[auth-strings] Unmapped claim reason: ${JSON.stringify(reason)}. ` +
+          'Falling back to the generic message. Usually a stale client bundle ' +
+          'running against a newer server — hard-reload before digging further.'
+      );
+      return t.signupFailed;
+  }
+}
 
 /**
  * Maps a verify-bio failure response to localized copy.
@@ -331,6 +409,10 @@ export function verificationErrorMessage(
       return t.verification.invalidCode;
     case 'profile_not_found':
       return t.verification.profileNotFound;
+    case 'not_signed_in':
+      return t.verification.notSignedIn;
+    case 'handle_unresolved':
+      return t.verification.handleUnresolved;
     // Recognised, and the generic message is the right answer for it — the
     // server sends this for an unhandled 500, where there is nothing specific
     // to say. Listed explicitly so it doesn't trip the warning below.

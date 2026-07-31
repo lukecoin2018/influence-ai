@@ -24,6 +24,10 @@ import type { Locale } from '@/app/claim/[handle]/_strings';
 import type { CreatorBrandMatches, MatchedBrand } from '@/lib/reports/creator-brand-matches';
 import type { OutreachIdentity, OutreachStep } from '@/lib/outreach/messages';
 import { getOutreachUiStrings } from '@/lib/outreach/ui-strings';
+// Only for the unverified state below. Reuses the gate's existing title and the
+// Overview page's pending sentence rather than minting a third phrasing for the
+// same situation — three wordings for one state is how they drift apart.
+import { getDashboardStrings } from '@/lib/i18n/dashboard-strings';
 
 const GREY = '#3A3A3A';
 
@@ -102,6 +106,11 @@ function OutreachPageInner() {
   const [sends, setSends] = useState<OutreachSend[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
+  // Distinguished from loadFailed on purpose: both endpoints below now return
+  // 403 until the claim is verified, and telling a creator their data failed to
+  // load when we simply refused to serve it is the kind of copy that sends them
+  // reloading forever.
+  const [blocked, setBlocked] = useState(false);
 
   // Auth guard. This is the negotiate/contract mechanism — router.push from an
   // effect — rather than brands-hiring's `window.location.href` assignment
@@ -125,6 +134,8 @@ function OutreachPageInner() {
     async function load() {
       setDataLoading(true);
       setLoadFailed(false);
+      setBlocked(false);
+      let refused = false;
       try {
         // A MatchedBrand cannot travel in a URL — only its canonical name can,
         // so the match is re-found here from the same endpoint Brands Hiring
@@ -132,7 +143,10 @@ function OutreachPageInner() {
         // string also means the message can never quote a figure that has since
         // changed underneath it.
         const [matchesRes, profilesRes, summaryRes, sendsRes] = await Promise.all([
-          fetch('/api/creator/brand-matches').then((r) => (r.ok ? r.json() : null)),
+          fetch('/api/creator/brand-matches').then((r) => {
+            if (r.status === 403) refused = true;
+            return r.ok ? r.json() : null;
+          }),
           supabase.from('social_profiles').select('*').eq('creator_id', creatorId),
           // maybeSingle(), where Overview uses single() — the one deliberate
           // deviation. single() turns "this creator has no summary row" into an
@@ -144,7 +158,11 @@ function OutreachPageInner() {
 
         if (cancelled) return;
 
-        if (!matchesRes) { setLoadFailed(true); return; }
+        if (!matchesRes) {
+          if (refused) setBlocked(true);
+          else setLoadFailed(true);
+          return;
+        }
 
         const data = matchesRes as CreatorBrandMatches;
         setMatch(data.matches.find((m) => m.canonicalName === brandParam) ?? null);
@@ -266,6 +284,20 @@ function OutreachPageInner() {
       <div style={{ maxWidth: '760px' }}>
         {header}
         <EmptyState title={ui.pickBrandTitle} body={ui.pickBrandBody} backLabel={ui.backToBrandsHiring} />
+      </div>
+    );
+  }
+
+  if (blocked) {
+    const d = getDashboardStrings(locale);
+    return (
+      <div style={{ maxWidth: '760px' }}>
+        {header}
+        <EmptyState
+          title={d.layout.verifyGateTitle}
+          body={d.overview.pendingVerificationBody}
+          backLabel={ui.backToBrandsHiring}
+        />
       </div>
     );
   }

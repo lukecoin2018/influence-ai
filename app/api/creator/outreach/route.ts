@@ -32,8 +32,15 @@ async function resolveCreatorProfile(): Promise<{ creatorProfileId: string } | {
   const { data: { user } } = await session.auth.getUser();
   if (!user) return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
 
-  const { data: profile } = await session.from('creator_profiles').select('id').eq('id', user.id).maybeSingle();
+  const { data: profile } = await session.from('creator_profiles').select('id, claim_status').eq('id', user.id).maybeSingle();
   if (!profile?.id) return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+
+  // Verified only. Outreach speaks to brands in the creator's name, so an
+  // unproven claim must not be able to send it — nor to read back the history
+  // of messages the real owner has sent.
+  if (profile.claim_status !== 'verified') {
+    return { error: NextResponse.json({ error: 'Forbidden', reason: 'not_verified' }, { status: 403 }) };
+  }
 
   return { creatorProfileId: profile.id };
 }

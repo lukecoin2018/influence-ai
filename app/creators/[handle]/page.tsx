@@ -7,6 +7,7 @@ import { formatCount, formatFollowerRatio, formatDate, cleanDiscoveryTags } from
 import { supabase } from '@/lib/supabase';
 import type { Metadata } from 'next';
 import type { CreatorDetail, SocialProfile, EnrichmentData } from '@/lib/types';
+import { SOCIAL_PROFILE_PUBLIC_COLUMNS } from '@/lib/types';
 import { SaveToShortlist } from '@/components/SaveToShortlist';
 import { GetInTouchButton } from '@/components/GetInTouchButton';
 import { AiSummaryCard } from '@/components/creator/AiSummaryCard';
@@ -31,10 +32,16 @@ async function getCreator(handle: string): Promise<CreatorDetail | null> {
 
   if (!creator) return null;
 
+  // Named columns, not '*' — see SOCIAL_PROFILE_PUBLIC_COLUMNS. This read runs
+  // as the anon role, and '*' here is one of the two reasons the anon grant on
+  // social_profiles cannot be narrowed to exclude detected_email.
+  // .returns<>() because the select string is a constant rather than a literal,
+  // so supabase-js can't parse a row type out of it on its own.
   const { data: profiles } = await supabase
     .from('social_profiles')
-    .select('*')
-    .eq('creator_id', profile.creator_id);
+    .select(SOCIAL_PROFILE_PUBLIC_COLUMNS)
+    .eq('creator_id', profile.creator_id)
+    .returns<SocialProfile[]>();
 
   const { data: summary } = await supabase
     .from('v_creator_summary')

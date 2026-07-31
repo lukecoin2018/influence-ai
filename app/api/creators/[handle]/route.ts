@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { SOCIAL_PROFILE_PUBLIC_COLUMNS } from '@/lib/types';
+import type { SocialProfile } from '@/lib/types';
 
 export async function GET(
   request: Request,
@@ -28,10 +30,14 @@ export async function GET(
     return NextResponse.json({ error: 'Creator not found' }, { status: 404 });
   }
 
+  // Named columns, not '*' — see SOCIAL_PROFILE_PUBLIC_COLUMNS. This is a
+  // public unauthenticated endpoint running as the anon role: '*' was returning
+  // every social_profiles column, detected_email included, in the JSON body.
   const { data: profiles } = await supabase
     .from('social_profiles')
-    .select('*')
-    .eq('creator_id', profile.creator_id);
+    .select(SOCIAL_PROFILE_PUBLIC_COLUMNS)
+    .eq('creator_id', profile.creator_id)
+    .returns<SocialProfile[]>();
 
   return NextResponse.json({ creator: { ...creator, social_profiles: profiles ?? [] } });
 }

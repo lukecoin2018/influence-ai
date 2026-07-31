@@ -25,13 +25,20 @@ async function handlePOST(request: Request) {
     // Verify this is actually a creator
     const { data: creatorProfile } = await supabase
       .from('creator_profiles')
-      .select('id, token_balance')
+      .select('id, token_balance, claim_status')
       .eq('id', user.id)
       .maybeSingle();
 
     if (!creatorProfile) {
       // Not a creator — allow through without charging
       return NextResponse.json({ success: true, balance: 0, skipped: true });
+    }
+
+    // A pending claim can't spend. The tools this charges for are gated on
+    // verification anyway; without this check an unproven claim could drain the
+    // balance that belongs to the creator who eventually proves the account.
+    if (creatorProfile.claim_status !== 'verified') {
+      return NextResponse.json({ error: 'Forbidden', reason: 'not_verified' }, { status: 403 });
     }
 
     const result = await spendCreatorTokens(user.id, action as TokenAction);
