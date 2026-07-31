@@ -1,4 +1,5 @@
--- STATUS: NOT YET APPLIED as of 2026-07-31.
+-- STATUS: APPLIED 2026-07-31. Both columns confirmed present on
+-- creator_outreach in production.
 --
 -- Records WHICH generated DM was sent to a creator, so the A/B in the admin
 -- Creator Targeting panel (app/admin/targeting) can be read back later.

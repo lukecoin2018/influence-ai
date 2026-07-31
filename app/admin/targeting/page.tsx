@@ -96,7 +96,18 @@ export default function AdminTargetingPage() {
   // The open DM draft, if any — one at a time, keyed by creator. `text` is
   // the EDITED text, not a derived value: the draft is a starting point the
   // admin rewrites before sending, so it must survive re-renders.
-  const [dmDraft, setDmDraft] = useState<{ creatorId: string; variant: DmVariant; text: string } | null>(null);
+  //
+  // `referenceText` is the OTHER variant, rendered read-only for comparison.
+  // Both strings are built in openDmDraft rather than during render because
+  // they need window.location.origin, and this route prerenders (it builds as
+  // Static) — touching window in a render path would break the build.
+  const [dmDraft, setDmDraft] = useState<{
+    creatorId: string;
+    variant: DmVariant;
+    text: string;
+    referenceVariant: DmVariant;
+    referenceText: string;
+  } | null>(null);
   const [dmCopied, setDmCopied] = useState(false);
   const requestSeq = useRef(0);
 
@@ -199,22 +210,30 @@ export default function AdminTargetingPage() {
   }
 
   function openDmDraft(row: RankedCreator) {
+    // The assigned variant, and ONLY the assigned variant, is what gets sent
+    // and recorded. It stays a deterministic hash of creatorId — deliberately
+    // not selectable, because letting the admin pick which message a given
+    // creator receives would make the assignment non-random and quietly
+    // destroy the A/B this records.
     const variant = variantForCreator(row.creatorId);
+    const referenceVariant: DmVariant = variant === 'A' ? 'B' : 'A';
+    const common = {
+      // Same isSpanish that produced row.dmLink server-side, so the message
+      // body and the link inside it can never end up in different languages.
+      locale: row.isSpanish ? ('es' as const) : ('en' as const),
+      greetingName: resolveGreetingName(row.displayName, row.handle),
+      matchCount: row.totalMatchCount,
+      followersFormatted: formatCount(row.followerCount),
+      // Built exactly as copyLink() below does — never re-derived.
+      url: `${window.location.origin}${row.dmLink}`,
+    };
     setDmCopied(false);
     setDmDraft({
       creatorId: row.creatorId,
       variant,
-      text: buildDmMessage({
-        // Same isSpanish that produced row.dmLink server-side, so the message
-        // body and the link inside it can never end up in different languages.
-        locale: row.isSpanish ? 'es' : 'en',
-        variant,
-        greetingName: resolveGreetingName(row.displayName, row.handle),
-        matchCount: row.totalMatchCount,
-        followersFormatted: formatCount(row.followerCount),
-        // Built exactly as copyLink() below does — never re-derived.
-        url: `${window.location.origin}${row.dmLink}`,
-      }),
+      text: buildDmMessage({ ...common, variant }),
+      referenceVariant,
+      referenceText: buildDmMessage({ ...common, variant: referenceVariant }),
     });
   }
 
@@ -227,6 +246,25 @@ export default function AdminTargetingPage() {
     } catch (err) {
       console.error('Failed to copy DM:', err);
     }
+  }
+
+  /**
+   * The same copy, started but deliberately NOT awaited, for the anchor that
+   * also opens the DM thread. Awaiting would push the navigation out of the
+   * click's synchronous path; starting it here runs the clipboard API's
+   * focus/permission check while this document is still focused, which is
+   * what actually determines whether the write survives.
+   */
+  function copyDmDraftFireAndForget() {
+    if (!dmDraft) return;
+    const text = dmDraft.text;
+    void navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setDmCopied(true);
+        setTimeout(() => setDmCopied(false), 1500);
+      })
+      .catch((err) => console.error('Failed to copy DM:', err));
   }
 
   async function copyLink(row: RankedCreator) {
@@ -428,9 +466,50 @@ export default function AdminTargetingPage() {
                               <button onClick={copyDmDraft} style={linkBtnStyle(false)}>
                                 {dmCopied ? 'Copied!' : 'Copy message'}
                               </button>
+                              {/*
+                                An anchor, not a button calling window.open(). A scripted
+                                window.open() after `await clipboard.writeText()` is subject to
+                                the popup blocker — measured returning null even with transient
+                                activation still live — whereas activating a real anchor is a
+                                native navigation that is never blocked. The clipboard write is
+                                fired here rather than awaited: its focus/permission check runs
+                                at invocation, which is during the gesture while this document
+                                still has focus, so the copy cannot be dropped by the new tab
+                                taking focus. Measured: write resolves, document still focused.
+
+                                ig.me/m/<handle> per CLAUDE.md — verified on desktop and mobile
+                                web. On mobile this opens the browser, not the app; the
+                                instagram:// scheme is deliberately NOT used to force the app.
+                              */}
+                              <a
+                                href={`https://ig.me/m/${row.handle}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onClick={() => copyDmDraftFireAndForget()}
+                                style={previewLinkStyle}
+                                title="Copy the message above, then open the Instagram DM thread"
+                              >
+                                Copy &amp; open DM
+                              </a>
                               <button onClick={() => openDmDraft(row)} style={linkBtnStyle(false)} title="Discard edits and rebuild from the row">
                                 Reset
                               </button>
+                            </div>
+
+                            {/*
+                              The variant this creator did NOT get, read-only, for comparison
+                              only. Rendered as text rather than a second textarea so there is
+                              no affordance suggesting it can be sent: no editing, no copy
+                              button, and it is not part of what Mark DMed records.
+                            */}
+                            <div style={{ marginTop: '14px', paddingTop: '10px', borderTop: '1px dashed #E5E7EB' }}>
+                              <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '4px', flexWrap: 'wrap' }}>
+                                <span style={badgeStyle('#6B7280', '#F3F4F6')}>Variant {dmDraft.referenceVariant}</span>
+                                <span style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                                  Reference only — not assigned to this creator, not sent, not recorded.
+                                </span>
+                              </div>
+                              <div style={dmReferenceStyle}>{dmDraft.referenceText}</div>
                             </div>
                           </td>
                         </tr>
@@ -476,6 +555,17 @@ const dmTextareaStyle: React.CSSProperties = {
   fontFamily: 'inherit',
   color: '#3A3A3A',
   resize: 'vertical',
+};
+/** Read-only reference copy of the unassigned variant — muted, non-editable, no controls. */
+const dmReferenceStyle: React.CSSProperties = {
+  whiteSpace: 'pre-wrap',
+  padding: '10px 12px',
+  borderRadius: '8px',
+  border: '1px dashed #E5E7EB',
+  backgroundColor: '#F9FAFB',
+  fontSize: '13px',
+  lineHeight: 1.5,
+  color: '#9CA3AF',
 };
 const previewLinkStyle: React.CSSProperties = { padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, border: '1px solid #E5E7EB', backgroundColor: 'white', color: '#374151', textDecoration: 'none', display: 'inline-block' };
 
