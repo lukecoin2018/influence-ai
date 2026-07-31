@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from './supabase-server';
+import { createSupabaseAdminClient } from './supabase-admin';
 
 // ─── Token costs (single source of truth) ────────────────────────────────────
 export const TOKEN_COSTS = {
@@ -162,12 +163,27 @@ export async function getCreatorTokenBalance(userId: string): Promise<number> {
   return data?.token_balance ?? 0;
 }
 
+/**
+ * The balance write goes through the service-role client, not the caller's
+ * session.
+ *
+ * Required by supabase/migrations/0015: that trigger rejects an authenticated
+ * caller changing token_balance, and this update ran as `authenticated`, so
+ * charging a creator would start failing the moment the migration is applied.
+ *
+ * It is also the right client independently of the trigger. A balance debit
+ * authorized by the account being debited is only ever as trustworthy as the
+ * RLS policy behind it — and creators_update_own is exactly the policy 0015
+ * exists to contain. The caller is still identified by their session in the
+ * route handler above; only the write is privileged.
+ */
 export async function spendCreatorTokens(
   userId: string,
   action: TokenAction,
   metadata?: Record<string, unknown>
 ): Promise<{ success: boolean; balance: number; error?: string }> {
   const supabase = await createSupabaseServerClient();
+  const admin = createSupabaseAdminClient();
   const amount = TOKEN_COSTS[action];
 
   const { data: profile } = await supabase
@@ -184,7 +200,7 @@ export async function spendCreatorTokens(
 
   const newBalance = currentBalance - amount;
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await admin
     .from('creator_profiles')
     .update({ token_balance: newBalance })
     .eq('id', userId);
@@ -205,15 +221,23 @@ export async function spendCreatorTokens(
 }
 
 // ─── Grant tokens to a creator (for earn events) ─────────────
+/**
+ * Service-role throughout, for the same reason as spendCreatorTokens plus one
+ * of its own: its only caller is app/api/inquiries/route.ts, which is
+ * unauthenticated, so there is no session here to read or write with. Under the
+ * session client every statement below ran as `anon` against a table whose
+ * policies key on auth.uid(), which cannot match — so the grant silently did
+ * nothing and the caller's `success` was never checked.
+ */
 export async function grantCreatorTokens(
   userId: string,
   amount: number,
   action: string,
   metadata?: Record<string, unknown>
 ): Promise<{ success: boolean; balance: number; error?: string }> {
-  const supabase = await createSupabaseServerClient();
+  const admin = createSupabaseAdminClient();
 
-  const { data: profile } = await supabase
+  const { data: profile } = await admin
     .from('creator_profiles')
     .select('token_balance')
     .eq('id', userId)
@@ -222,7 +246,7 @@ export async function grantCreatorTokens(
   const currentBalance = profile?.token_balance ?? 0;
   const newBalance = currentBalance + amount;
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await admin
     .from('creator_profiles')
     .update({ token_balance: newBalance })
     .eq('id', userId);
@@ -231,7 +255,7 @@ export async function grantCreatorTokens(
     return { success: false, balance: currentBalance, error: updateError.message };
   }
 
-  await supabase.from('token_transactions').insert({
+  await admin.from('token_transactions').insert({
     user_id: userId,
     action,
     tokens_delta: amount,

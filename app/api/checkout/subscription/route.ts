@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { stripe, PRICE_IDS } from '@/lib/stripe';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { withNoStore } from '@/lib/http/no-store';
 
 export const POST = withNoStore(handlePOST);
@@ -44,7 +45,11 @@ async function handlePOST(req: NextRequest) {
       });
       customerId = customer.id;
 
-      await supabase
+      // Service-role for the write: stripe_customer_id is one of the columns
+      // supabase/migrations/0015 stops an authenticated caller from changing,
+      // and profileTable is creator_profiles for a creator. The row is still
+      // scoped to user.id from the session read above.
+      await createSupabaseAdminClient()
         .from(profileTable)
         .update({ stripe_customer_id: customerId })
         .eq('id', user.id);

@@ -18,6 +18,11 @@ export default function BrandsHiringPage() {
 
   const [data, setData] = useState<BrandMatchesResponse | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
+  // The route now returns 403 until the claim is verified. Tracked separately
+  // from `data` because the old code fed the error body straight into setData,
+  // so a non-2xx produced an object with no `matches` and the page rendered
+  // undefined into BrandsHiring.
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     if (!creatorProfile || !creatorProfile.creator_id) {
@@ -26,9 +31,17 @@ export default function BrandsHiringPage() {
     }
 
     setDataLoading(true);
+    setBlocked(false);
     fetch('/api/creator/brand-matches')
-      .then((res) => res.json())
+      .then(async (res) => {
+        if (!res.ok) {
+          setBlocked(true);
+          return null;
+        }
+        return res.json();
+      })
       .then((json) => setData(json))
+      .catch(() => setBlocked(true))
       .finally(() => setDataLoading(false));
   }, [creatorProfile?.creator_id]);
 
@@ -39,6 +52,16 @@ export default function BrandsHiringPage() {
   );
   if (!user) { window.location.href = '/login'; return null; }
   if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; }
+  // Not the "no matches" card: that one says we looked and found nothing. Here
+  // we didn't look. The layout's verification gate renders over this with the
+  // CTA, so this only has to be calm and true rather than a stuck spinner.
+  if (blocked) return (
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', padding: '24px' }}>
+      <p style={{ color: '#9CA3AF', maxWidth: 420, textAlign: 'center' }}>
+        {t.overview.pendingVerificationBody}
+      </p>
+    </div>
+  );
   if (dataLoading || !data) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
       <p style={{ color: '#9CA3AF' }}>{t.brandsHiring.loadingMatches}</p>

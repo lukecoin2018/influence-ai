@@ -16,7 +16,11 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { HtmlLangSync } from '@/app/claim/[handle]/_HtmlLangSync';
 import type { Locale } from '@/app/claim/[handle]/_strings';
-import { getAuthStrings, verificationErrorMessage } from '@/lib/i18n/auth-strings';
+import {
+  getAuthStrings,
+  claimErrorMessage,
+  verificationErrorMessage,
+} from '@/lib/i18n/auth-strings';
 
 type Role = 'brand' | 'creator' | null;
 type Step = 'role' | 'form' | 'verify';
@@ -77,15 +81,9 @@ function SignUpContent() {
   const [handleStatus, setHandleStatus] = useState<
     'idle' | 'checking' | 'found' | 'not-found'
   >('idle');
-  const [foundCreatorId, setFoundCreatorId] = useState<string | null>(null);
-  const [foundPlatform, setFoundPlatform] = useState<'instagram' | 'tiktok'>(
-    'instagram'
-  );
-  const [detectedEmail, setDetectedEmail] = useState<string | null>(null);
 
   // Verify step state
   const [verifyCode, setVerifyCode] = useState('');
-  const [creatorProfileId, setCreatorProfileId] = useState('');
   const [verifyHandle, setVerifyHandle] = useState('');
   const [verifyPlatform, setVerifyPlatform] = useState<'instagram' | 'tiktok'>(
     'instagram'
@@ -108,23 +106,19 @@ function SignUpContent() {
     }
     setHandleStatus('checking');
 
+    // Existence check only. This used to also read detected_email, so the
+    // browser could tell the claim route what the scraped email was — which is
+    // what made the auto-verify comparison forgeable. Nothing downstream needs
+    // creator_id or platform from here either: /api/creators/claim resolves
+    // both from this same table, server-side, from the handle it is sent.
     const { data } = await supabase
       .from('social_profiles')
-      .select('creator_id, detected_email, platform')
+      .select('creator_id')
       .eq('handle', cleaned)
       .limit(1)
-      .single();
+      .maybeSingle();
 
-    if (data) {
-      setHandleStatus('found');
-      setFoundCreatorId(data.creator_id);
-      setDetectedEmail(data.detected_email ?? null);
-      setFoundPlatform(data.platform ?? 'instagram');
-    } else {
-      setHandleStatus('not-found');
-      setFoundCreatorId(null);
-      setDetectedEmail(null);
-    }
+    setHandleStatus(data?.creator_id ? 'found' : 'not-found');
   }
 
   // ── Brand signup ──────────────────────────────────────────────────────────
@@ -170,41 +164,44 @@ function SignUpContent() {
       return;
     }
 
+    // creatorId, platform and detectedEmail are deliberately not sent. The
+    // route resolves the first two from `handle` against social_profiles, and
+    // the third no longer exists — every claim now proves itself through the
+    // bio code, so there is no branch for the server to be talked into.
     const res = await fetch('/api/creators/claim', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email,
-        password,
-        handle,
-        creatorId: foundCreatorId,
-        platform: foundPlatform,
-        detectedEmail,
-        locale,
-      }),
+      body: JSON.stringify({ email, password, handle, locale }),
     });
 
-    const data = await res.json();
+    const data = await res.json().catch(() => null);
 
-    if (!res.ok || !data.success) {
-      setError(data.error ?? t.errors.signupFailed);
+    if (!res.ok || !data?.success) {
+      // Keyed off the reason code, never the server's prose — same contract as
+      // the verify step below.
+      setError(claimErrorMessage(locale, data?.reason));
       setLoading(false);
       return;
     }
 
-    // Sign in the user now that account has been created via admin client
-    await supabase.auth.signInWithPassword({ email, password });
+    // Sign in the user now that account has been created via admin client.
+    // This must succeed before the verify step: /api/creators/verify-bio now
+    // resolves the caller from the session cookie rather than from a profile id
+    // in the request body, so a failure here would make verification 401.
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    // Email matched detected email — skip bio verification
-    if (data.autoVerified) {
-      window.location.href = '/creator-dashboard';
+    if (signInError) {
+      setError(t.errors.signupFailed);
+      setLoading(false);
       return;
     }
 
     // Show bio verification step
     setVerifyCode(data.code);
-    setCreatorProfileId(data.userId);
-    setVerifyHandle(handle);
+    setVerifyHandle(data.handle ?? handle);
     setVerifyPlatform(data.platform);
     setStep('verify');
     setLoading(false);
@@ -218,12 +215,9 @@ function SignUpContent() {
     const res = await fetch('/api/creators/verify-bio', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        creatorProfileId,
-        handle: verifyHandle,
-        platform: verifyPlatform,
-        code: verifyCode,
-      }),
+      // The code only. Who is verifying, and which account gets checked, are
+      // both resolved server-side from the session — see that route's docstring.
+      body: JSON.stringify({ code: verifyCode }),
     });
 
     const data = await res.json().catch(() => null);
@@ -626,19 +620,6 @@ function SignUpContent() {
                     required
                     placeholder={t.claimForm.emailPlaceholder}
                   />
-                  {detectedEmail &&
-                    email &&
-                    detectedEmail.toLowerCase() === email.toLowerCase() && (
-                      <p
-                        style={{
-                          fontSize: '12px',
-                          color: '#059669',
-                          margin: '4px 0 0 0',
-                        }}
-                      >
-                        ✓ {t.claimForm.emailAutoVerified}
-                      </p>
-                    )}
                 </div>
                 <div>
                   <label style={labelStyle}>{t.claimForm.passwordLabel}</label>

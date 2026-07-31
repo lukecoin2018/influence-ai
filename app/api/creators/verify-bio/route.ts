@@ -3,8 +3,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { recordFunnelEvent } from '@/lib/funnel/events';
 import { checkBioForCode } from '@/lib/apify';
+import { withNoStore } from '@/lib/http/no-store';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -32,7 +34,9 @@ const ATTEMPT_WINDOW_MS = 60 * 60 * 1000;
  * client's string table and land untranslated in front of Spanish creators.
  */
 type Reason =
+  | 'not_signed_in'
   | 'profile_not_found'
+  | 'handle_unresolved'
   | 'invalid_code'
   | 'code_expired'
   | 'too_many_attempts'
@@ -40,9 +44,43 @@ type Reason =
   | 'check_unavailable'
   | 'unexpected';
 
-export async function POST(req: NextRequest) {
+/**
+ * Reads a session, so it must never be stored by a shared cache — the VPS's
+ * nginx keys on URI alone. See lib/http/no-store.ts.
+ */
+export const POST = withNoStore(handlePOST);
+
+/**
+ * Identity comes from the session cookie; the only thing taken from the body
+ * is the code the creator was shown.
+ *
+ * It used to take `creatorProfileId`, `handle` and `platform` from the body,
+ * and that is what made it forgeable: the bio it checked belonged to the
+ * caller-supplied handle, never to the profile it was about to mark verified.
+ * Claiming someone else's creator_id, then pasting the real code into your own
+ * bio, passed. The handle checked is now derived from the profile's creator_id,
+ * so the account proven is always the account claimed.
+ *
+ * Same shape as app/api/creators/regenerate-code/route.ts, whose docstring
+ * makes the same argument about the same class of body parameter — the session
+ * client establishes who the caller is, the service-role client does the write,
+ * because creator_profiles' RLS policies are not guaranteed to permit it.
+ */
+async function handlePOST(req: NextRequest) {
   try {
-    const { creatorProfileId, handle, platform, code } = await req.json();
+    const { code } = await req.json();
+
+    const session = await createSupabaseServerClient();
+    const {
+      data: { user },
+    } = await session.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json(
+        { ok: false, reason: 'not_signed_in' satisfies Reason },
+        { status: 401 }
+      );
+    }
 
     // select('*') rather than a column list so this route keeps working if
     // 0010 hasn't been applied yet: PostgREST errors on an unknown column in
@@ -52,8 +90,8 @@ export async function POST(req: NextRequest) {
     const { data: profile } = await supabaseAdmin
       .from('creator_profiles')
       .select('*')
-      .eq('id', creatorProfileId)
-      .single();
+      .eq('id', user.id)
+      .maybeSingle();
 
     if (!profile) {
       return NextResponse.json(
@@ -113,13 +151,42 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // ── Which account are we about to prove? ──────────────────────────────
+    // The profile's own, resolved here rather than accepted from the caller.
+    // A profile with no creator_id can't name an account to check — the claim
+    // route no longer produces one, but a row predating that fix can exist.
+    if (!profile.creator_id) {
+      return NextResponse.json(
+        { ok: false, reason: 'handle_unresolved' satisfies Reason },
+        { status: 400 }
+      );
+    }
+
+    const { data: socialProfile } = await supabaseAdmin
+      .from('social_profiles')
+      .select('handle, platform')
+      .eq('creator_id', profile.creator_id)
+      .limit(1)
+      .maybeSingle();
+
+    if (!socialProfile?.handle) {
+      return NextResponse.json(
+        { ok: false, reason: 'handle_unresolved' satisfies Reason },
+        { status: 400 }
+      );
+    }
+
+    const handle: string = socialProfile.handle;
+    const platform: 'instagram' | 'tiktok' =
+      socialProfile.platform === 'tiktok' ? 'tiktok' : 'instagram';
+
     // ── The check itself ──────────────────────────────────────────────────
     // Runs BEFORE the counter moves, which reverses the previous order. That
     // order existed to narrow a race, but it also meant every call was charged
     // an attempt before we knew whether the creator had done anything wrong —
     // the specific thing this change exists to stop. The race is handled below
     // instead, without pre-charging.
-    const outcome = await checkBioForCode(handle, platform as 'instagram' | 'tiktok', code);
+    const outcome = await checkBioForCode(handle, platform, code);
 
     if (outcome === 'found') {
       await supabaseAdmin
@@ -134,11 +201,12 @@ export async function POST(req: NextRequest) {
           verification_attempts: 0,
           last_verification_attempt_at: null,
         })
-        .eq('id', creatorProfileId);
+        .eq('id', user.id);
 
-      // The bio-code half of `verified`. The other half is the auto-verify
-      // branch in app/api/creators/claim/route.ts, which never reaches this
-      // route — both must fire or the event undercounts.
+      // `verified` is now single-sourced here. The claim route's auto-verify
+      // branch used to fire the other half with details { path:
+      // 'auto_email_match' }; that branch is gone, so every `verified` row
+      // written from now on means a bio code was actually found.
       //
       // Deliberately NOT fired by the already-verified early return above:
       // that path is an idempotent re-check of a creator who was verified at
@@ -151,7 +219,7 @@ export async function POST(req: NextRequest) {
         // exist and undefined when they don't (0009 unapplied) — either way
         // this coalesces to null rather than failing the write.
         creatorId: profile.creator_id ?? null,
-        creatorProfileId,
+        creatorProfileId: user.id,
         locale: profile.locale ?? null,
         userAgent: req.headers.get('user-agent'),
         details: { path: 'bio_code', platform },
@@ -185,7 +253,7 @@ export async function POST(req: NextRequest) {
         verification_attempts: effectiveAttempts + 1,
         last_verification_attempt_at: new Date().toISOString(),
       })
-      .eq('id', creatorProfileId)
+      .eq('id', user.id)
       .eq('verification_attempts', storedAttempts);
 
     return NextResponse.json({

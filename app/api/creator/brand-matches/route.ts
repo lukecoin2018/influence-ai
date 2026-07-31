@@ -24,8 +24,16 @@ async function handleGET() {
   const { data: { user } } = await session.auth.getUser();
   if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { data: profile } = await session.from('creator_profiles').select('creator_id').eq('id', user.id).maybeSingle();
+  // claim_status, not just creator_id. A pending claim is an unproven assertion
+  // that this account belongs to that creator — until the bio code confirms it,
+  // serving that creator's brand matches hands their data to whoever asserted
+  // it. The dashboard's own gate (creator-dashboard/layout.tsx) is a React
+  // modal and does not reach this route.
+  const { data: profile } = await session.from('creator_profiles').select('creator_id, claim_status').eq('id', user.id).maybeSingle();
   if (!profile?.creator_id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  if (profile.claim_status !== 'verified') {
+    return NextResponse.json({ error: 'Forbidden', reason: 'not_verified' }, { status: 403 });
+  }
 
   const admin = createSupabaseAdminClient();
 

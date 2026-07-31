@@ -26,7 +26,6 @@ export default function VerifyPage() {
   const [code, setCode] = useState('');
   const [handle, setHandle] = useState('');
   const [platform, setPlatform] = useState<'instagram' | 'tiktok'>('instagram');
-  const [userId, setUserId] = useState('');
   const [copied, setCopied] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState('');
@@ -47,8 +46,6 @@ export default function VerifyPage() {
         router.push('/auth/login');
         return;
       }
-
-      setUserId(user.id);
 
       // Get creator profile
       const { data: profile } = await supabase
@@ -130,12 +127,12 @@ export default function VerifyPage() {
     const res = await fetch('/api/creators/verify-bio', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        creatorProfileId: userId,
-        handle,
-        platform,
-        code,
-      }),
+      // The code only. The route resolves the caller from the session cookie
+      // and the account to check from that profile's creator_id — sending a
+      // profile id and a handle is what let one creator verify against another
+      // creator's row. `handle` and `platform` are still read above, for the
+      // on-screen instructions.
+      body: JSON.stringify({ code }),
     });
 
     const data = await res.json().catch(() => null);
