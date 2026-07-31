@@ -43,6 +43,21 @@ type SocialProfileCandidateRow = {
   creators: { display_name: string | null } | { display_name: string | null }[] | null;
 };
 
+/**
+ * One creator_outreach row. `variant` and `sent_match_count` arrive from
+ * migration 0014 and are declared optional because that migration is applied
+ * by hand, out of band: the select('*') below returns whatever columns exist,
+ * so before 0014 lands these are simply absent rather than null. Same
+ * convention as creator_profiles.locale — see context/AuthContext.tsx.
+ */
+type OutreachRow = {
+  creator_id: string;
+  status: string;
+  dmed_at: string | null;
+  variant?: string | null;
+  sent_match_count?: number | null;
+};
+
 export type RankedCreator = {
   creatorId: string;
   handle: string;
@@ -58,6 +73,10 @@ export type RankedCreator = {
   claimed: boolean;
   outreachStatus: 'not_contacted' | 'dmed';
   dmedAt: string | null;
+  /** The A/B variant actually recorded when this creator was marked DMed, or null before 0014 / before contact. */
+  sentVariant: string | null;
+  /** The match count that was in the DM when it was sent — NOT the live count, which moves as brackets refresh. */
+  sentMatchCount: number | null;
   isSpanish: boolean;
   dmLink: string;
   strength: TeaserStrengthInput;
@@ -103,7 +122,7 @@ function buildRankedCreator(
   row: SocialProfileCandidateRow,
   matches: CreatorBrandMatches,
   claimedSet: Set<string>,
-  outreachByCreator: Map<string, { status: string; dmed_at: string | null }>,
+  outreachByCreator: Map<string, OutreachRow>,
 ): RankedCreator {
   const strength = computeTeaserStrengthInput(matches, row.detected_niche);
   const outreach = outreachByCreator.get(row.creator_id);
@@ -124,6 +143,8 @@ function buildRankedCreator(
     claimed: claimedSet.has(row.creator_id),
     outreachStatus: (outreach?.status === 'dmed' ? 'dmed' : 'not_contacted'),
     dmedAt: outreach?.dmed_at ?? null,
+    sentVariant: outreach?.variant ?? null,
+    sentMatchCount: outreach?.sent_match_count ?? null,
     isSpanish,
     dmLink: `${isSpanish ? '/es' : ''}/claim/${row.handle}`,
     strength,
@@ -197,7 +218,13 @@ async function handleGET(req: NextRequest) {
         DB_TIMEOUT_MS,
       ),
       withTimeout(
-        Promise.resolve(admin.from('creator_outreach').select('creator_id, status, dmed_at').in('creator_id', creatorIds.length ? creatorIds : [''])),
+        // select('*') rather than a column list on purpose: migration 0014's
+        // variant / sent_match_count are applied by hand and out of band, and
+        // PostgREST rejects a select naming a column that does not exist yet.
+        // '*' returns whatever the table currently has, so this route keeps
+        // working either side of the migration. The table is one narrow row
+        // per contacted creator, so there is nothing to save by narrowing it.
+        Promise.resolve(admin.from('creator_outreach').select('*').in('creator_id', creatorIds.length ? creatorIds : [''])),
         DB_TIMEOUT_MS,
       ),
     ]);
@@ -208,7 +235,7 @@ async function handleGET(req: NextRequest) {
       ((claimedResult.data ?? []) as { creator_id: string | null }[]).map((r) => r.creator_id).filter((id): id is string => !!id),
     );
     const outreachByCreator = new Map(
-      ((outreachResult.data ?? []) as { creator_id: string; status: string; dmed_at: string | null }[]).map((r) => [r.creator_id, r]),
+      ((outreachResult.data ?? []) as OutreachRow[]).map((r) => [r.creator_id, r]),
     );
 
     // Stage B: bounded, chunked getCreatorBrandMatches — sequential chunks

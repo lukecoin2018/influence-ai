@@ -19,12 +19,21 @@ async function handlePOST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { creatorId, status, notes } = body as { creatorId?: string; status?: string; notes?: string };
+    const { creatorId, status, notes, variant, sentMatchCount } = body as {
+      creatorId?: string;
+      status?: string;
+      notes?: string;
+      variant?: string;
+      sentMatchCount?: number;
+    };
     if (!creatorId || typeof creatorId !== 'string') {
       return NextResponse.json({ error: 'Missing creatorId' }, { status: 400 });
     }
     if (status !== 'not_contacted' && status !== 'dmed') {
       return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
+    }
+    if (variant !== undefined && variant !== 'A' && variant !== 'B') {
+      return NextResponse.json({ error: 'Invalid variant' }, { status: 400 });
     }
 
     const admin = createSupabaseAdminClient();
@@ -38,6 +47,21 @@ async function handlePOST(req: NextRequest) {
     // Omit notes entirely when not provided, so toggling status alone never
     // clobbers a previously-saved note on conflict-update.
     if (typeof notes === 'string') payload.notes = notes;
+
+    // Which DM variant was pasted, and the match count that was in it. Both
+    // are written ONCE, at the moment the creator is marked DMed — they record
+    // what was sent, so they must not be refreshed later from the live row:
+    // totalMatchCount moves every time brand_brackets is rebuilt, and an A/B
+    // read against a count that has since changed is not a measurement.
+    //
+    // Same conditional-omit rule as notes above, for a second reason: these
+    // columns arrive with migration 0014, which is applied by hand and out of
+    // band. Sending a column PostgREST cannot find fails the whole upsert, so
+    // an "Undo" (which sends no variant) keeps working either side of it.
+    if (variant !== undefined) payload.variant = variant;
+    if (typeof sentMatchCount === 'number' && Number.isFinite(sentMatchCount)) {
+      payload.sent_match_count = sentMatchCount;
+    }
 
     const { error } = await admin.from('creator_outreach').upsert(payload);
     if (error) throw error;

@@ -1,12 +1,18 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { withTimeout } from '@/lib/withTimeout';
 import { compareTeaserStrength } from '@/lib/reports/teaser-strength';
 import type { Platform } from '@/lib/reports/creator-brand-matches';
 import type { RecencyBucket } from '@/lib/reports/recency-bucket';
+// The claim page's own greeting-name resolver, imported rather than
+// reimplemented: it is emoji- and NFKC-safe, and the DM's whole premise is
+// that it opens with the same name the teaser headline does.
+import { resolveGreetingName } from '@/app/claim/[handle]/_data';
+import { formatCount } from '@/lib/formatters';
+import { buildDmMessage, variantForCreator, type DmVariant } from '@/lib/admin/dm-messages';
 
 type RankedCreator = {
   creatorId: string;
@@ -23,6 +29,9 @@ type RankedCreator = {
   claimed: boolean;
   outreachStatus: 'not_contacted' | 'dmed';
   dmedAt: string | null;
+  /** Recorded at send time by the API; null before migration 0014 lands or before contact. */
+  sentVariant: string | null;
+  sentMatchCount: number | null;
   isSpanish: boolean;
   dmLink: string;
   strength: { totalMatchCount: number; programCount: number; strongestRecencyRank: number; hasRegionMatch: boolean; hasDetectedNiche: boolean };
@@ -36,6 +45,22 @@ type TargetingResponse = {
 };
 
 const FETCH_TIMEOUT_MS = 45_000;
+
+/**
+ * Whether a DM can be generated for this row at all. Both conditions hide the
+ * button outright rather than disabling it — a disabled control still says
+ * "this is a thing you could do here", and neither of these is.
+ *
+ *  - Instagram only. TikTok verification has never run successfully, so a
+ *    TikTok creator who taps through cannot finish claiming (CLAUDE.md's
+ *    standing "don't DM TikTok creators" item, ~55% of the database).
+ *  - At least one match. At zero the claim page renders ZeroMatchState —
+ *    "we haven't detected a brand match for you yet" — so a DM promising
+ *    "0 brands we've detected hiring" would contradict the page it opens.
+ */
+function canGenerateDm(row: RankedCreator): boolean {
+  return row.platform === 'instagram' && row.totalMatchCount > 0;
+}
 
 const RECENCY_COLORS: Record<RecencyBucket, { color: string; bg: string; label: string }> = {
   active: { color: '#065F46', bg: '#ECFDF5', label: 'Active' },
@@ -68,6 +93,11 @@ export default function AdminTargetingPage() {
   const [updatingCreatorId, setUpdatingCreatorId] = useState<string | null>(null);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [copiedHandle, setCopiedHandle] = useState<string | null>(null);
+  // The open DM draft, if any — one at a time, keyed by creator. `text` is
+  // the EDITED text, not a derived value: the draft is a starting point the
+  // admin rewrites before sending, so it must survive re-renders.
+  const [dmDraft, setDmDraft] = useState<{ creatorId: string; variant: DmVariant; text: string } | null>(null);
+  const [dmCopied, setDmCopied] = useState(false);
   const requestSeq = useRef(0);
 
   useEffect(() => {
@@ -122,28 +152,80 @@ export default function AdminTargetingPage() {
     fetchBatch(nextBatch, false);
   }
 
-  async function setOutreachStatus(creatorId: string, status: 'not_contacted' | 'dmed') {
+  async function setOutreachStatus(row: RankedCreator, status: 'not_contacted' | 'dmed') {
+    const { creatorId } = row;
     setUpdatingCreatorId(creatorId);
     setUpdateError(null);
+    // Only stamp the A/B fields for creators the generator would actually have
+    // written a DM for. Marking a TikTok or zero-match creator DMed by hand
+    // records a real send, but not one of THESE messages — attaching a variant
+    // to it would put a row in the experiment that never saw either variant.
+    const recordVariant = status === 'dmed' && canGenerateDm(row);
+    const variant = recordVariant ? variantForCreator(creatorId) : null;
     try {
       const res = await withTimeout(
         fetch('/api/admin/targeting/outreach', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ creatorId, status }),
+          body: JSON.stringify({
+            creatorId,
+            status,
+            ...(recordVariant ? { variant, sentMatchCount: row.totalMatchCount } : {}),
+          }),
         }),
         15_000,
       );
       const json = await res.json();
       if (!res.ok) throw new Error(json.error ?? 'Failed to update');
       setResults((prev) =>
-        prev.map((r) => (r.creatorId === creatorId ? { ...r, outreachStatus: status, dmedAt: status === 'dmed' ? new Date().toISOString() : null } : r)),
+        prev.map((r) =>
+          r.creatorId === creatorId
+            ? {
+                ...r,
+                outreachStatus: status,
+                dmedAt: status === 'dmed' ? new Date().toISOString() : null,
+                sentVariant: status === 'dmed' ? variant : null,
+                sentMatchCount: status === 'dmed' && recordVariant ? row.totalMatchCount : null,
+              }
+            : r,
+        ),
       );
     } catch (err) {
       console.error('Failed to update outreach status:', err);
       setUpdateError(err instanceof Error ? err.message : 'Failed to update');
     } finally {
       setUpdatingCreatorId(null);
+    }
+  }
+
+  function openDmDraft(row: RankedCreator) {
+    const variant = variantForCreator(row.creatorId);
+    setDmCopied(false);
+    setDmDraft({
+      creatorId: row.creatorId,
+      variant,
+      text: buildDmMessage({
+        // Same isSpanish that produced row.dmLink server-side, so the message
+        // body and the link inside it can never end up in different languages.
+        locale: row.isSpanish ? 'es' : 'en',
+        variant,
+        greetingName: resolveGreetingName(row.displayName, row.handle),
+        matchCount: row.totalMatchCount,
+        followersFormatted: formatCount(row.followerCount),
+        // Built exactly as copyLink() below does — never re-derived.
+        url: `${window.location.origin}${row.dmLink}`,
+      }),
+    });
+  }
+
+  async function copyDmDraft() {
+    if (!dmDraft) return;
+    try {
+      await navigator.clipboard.writeText(dmDraft.text);
+      setDmCopied(true);
+      setTimeout(() => setDmCopied(false), 1500);
+    } catch (err) {
+      console.error('Failed to copy DM:', err);
     }
   }
 
@@ -264,8 +346,10 @@ export default function AdminTargetingPage() {
                   {visibleResults.map((row) => {
                     const recency = row.strongestRecencyBucket ? RECENCY_COLORS[row.strongestRecencyBucket] : null;
                     const isUpdating = updatingCreatorId === row.creatorId;
+                    const draftOpen = dmDraft?.creatorId === row.creatorId;
                     return (
-                      <tr key={row.creatorId} style={{ borderBottom: '1px solid #F3F4F6', opacity: isUpdating ? 0.6 : 1 }}>
+                      <Fragment key={row.creatorId}>
+                      <tr style={{ borderBottom: '1px solid #F3F4F6', opacity: isUpdating ? 0.6 : 1 }}>
                         <td style={tdStyle}>
                           <div style={{ fontWeight: 600, color: '#3A3A3A' }}>{row.displayName ?? `@${row.handle}`}</div>
                           <div style={{ color: '#9CA3AF', fontSize: '12px' }}>@{row.handle} · {row.platform}</div>
@@ -287,12 +371,18 @@ export default function AdminTargetingPage() {
                           {row.outreachStatus === 'dmed' ? (
                             <div>
                               <span style={badgeStyle('#92400E', '#FFFBEB')}>DMed</span>
+                              {row.sentVariant && (
+                                <div style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '2px' }}>
+                                  sent {row.sentVariant}
+                                  {row.sentMatchCount != null && ` · ${row.sentMatchCount} matches`}
+                                </div>
+                              )}
                               <div>
-                                <button onClick={() => setOutreachStatus(row.creatorId, 'not_contacted')} disabled={isUpdating} style={undoBtnStyle}>Undo</button>
+                                <button onClick={() => setOutreachStatus(row, 'not_contacted')} disabled={isUpdating} style={undoBtnStyle}>Undo</button>
                               </div>
                             </div>
                           ) : (
-                            <button onClick={() => setOutreachStatus(row.creatorId, 'dmed')} disabled={isUpdating} style={markDmedBtnStyle}>
+                            <button onClick={() => setOutreachStatus(row, 'dmed')} disabled={isUpdating} style={markDmedBtnStyle}>
                               Mark DMed
                             </button>
                           )}
@@ -302,10 +392,50 @@ export default function AdminTargetingPage() {
                             <button onClick={() => copyLink(row)} style={linkBtnStyle(false)} title="Copy link">
                               {copiedHandle === row.handle ? 'Copied!' : 'Copy link'}
                             </button>
+                            {/* Absent, not disabled, for TikTok and zero-match creators — see canGenerateDm. */}
+                            {canGenerateDm(row) && (
+                              <button
+                                onClick={() => (draftOpen ? setDmDraft(null) : openDmDraft(row))}
+                                style={linkBtnStyle(false)}
+                                title="Draft a ready-to-paste DM"
+                              >
+                                {draftOpen ? 'Close DM' : 'Copy DM'}
+                              </button>
+                            )}
                             <a href={row.dmLink} target="_blank" rel="noreferrer" style={previewLinkStyle}>Preview</a>
                           </div>
                         </td>
                       </tr>
+                      {draftOpen && dmDraft && (
+                        <tr style={{ borderBottom: '1px solid #F3F4F6', backgroundColor: '#FAFAFA' }}>
+                          <td colSpan={8} style={{ padding: '12px 14px' }}>
+                            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '6px', flexWrap: 'wrap' }}>
+                              <span style={badgeStyle('#3730A3', '#EEF2FF')}>Variant {dmDraft.variant}</span>
+                              <span style={{ fontSize: '12px', color: '#6B7280' }}>
+                                {row.isSpanish ? 'Spanish' : 'English'} · @{row.handle}
+                              </span>
+                              <span style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                                Draft — edit freely before sending. Editing does not change the recorded variant.
+                              </span>
+                            </div>
+                            <textarea
+                              value={dmDraft.text}
+                              onChange={(e) => setDmDraft((d) => (d ? { ...d, text: e.target.value } : d))}
+                              rows={4}
+                              style={dmTextareaStyle}
+                            />
+                            <div style={{ display: 'flex', gap: '6px', marginTop: '6px' }}>
+                              <button onClick={copyDmDraft} style={linkBtnStyle(false)}>
+                                {dmCopied ? 'Copied!' : 'Copy message'}
+                              </button>
+                              <button onClick={() => openDmDraft(row)} style={linkBtnStyle(false)} title="Discard edits and rebuild from the row">
+                                Reset
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                      </Fragment>
                     );
                   })}
                 </tbody>
@@ -336,6 +466,17 @@ const undoBtnStyle: React.CSSProperties = { padding: '2px 6px', borderRadius: '6
 function linkBtnStyle(disabled: boolean): React.CSSProperties {
   return { padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, cursor: disabled ? 'default' : 'pointer', border: '1px solid #E5E7EB', backgroundColor: disabled ? '#F9FAFB' : 'white', color: disabled ? '#D1D5DB' : '#374151' };
 }
+const dmTextareaStyle: React.CSSProperties = {
+  width: '100%',
+  padding: '10px 12px',
+  borderRadius: '8px',
+  border: '1px solid #E5E7EB',
+  fontSize: '13px',
+  lineHeight: 1.5,
+  fontFamily: 'inherit',
+  color: '#3A3A3A',
+  resize: 'vertical',
+};
 const previewLinkStyle: React.CSSProperties = { padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 500, border: '1px solid #E5E7EB', backgroundColor: 'white', color: '#374151', textDecoration: 'none', display: 'inline-block' };
 
 function badgeStyle(color: string, bg: string): React.CSSProperties {
