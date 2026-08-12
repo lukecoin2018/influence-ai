@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Search, SlidersHorizontal, ChevronLeft, ChevronRight, Lock } from 'lucide-react';
 import { CreatorCard } from '@/components/CreatorCard';
 import { CompareBar } from '@/components/CompareBar';
@@ -138,6 +139,12 @@ function CreatorsContent() {
   const [categories, setCategories] = useState<string[]>([]);
   const [compareHandles, setCompareHandles] = useState<string[]>([]);
 
+  // Set when /api/creators answers 401/503. The directory now requires a
+  // session, so an expired one must say so rather than render as "no results" —
+  // see the empty state below, which would otherwise claim the filters matched
+  // nothing.
+  const [authError, setAuthError] = useState<'expired' | 'unavailable' | null>(null);
+
   // Token gate state
   const [locked, setLocked] = useState(false);
   const [lockBalance, setLockBalance] = useState(0);
@@ -179,6 +186,19 @@ function CreatorsContent() {
     try {
       const res = await fetch(`/api/creators?${qs}&limit=24${paginate ? '&paginate=true' : ''}`);
       const data: ExtendedCreatorListResponse = await res.json();
+
+      // Keyed off the `reason` code rather than the status, per the convention
+      // in CLAUDE.md: the server sends codes, the client owns the wording.
+      if (data.reason === 'auth_required' || data.reason === 'auth_unavailable') {
+        setAuthError(data.reason === 'auth_required' ? 'expired' : 'unavailable');
+        setCreators([]);
+        setTotal(0);
+        setTotalPages(0);
+        setLoading(false);
+        return;
+      }
+
+      setAuthError(null);
 
       if (data.locked) {
         setLocked(true);
@@ -395,6 +415,38 @@ function CreatorsContent() {
         <div style={{ position: 'relative' }}>
           {loading ? (
             <CreatorGridSkeleton count={24} />
+          ) : authError ? (
+            // Must precede the empty state: creators is [] here too, and the
+            // empty state would blame the filters for a session problem.
+            <div style={{
+              textAlign: 'center', padding: '80px 24px',
+              border: '1px dashed #E5E7EB', borderRadius: '12px',
+              backgroundColor: 'white',
+            }}>
+              <p style={{ fontSize: '16px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 8px' }}>
+                {authError === 'expired' ? 'Your session has expired' : 'We can’t verify your session right now'}
+              </p>
+              <p style={{ fontSize: '14px', color: '#6B7280', margin: '0 0 24px' }}>
+                {authError === 'expired'
+                  ? 'Log in again to keep browsing the directory.'
+                  : 'This is usually temporary. Try again in a moment.'}
+              </p>
+              {authError === 'expired' ? (
+                <Link
+                  href={`/login?redirectTo=${encodeURIComponent(`/creators${buildQueryString() ? `?${buildQueryString()}` : ''}`)}`}
+                  style={{ display: 'inline-flex', padding: '10px 20px', borderRadius: '8px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}
+                >
+                  Log in
+                </Link>
+              ) : (
+                <button
+                  onClick={() => fetchCreators()}
+                  style={{ padding: '10px 20px', borderRadius: '8px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}
+                >
+                  Try again
+                </button>
+              )}
+            </div>
           ) : locked ? (
             // Show blurred placeholder grid behind the overlay
             <div style={{ position: 'relative', minHeight: '400px' }}>

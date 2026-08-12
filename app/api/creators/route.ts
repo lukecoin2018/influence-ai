@@ -12,54 +12,80 @@ export const GET = withNoStore(handleGET);
 async function handleGET(request: Request) {
   const { searchParams } = new URL(request.url);
 
+  // ── Authentication ────────────────────────────────────────────────────────
+  // This runs before any query work. The response body is the whole directory
+  // row from v_creator_summary — contact_email, detected_brands, the AI summary
+  // — so an unauthenticated caller reaching the query below walks the entire
+  // index by pagination. Clamping `limit` does not close that; a session does.
+  //
+  // Failing CLOSED is the point. This block used to swallow every error and
+  // "fall through and serve results publicly", which meant a transient auth
+  // outage downgraded the route to anonymous rather than taking it offline.
+  let serverSupabase: Awaited<ReturnType<typeof createSupabaseServerClient>>;
+  let user;
+  try {
+    serverSupabase = await createSupabaseServerClient();
+    const { data } = await serverSupabase.auth.getUser();
+    user = data.user;
+  } catch {
+    // Auth is unreachable, not absent — we cannot tell whether this caller has
+    // a session, so we serve nobody. 503 rather than 401 so the client does not
+    // bounce a still-valid session to the login page over a transient fault.
+    return NextResponse.json(
+      { error: 'Auth check unavailable', reason: 'auth_unavailable' },
+      { status: 503 }
+    );
+  }
+
+  if (!user) {
+    return NextResponse.json(
+      { error: 'Unauthorized', reason: 'auth_required' },
+      { status: 401 }
+    );
+  }
+
   // ── Token gate ────────────────────────────────────────────────────────────
+  // Unchanged in behaviour, but now guaranteed to have a user. Accounts with no
+  // brand_profiles row still read the directory with tokenInfo null, exactly as
+  // before — this branch never gated access, only billing.
   let tokenInfo = null;
 
-  try {
-    const serverSupabase = await createSupabaseServerClient();
-    const { data: { user } } = await serverSupabase.auth.getUser();
+  const { data: brandProfile } = await serverSupabase
+    .from('brand_profiles')
+    .select('id, token_balance, directory_pages_used, profile_views_used')
+    .eq('id', user.id)
+    .maybeSingle();
 
-    if (user) {
-      const { data: brandProfile } = await serverSupabase
-        .from('brand_profiles')
-        .select('id, token_balance, directory_pages_used, profile_views_used')
-        .eq('id', user.id)
-        .maybeSingle();
+  if (brandProfile) {
+    const paginate = searchParams.get('paginate') === 'true';
 
-      if (brandProfile) {
-        const paginate = searchParams.get('paginate') === 'true';
+    if (paginate) {
+      // Paginating — charge free allowance or tokens
+      const access = await checkAndChargeAccess(user.id, 'directory_pages');
 
-        if (paginate) {
-          // Paginating — charge free allowance or tokens
-          const access = await checkAndChargeAccess(user.id, 'directory_pages');
-
-          if (!access.allowed) {
-            return NextResponse.json({
-              locked: true,
-              reason: 'tokens',
-              balance: access.balance,
-              needed: 5,
-            }, { status: 402 });
-          }
-
-          tokenInfo = { ...access, profile_views_used: brandProfile.profile_views_used ?? 0 };
-        } else {
-          // Initial load / filter change — read current state, don't charge
-          const used = brandProfile.directory_pages_used ?? 0;
-          const limit = FREE_ALLOWANCES.directory_pages;
-          tokenInfo = {
-            withinFree: used < limit,
-            used,
-            limit,
-            balance: brandProfile.token_balance ?? 0,
-            allowed: true,
-            profile_views_used: brandProfile.profile_views_used ?? 0,
-          };
-        }
+      if (!access.allowed) {
+        return NextResponse.json({
+          locked: true,
+          reason: 'tokens',
+          balance: access.balance,
+          needed: 5,
+        }, { status: 402 });
       }
+
+      tokenInfo = { ...access, profile_views_used: brandProfile.profile_views_used ?? 0 };
+    } else {
+      // Initial load / filter change — read current state, don't charge
+      const used = brandProfile.directory_pages_used ?? 0;
+      const limit = FREE_ALLOWANCES.directory_pages;
+      tokenInfo = {
+        withinFree: used < limit,
+        used,
+        limit,
+        balance: brandProfile.token_balance ?? 0,
+        allowed: true,
+        profile_views_used: brandProfile.profile_views_used ?? 0,
+      };
     }
-  } catch {
-    // If auth check fails, fall through and serve results publicly
   }
 
   // ── Query params ──────────────────────────────────────────────────────────
@@ -72,8 +98,19 @@ async function handleGET(request: Request) {
   const verified = searchParams.get('verified');
   const sortBy = searchParams.get('sortBy') ?? 'total_followers';
   const sortDir = searchParams.get('sortDir') ?? 'desc';
-  const page = parseInt(searchParams.get('page') ?? '1', 10);
-  const limit = parseInt(searchParams.get('limit') ?? '24', 10);
+  // parseInt alone returns NaN for '?limit=abc', which reached .range(NaN, NaN).
+  // Number.isFinite rejects NaN and Infinity; the clamp keeps a caller from
+  // asking for the whole table in one request. The UI asks for 24.
+  const clampInt = (raw: string | null, fallback: number, min: number, max: number) => {
+    const parsed = parseInt(raw ?? '', 10);
+    if (!Number.isFinite(parsed)) return fallback;
+    return Math.min(Math.max(Math.floor(parsed), min), max);
+  };
+
+  // page is bounded too, so `offset` below cannot overflow into a value that
+  // loses integer precision. 100k pages is far past the ~6k rows that exist.
+  const page = clampInt(searchParams.get('page'), 1, 1, 100_000);
+  const limit = clampInt(searchParams.get('limit'), 24, 1, 50);
   const offset = (page - 1) * limit;
   const language = searchParams.get('language') || '';
   const country = searchParams.get('country') || '';

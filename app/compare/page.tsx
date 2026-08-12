@@ -28,6 +28,7 @@ function CompareContent() {
   const [creators, setCreators] = useState<Creator[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   useEffect(() => {
     if (handles.length < 2) {
@@ -37,6 +38,20 @@ function CompareContent() {
     fetch(`/api/creators/compare?handles=${handles.join(',')}`)
       .then((r) => r.json())
       .then((d) => {
+        // This endpoint now requires a session. Without this branch a 401 would
+        // fall through to `creators: []` and render an empty comparison table,
+        // blaming nothing in particular for a session problem. Keyed off the
+        // `reason` code, not the status.
+        if (d.reason === 'auth_required') {
+          setSessionExpired(true);
+          setLoading(false);
+          return;
+        }
+        if (d.reason === 'auth_unavailable') {
+          setError('We can’t verify your session right now. Try again in a moment.');
+          setLoading(false);
+          return;
+        }
         setCreators(d.creators ?? []);
         setLoading(false);
       })
@@ -61,6 +76,23 @@ function CompareContent() {
         <p className="text-secondary" style={{ marginBottom: '24px' }}>Select 2-4 creators from the discovery page to compare them.</p>
         <Link href="/creators" style={{ display: 'inline-flex', padding: '10px 20px', borderRadius: '8px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}>
           Browse Creators
+        </Link>
+      </div>
+    );
+  }
+
+  // Before the error branch and before the Math.max reductions below, which run
+  // over an empty creators array and yield -Infinity.
+  if (sessionExpired) {
+    return (
+      <div style={{ textAlign: 'center', padding: '80px' }}>
+        <p style={{ fontSize: '16px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 8px 0' }}>Your session has expired</p>
+        <p className="text-secondary" style={{ marginBottom: '24px' }}>Log in again to compare creators.</p>
+        <Link
+          href={`/login?redirectTo=${encodeURIComponent(`/compare?handles=${handles.join(',')}`)}`}
+          style={{ display: 'inline-flex', padding: '10px 20px', borderRadius: '8px', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '14px', fontWeight: 600, textDecoration: 'none' }}
+        >
+          Log in
         </Link>
       </div>
     );
