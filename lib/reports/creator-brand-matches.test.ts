@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { buildCreatorBrandMatches, type BrandBracketRow, type CreatorProfile } from './creator-brand-matches';
+import {
+  buildCreatorBrandMatches,
+  selectHeroBrand,
+  teaserPreviewExcluding,
+  HERO_CATEGORY_FLOOR,
+  HERO_MAGNITUDE_CAP,
+  type BrandBracketRow,
+  type CreatorProfile,
+} from './creator-brand-matches';
 
 const NOW = new Date('2026-07-11T00:00:00Z');
 
@@ -105,28 +113,44 @@ describe('buildCreatorBrandMatches — cross-platform dedupe', () => {
   });
 });
 
-describe('buildCreatorBrandMatches — ranking (LOCKED order)', () => {
+describe('buildCreatorBrandMatches — ranking (magnitude order)', () => {
   const profiles: CreatorProfile[] = [{ platform: 'instagram', followerCount: 200_000 }];
 
-  it('ranks programs above sightings regardless of recency/repeat-ratio', () => {
-    const strongSighting = bracket({ canonicalName: 'Sighting', distinctCreators: 2, repeatRatio: 10, mostRecentPost: daysAgo(1) });
-    const weakProgram = bracket({ canonicalName: 'Program', distinctCreators: 3, repeatRatio: 2, mostRecentPost: daysAgo(89) });
+  it('ranks on capped magnitude first, above recency and region', () => {
+    const bigStale = bracket({ canonicalName: 'BigStale', distinctCreators: 9, mostRecentPost: daysAgo(200), regions: [] });
+    const smallFreshLocal = bracket({ canonicalName: 'SmallFreshLocal', distinctCreators: 2, mostRecentPost: daysAgo(1), regions: ['US'] });
 
-    const result = buildCreatorBrandMatches(null, profiles, [strongSighting, weakProgram], NOW);
-    expect(result.matches.map((m) => m.canonicalName)).toEqual(['Program', 'Sighting']);
+    const result = buildCreatorBrandMatches('United States', profiles, [bigStale, smallFreshLocal], NOW);
+    expect(result.matches.map((m) => m.canonicalName)).toEqual(['BigStale', 'SmallFreshLocal']);
   });
 
-  it('ranks by recency bucket before repeat-ratio, within the same program/sighting tier', () => {
-    const activeLowRatio = bracket({ canonicalName: 'ActiveLowRatio', repeatRatio: 2, mostRecentPost: daysAgo(1) });
-    const windowHighRatio = bracket({ canonicalName: 'WindowHighRatio', repeatRatio: 20, mostRecentPost: daysAgo(50) });
+  it('caps magnitude — above HERO_MAGNITUDE_CAP, brands tie and recency decides', () => {
+    const huge = bracket({ canonicalName: 'Huge', distinctCreators: 400, mostRecentPost: daysAgo(50) });
+    const atCap = bracket({ canonicalName: 'AtCap', distinctCreators: HERO_MAGNITUDE_CAP, mostRecentPost: daysAgo(1) });
 
-    const result = buildCreatorBrandMatches(null, profiles, [activeLowRatio, windowHighRatio], NOW);
-    expect(result.matches.map((m) => m.canonicalName)).toEqual(['ActiveLowRatio', 'WindowHighRatio']);
+    const result = buildCreatorBrandMatches(null, profiles, [huge, atCap], NOW);
+    expect(result.matches.map((m) => m.canonicalName)).toEqual(['AtCap', 'Huge']);
+  });
+
+  it('no longer ranks on repeatRatio — a repeat-hirer does not outrank a bigger brand', () => {
+    const oneCreatorManyPosts = bracket({ canonicalName: 'OneCreatorManyPosts', distinctCreators: 1, repeatRatio: 20 });
+    const manyCreators = bracket({ canonicalName: 'ManyCreators', distinctCreators: 8, repeatRatio: 1 });
+
+    const result = buildCreatorBrandMatches(null, profiles, [oneCreatorManyPosts, manyCreators], NOW);
+    expect(result.matches.map((m) => m.canonicalName)).toEqual(['ManyCreators', 'OneCreatorManyPosts']);
+  });
+
+  it('ranks by recency bucket once magnitude ties', () => {
+    const active = bracket({ canonicalName: 'Active', mostRecentPost: daysAgo(1) });
+    const inWindow = bracket({ canonicalName: 'InWindow', mostRecentPost: daysAgo(50) });
+
+    const result = buildCreatorBrandMatches(null, profiles, [inWindow, active], NOW);
+    expect(result.matches.map((m) => m.canonicalName)).toEqual(['Active', 'InWindow']);
   });
 
   it('region is a tiebreak only — never promotes a weaker-but-local brand above a genuinely stronger one', () => {
-    const strongerNoRegion = bracket({ canonicalName: 'StrongerNoRegion', repeatRatio: 10, mostRecentPost: daysAgo(1), regions: [] });
-    const weakerWithRegion = bracket({ canonicalName: 'WeakerWithRegion', repeatRatio: 2, mostRecentPost: daysAgo(1), regions: ['US'] });
+    const strongerNoRegion = bracket({ canonicalName: 'StrongerNoRegion', distinctCreators: 9, mostRecentPost: daysAgo(1), regions: [] });
+    const weakerWithRegion = bracket({ canonicalName: 'WeakerWithRegion', distinctCreators: 2, mostRecentPost: daysAgo(1), regions: ['US'] });
 
     const result = buildCreatorBrandMatches('United States', profiles, [strongerNoRegion, weakerWithRegion], NOW);
     expect(result.matches.map((m) => m.canonicalName)).toEqual(['StrongerNoRegion', 'WeakerWithRegion']);
@@ -140,12 +164,143 @@ describe('buildCreatorBrandMatches — ranking (LOCKED order)', () => {
     expect(result.matches.map((m) => m.canonicalName)).toEqual(['WithRegion', 'NoRegion']);
   });
 
-  it('falls back to raw recency as the final tiebreak', () => {
+  it('falls back to raw recency before the name tiebreak', () => {
     const older = bracket({ canonicalName: 'Older', mostRecentPost: daysAgo(5) });
     const newer = bracket({ canonicalName: 'Newer', mostRecentPost: daysAgo(1) });
 
     const result = buildCreatorBrandMatches(null, profiles, [older, newer], NOW);
     expect(result.matches.map((m) => m.canonicalName)).toEqual(['Newer', 'Older']);
+  });
+
+  it('breaks a total tie on canonicalName, regardless of input order', () => {
+    const zebra = bracket({ canonicalName: 'Zebra' });
+    const acme = bracket({ canonicalName: 'Acme' });
+
+    const result = buildCreatorBrandMatches(null, profiles, [zebra, acme], NOW);
+    expect(result.matches.map((m) => m.canonicalName)).toEqual(['Acme', 'Zebra']);
+
+    const reversed = buildCreatorBrandMatches(null, profiles, [acme, zebra], NOW);
+    expect(reversed.matches.map((m) => m.canonicalName)).toEqual(['Acme', 'Zebra']);
+  });
+
+  it('never excludes a one-creator brand — it sorts last but still gets a card', () => {
+    const thin = bracket({ canonicalName: 'Thin', distinctCreators: 1 });
+    const big = bracket({ canonicalName: 'Big', distinctCreators: 20 });
+
+    const result = buildCreatorBrandMatches(null, profiles, [thin, big], NOW);
+    expect(result.totalMatchCount).toBe(2);
+    expect(result.matches.map((m) => m.canonicalName)).toEqual(['Big', 'Thin']);
+  });
+});
+
+describe('selectHeroBrand', () => {
+  const profiles: CreatorProfile[] = [{ platform: 'instagram', followerCount: 200_000 }];
+
+  function sorted(brackets: BrandBracketRow[]) {
+    return buildCreatorBrandMatches(null, profiles, brackets, NOW).matches;
+  }
+
+  it('returns the top match when the niche is null', () => {
+    const matches = sorted([bracket({ canonicalName: 'Top', distinctCreators: 20 })]);
+    expect(selectHeroBrand(matches, null)?.canonicalName).toBe('Top');
+  });
+
+  it('returns the top match when the niche maps to nothing', () => {
+    const matches = sorted([
+      bracket({ canonicalName: 'Top', distinctCreators: 20, category: 'Beauty' }),
+      bracket({ canonicalName: 'Other', distinctCreators: 8, category: 'Fashion' }),
+    ]);
+    // luxury/gaming/lifestyle are deliberately unmapped in NICHE_TO_BUCKET.
+    expect(selectHeroBrand(matches, 'luxury')?.canonicalName).toBe('Top');
+    expect(selectHeroBrand(matches, 'some-niche-nobody-has-seen-yet')?.canonicalName).toBe('Top');
+  });
+
+  it('promotes a niche-matching brand that clears the floor', () => {
+    const matches = sorted([
+      bracket({ canonicalName: 'TopBeauty', distinctCreators: 20, category: 'Beauty' }),
+      bracket({ canonicalName: 'SomeFashion', distinctCreators: HERO_CATEGORY_FLOOR, category: 'Fashion' }),
+    ]);
+    expect(selectHeroBrand(matches, 'fashion')?.canonicalName).toBe('SomeFashion');
+  });
+
+  it('matches on the CONSOLIDATED category, not the raw one', () => {
+    // 'Sportswear' consolidates to 'Fitness & Wellness', which is what the
+    // fitness niche maps to. Comparing raw values would miss this.
+    const matches = sorted([
+      bracket({ canonicalName: 'TopBeauty', distinctCreators: 20, category: 'Beauty' }),
+      bracket({ canonicalName: 'Sporty', distinctCreators: 7, category: 'Sportswear' }),
+    ]);
+    expect(selectHeroBrand(matches, 'fitness')?.canonicalName).toBe('Sporty');
+  });
+
+  it('declines to promote a niche match below the floor', () => {
+    const matches = sorted([
+      bracket({ canonicalName: 'TopBeauty', distinctCreators: 20, category: 'Beauty' }),
+      bracket({ canonicalName: 'ThinFashion', distinctCreators: HERO_CATEGORY_FLOOR - 1, category: 'Fashion' }),
+    ]);
+    expect(selectHeroBrand(matches, 'fashion')?.canonicalName).toBe('TopBeauty');
+  });
+
+  it('promotes the STRONGEST qualifying brand in the bucket, not the first seen', () => {
+    const matches = sorted([
+      bracket({ canonicalName: 'TopBeauty', distinctCreators: 20, category: 'Beauty' }),
+      bracket({ canonicalName: 'WeakFashion', distinctCreators: 5, category: 'Fashion', mostRecentPost: daysAgo(200) }),
+      bracket({ canonicalName: 'StrongFashion', distinctCreators: 9, category: 'Fashion', mostRecentPost: daysAgo(1) }),
+    ]);
+    expect(selectHeroBrand(matches, 'fashion')?.canonicalName).toBe('StrongFashion');
+  });
+
+  it('returns null for an empty list', () => {
+    expect(selectHeroBrand([], 'fashion')).toBeNull();
+    expect(selectHeroBrand([], null)).toBeNull();
+  });
+
+  it('never excludes anything — the match list is untouched by the gate', () => {
+    const brackets = [
+      bracket({ canonicalName: 'TopBeauty', distinctCreators: 20, category: 'Beauty' }),
+      bracket({ canonicalName: 'ThinFashion', distinctCreators: 1, category: 'Fashion' }),
+    ];
+    const matches = sorted(brackets);
+    selectHeroBrand(matches, 'fashion');
+    expect(matches).toHaveLength(2);
+  });
+});
+
+describe('teaserPreviewExcluding', () => {
+  const profiles: CreatorProfile[] = [{ platform: 'instagram', followerCount: 200_000 }];
+
+  it('omits the hero, so a promoted brand is never blurred beneath its own card', () => {
+    const matches = buildCreatorBrandMatches(null, profiles, [
+      bracket({ canonicalName: 'TopBeauty', distinctCreators: 20, category: 'Beauty', mostRecentPost: daysAgo(1) }),
+      bracket({ canonicalName: 'Second', distinctCreators: 15, category: 'Retail', mostRecentPost: daysAgo(20) }),
+      bracket({ canonicalName: 'StrongFashion', distinctCreators: 9, category: 'Fashion' }),
+    ], NOW).matches;
+    expect(matches.map((m) => m.canonicalName)).toEqual(['TopBeauty', 'Second', 'StrongFashion']);
+
+    const hero = selectHeroBrand(matches, 'fashion');
+    expect(hero?.canonicalName).toBe('StrongFashion');
+
+    const preview = teaserPreviewExcluding(matches, hero);
+    expect(preview).toHaveLength(2);
+    expect(preview.map((p) => p.category)).toEqual(['Beauty', 'Retail']);
+  });
+
+  it('caps at 3 rows', () => {
+    const brackets = Array.from({ length: 6 }, (_, i) => bracket({ canonicalName: `Brand${i}`, mostRecentPost: daysAgo(i) }));
+    const matches = buildCreatorBrandMatches(null, profiles, brackets, NOW).matches;
+    expect(teaserPreviewExcluding(matches, matches[0])).toHaveLength(3);
+  });
+
+  it('carries no canonicalName or exact bracket into the blurred rows', () => {
+    const matches = buildCreatorBrandMatches(null, profiles, [
+      bracket({ canonicalName: 'Hero' }),
+      bracket({ canonicalName: 'Represent Ltd', category: 'Fashion' }),
+    ], NOW).matches;
+
+    const row = teaserPreviewExcluding(matches, matches[0])[0] as unknown as Record<string, unknown>;
+    expect(row.canonicalName).toBeUndefined();
+    expect(row.p25Followers).toBeUndefined();
+    expect(row.p75Followers).toBeUndefined();
   });
 });
 
@@ -167,8 +322,15 @@ describe('buildCreatorBrandMatches — teaser shape', () => {
   });
 
   it('blurred preview rows never carry canonicalName or the exact bracket', () => {
-    const brackets = [bracket({ canonicalName: 'Strongest' }), bracket({ canonicalName: 'Represent Ltd', category: 'Fashion' })];
+    // Recency, not the name tiebreak, decides which of these leads — otherwise
+    // 'Represent Ltd' sorts ahead of 'Strongest' alphabetically and the row
+    // under test would be the wrong one.
+    const brackets = [
+      bracket({ canonicalName: 'Strongest', mostRecentPost: daysAgo(1) }),
+      bracket({ canonicalName: 'Represent Ltd', category: 'Fashion', mostRecentPost: daysAgo(2) }),
+    ];
     const result = buildCreatorBrandMatches(null, profiles, brackets, NOW);
+    expect(result.strongestMatch?.canonicalName).toBe('Strongest');
 
     const preview = result.teaserPreview[0] as unknown as Record<string, unknown>;
     expect(preview.canonicalName).toBeUndefined();
