@@ -6,7 +6,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { recordFunnelEvent, type TeaserVariant } from '@/lib/funnel/events';
 import { withTimeout, TimeoutError } from '@/lib/withTimeout';
 import { formatCount } from '@/lib/formatters';
-import { getCreatorBrandMatches, type BlurredMatch, type CreatorBrandMatches, type MatchedBrand } from '@/lib/reports/creator-brand-matches';
+import { getCreatorBrandMatches, selectHeroBrand, teaserPreviewExcluding, type BlurredMatch, type CreatorBrandMatches, type MatchedBrand } from '@/lib/reports/creator-brand-matches';
 import { categoryBucketLabel, consolidateCategory, nicheLeadBucket, orderCategoriesForDisplay, summarizeCategories, type CategoryCount } from '@/lib/reports/category-consolidation';
 import { Badge, BrandMatchCard } from '@/components/brand-matches/BrandMatchCard';
 import {
@@ -307,7 +307,7 @@ function ClaimCta({ handle, totalMatchCount, strongestMatchName, locale }: { han
 function TeaserPage({
   handle,
   greetingName,
-  strongestMatch,
+  heroMatch,
   totalMatchCount,
   teaserPreview,
   creatorFollowers,
@@ -316,7 +316,8 @@ function TeaserPage({
 }: {
   handle: string;
   greetingName: string | null;
-  strongestMatch: MatchedBrand;
+  /** The card that leads the page — selectHeroBrand()'s pick, which is usually but NOT always the top-ranked match. Named for its role here rather than `strongestMatch`, so the two can't be confused at a glance. */
+  heroMatch: MatchedBrand;
   totalMatchCount: number;
   teaserPreview: BlurredMatch[];
   creatorFollowers: number | null;
@@ -330,7 +331,7 @@ function TeaserPage({
       <Headline greetingName={greetingName} totalMatchCount={totalMatchCount} creatorFollowers={creatorFollowers} locale={locale} />
       <CategoryPills categories={categoryBreakdown} handle={handle} locale={locale} />
       <BrandMatchCard
-        match={strongestMatch}
+        match={heroMatch}
         creatorFollowers={creatorFollowers}
         locale={locale}
         actions={[
@@ -340,7 +341,8 @@ function TeaserPage({
       />
       <BadgeLegend locale={locale} />
       <MoreBrandsSection teaserPreview={teaserPreview} totalMatchCount={totalMatchCount} locale={locale} />
-      <ClaimCta handle={handle} totalMatchCount={totalMatchCount} strongestMatchName={strongestMatch.canonicalName} locale={locale} />
+      {/* Names the hero, not matches[0] — the CTA must not name a different brand than the card above it. */}
+      <ClaimCta handle={handle} totalMatchCount={totalMatchCount} strongestMatchName={heroMatch.canonicalName} locale={locale} />
     </TeaserCard>
   );
 }
@@ -532,13 +534,27 @@ export async function ClaimTeaser({ handle, locale }: { handle: string; locale: 
   const leadBucket = nicheLeadBucket(profileInfo.detectedNiche);
   const orderedCategoryBreakdown = orderCategoriesForDisplay(categoryBreakdown, leadBucket);
 
+  // The hero is the niche-gated pick, which is result.matches[0] unless the
+  // creator's niche promotes a substantial match in their own bucket. The `??`
+  // is for TypeScript only — the guard above already proved the list non-empty,
+  // and selectHeroBrand returns null only for an empty array.
+  const heroMatch = selectHeroBrand(result.matches, profileInfo.detectedNiche) ?? result.strongestMatch;
+  // Derived against the hero rather than using result.teaserPreview (which is
+  // matches.slice(1, 4)), so a promoted hero doesn't also appear as a blurred
+  // row beneath its own card. Still the same blurred shape — the full match
+  // list never becomes a prop; see TeaserPage's docstring.
+  const teaserPreview = teaserPreviewExcluding(result.matches, heroMatch);
+
   return (
     <TeaserPage
       handle={handle}
       greetingName={greetingName}
-      strongestMatch={result.strongestMatch}
+      heroMatch={heroMatch}
       totalMatchCount={result.totalMatchCount}
-      teaserPreview={result.teaserPreview}
+      teaserPreview={teaserPreview}
+      // Safe despite the hero no longer always being matches[0]: creators are
+      // single-platform by scrape source, so every match in the list came from
+      // the same platform and this count anchors the hero card either way.
       creatorFollowers={result.creatorFollowers}
       categoryBreakdown={orderedCategoryBreakdown}
       locale={locale}

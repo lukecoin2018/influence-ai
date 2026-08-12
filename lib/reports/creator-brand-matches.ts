@@ -16,12 +16,22 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { withTimeout } from '@/lib/withTimeout';
 import { bucketRecency, recencyBucketRank, type RecencyBucket } from '@/lib/reports/recency-bucket';
 import { matchRegion, type RegionMatch } from '@/lib/reports/region-match';
+import { consolidateCategory, nicheLeadBucket } from '@/lib/reports/category-consolidation';
+
+/** Ranking magnitude ceiling: at or above this many distinct creators, brands tie on term 1 and the later terms decide. Tuned against real teasers — keep it here, not inline. */
+export const HERO_MAGNITUDE_CAP = 10;
+/** Minimum distinct_creators before a niche-matching brand may be promoted to the hero card. Tuned against real teasers — keep it here, not inline. */
+export const HERO_CATEGORY_FLOOR = 5;
 
 const DB_TIMEOUT_MS = 10_000;
 
 // LOCKED matching/ranking constants (confirmed with the founder in Phase 1 — not invented here).
 const BRACKET_LOW_MULTIPLIER = 0.7;
 const BRACKET_HIGH_MULTIPLIER = 1.3;
+// Badge thresholds only — NOT ranking terms. isProgram/isRepeatHirer left the
+// comparator when magnitude replaced them (isProgram was distinct_creators >= 3,
+// which term 1 subsumes), but both still drive the Program / Repeat-hirer badges
+// (app/claim/[handle]/_data.ts's badgeFor) and the admin targeting sort.
 const PROGRAM_MIN_DISTINCT_CREATORS = 3;
 const REPEAT_HIRER_MIN_RATIO = 2;
 const TEASER_PREVIEW_MAX = 3;
@@ -153,24 +163,102 @@ function toBlurred(m: MatchedBrand): BlurredMatch {
 }
 
 /**
- * LOCKED ranking (confirmed Phase 1): isProgram before sightings, then recency
- * bucket, then repeat-ratio, then region as a tiebreak only (never lets a
- * weaker-but-local brand outrank a genuinely stronger one), then raw recency
- * as the final tiebreak.
+ * Capped sighting count — term 1 of the ranking.
+ *
+ * Capped rather than raw so magnitude decides only up to the point where it
+ * still means something: a brand detected with 40 creators is not four times
+ * the opportunity of one detected with 10, and ranking on the raw count lets a
+ * handful of very large brands monopolize every creator's hero card. Above the
+ * cap, brands tie here and recency/region decide instead.
+ */
+function heroMagnitude(m: MatchedBrand): number {
+  return Math.min(m.distinctCreators, HERO_MAGNITUDE_CAP);
+}
+
+/**
+ * Ranking, in strict lexicographic precedence:
+ *   1. capped magnitude desc — see heroMagnitude()
+ *   2. recency bucket        — active < window < neutral
+ *   3. region                — tiebreak only, never lets a weaker-but-local
+ *                              brand outrank a genuinely stronger one
+ *   4. raw most_recent_post desc
+ *   5. canonicalName asc     — final tiebreak, so the order is fully
+ *                              deterministic rather than left to the input
+ *                              order of two otherwise-identical brands
+ *
+ * Replaces the previous isProgram/recency/repeatRatio/region/recency order.
+ * isProgram was exactly `distinct_creators >= 3`, which term 1 subsumes at
+ * finer resolution; repeatRatio (sponsored posts per creator) is dropped
+ * outright, since a brand that posted twice about one creator was outranking a
+ * brand that worked with twenty.
+ *
+ * NOTHING is filtered here. A brand with one distinct creator sorts last; it is
+ * never excluded, because a creator with a thin match set must still get cards.
  */
 function compareMatches(a: MatchedBrand, b: MatchedBrand): number {
-  if (a.isProgram !== b.isProgram) return a.isProgram ? -1 : 1;
+  const magnitudeDiff = heroMagnitude(b) - heroMagnitude(a);
+  if (magnitudeDiff !== 0) return magnitudeDiff;
 
   const recencyDiff = recencyBucketRank(a.recencyBucket) - recencyBucketRank(b.recencyBucket);
   if (recencyDiff !== 0) return recencyDiff;
-
-  if (a.repeatRatio !== b.repeatRatio) return b.repeatRatio - a.repeatRatio;
 
   const aRegion = a.regionMatch ? 1 : 0;
   const bRegion = b.regionMatch ? 1 : 0;
   if (aRegion !== bRegion) return bRegion - aRegion;
 
-  return (b.mostRecentPost ?? '').localeCompare(a.mostRecentPost ?? '');
+  const postDiff = (b.mostRecentPost ?? '').localeCompare(a.mostRecentPost ?? '');
+  if (postDiff !== 0) return postDiff;
+
+  return a.canonicalName.localeCompare(b.canonicalName);
+}
+
+/**
+ * The brand that leads the claim teaser — `sortedMatches[0]`, unless the
+ * creator's own detected niche maps to a bucket they have a substantial match
+ * in, in which case that one is promoted.
+ *
+ * Additive by construction: it only ever promotes a brand that ALREADY cleared
+ * HERO_CATEGORY_FLOOR, and never demotes, filters or excludes anything. The
+ * floor is what keeps it honest — leading with a niche-matching brand detected
+ * on two creators would be a worse card than the top-ranked one, not a better
+ * one, so the gate declines to fire and falls back.
+ *
+ * Takes an ALREADY-SORTED array and returns its first qualifying element, so
+ * the promoted brand is the strongest one in the bucket, not merely the first
+ * one the DB happened to return.
+ */
+export function selectHeroBrand(sortedMatches: MatchedBrand[], detectedNiche: string | null): MatchedBrand | null {
+  const fallback = sortedMatches[0] ?? null;
+
+  // nicheLeadBucket() rather than the raw map: it already returns null for a
+  // null niche AND for the niches deliberately left unmapped (luxury, gaming,
+  // lifestyle — see its docstring), which is exactly the fall-back-to-top case.
+  const bucket = nicheLeadBucket(detectedNiche);
+  if (!bucket) return fallback;
+
+  // match.category is the RAW brand_brackets value; the bucket is already
+  // consolidated. Consolidating the match side is what makes this compare like
+  // with like.
+  const promoted = sortedMatches.find(
+    (m) => consolidateCategory(m.category) === bucket && m.distinctCreators >= HERO_CATEGORY_FLOOR,
+  );
+  return promoted ?? fallback;
+}
+
+/**
+ * The blurred "+N more" rows for the teaser, excluding whichever match the hero
+ * card is already showing.
+ *
+ * Exists because the hero is no longer necessarily matches[0]: slicing from
+ * index 1 (what BrandMatchResult.teaserPreview still does) would render a
+ * promoted hero a second time as a blurred row directly beneath its own card.
+ * Matched on canonicalName, which is unique — the list is deduped on it.
+ */
+export function teaserPreviewExcluding(sortedMatches: MatchedBrand[], hero: MatchedBrand | null): BlurredMatch[] {
+  return sortedMatches
+    .filter((m) => m.canonicalName !== hero?.canonicalName)
+    .slice(0, TEASER_PREVIEW_MAX)
+    .map(toBlurred);
 }
 
 /**
@@ -230,6 +318,23 @@ export function buildCreatorBrandMatches(
     strongestMatch,
     teaserPreview: matches.slice(1, 1 + TEASER_PREVIEW_MAX).map(toBlurred),
   };
+}
+
+/**
+ * The ranking clock, snapped to the start of the UTC day.
+ *
+ * /claim/[handle] is force-dynamic, so every render re-evaluates the clock and
+ * re-buckets recency against it. Unsnapped, a brand sitting on the 28-day or
+ * 90-day boundary (lib/reports/recency-bucket.ts) crosses it partway through a
+ * day and the creator's hero card silently changes between two loads of the
+ * same URL. Snapping means the ranking can only change on a day boundary or on
+ * a brand_brackets refresh.
+ *
+ * UTC rather than local: the VPS and Vercel need not agree on a timezone, and
+ * the same creator must not get a different hero from the two.
+ */
+function rankingClock(now: Date): Date {
+  return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 }
 
 function isUuid(value: string): boolean {
@@ -386,7 +491,14 @@ export async function getCreatorBrandMatches(supabase: SupabaseClient, handleOrI
             .select('canonical_name, platform, category, p25_followers, p75_followers, distinct_creators, repeat_ratio, most_recent_post, regions')
             .eq('platform', p.platform)
             .lte('p25_followers', p.followerCount / BRACKET_LOW_MULTIPLIER)
-            .gte('p75_followers', p.followerCount / BRACKET_HIGH_MULTIPLIER),
+            .gte('p75_followers', p.followerCount / BRACKET_HIGH_MULTIPLIER)
+            // Free — canonical_name is the leading column of the primary key
+            // (canonical_name, platform). Belt-and-braces rather than load
+            // bearing: the comparator's canonicalName tiebreak already makes
+            // the ranking a total order over distinct brands, so input order
+            // can't change the output. This keeps that true independently of
+            // the comparator, and makes the fetch itself reproducible.
+            .order('canonical_name'),
         ),
         DB_TIMEOUT_MS,
       ),
@@ -407,7 +519,7 @@ export async function getCreatorBrandMatches(supabase: SupabaseClient, handleOrI
     })),
   );
 
-  const result = buildCreatorBrandMatches(creatorRow.country, profiles, candidateBrackets, new Date());
+  const result = buildCreatorBrandMatches(creatorRow.country, profiles, candidateBrackets, rankingClock(new Date()));
 
   // Handles are looked up AFTER ranking, against the matched brands only —
   // typically a fraction of the ~1,160 bracket rows scanned above.
