@@ -5,16 +5,55 @@ import { EngagementIndicator } from '@/components/EngagementIndicator';
 import { CategoryBadge } from '@/components/CategoryBadge';
 import { formatCount, formatFollowerRatio, formatDate, cleanDiscoveryTags } from '@/lib/formatters';
 import { supabase } from '@/lib/supabase';
+import { hasValidatedSession } from '@/lib/supabase-server';
 import type { Metadata } from 'next';
 import type { CreatorDetail, SocialProfile, EnrichmentData } from '@/lib/types';
-import { SOCIAL_PROFILE_PUBLIC_COLUMNS } from '@/lib/types';
+import {
+  SOCIAL_PROFILE_PUBLIC_COLUMNS,
+  SOCIAL_PROFILE_TEASER_COLUMNS,
+  CREATOR_TEASER_COLUMNS,
+  CREATOR_SUMMARY_TEASER_COLUMNS,
+  SIMILAR_CREATOR_COLUMNS,
+} from '@/lib/types';
 import { SaveToShortlist } from '@/components/SaveToShortlist';
 import { GetInTouchButton } from '@/components/GetInTouchButton';
-import { AiSummaryCard } from '@/components/creator/AiSummaryCard';
 import { LocationBadge, LanguageBadge } from '@/components/creator/IntelligenceBadges';
-import { ContactEmail } from '@/components/creator/ContactEmail';
 
-async function getCreator(handle: string): Promise<CreatorDetail | null> {
+/**
+ * ── DO NOT ADD `export const revalidate` TO THIS ROUTE ─────────────────────
+ *
+ * This page has no render-mode export and builds as ƒ (Dynamic), because
+ * [handle] has no generateStaticParams and so cannot be prerendered. Next
+ * gives a dynamically-rendered app page `revalidate: 0`, and
+ * getCacheControlHeader() (next/dist/server/lib/cache-control.js) turns that
+ * into the header measured on this route:
+ *
+ *     Cache-Control: private, no-cache, no-store, max-age=0, must-revalidate
+ *
+ * That single header is the only thing keeping this page out of Webuzo's
+ * nginx cache, which keys on URI alone with no cookie, stores any 200 for 60m
+ * at proxy_cache_min_uses 1, and sets no proxy_ignore_headers. The page varies
+ * by session, so a stored copy would be replayed across sessions — the same
+ * failure class as the /api/creator/brand-matches leak (see lib/http/no-store.ts).
+ *
+ * Adding `export const revalidate = <n>` flips the header to
+ * `s-maxage=<n>, stale-while-revalidate=...`, which nginx will happily cache.
+ * There is no page-level equivalent of withNoStore() to catch that, and the
+ * page's Vary carries no Cookie, so nothing else here would stop it.
+ */
+
+/**
+ * `isLoggedIn` selects the projection, not a post-fetch filter. An anonymous
+ * visitor's queries never name the gated columns, so the gated values are not
+ * in the row this function returns and cannot be reintroduced downstream.
+ *
+ * All reads stay on the module-scope anon client deliberately. Swapping in the
+ * cookie-bearing server client would run them as `authenticated` instead of
+ * `anon`, changing both the RLS path (creators/social_profiles filter to
+ * status = 'active') and the statement timeout (3s → 8s). The session is read
+ * separately, and only to choose between these two projections.
+ */
+async function getCreator(handle: string, isLoggedIn: boolean): Promise<CreatorDetail | null> {
   const { data: profile } = await supabase
     .from('social_profiles')
     .select('creator_id')
@@ -26,7 +65,7 @@ async function getCreator(handle: string): Promise<CreatorDetail | null> {
 
   const { data: creator } = await supabase
     .from('creators')
-    .select('*')
+    .select(isLoggedIn ? '*' : CREATOR_TEASER_COLUMNS)
     .eq('id', profile.creator_id)
     .single();
 
@@ -39,19 +78,23 @@ async function getCreator(handle: string): Promise<CreatorDetail | null> {
   // so supabase-js can't parse a row type out of it on its own.
   const { data: profiles } = await supabase
     .from('social_profiles')
-    .select(SOCIAL_PROFILE_PUBLIC_COLUMNS)
+    .select(isLoggedIn ? SOCIAL_PROFILE_PUBLIC_COLUMNS : SOCIAL_PROFILE_TEASER_COLUMNS)
     .eq('creator_id', profile.creator_id)
     .returns<SocialProfile[]>();
 
+  // The view is the widest surface here: it carries instagram_ai_summary,
+  // tiktok_ai_summary, both bios, both enrichment blobs and contact_email, and
+  // it is spread over the creator record below. A '*' here would undo the
+  // narrowing done on social_profiles above.
   const { data: summary } = await supabase
     .from('v_creator_summary')
-    .select('*')
+    .select(isLoggedIn ? '*' : CREATOR_SUMMARY_TEASER_COLUMNS)
     .eq('creator_id', profile.creator_id)
     .single();
 
   const { data: claimedProfile } = await supabase
     .from('creator_profiles')
-    .select('display_name, custom_bio, rate_post, rate_reel, rate_story, rate_package, rate_currency, rate_notes, availability_status, availability_note, claim_status')
+    .select('rate_post, rate_reel, rate_story, rate_package, rate_currency, rate_notes, availability_status, claim_status')
     .eq('creator_id', profile.creator_id)
     .eq('claim_status', 'verified')
     .maybeSingle();
@@ -71,17 +114,25 @@ async function getCreator(handle: string): Promise<CreatorDetail | null> {
     }
   }
 
+  // Null for an anonymous visitor by construction, not by assignment:
+  // SOCIAL_PROFILE_TEASER_COLUMNS does not select ai_summary, so there is
+  // nothing here to find.
   const aiSummaryFromProfile =
     (profiles ?? []).find((p: any) => p.ai_summary)?.ai_summary ?? null;
 
+  // Cast because the select strings are chosen at runtime, so supabase-js
+  // cannot parse a row type out of them — the same reason the profiles read
+  // above needs .returns<SocialProfile[]>().
+  const creatorRow = creator as any;
+  const summaryRow = (summary ?? {}) as any;
+
   return {
-    ...creator,
-    ...summary,
+    ...creatorRow,
+    ...summaryRow,
     ai_summary: aiSummaryFromProfile,
-    city: creator.city ?? null,
-    country: creator.country ?? null,
-    primary_language: creator.primary_language ?? null,
-    contact_email: creator.contact_email ?? null,
+    city: creatorRow.city ?? null,
+    country: creatorRow.country ?? null,
+    primary_language: creatorRow.primary_language ?? null,
     claimed_profile: claimedProfile ?? null,
     social_profiles: profiles ?? [],
     media_kit_url: mediaKitUrl,
@@ -111,7 +162,7 @@ async function getSimilarCreators(creatorId: string, category: string | null, to
       if (ids.length > 0) {
         const { data: similar } = await supabase
           .from('v_creator_summary')
-          .select('*')
+          .select(SIMILAR_CREATOR_COLUMNS)
           .in('creator_id', ids);
 
         if (similar && similar.length > 0) return similar;
@@ -122,7 +173,7 @@ async function getSimilarCreators(creatorId: string, category: string | null, to
   if (!category) {
     const { data } = await supabase
       .from('v_creator_summary')
-      .select('*')
+      .select(SIMILAR_CREATOR_COLUMNS)
       .neq('creator_id', creatorId)
       .gte('total_followers', totalFollowers * 0.5)
       .lte('total_followers', totalFollowers * 1.5)
@@ -141,7 +192,7 @@ async function getSimilarCreators(creatorId: string, category: string | null, to
 
   const { data } = await supabase
     .from('v_creator_summary')
-    .select('*')
+    .select(SIMILAR_CREATOR_COLUMNS)
     .in('creator_id', ids)
     .limit(6);
 
@@ -443,7 +494,45 @@ function PublicAvailabilityBadge({ status }: { status: string }) {
   );
 }
 
-function CreatorStructuredData({ creator, aiSummary }: { creator: any; aiSummary: string | null }) {
+/**
+ * Shown in place of a gated block. Deliberately visible rather than silent —
+ * a brand should be able to see that there is more behind an account, and a
+ * creator should see what a brand gets. English to match the rest of this page;
+ * /creators/[handle] is not one of the bilingual surfaces.
+ */
+function LoginToSee({ title, body }: { title: string; body: string }) {
+  return (
+    <div className="card" style={{ padding: '20px', textAlign: 'center', backgroundColor: '#EBF7FF' }}>
+      <p style={{ fontSize: '14px', fontWeight: 600, color: '#3AAFF4', margin: '0 0 4px 0' }}>{title}</p>
+      <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 12px 0', lineHeight: '1.5' }}>{body}</p>
+      <Link
+        href="/auth/login"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          padding: '8px 16px',
+          borderRadius: '8px',
+          backgroundColor: '#3AAFF4',
+          color: 'white',
+          fontSize: '13px',
+          fontWeight: 600,
+          textDecoration: 'none',
+        }}
+      >
+        Log in to view
+      </Link>
+    </div>
+  );
+}
+
+/**
+ * No `description` field. The AI summary used to be emitted here as
+ * schema.org description, which put the gated analysis into the HTML of every
+ * anonymous request — the same leak as the visible paragraph, in a form that is
+ * easier to miss because nothing renders it. Name, handle, follower count,
+ * country and the platform links stay: those are the public teaser.
+ */
+function CreatorStructuredData({ creator }: { creator: any }) {
   const canonicalHandle = creator.instagram_handle || creator.tiktok_handle;
   const structuredData = {
     '@context': 'https://schema.org',
@@ -454,7 +543,6 @@ function CreatorStructuredData({ creator, aiSummary }: { creator: any; aiSummary
       name: creator.name || canonicalHandle,
       alternateName: `@${canonicalHandle}`,
       url: `https://influenceit.app/creators/${canonicalHandle}`,
-      ...(aiSummary && { description: aiSummary }),
       jobTitle: 'Content Creator',
       ...(creator.total_followers && {
         interactionStatistic: {
@@ -491,7 +579,11 @@ export async function generateMetadata({
   params: Promise<{ handle: string }>;
 }): Promise<Metadata> {
   const { handle } = await params;
-  const creator = await getCreator(handle);
+  // Teaser projection unconditionally. Metadata is served to crawlers and link
+  // unfurlers, which never carry a session, so there is no authenticated case
+  // to serve here — and fetching the full record to build a public tag would
+  // put the gated columns back on the wire.
+  const creator = await getCreator(handle, false);
   if (!creator) return { title: 'Creator Not Found | InfluenceIT' };
 
   const name = creator.name || handle;
@@ -500,9 +592,13 @@ export async function generateMetadata({
     : `${(creator.total_followers / 1_000).toFixed(0)}K`;
   const platform = creator.primary_platform === 'tiktok' ? 'TikTok' : 'Instagram';
   const canonicalHandle = creator.instagram_handle || creator.tiktok_handle || handle;
-  const desc = creator.ai_summary
-    ? creator.ai_summary.slice(0, 160)
-    : `${name} - ${platform} creator with ${followers} followers. View engagement analytics, content insights, and brand partnership history on InfluenceIT.`;
+  // Name, handle, platform and follower count only. This used to lead with the
+  // first 160 characters of the AI summary, which meant the gated analysis was
+  // served in the meta description, og:description and twitter:description of
+  // every anonymous request. Dropping it costs the summary in link previews —
+  // an accepted trade, since the alternative is publishing the analysis to
+  // anyone who unfurls the URL.
+  const desc = `${name} - ${platform} creator with ${followers} followers. View engagement analytics, content insights, and brand partnership history on InfluenceIT.`;
 
   return {
     title: `${name} (@${handle}) - ${platform} Creator | InfluenceIT`,
@@ -530,17 +626,29 @@ export default async function CreatorProfilePage({
   params: Promise<{ handle: string }>;
 }) {
   const { handle } = await params;
-  const creator = await getCreator(handle);
+
+  // The page's first working server-side session read. What was here before —
+  // getSession() on the module-scope createBrowserClient from lib/supabase.ts —
+  // could never return a session: that client's cookie storage is built at
+  // import time with no request in scope, so isLoggedIn was false on every
+  // render for every visitor, including signed-in ones.
+  //
+  // hasValidatedSession() validates the token rather than trusting the cookie,
+  // and skips the auth round trip entirely when no auth cookie is present —
+  // which is most requests to a public profile page. See lib/supabase-server.ts
+  // for why the fast path cannot become a grant.
+  //
+  // It reads cookies() internally, which de-opts a route to dynamic. Safe here:
+  // /creators/[handle] already builds as ƒ (Dynamic) and cannot be prerendered
+  // (see the note at the top of this file).
+  const isLoggedIn = await hasValidatedSession();
+
+  const creator = await getCreator(handle, isLoggedIn);
   if (!creator) notFound();
 
-  const { data: { session } } = await supabase.auth.getSession();
-  const isLoggedIn = !!session;
-
-  const aiSummary = creator.ai_summary ?? null;
   const city = creator.city ?? null;
   const country = creator.country ?? null;
   const primaryLanguage = creator.primary_language ?? null;
-  const contactEmail = creator.contact_email ?? null;
   const mediaKitUrl = (creator as any).media_kit_url ?? null;
 
   const instagramEnrichment = (creator.social_profiles?.find((p) => p.platform === 'instagram')?.enrichment_data ?? null) as EnrichmentData | null;
@@ -555,15 +663,36 @@ export default async function CreatorProfilePage({
   const category = primaryProfile?.platform_data?.category_name ?? null;
   const cleanCategory = category && category !== 'None' ? category : null;
   const bio = primaryProfile?.bio ?? null;
-  const description = creator.ai_summary ?? bio ?? null;
+  // Suppressed outright for an anonymous visitor rather than gated by nulling
+  // ai_summary. `ai_summary ?? bio` would fall through to the scraped bio —
+  // free text that carries creators' contact addresses — so gating the summary
+  // alone would have replaced one leak with a worse one. (The teaser projection
+  // does not select bio either; this is the second of the two locks.)
+  const description = isLoggedIn ? (creator.ai_summary ?? bio ?? null) : null;
   const website = primaryProfile?.website ?? null;
-  const similarCreators = await getSimilarCreators(creator.creator_id, cleanCategory, creator.total_followers);
+  // Not fetched at all when logged out. Every card links to another profile, so
+  // leaving this public hands a scraper the traversal graph — which is what the
+  // sitemap change removes the other half of.
+  const similarCreators = isLoggedIn
+    ? await getSimilarCreators(creator.creator_id, cleanCategory, creator.total_followers)
+    : [];
   const claimedProfile = (creator as any).claimed_profile ?? null;
   const isClaimed = claimedProfile?.claim_status === 'verified';
+  // The four rate columns are the only ones that make a Rates card meaningful.
+  // rate_notes alone is not a rate, and an empty card under a "Rates" heading
+  // (or a "Rates available" promise with nothing behind it) is worse than no
+  // card. Measured 2026-08-13: the one verified claimed profile has all four
+  // null, so both branches are correctly silent today.
+  const hasAnyRate = !!(
+    claimedProfile?.rate_post ||
+    claimedProfile?.rate_reel ||
+    claimedProfile?.rate_story ||
+    claimedProfile?.rate_package
+  );
 
   return (
     <>
-      <CreatorStructuredData creator={creator} aiSummary={creator.ai_summary ?? null} />
+      <CreatorStructuredData creator={creator} />
       <div style={{ backgroundColor: '#FAFAFA', minHeight: '100vh' }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6" style={{ paddingTop: '24px', paddingBottom: '80px' }}>
 
@@ -703,7 +832,7 @@ export default async function CreatorProfilePage({
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
               {/* Rates (logged in) */}
-              {isClaimed && claimedProfile && isLoggedIn && (
+              {isClaimed && claimedProfile && hasAnyRate && isLoggedIn && (
                 <div className="card" style={{ padding: '20px' }}>
                   <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#3A3A3A', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 14px 0' }}>Rates</h3>
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -717,7 +846,7 @@ export default async function CreatorProfilePage({
               )}
 
               {/* Rates (logged out) */}
-              {isClaimed && claimedProfile && !isLoggedIn && (
+              {isClaimed && claimedProfile && hasAnyRate && !isLoggedIn && (
                 <div className="card" style={{ padding: '20px', textAlign: 'center', backgroundColor: '#EBF7FF' }}>
                   <p style={{ fontSize: '14px', fontWeight: 600, color: '#3AAFF4', margin: '0 0 4px 0' }}>Rates available</p>
                   <p style={{ fontSize: '13px', color: '#6B7280', margin: 0 }}>
@@ -726,8 +855,20 @@ export default async function CreatorProfilePage({
                 </div>
               )}
 
-              {hasEnrichment && (
-                <ContentAnalytics enrichment={primaryEnrichment!} enrichedAt={enrichedAt} />
+              {/* Content Analytics, Content Mix, Top Hashtags and Brand
+                  Partnerships all live inside ContentAnalytics, and all four
+                  are gated together. hasEnrichment is false for an anonymous
+                  visitor anyway — enrichment_data is not selected — so this is
+                  belt and braces over the projection, not the gate itself. */}
+              {isLoggedIn ? (
+                hasEnrichment && (
+                  <ContentAnalytics enrichment={primaryEnrichment!} enrichedAt={enrichedAt} />
+                )
+              ) : (
+                <LoginToSee
+                  title="Content analytics available"
+                  body="Engagement rate, posting frequency, average likes, views and comments, content mix, top hashtags and detected brand partnerships."
+                />
               )}
 
               <div className="card" style={{ padding: '28px', backgroundColor: 'white', border: '1px solid #E5E7EB' }}>
@@ -738,13 +879,20 @@ export default async function CreatorProfilePage({
             </div>
 
             {/* Similar creators sidebar */}
-            {similarCreators.length > 0 && (
-              <div className="card" style={{ padding: '24px' }}>
-                <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Similar Creators</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {similarCreators.map((c) => <SimilarCreatorCard key={c.creator_id} creator={c} />)}
+            {isLoggedIn ? (
+              similarCreators.length > 0 && (
+                <div className="card" style={{ padding: '24px' }}>
+                  <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#3A3A3A', margin: '0 0 14px 0', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Similar Creators</h2>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    {similarCreators.map((c) => <SimilarCreatorCard key={c.creator_id} creator={c} />)}
+                  </div>
                 </div>
-              </div>
+              )
+            ) : (
+              <LoginToSee
+                title="Similar creators"
+                body="Creators with comparable audience size and engagement, matched on content similarity."
+              />
             )}
           </div>
         </div>
