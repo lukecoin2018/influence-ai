@@ -90,9 +90,30 @@ export function applyNoStore<T extends Response>(res: T): T {
 
 /**
  * Route-handler signature, loose on both ends by design: some handlers here
- * take no arguments at all (app/api/creator/brand-matches/route.ts's GET), and
- * none of the guarded routes has a dynamic path segment, so the context object
- * is never read.
+ * take no arguments at all (app/api/creator/brand-matches/route.ts's GET),
+ * while others read a dynamic path segment off the context object.
+ *
+ * `Ctx` is generic and forwarded untouched to the wrapped handler below, so the
+ * wrapper imposes no shape on it and `await params` works through the wrapper
+ * exactly as it does without one. The narrowing that matters happens at the
+ * export site, not here: Turbopack generates a per-route validator into
+ * .next/types/validator.ts requiring
+ *
+ *     GET?: (request: NextRequest, context: { params: Promise<ParamMap[Route]> })
+ *             => Promise<Response | void> | Response | void
+ *
+ * with ParamMap sourced from the route's own directory name, so a handler whose
+ * params type is wrong fails the build regardless of what this alias says.
+ *
+ * app/api/creators/[handle] is the first guarded route with a dynamic segment.
+ * Verified by clean build (rm -rf .next && npm run build): it compiles, and the
+ * route resolves `handle` correctly — a dropped context object would surface as
+ * a 404 rather than as a type error, so the build alone does not prove it and
+ * the response was checked too.
+ *
+ * Note that the validator is a build-time artifact. `tsc` against a stale or
+ * absent .next never sees it — .next/types held no route validators at all
+ * before that build — so a type check outside `next build` does not prove this.
  */
 type RouteHandler<Ctx> = (req: NextRequest, ctx: Ctx) => Response | Promise<Response>;
 
