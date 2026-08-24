@@ -3,6 +3,7 @@ import { supabase } from '@/lib/supabase';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { checkAndChargeAccess, FREE_ALLOWANCES } from '@/lib/tokens';
 import { withNoStore } from '@/lib/http/no-store';
+import { requireApprovedBrand } from '@/lib/auth/api-guards';
 
 // Session-gated in a BILLING way: the token gate below charges per directory
 // page, so a cached response could hand out paid pages without charging, or pin
@@ -12,48 +13,37 @@ export const GET = withNoStore(handleGET);
 async function handleGET(request: Request) {
   const { searchParams } = new URL(request.url);
 
-  // ── Authentication ────────────────────────────────────────────────────────
+  // ── Authorization ─────────────────────────────────────────────────────────
   // This runs before any query work. The response body is the whole directory
   // row from v_creator_summary — contact_email, detected_brands, the AI summary
-  // — so an unauthenticated caller reaching the query below walks the entire
-  // index by pagination. Clamping `limit` does not close that; a session does.
+  // — so a caller reaching the query below walks the entire index by
+  // pagination. Clamping `limit` does not close that.
   //
-  // Failing CLOSED is the point. This block used to swallow every error and
-  // "fall through and serve results publicly", which meant a transient auth
-  // outage downgraded the route to anonymous rather than taking it offline.
-  let serverSupabase: Awaited<ReturnType<typeof createSupabaseServerClient>>;
-  let user;
-  try {
-    serverSupabase = await createSupabaseServerClient();
-    const { data } = await serverSupabase.auth.getUser();
-    user = data.user;
-  } catch {
-    // Auth is unreachable, not absent — we cannot tell whether this caller has
-    // a session, so we serve nobody. 503 rather than 401 so the client does not
-    // bounce a still-valid session to the login page over a transient fault.
-    return NextResponse.json(
-      { error: 'Auth check unavailable', reason: 'auth_unavailable' },
-      { status: 503 }
-    );
-  }
+  // A session alone used to be enough, and it was not enough. The token gate
+  // below only ever ran `if (brandProfile)`, so an authenticated account with
+  // no brand_profiles row read the whole directory with tokenInfo null:
+  // unmetered and unapproved. Failed brand signups produce exactly that
+  // account, in quantity. Entitlement is now checked explicitly, and the
+  // billing branch below is billing again rather than a de facto gate.
+  //
+  // Failing CLOSED is the point, and requireApprovedBrand() keeps the 503-on-
+  // auth-unreachable behaviour this route already had.
+  const gate = await requireApprovedBrand();
+  if ('error' in gate) return gate.error;
 
-  if (!user) {
-    return NextResponse.json(
-      { error: 'Unauthorized', reason: 'auth_required' },
-      { status: 401 }
-    );
-  }
+  const serverSupabase = await createSupabaseServerClient();
 
   // ── Token gate ────────────────────────────────────────────────────────────
-  // Unchanged in behaviour, but now guaranteed to have a user. Accounts with no
-  // brand_profiles row still read the directory with tokenInfo null, exactly as
-  // before — this branch never gated access, only billing.
+  // Billing only, and now unambiguously so: the caller is already known to be
+  // an approved brand, so a missing row here is a data inconsistency rather
+  // than an access decision. The `if` is kept because token_balance and the
+  // usage counters are nullable and this route must tolerate that.
   let tokenInfo = null;
 
   const { data: brandProfile } = await serverSupabase
     .from('brand_profiles')
     .select('id, token_balance, directory_pages_used, profile_views_used')
-    .eq('id', user.id)
+    .eq('id', gate.userId)
     .maybeSingle();
 
   if (brandProfile) {
@@ -61,7 +51,7 @@ async function handleGET(request: Request) {
 
     if (paginate) {
       // Paginating — charge free allowance or tokens
-      const access = await checkAndChargeAccess(user.id, 'directory_pages');
+      const access = await checkAndChargeAccess(gate.userId, 'directory_pages');
 
       if (!access.allowed) {
         return NextResponse.json({
