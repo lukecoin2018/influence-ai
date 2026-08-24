@@ -133,21 +133,49 @@ function SignUpContent() {
     });
 
     if (authError || !authData.user) {
-      setError(authError?.message ?? t.errors.signupFailed);
+      // authError.message used to go straight to the screen. It distinguishes
+      // "User already registered" from "Password should be at least 6
+      // characters", which is an account-enumeration oracle on a public form —
+      // the same thing the claim route was changed to stop doing.
+      if (authError) console.warn(`[brand-signup] signUp failed: ${authError.message}`);
+      setError(t.errors.signupFailed);
       setLoading(false);
       return;
     }
 
     const userId = authData.user.id;
     await supabase.from('user_roles').insert({ user_id: userId, role: 'brand' });
-    await supabase.from('brand_profiles').insert({
+
+    const { error: profileError } = await supabase.from('brand_profiles').insert({
       id: userId,
       company_name: companyName,
+      // email is NOT NULL on brand_profiles and this insert omitted it, so it
+      // would have failed here even once the `status` column below was fixed.
+      // It is also what /api/inquiries reads to send the brand its copy of an
+      // inquiry, so a NULL here would have been a silently broken notification.
+      email,
       industry,
-      status: 'approved',
+      // Was `status: 'approved'` — a column that does not exist, so this insert
+      // has never once succeeded. Every brand now starts pending and is
+      // approved by a person.
+      approval_status: 'pending',
       subscription_tier: 'trial',
       trial_ends_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     });
+
+    // Previously unchecked, with an unconditional push to /dashboard below it:
+    // a brand whose profile insert failed was sent to a dashboard it had no row
+    // for, and told nothing. That is how the failure stayed invisible.
+    //
+    // The auth user cannot be cleaned up from here the way /api/auth/signup
+    // does it — that needs the service-role client, and this is the browser.
+    // Logging it in the same shape keeps the two paths greppable together.
+    if (profileError) {
+      console.error(`[brand-signup] profile insert failed for ${userId}: ${profileError.message}`);
+      setError(t.errors.brandProfileFailed);
+      setLoading(false);
+      return;
+    }
 
     router.push('/dashboard');
   }

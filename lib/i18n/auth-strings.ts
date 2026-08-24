@@ -92,6 +92,14 @@ interface AuthStrings {
   };
   errors: {
     signupFailed: string;
+    /**
+     * Brand signup created the auth user but could not write brand_profiles.
+     * Distinct from signupFailed because the account half-exists: the person
+     * has credentials that work, so "try again" alone would be misleading.
+     * The browser cannot delete the auth user (that needs the service-role
+     * client, which /api/auth/signup uses), so this points at support.
+     */
+    brandProfileFailed: string;
     handleNotIndexed: string;
     /** Last-resort fallback for a reason code this build doesn't recognise. */
     verificationFailed: string;
@@ -192,6 +200,8 @@ const en: AuthStrings = {
   },
   errors: {
     signupFailed: 'Signup failed.',
+    brandProfileFailed:
+      'Your account was created, but we could not finish setting up your company profile. Please get in touch and we will sort it out.',
     handleNotIndexed:
       "We don't have a profile for this handle yet. We'll add you to our database and notify you when your profile is ready.",
     verificationFailed: 'Verification failed. Please try again.',
@@ -274,6 +284,8 @@ const es: AuthStrings = {
   },
   errors: {
     signupFailed: 'No pudimos crear tu cuenta.',
+    brandProfileFailed:
+      'Creamos tu cuenta, pero no pudimos terminar de configurar el perfil de tu empresa. Escríbenos y lo resolvemos.',
     handleNotIndexed:
       'Todavía no tenemos un perfil para ese usuario. Te agregaremos a nuestra base de datos y te avisaremos cuando tu perfil esté listo.',
     verificationFailed: 'No pudimos verificarte. Inténtalo de nuevo.',

@@ -122,3 +122,63 @@ export async function requireApprovedBrand(): Promise<BrandGateResult> {
 
   return { userId: user.id, brandId: brand.id };
 }
+
+/**
+ * The route-handler counterpart to requireOwner() in server-guards.ts.
+ *
+ * Same rule — one owner account, held in the server-only ADMIN_USER_ID, which
+ * is captured at BUILD time (see requireOwner's comment for what that means per
+ * host) — but shaped for an API: JSON and a status code rather than a redirect.
+ * A route handler must never redirect a fetch() to /login; the caller would
+ * follow it and try to parse a login page as JSON.
+ *
+ * Unset or empty denies everyone, including the owner, for the same reason it
+ * does there: "unconfigured" must never widen access.
+ */
+export async function requireOwnerApi(): Promise<{ error: NextResponse } | { userId: string }> {
+  const ownerId = process.env.ADMIN_USER_ID?.trim();
+
+  let supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>;
+  let user;
+  try {
+    supabase = await createSupabaseServerClient();
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  } catch {
+    return {
+      error: NextResponse.json(
+        { error: 'Auth check unavailable', reason: 'auth_unavailable' satisfies BrandGateReason },
+        { status: 503 },
+      ),
+    };
+  }
+
+  if (!user) {
+    return {
+      error: NextResponse.json(
+        { error: 'Unauthorized', reason: 'auth_required' satisfies BrandGateReason },
+        { status: 401 },
+      ),
+    };
+  }
+
+  if (!ownerId) {
+    console.error(
+      '[admin-gate] ADMIN_USER_ID is unset or empty — denying every admin API call, ' +
+      'including the owner. It is captured at BUILD time: set it and rebuild.',
+    );
+    return { error: NextResponse.json({ error: 'Forbidden', reason: 'not_owner' }, { status: 403 }) };
+  }
+
+  // Case-insensitive, as in requireOwner(): these are hex UUIDs, so an
+  // uppercase paste is the same id.
+  if (user.id.toLowerCase() !== ownerId.toLowerCase()) {
+    console.error(
+      `[admin-gate] signed-in user ${user.id.slice(0, 8)}… does not match ADMIN_USER_ID — ` +
+      'denying admin API call.',
+    );
+    return { error: NextResponse.json({ error: 'Forbidden', reason: 'not_owner' }, { status: 403 }) };
+  }
+
+  return { userId: user.id };
+}

@@ -7,6 +7,28 @@ import { supabase } from '@/lib/supabase';
 
 type FilterType = 'all' | 'pending' | 'approved' | 'rejected' | 'suspended';
 
+/**
+ * Reason codes from /api/admin/brands/status. Admin-facing, so these can be
+ * specific — this page is only ever seen by the owner.
+ */
+function statusErrorMessage(reason: string | undefined): string {
+  switch (reason) {
+    case 'auth_required':
+    case 'not_owner':
+      return 'Your session is no longer authorised. Reload and sign in again.';
+    case 'auth_unavailable':
+      return 'Could not reach the auth service. Try again in a moment.';
+    case 'invalid_status':
+      return 'That status is not one the database accepts.';
+    case 'brand_not_found':
+      return 'That brand no longer exists.';
+    case 'update_failed':
+      return 'The database rejected the update — check the server log.';
+    default:
+      return 'Failed to update.';
+  }
+}
+
 export default function AdminBrandsPage() {
   const { user, userRole, loading } = useAuth();
   const router = useRouter();
@@ -48,9 +70,17 @@ export default function AdminBrandsPage() {
     setActionLoading(brandId + status);
     setActionError(null);
     try {
-      const { error } = await supabase.from('brand_profiles').update({ approval_status: status }).eq('id', brandId);
-      if (error) throw error;
-      await supabase.from('activity_log').insert({ event_type: `brand_${status}`, target_id: brandId, details: { action: status } });
+      // Was a direct anon-key update from the browser, plus a second insert
+      // into activity_log. approval_status is what opens the creator database,
+      // so the write that grants it now goes through an owner-gated server
+      // route, which also does the audit row and fires the approval hook.
+      const res = await fetch('/api/admin/brands/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brandId, status }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.success) throw new Error(statusErrorMessage(data?.reason));
       await load();
     } catch (err) {
       console.error('Failed to update brand status:', err);

@@ -5,6 +5,35 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
+/**
+ * Maps a reason code from /api/auth/signup to something a brand can act on.
+ *
+ * The route no longer returns prose. It used to return err.message verbatim,
+ * which is how a brand ended up reading "Could not find the 'status' column of
+ * 'brand_profiles' in the schema cache" — a description of our schema, on a
+ * signup form.
+ *
+ * English only: this page is not in the i18n tree (lib/i18n/auth-strings.ts
+ * covers /auth/signup, which is the creator funnel). Keyed off the code and
+ * never the HTTP status, so a future "checked and absent" 200 still maps.
+ */
+function signupErrorMessage(reason: string | undefined): string {
+  switch (reason) {
+    case 'missing_fields':
+      return 'Please fill in your company name, email and password.';
+    case 'signup_failed':
+      // Deliberately vague. The route knows whether the address is already
+      // registered or the password is too short, and does not say, because
+      // answering that question on a public endpoint tells a stranger which
+      // email addresses have accounts.
+      return 'We could not create an account with those details. Check your email address, and use a password of at least 8 characters.';
+    case 'profile_failed':
+      return 'Something went wrong setting up your account. Nothing was saved — please try again, or get in touch if it keeps happening.';
+    default:
+      return 'Signup failed. Please try again.';
+  }
+}
+
 const INDUSTRIES = [
   'Fashion & Beauty', 'Health & Wellness', 'Food & Beverage',
   'Technology', 'Travel & Hospitality', 'Home & Living',
@@ -38,8 +67,8 @@ export default function SignupPage() {
         body: JSON.stringify({ email, password, companyName, contactName, website, industry }),
       });
   
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Signup failed');
+      const data = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(signupErrorMessage(data?.reason));
   
       // Now sign in with the created credentials
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });

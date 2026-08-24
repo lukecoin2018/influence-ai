@@ -90,10 +90,10 @@ function idHint(id: string): string {
 }
 
 /**
- * Requires any authenticated user. No role check and no approval_status check:
- * brand signup does not work yet (it writes a `status` column that does not
- * exist on brand_profiles), so gating on approval here would lock out every
- * account including the ones that do work. Approval gating is a later branch.
+ * Requires any authenticated user, with no role or approval check.
+ *
+ * No longer used by /dashboard, which now calls getBrandAccessState() below.
+ * Kept as the plain session primitive for any future surface that wants one.
  */
 export async function requireSession(): Promise<{ userId: string }> {
   const supabase = await createSupabaseServerClient();
@@ -101,6 +101,48 @@ export async function requireSession(): Promise<{ userId: string }> {
   if (!user) redirect('/login');
 
   return { userId: user.id };
+}
+
+/**
+ * What the brand dashboard should show this caller.
+ *
+ *   approved    render the dashboard
+ *   pending     awaiting review — the normal state for every new brand
+ *   no_profile  signed in, but no brand_profiles row exists at all
+ *   blocked     a row exists and its status is not one a brand can use
+ *
+ * `pending` and `no_profile` are separate values on purpose even though both
+ * render the same holding page. They mean different things operationally — one
+ * is a brand waiting in the queue, the other is an account that never got a row
+ * written, which is the state ~18 failed signups left behind before this branch
+ * — and collapsing them here would make that invisible to a future reader.
+ *
+ * Anything that is not exactly 'approved' or 'pending' is `blocked`, including
+ * 'rejected', 'suspended', a typo and NULL. Same positive-check reasoning as
+ * requireApprovedBrand() in lib/auth/api-guards.ts: approval is something a
+ * human grants, and the absence of that act is not consent.
+ *
+ * Redirects when there is no session at all — that is a login problem, not a
+ * status to render.
+ */
+export type BrandAccessState = 'approved' | 'pending' | 'no_profile' | 'blocked';
+
+export async function getBrandAccessState(): Promise<{ userId: string; state: BrandAccessState }> {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const { data: brand } = await supabase
+    .from('brand_profiles')
+    .select('approval_status')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (!brand) return { userId: user.id, state: 'no_profile' };
+  if (brand.approval_status === 'approved') return { userId: user.id, state: 'approved' };
+  if (brand.approval_status === 'pending') return { userId: user.id, state: 'pending' };
+
+  return { userId: user.id, state: 'blocked' };
 }
 
 /**
