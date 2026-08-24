@@ -48,9 +48,46 @@ import { createSupabaseServerClient } from '@/lib/supabase-server';
  * trusts.
  *
  * Must never be NEXT_PUBLIC_ — that would inline the owner's user id into the
- * client bundle for anyone to read.
+ * client bundle for anyone to read. Verified it does not leak today: a build
+ * carrying a known test value had zero occurrences of it under .next/static.
+ *
+ * ── IT MUST BE SET AT BUILD TIME, NOT ONLY AT RUNTIME ──────────────────────
+ *
+ * Measured on this Next version, both directions, on isolated ports:
+ *
+ *   built WITHOUT the var, started WITH it   -> undefined
+ *                                               ('ADMIN_USER_ID' is not even a
+ *                                               key in process.env)
+ *   built WITH the var, started WITHOUT it   -> resolves fine
+ *
+ * So the value is captured when `next build` runs. Setting it afterwards in a
+ * runtime-only environment does nothing to a build that already exists. This
+ * cost a real debugging round trip: an admin logged in successfully and landed
+ * back on the front page, because the deployment under test had been built
+ * before the variable existed.
+ *
+ *   Vercel — set it for the environment that BUILDS the deployment, and
+ *            redeploy. A branch push builds a Preview deployment, which has its
+ *            own environment; setting it on Production only will not reach it.
+ *   VPS    — put it in .env.local, which Next reads at build and at start. The
+ *            deploy chain runs `npm run build` after `git pull`, so a value in
+ *            that file is in scope. Setting it only in the Webuzo panel as a
+ *            runtime variable is NOT.
+ *
+ * The fragility is deliberate in its direction: a build missing the variable
+ * denies everyone, attacker included. It costs availability, not security, and
+ * fail-closed is the right way for an auth gate to break.
  */
 const ADMIN_USER_ID_ENV = 'ADMIN_USER_ID';
+
+/**
+ * First 8 characters, for logs. Enough to compare two ids at a glance without
+ * writing full user ids into a log file that is less protected than the
+ * database they came from.
+ */
+function idHint(id: string): string {
+  return `${id.slice(0, 8)}…`;
+}
 
 /**
  * Requires any authenticated user. No role check and no approval_status check:
@@ -75,7 +112,11 @@ export async function requireSession(): Promise<{ userId: string }> {
  * satisfied.
  */
 export async function requireOwner(): Promise<{ userId: string }> {
-  const ownerId = process.env[ADMIN_USER_ID_ENV]?.trim();
+  // Read through the literal `process.env.ADMIN_USER_ID`, not a computed key.
+  // Both resolve identically here (measured), but the literal is the form Next
+  // documents and statically analyses, so it stays correct if this file is ever
+  // bundled for a runtime that does not expose a live process.env.
+  const ownerId = process.env.ADMIN_USER_ID?.trim();
 
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -84,21 +125,33 @@ export async function requireOwner(): Promise<{ userId: string }> {
   // Unconfigured denies everyone, including the owner. "Env var missing" must
   // never widen access: if this fell through to allow-all, forgetting to set
   // ADMIN_USER_ID on a new host would silently reopen the exact hole this file
-  // closes. Deny is the recoverable direction — the owner sets the var and
-  // restarts; the alternative is an open admin panel nobody notices.
+  // closes. Deny is the recoverable direction.
   //
   // Checked after getUser() rather than before so that a misconfigured host
   // sends an anonymous visitor to /login and a signed-in one to /, instead of
   // revealing "this deploy has no admin configured" to logged-out traffic.
   if (!ownerId) {
     console.error(
-      `${ADMIN_USER_ID_ENV} is unset or empty — denying all access to /admin. ` +
-      'Set it to the owner\'s auth user id and restart.',
+      `[admin-gate] ${ADMIN_USER_ID_ENV} is unset or empty — denying all access ` +
+      'to /admin, including the owner. It is captured at BUILD time: set it and ' +
+      'rebuild (Vercel: redeploy; VPS: add it to .env.local before npm run build).',
     );
     redirect('/');
   }
 
-  if (user.id !== ownerId) redirect('/');
+  // Case-insensitive: these are hex UUIDs, so an uppercase paste is the same
+  // id. Comparing raw would reject a correct value on nothing but letter case
+  // and land the owner on the front page with no clue why.
+  if (user.id.toLowerCase() !== ownerId.toLowerCase()) {
+    // Logged so this is distinguishable from the unset case above. Both
+    // redirect to / — without this line the two look identical from the
+    // outside, which is exactly how the first lockout went undiagnosed.
+    console.error(
+      `[admin-gate] signed-in user ${idHint(user.id)} does not match ` +
+      `${ADMIN_USER_ID_ENV} ${idHint(ownerId)} — denying /admin.`,
+    );
+    redirect('/');
+  }
 
   return { userId: user.id };
 }
