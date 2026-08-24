@@ -72,7 +72,13 @@ async function handlePOST(req: NextRequest) {
   const { error: logError } = await admin.from('activity_log').insert({
     event_type: `brand_${status}`,
     target_id: brandId,
-    details: { action: status, by: auth.userId },
+    // The actor belongs in user_id, which activity_log has and which was being
+    // left null while the same value was buried in details as `by`. Putting it
+    // in the column means a reader can join or filter on it instead of parsing
+    // JSON. `details` keeps `action` for continuity with the rows already
+    // written this way.
+    user_id: auth.userId,
+    details: { action: status },
   });
   if (logError) {
     console.error(`[admin-brands] activity_log insert failed for ${brandId}: ${logError.message}`);

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
+import { describeActivity, targetTableFor, type ActivityRow } from '@/lib/admin/activity-log'
 
 interface Stats {
   totalCreators: number
@@ -12,18 +13,19 @@ interface Stats {
   totalInquiries: number
 }
 
-interface ActivityItem {
-  id: string
-  action: string
-  created_at: string
-  details?: string | object
-}
+// Mirrors the real activity_log columns. The previous version declared an
+// `action` field, which does not exist on the table — that is why every row
+// rendered a blank headline and showed only the raw JSON of `details`.
 
 export default function AdminOverviewPage() {
   const { user, userRole, loading } = useAuth()
   const router = useRouter()
   const [stats, setStats] = useState<Stats | null>(null)
-  const [activity, setActivity] = useState<ActivityItem[]>([])
+  const [activity, setActivity] = useState<ActivityRow[]>([])
+  // target_id -> display name. Empty until the lookups below resolve; the
+  // wording falls back to a subject-less form for anything missing, so a failed
+  // lookup costs detail rather than breaking the row.
+  const [targetNames, setTargetNames] = useState<Record<string, string>>({})
   const [dataLoading, setDataLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -58,12 +60,70 @@ export default function AdminOverviewPage() {
         pendingApprovals: (pendingBrands ?? 0) + (pendingCreators ?? 0),
         totalInquiries: inquiriesCount ?? 0,
       })
-      setActivity(activityData ?? [])
+      const rows = (activityData ?? []) as ActivityRow[]
+      setActivity(rows)
+      void loadTargetNames(rows)
     } catch (err: any) {
       setError(err.message ?? 'Failed to load data')
     } finally {
       setDataLoading(false)
     }
+  }
+
+  /**
+   * Resolves the activity rows' target_id values to names, so the log reads
+   * "Approved LMG Media" rather than "Brand approved".
+   *
+   * Two batched queries at most — one per target table — never one per row.
+   * Deliberately not awaited by fetchData: the log is readable without names,
+   * so this must not hold up the page or turn a failed lookup into a failed
+   * render. Errors are swallowed for the same reason; the fallback wording
+   * covers it.
+   */
+  async function loadTargetNames(rows: ActivityRow[]) {
+    const brandIds = new Set<string>()
+    const creatorIds = new Set<string>()
+
+    for (const r of rows) {
+      if (!r.target_id) continue
+      const table = targetTableFor(r.event_type)
+      if (table === 'brand') brandIds.add(r.target_id)
+      if (table === 'creator') creatorIds.add(r.target_id)
+    }
+
+    if (!brandIds.size && !creatorIds.size) return
+
+    const [brands, creators] = await Promise.all([
+      brandIds.size
+        ? supabase.from('brand_profiles').select('id, company_name').in('id', [...brandIds])
+        : Promise.resolve({ data: [] as any[] }),
+      creatorIds.size
+        // Same name precedence the Creators admin page uses: the claimed
+        // profile's own display_name first, then the scraped creator record,
+        // then the handle.
+        ? supabase
+            .from('creator_profiles')
+            .select('id, display_name, creators!creator_id(display_name, instagram_handle)')
+            .in('id', [...creatorIds])
+        : Promise.resolve({ data: [] as any[] }),
+    ])
+
+    const next: Record<string, string> = {}
+
+    for (const b of brands.data ?? []) {
+      if (b?.id && b.company_name) next[b.id] = b.company_name
+    }
+
+    for (const c of (creators.data ?? []) as any[]) {
+      const joined = Array.isArray(c.creators) ? c.creators[0] : c.creators
+      const name =
+        c.display_name ??
+        joined?.display_name ??
+        (joined?.instagram_handle ? `@${joined.instagram_handle}` : null)
+      if (c?.id && name) next[c.id] = name
+    }
+
+    setTargetNames(next)
   }
 
   if (loading || dataLoading) {
@@ -122,14 +182,16 @@ export default function AdminOverviewPage() {
           <p style={{ color: '#9ca3af', fontSize: '14px' }}>No recent activity.</p>
         ) : (
           <div style={{ background: 'white', border: '1px solid #E5E7EB', borderRadius: '12px', overflow: 'hidden' }}>
-            {activity.map((item, i) => (
+            {activity.map((item, i) => {
+              const { title, detail } = describeActivity(item, (id) => targetNames[id])
+              return (
               <div key={item.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', padding: '14px 20px', borderTop: i === 0 ? 'none' : '1px solid #F3F4F6' }}>
                 <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#D1D5DB', marginTop: '6px', flexShrink: 0 }} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontSize: '14px', color: '#374151', margin: 0 }}>{item.action}</p>
-                  {item.details && (
+                  <p style={{ fontSize: '14px', color: '#374151', margin: 0 }}>{title}</p>
+                  {detail && (
                     <p style={{ fontSize: '12px', color: '#9ca3af', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {typeof item.details === 'object' ? JSON.stringify(item.details) : item.details}
+                      {detail}
                     </p>
                   )}
                 </div>
@@ -137,7 +199,8 @@ export default function AdminOverviewPage() {
                   {new Date(item.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </time>
               </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
