@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import OpenAI from 'openai';
+import { requireApprovedBrand } from '@/lib/auth/api-guards';
+import { withNoStore } from '@/lib/http/no-store';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY!,
@@ -171,10 +173,25 @@ async function findCandidates(briefText: string, filters: any): Promise<any[]> {
   return [...enriched, ...notEnriched].slice(0, 30);
 }
 
-export async function POST(req: NextRequest) {
+// Reads a session, so it must never be replayable from a shared cache. nginx
+// only caches GET/HEAD, so a POST was never actually stored — this is the
+// standing rule from lib/http/no-store.ts applied by construction rather than
+// a fix for an observed leak.
+export const POST = withNoStore(handlePOST);
+
+async function handlePOST(req: NextRequest) {
+  // ── Authorization ───────────────────────────────────────────────────────
+  // Before anything else: before reading the body, before the embedding call,
+  // before the LLM call. This route had NO authentication — it returned ranked
+  // creators to anonymous callers and spent an OpenAI and an Anthropic call
+  // doing it. Gating first means an unauthorized request costs a database
+  // lookup, not two model calls.
+  const gate = await requireApprovedBrand();
+  if ('error' in gate) return gate.error;
+
   try {
     const body = await req.json();
-    const { briefText, platform, minFollowers, maxFollowers, minEngagement, contentTypePref, category, brandId } = body;
+    const { briefText, platform, minFollowers, maxFollowers, minEngagement, contentTypePref, category } = body;
 
     if (!briefText || briefText.trim().length < 20) {
       return NextResponse.json({ error: 'Brief must be at least 20 characters.' }, { status: 400 });
@@ -286,7 +303,12 @@ Return exactly 10 matches (or fewer if fewer candidates exist). creator_index is
       category: category || null,
       matched_creators: rankedResults,
       candidates_count: candidates.length,
-      brand_id: body.brandId || null,
+      // Was `body.brandId` — taken from the request and trusted, so any caller
+      // could file a brief under someone else's brand id. Same class as the
+      // detectedEmail the claim route used to accept. It now comes from the
+      // validated session, which is the only place it can come from and mean
+      // anything.
+      brand_id: gate.brandId,
     });
 
     return NextResponse.json({
