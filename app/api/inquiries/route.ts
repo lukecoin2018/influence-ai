@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 import { grantCreatorTokens } from '@/lib/tokens';
+import { requireApprovedBrand } from '@/lib/auth/api-guards';
+import { withNoStore } from '@/lib/http/no-store';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -18,17 +20,37 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function POST(req: NextRequest) {
+// Reads a session, so it carries no-store by construction. See
+// lib/http/no-store.ts.
+export const POST = withNoStore(handlePOST);
+
+/**
+ * Brand → creator inquiry.
+ *
+ * Was unauthenticated, and took `brandId` from the request body and trusted it.
+ * So an anonymous caller could file inquiries attributed to any brand, mint 15
+ * creator tokens through the earn event below, and send two emails from our
+ * Gmail account — per request, unthrottled. It returned no creator data, so
+ * this was forgery and abuse rather than exfiltration, but the writes and the
+ * mail were real.
+ *
+ * brandId now comes from the validated session and the body's value is ignored.
+ * Same correction the claim route made when it stopped trusting detectedEmail.
+ */
+async function handlePOST(req: NextRequest) {
+  const gate = await requireApprovedBrand();
+  if ('error' in gate) return gate.error;
+
   try {
-    const { creatorId, message, campaignType, budgetRange, timeline, brandId } = await req.json();
+    const { creatorId, message, campaignType, budgetRange, timeline } = await req.json();
 
     if (!message?.trim()) {
-      return NextResponse.json({ error: 'Message is required.' }, { status: 400 });
+      return NextResponse.json({ error: 'Message is required.', reason: 'message_required' }, { status: 400 });
     }
 
     // Save inquiry to database
     const { error } = await supabaseAdmin.from('inquiries').insert({
-      brand_id: brandId,
+      brand_id: gate.brandId,
       creator_id: creatorId,
       message: message.trim(),
       campaign_type: campaignType || null,
@@ -74,7 +96,7 @@ export async function POST(req: NextRequest) {
     const { data: brandProfile } = await supabaseAdmin
       .from('brand_profiles')
       .select('company_name, contact_name, email, industry')
-      .eq('id', brandId)
+      .eq('id', gate.brandId)
       .single();
 
     const { data: creatorSummary } = await supabaseAdmin
@@ -165,7 +187,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true });
 
   } catch (err: any) {
+    // The message stays in the server log and out of the response. It used to
+    // be returned verbatim, which is how a brand ended up reading
+    // "Could not find the 'status' column of 'brand_profiles' in the schema
+    // cache" during signup. Database errors describe our schema, and the client
+    // keys off `reason` rather than prose in any case.
     console.error('Inquiry API error:', err);
-    return NextResponse.json({ error: err.message || 'Failed to submit inquiry.' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to submit inquiry.', reason: 'inquiry_failed' },
+      { status: 500 },
+    );
   }
 }

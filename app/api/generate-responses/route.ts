@@ -1,11 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Anthropic from '@anthropic-ai/sdk'
+import { requireApprovedBrand } from '@/lib/auth/api-guards'
+import { withNoStore } from '@/lib/http/no-store'
 
 const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
-export async function POST(request: NextRequest) {
+// Reads a session, so it carries no-store by construction. See
+// lib/http/no-store.ts.
+export const POST = withNoStore(handlePOST)
+
+/**
+ * The brand negotiation tool's response generator.
+ *
+ * Was unauthenticated: an open proxy to Anthropic on our API key, taking
+ * caller-supplied content and returning the completion. Cost and abuse surface
+ * both, with no account required.
+ *
+ * Approved brand rather than merely a session, because this is a brand tool.
+ * Its only caller is components/tools/brand/negotiation/steps/Step4Responses.tsx,
+ * rendered by NegotiationAssistant, reachable only from /dashboard/negotiation.
+ * The creator-side negotiation tool does NOT come here — it builds its options
+ * locally through generateResponseOptions() in lib/negotiation-template-matcher,
+ * with no network call — so gating on brand approval cannot break it.
+ *
+ * A byte-identical copy of this route lived at /api/brand/generate-responses
+ * with no callers at all. It was deleted rather than gated.
+ */
+async function handlePOST(request: NextRequest) {
+  // Before the model call, so an unauthorized request costs a lookup, not a
+  // completion.
+  const gate = await requireApprovedBrand()
+  if ('error' in gate) return gate.error
+
   try {
     const { data } = await request.json()
 
