@@ -7,15 +7,26 @@
 -- │                                                                          │
 -- │  DEPLOY THE CODE FIRST. THEN APPLY THIS MIGRATION.                       │
 -- │                                                                          │
--- │  Not the other way round. Section B drops a policy that the currently    │
--- │  deployed /api/match depends on, so applying it before the new build is  │
--- │  live on the VPS breaks AI matching for the gap.                         │
+-- │  Not the other way round. BOTH sections depend on code in the same       │
+-- │  commit as this file. Applying either one against the previous build     │
+-- │  breaks something that currently works:                                  │
 -- │                                                                          │
--- │  SECTION A has no code dependency. Safe to apply at any time, before or  │
--- │  after the deploy, in any order.                                         │
+-- │    A1 (the brand_profiles trigger) pins token_balance,                   │
+-- │       directory_pages_used and profile_views_used. Until the new         │
+-- │       lib/tokens.ts is live, those columns are written on the CALLER'S   │
+-- │       OWN SESSION, so the trigger refuses them and token metering        │
+-- │       fails — paginating /creators and every /api/tokens/spend call.     │
+-- │       This was got wrong once, on 2026-08-24: A1 was applied before the  │
+-- │       deploy and broke metering until the trigger was dropped again.     │
 -- │                                                                          │
--- │  SECTION B must not be run until /api/match on the service-role client   │
--- │  is live on the VPS. Section B says so again at the top of itself.       │
+-- │    B1 drops a policy the currently deployed /api/match depends on, so    │
+-- │       applying it before the new build is live breaks AI matching.       │
+-- │                                                                          │
+-- │  A2 and A3 are the only statements with no code dependency — they can    │
+-- │  be applied at any time.                                                 │
+-- │                                                                          │
+-- │  If you need A1 off in a hurry, drop the trigger and leave the function: │
+-- │    DROP TRIGGER IF EXISTS brand_profiles_protect_columns ON brand_profiles;│
 -- └──────────────────────────────────────────────────────────────────────────┘
 --
 -- ── NUMBERING COLLISION ────────────────────────────────────────────────────
@@ -38,11 +49,17 @@
 
 
 -- ═══════════════════════════════════════════════════════════════════════════
---   SECTION A — no code dependency. Safe to apply any time.
+--   SECTION A — A1 NEEDS THE DEPLOY FIRST. A2 and A3 do not.
 -- ═══════════════════════════════════════════════════════════════════════════
 
 
 -- ── A1. brand_profiles: pin the columns a brand must not write ─────────────
+--
+-- ORDERING: THIS STATEMENT NEEDS THE CODE DEPLOYED FIRST. It pins
+-- token_balance, directory_pages_used and profile_views_used, and until the
+-- lib/tokens.ts change in this same commit is live those columns are written on
+-- the caller's own session — so this trigger refuses them and token metering
+-- breaks. Applied ahead of the deploy on 2026-08-24 and did exactly that.
 --
 -- RLS policy brands_update_own is USING (auth.uid() = id) with a NULL
 -- WITH CHECK, so USING governs the new values too and no column is pinned. A
