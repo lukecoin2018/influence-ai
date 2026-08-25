@@ -25,6 +25,26 @@ import { createSupabaseServerClient } from '@/lib/supabase-server';
  *                  users behind with no profile row, so that was not a
  *                  hypothetical class of account.
  *
+ * ── WHAT THIS GATE IS NOT ──────────────────────────────────────────────────
+ *
+ * An earlier version of this comment claimed the admin pages' data was
+ * withheld "only because Supabase's RLS refused the anon key". That was
+ * FALSE for creator data, and measuring it on 2026-08-24 is what corrected it:
+ * `creators`, `social_profiles`, `creator_posts` and `v_creator_summary` are
+ * all readable with the publishable anon key and no account at all —
+ * v_creator_summary including contact_email on 2,765 creators, because it is
+ * not a security_invoker view and so bypasses RLS entirely.
+ *
+ * So this gate is a BILLING AND PRODUCT boundary, not a security boundary. It
+ * decides who is metered and who sees the product; it does not decide who can
+ * obtain the rows, because the same data is reachable straight from PostgREST.
+ * Do not cite it as the reason creator data is safe. See the "Row-level
+ * security — measured" section of CLAUDE.md for the full picture and the
+ * queries that reproduce it.
+ *
+ * brand_profiles is the exception and genuinely is protected by RLS: anon
+ * reads 0 of 1 rows.
+ *
  * ── THE RULE ───────────────────────────────────────────────────────────────
  *
  * Approved brands only, checked as `approval_status === 'approved'`.

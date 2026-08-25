@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import OpenAI from 'openai';
 import { requireApprovedBrand } from '@/lib/auth/api-guards';
+import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { withNoStore } from '@/lib/http/no-store';
 
 const openai = new OpenAI({
@@ -292,8 +293,25 @@ Return exactly 10 matches (or fewer if fewer candidates exist). creator_index is
       };
     }).filter(Boolean);
 
-    // Save brief
-    await supabase.from('campaign_briefs').insert({
+    // Save brief.
+    //
+    // Service-role for THIS STATEMENT ONLY, deliberately scoped. The two reads
+    // above — the match_creators RPC at :91 and the v_creator_summary select at
+    // :124 — stay on the anon client, so this does not widen what the route can
+    // read.
+    //
+    // Why it has to change: this insert ran on the anon client, which server
+    // side carries no session and therefore no auth.uid(). It only ever
+    // succeeded because campaign_briefs had `public_insert_briefs` with
+    // WITH CHECK (true) — a policy that also let any stranger write rows.
+    // Migration 0017 drops it, so the legitimate write needs an identity that
+    // does not depend on that policy.
+    //
+    // Nothing user-supplied selects a table, a column or a filter here: every
+    // value below is passed as a parameter by PostgREST, and brand_id comes
+    // from the validated session rather than the request body.
+    const admin = createSupabaseAdminClient();
+    await admin.from('campaign_briefs').insert({
       brief_text: briefText,
       platform: platform || null,
       min_followers: minFollowers || null,
