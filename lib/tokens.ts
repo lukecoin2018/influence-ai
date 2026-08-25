@@ -52,7 +52,17 @@ export async function spendTokens(
   action: TokenAction,
   metadata?: Record<string, unknown>
 ): Promise<{ success: boolean; balance: number; error?: string }> {
+  // Read as the caller, write as service-role — the same split
+  // spendCreatorTokens() below already uses, and for the same reason. Migration
+  // 0017 pins brand_profiles.token_balance with a trigger, so an UPDATE issued
+  // on the caller's own session is refused. Reading stays on the session client
+  // so RLS still confirms the row belongs to them.
+  //
+  // `userId` must always be session-derived at the call site. Both callers do
+  // that (app/api/creators/route.ts passes gate.userId, app/api/tokens/spend
+  // passes user.id from getUser()) — service-role does not re-check it here.
   const supabase = await createSupabaseServerClient();
+  const admin = createSupabaseAdminClient();
   const amount = TOKEN_COSTS[action];
 
   const { data: profile } = await supabase
@@ -69,7 +79,7 @@ export async function spendTokens(
 
   const newBalance = currentBalance - amount;
 
-  const { error: updateError } = await supabase
+  const { error: updateError } = await admin
     .from('brand_profiles')
     .update({ token_balance: newBalance })
     .eq('id', userId);
@@ -93,7 +103,12 @@ export async function checkFreeAllowance(
   userId: string,
   type: 'directory_pages' | 'profile_views'
 ): Promise<{ withinFree: boolean; used: number; limit: number }> {
+  // Same read-as-caller / write-as-service-role split as spendTokens above:
+  // 0017 pins directory_pages_used and profile_views_used, which are the
+  // counters that decide whether the caller is inside their free allowance.
+  // Those were previously writable by the account they meter.
   const supabase = await createSupabaseServerClient();
+  const admin = createSupabaseAdminClient();
   const column = type === 'directory_pages' ? 'directory_pages_used' : 'profile_views_used';
   const limit = FREE_ALLOWANCES[type];
 
@@ -106,7 +121,7 @@ export async function checkFreeAllowance(
   const used = (data as Record<string, number> | null)?.[column] ?? 0;
 
   if (used < limit) {
-    await supabase
+    await admin
       .from('brand_profiles')
       .update({ [column]: used + 1 })
       .eq('id', userId);
