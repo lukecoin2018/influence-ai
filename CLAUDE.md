@@ -203,7 +203,9 @@ checkpoint is deliberate and has caught real bugs.
 - `creators`, `social_profiles` and `creator_posts` have RLS filtering to
   `status = 'active'`. `service_role` bypasses it — so anywhere the admin client
   replaces the anon client, replicate the filter explicitly in code and comment
-  which policy it mirrors.
+  which policy it mirrors. **But do not read that filter as a protection:** all
+  6,214 creators are currently active, so it excludes nothing, and
+  `v_creator_summary` bypasses it entirely. See *Row-level security — measured*.
 - Person + profiles model: `creators` is the person, `social_profiles` one row per
   platform. `handle` lives on `social_profiles`.
 - **Creators are single-platform by scrape source** — scraped from either
@@ -241,6 +243,169 @@ a message.
 `https://ig.me/m/<handle>` opens straight into a DM thread. Verified on desktop
 and mobile web. On mobile it opens the browser, not the app; don't try to force
 the app with an `instagram://` scheme.
+
+---
+
+## Row-level security — measured 2026-08-24, not assumed
+
+This was the most expensive unknown in the project. For months the repo could
+not say what an anonymous caller could read, and application-layer gates were
+built without knowing what the database allowed underneath. Some of them were
+built on a false premise. What follows is measured, with the method, so the
+next session verifies rather than guesses.
+
+**RLS is enabled on all 28 public tables.** `relrowsecurity = true` everywhere,
+`relforcerowsecurity = false` everywhere (normal — that only affects the table
+owner; `service_role` bypasses RLS regardless). Nothing is exposed because RLS
+is off. Everything below is a *permissive policy*.
+
+### How to re-measure
+
+```sql
+select relname, relrowsecurity, relforcerowsecurity from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public' and c.relkind = 'r' order by relrowsecurity, relname;
+
+select tablename, policyname, roles::text, cmd, qual::text, with_check::text
+  from pg_policies where schemaname = 'public' order by tablename, cmd, policyname;
+
+select c.relname, c.reloptions from pg_class c
+  join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public' and c.relkind = 'v';
+```
+
+For the read surface, count each table twice — once with
+`NEXT_PUBLIC_SUPABASE_ANON_KEY`, once with `SUPABASE_SERVICE_ROLE_KEY` — and
+compare. A gap means RLS filters; equal counts mean anon sees everything. Zero
+against a non-empty table means blocked. **Zero against an empty table proves
+nothing**, so always print both numbers.
+
+### The anon read surface
+
+Anyone holding the publishable anon key — it ships in the client bundle:
+
+| Table / view | anon | service | |
+|---|---|---|---|
+| `creators` | 6,214 | 6,214 | fully readable |
+| `social_profiles` | 6,102 | 6,102 | fully readable |
+| `creator_posts` | 135,742 | 135,742 | fully readable |
+| `v_creator_summary` | 6,214 | 6,214 | fully readable, **incl. `contact_email` on 2,765** |
+| `v_brand_summary` | 454 | 454 | fully readable |
+| `campaign_briefs` | 6 | 6 | fully readable |
+| `creator_profiles` | 1 | 5 | filtered to `claim_status = 'verified'` |
+| `brand_profiles` | 0 | 1 | blocked |
+| `user_roles`, `shortlists`, `shortlist_items`, `inquiries`, `activity_log`, `contact_submissions`, `brand_aliases` (12,642), `brand_brackets` (1,614), `brands` (11,856), `funnel_events` (26,984), `creator_outreach`, `v_brand_partnerships` (2,242) | 0 | non-zero | blocked |
+
+Most policies target the `{public}` Postgres role, which means **everyone,
+including `anon`** — not "the public website". That is harmless where the
+`USING` clause is `auth.uid() = id`, since `auth.uid()` is null for anon and it
+fails closed. It is total exposure where the clause is `true`.
+
+### Views bypass RLS unless `security_invoker` is set
+
+A view runs with its **owner's** privileges by default, so RLS on the tables
+underneath does not apply. Of the four views, only `v_brand_partnerships` sets
+`security_invoker=true` — and it is the only one anon cannot read.
+
+`v_creator_summary`, `v_brand_summary` and `v_partnerships_detail` do **not**
+set it. That is the mechanism behind the `contact_email` exposure above, and it
+also means the `status = 'active'` filter on `creators` does not reach the view:
+deactivate a creator and the table hides them while `v_creator_summary` keeps
+serving them.
+
+### What the route gates actually are
+
+The `status = 'active'` policies on `creators`, `social_profiles` and
+`creator_posts` are real, but **all 6,214 creators are currently active**, so
+the filter excludes nothing and its correctness is unfalsifiable with today's
+data. Do not read it as a protection.
+
+Consequently, **for creator data the application gates are billing and product
+boundaries, not security boundaries.** `requireApprovedBrand()` decides who is
+metered and who sees the product; it does not decide who can obtain the data,
+because the same rows are reachable from PostgREST with the anon key and no
+account at all. PR #54 gated `/creators/[handle]` and its API twin behind a
+session — that gate expresses an intent the database does not enforce.
+
+State this plainly in any future security claim. A comment in
+`lib/auth/api-guards.ts` asserting that RLS refused the anon key was **false**
+and is corrected.
+
+### `brand_profiles` is self-writable — the gate is bypassable
+
+```
+brands_update_own | {public} | UPDATE | USING (auth.uid() = id) | with_check: null
+brands_insert_own | {public} | INSERT |                          | with_check: (auth.uid() = id)
+```
+
+`with_check` is null on the UPDATE, so `USING` governs the new values too, and
+**no column is pinned**. A brand can set its own `approval_status` to
+`'approved'` from the browser with the anon key, and then pass
+`requireApprovedBrand()`. It can equally set its own `token_balance`,
+`subscription_tier` and usage counters.
+
+Migration 0015 added a trigger guarding exactly this class of column — but only
+on `creator_profiles` (`claim_status`, `verification_code`, `token_balance`,
+`subscription_tier`, …). **There is no equivalent on `brand_profiles`.**
+
+This only became reachable on 2026-08-24, when brand signup started creating
+rows again after months of failing.
+
+### `user_roles` is browser-insertable, but the role is pinned
+
+```
+users_insert_own_role | INSERT |
+  with_check: ((auth.uid() = user_id) AND (role = ANY (ARRAY['brand','creator'])))
+```
+
+A client can insert its own role row — `_SignUpForm.tsx:142` does exactly that —
+but `'admin'` is excluded, and there is **no UPDATE and no DELETE policy on
+`user_roles` at all**, so an existing row cannot be escalated (RLS denies when
+no policy matches). Admin is therefore not self-assignable today.
+
+`ADMIN_USER_ID` still stands on its own merits — defence in depth, and the
+window before the policy was patched on 2026-08-12 — but do not repeat the
+claim that a signup could currently write itself admin.
+
+### Policies that look unintended
+
+- **`brand_reports`** — `{authenticated} DELETE USING true` and
+  `{authenticated} INSERT with_check true`. Any logged-in account can delete
+  every brand report. The admin reports page depends on these two policies for
+  its own insert and delete, so they need replacing with `is_admin_user()`,
+  not simply dropping.
+- **`activity_log`** — `anyone_can_log | {public} | INSERT | with_check true`.
+  The audit log is anonymously forgeable. Approvals are written here.
+- **`campaign_briefs`** — `public_read_briefs USING (true)` sits alongside
+  `briefs_read_own`; permissive policies OR together, so every brand's
+  `brief_text` is public. `public_insert_briefs` lets anyone write them.
+
+### Dependencies to check before changing any of this
+
+Measured 2026-08-24: the public surfaces — `/`, `/discover`, `/compare`,
+`/api/creators/featured`, `/api/stats`, `/api/categories` — read only
+`creators`, `social_profiles`, `creator_posts`, `v_creator_summary` and
+`public_stats()`. **None of them touches `campaign_briefs`, `brand_reports`,
+`activity_log` or `brand_profiles`**, so those four can be tightened without
+touching the public site. The homepage goes through
+`createSupabaseAdminClient()` in `app/_queries.ts` and bypasses RLS anyway.
+
+Two couplings do exist, and both need a code change alongside any policy change:
+
+- `/api/match` inserts into `campaign_briefs` **with the anon client**
+  (`import { supabase } from '@/lib/supabase'`), so it has no `auth.uid()` and
+  relies on `public_insert_briefs`. Removing that policy breaks matching unless
+  the route moves to the service-role client first.
+- `app/contact/page.tsx` and `app/admin/creators/page.tsx` write `activity_log`
+  from the **browser**, so they rely on `anyone_can_log`. The contact form is
+  anonymous by nature; constrain it by `event_type` rather than removing anon
+  insert outright.
+
+### Open, deliberately not decided here
+
+`v_creator_summary` exposing `contact_email` on 2,765 creators is a **product**
+decision, not a bug to patch quietly — it is the surface the public directory is
+built on. Do not fold it into a security change.
 
 ---
 
