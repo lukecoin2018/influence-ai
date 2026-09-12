@@ -2,16 +2,16 @@
 
 // Place at: components/creator-dashboard/Sidebar.tsx
 
-import { useState, useEffect, useCallback, useSyncExternalStore } from "react";
+import { useState, useCallback, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useLocale } from "@/lib/i18n/use-locale";
 import { getDashboardStrings } from "@/lib/i18n/dashboard-strings";
+import { navItems, resolveHref, isActiveHref } from "./nav-config";
+import { TIER_LABELS, isPaidTier, openSubscriptionPortal, type CreatorTokens } from "./tokens";
 import "./sidebar.css";
-
-type SidebarStrings = ReturnType<typeof getDashboardStrings>["sidebar"];
 
 interface SidebarProps {
   /**
@@ -32,62 +32,15 @@ interface SidebarProps {
    * admin back out on click, same as before this route existed.
    */
   previewHandle?: string;
+  /**
+   * Balance + plan, fetched once by the shell (tokens.ts) and shared with the
+   * mobile chrome, so the realtime channel is opened exactly once.
+   */
+  tokens: CreatorTokens;
 }
 
-/**
- * A function of the string table rather than a module-level constant, so the
- * three localized labels resolve per render alongside the five that don't.
- *
- * The split is deliberate and is the whole rule for this file: NAVIGATION
- * CHROME follows the creator's language, TOOL NAMES follow their destinations.
- * Overview, Brands Hiring and Outreach lead to pages that are (or become, in
- * this same change) Spanish, so their labels are translated. The five below
- * them lead to pages that are still English, so their labels stay English
- * literals — a label that disagrees with its own destination is worse than an
- * untranslated one, the same call lib/outreach/ui-strings.ts:24-27 made for
- * "Brands Hiring". Translating those five tools is what should remove the
- * inconsistency; until then, English here is the honest answer.
- */
-function navItems(t: SidebarStrings) {
-  return [
-    { key: "overview", href: "/creator-dashboard", label: t.navOverview, icon: "📊", exact: true },
-    { key: "brands-hiring", href: "/creator-dashboard/brands-hiring", label: t.navBrandsHiring, icon: "🏢" },
-    // No `key`, so the admin preview leaves this href alone and an admin clicking
-    // it bounces out of the preview — same as every other non-previewable route.
-    { href: "/creator-dashboard/outreach", label: t.navOutreach, icon: "✉️" },
-    // ── English by design below this line — see the note above. ──
-    { href: "/creator-dashboard/calculator", label: "Rate Calculator", icon: "🧮" },
-    { href: "/creator-dashboard/negotiate", label: "Negotiation", icon: "🤝" },
-    { href: "/creator-dashboard/contract", label: "Contract Builder", icon: "📄" },
-    { href: "/creator-dashboard/edit", label: "Edit Profile", icon: "✏️" },
-    { href: "/creator-dashboard/media-kit", label: "Media Kit", icon: "📎" },
-  ];
-}
-
-const PREVIEWABLE_ROUTES: Record<string, string> = {
-  overview: "",
-  "brands-hiring": "/brands-hiring",
-};
-
-function resolveHref(item: { key?: string; href: string }, previewHandle: string | undefined): string {
-  if (!previewHandle || !item.key) return item.href;
-  const suffix = PREVIEWABLE_ROUTES[item.key];
-  if (suffix == null) return item.href;
-  return `/admin/preview/creator/${previewHandle}${suffix}`;
-}
-
-/**
- * English in both locales, along with the rest of the token/plan box below.
- * Tokens exist to gate the five English tools, so the token chrome belongs with
- * them. That is also why `TIER_LABELS[tier] + " Plan"` needs no string key: the
- * concatenation's baked-in English word order never has to survive a
- * translation, because it is never translated.
- */
-const TIER_LABELS: Record<string, string> = {
-  free: "Free",
-  starter: "Starter",
-  active: "Active",
-};
+// Nav items, preview href rewriting and the active-route rule live in
+// nav-config.ts, shared with the mobile tab bar so the two lists cannot drift.
 
 /**
  * Mirrors sidebar.css's `@media (min-width: 1024px)` so the toggle can invert
@@ -117,85 +70,25 @@ function useIsDesktop() {
   );
 }
 
-export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
+export function Sidebar({ isOpen, onToggle, previewHandle, tokens }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
   // Client component, so it resolves its own strings rather than receiving them
   // as a prop — same approach as components/Navigation.tsx.
   const t = getDashboardStrings(useLocale()).sidebar;
-  const [tokenBalance, setTokenBalance] = useState<number | null>(null);
-  const [subscriptionTier, setSubscriptionTier] = useState<string>("free");
+  const { tokenBalance, subscriptionTier } = tokens;
   const [manageLoading, setManageLoading] = useState(false);
   const isDesktop = useIsDesktop();
   // Tooltips and aria only — see the note on SidebarProps.isOpen.
   const effectiveOpen = isOpen ?? isDesktop;
   const toggle = useCallback(() => onToggle(!effectiveOpen), [onToggle, effectiveOpen]);
 
-  // Fetch creator token balance + subscription tier + realtime subscription
-  useEffect(() => {
-    if (!user) return;
-
-    // Initial fetch
-    supabase
-      .from("creator_profiles")
-      .select("token_balance, subscription_tier")
-      .eq("id", user.id)
-      .single()
-      .then(({ data }) => {
-        if (data) {
-          setTokenBalance(data.token_balance ?? 0);
-          setSubscriptionTier(data.subscription_tier || "free");
-        }
-      });
-
-    // Realtime — updates sidebar instantly when any tool deducts tokens
-    const channel = supabase
-      .channel("creator_token_balance")
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "creator_profiles",
-          filter: `id=eq.${user.id}`,
-        },
-        (payload) => {
-          const newData = payload.new as any;
-          setTokenBalance(newData.token_balance ?? 0);
-          if (newData.subscription_tier) {
-            setSubscriptionTier(newData.subscription_tier);
-          }
-        }
-      )
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  }, [user]);
-
-  const isActive = (href: string, exact?: boolean) => {
-    if (exact) return pathname === href;
-    return pathname.startsWith(href);
-  };
-
-  const isPaidSubscriber = subscriptionTier && !["free"].includes(subscriptionTier);
+  const isPaidSubscriber = isPaidTier(subscriptionTier);
 
   async function handleManageSubscription() {
     setManageLoading(true);
-    try {
-      const res = await fetch("/api/subscription/manage", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accountType: "creator" }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (err) {
-      console.error("Portal error:", err);
-    } finally {
-      setManageLoading(false);
-    }
+    await openSubscriptionPortal();
+    setManageLoading(false);
   }
 
   return (
@@ -293,10 +186,10 @@ export function Sidebar({ isOpen, onToggle, previewHandle }: SidebarProps) {
           {navItems(t).map((item) => {
             const { label, icon, exact } = item;
             const href = resolveHref(item, previewHandle);
-            const active = isActive(href, exact);
+            const active = isActiveHref(pathname, href, exact);
             return (
               <Link
-                key={item.key ?? href}
+                key={item.key}
                 href={href}
                 title={!effectiveOpen ? label : undefined}
                 style={{

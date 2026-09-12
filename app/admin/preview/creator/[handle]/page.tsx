@@ -31,7 +31,7 @@ export default async function AdminCreatorPreviewPage({ params }: { params: Prom
   ]);
 
   return (
-    <AdminPreviewShell handle={normalized}>
+    <AdminPreviewShell handle={normalized} creatorId={creatorId}>
       <DashboardOverview
         creatorProfile={creatorProfile}
         creatorData={creatorSummaryRes.data}

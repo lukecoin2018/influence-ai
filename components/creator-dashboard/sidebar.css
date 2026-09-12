@@ -38,6 +38,7 @@
   --cd-expanded-flex: none;
   --cd-collapsed-inline: inline;
   --cd-collapsed-flex: flex;
+  --cd-content-pad: 20px 20px calc(84px + env(safe-area-inset-bottom, 0px));
 }
 
 @media (min-width: 1024px) {
@@ -51,6 +52,7 @@
     --cd-expanded-flex: flex;
     --cd-collapsed-inline: none;
     --cd-collapsed-flex: none;
+    --cd-content-pad: 32px 32px 80px;
   }
 }
 
@@ -96,6 +98,18 @@
 @media (min-width: 1024px) {
   .cd-overlay,
   .cd-shell[data-open="true"] .cd-overlay {
+    display: none;
+  }
+}
+
+/* The phone chrome (MobileChrome.tsx): mounted at every viewport so the
+ * stylesheet, not JS, decides — hidden on desktop. */
+.cd-mobile {
+  display: contents;
+}
+
+@media (min-width: 1024px) {
+  .cd-mobile {
     display: none;
   }
 }

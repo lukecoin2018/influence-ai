@@ -11,19 +11,28 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 import { Sidebar } from '@/components/creator-dashboard/Sidebar';
+import { MobileChrome } from '@/components/creator-dashboard/MobileChrome';
+import { useCreatorTokens } from '@/components/creator-dashboard/tokens';
 
 interface AdminPreviewShellProps {
   handle: string;
+  /** creators.id of the previewed creator — the mobile Profile sheet's identity row reads it. */
+  creatorId: string;
   children: React.ReactNode;
 }
 
-export function AdminPreviewShell({ handle, children }: AdminPreviewShellProps) {
+export function AdminPreviewShell({ handle, creatorId, children }: AdminPreviewShellProps) {
   // `null` = viewport decides, see components/creator-dashboard/sidebar.css.
   // Unlike the creator layout this shell is rendered per page, so an admin's
   // choice does not survive moving between the two preview routes — the same
   // as before this change, and admin-only.
   const [sidebarOpen, setSidebarOpen] = useState<boolean | null>(null);
+  const { user } = useAuth();
+  // The ADMIN's balance, which is to say none: no creator_profiles row, so the
+  // token box and pill stay hidden — same as before this change.
+  const tokens = useCreatorTokens(user);
 
   return (
     <div
@@ -31,13 +40,20 @@ export function AdminPreviewShell({ handle, children }: AdminPreviewShellProps) 
       data-open={sidebarOpen === null ? undefined : String(sidebarOpen)}
       style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#FAFAFA' }}
     >
-      <Sidebar isOpen={sidebarOpen} onToggle={setSidebarOpen} previewHandle={handle} />
+      <Sidebar isOpen={sidebarOpen} onToggle={setSidebarOpen} previewHandle={handle} tokens={tokens} />
       <main style={{
         flex: 1,
         marginLeft: 'var(--cd-sidebar-w, 240px)',
         transition: 'margin-left 0.2s ease',
         minWidth: 0,
       }}>
+        <MobileChrome
+          creatorId={creatorId}
+          tokenBalance={tokens.tokenBalance}
+          subscriptionTier={tokens.subscriptionTier}
+          previewHandle={handle}
+        />
+
         <div style={{
           backgroundColor: '#3A3A3A', color: 'white',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -53,7 +69,7 @@ export function AdminPreviewShell({ handle, children }: AdminPreviewShellProps) 
           </Link>
         </div>
 
-        <div style={{ padding: '32px 32px 80px' }}>
+        <div style={{ padding: 'var(--cd-content-pad, 32px 32px 80px)' }}>
           {children}
         </div>
       </main>

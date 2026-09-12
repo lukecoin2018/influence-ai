@@ -97,6 +97,14 @@ interface AuthContextType {
   authError: string | null;
   retryAuth: () => void;
   signOut: () => Promise<void>;
+  /**
+   * Merges fields into the in-memory creator profile after the caller has
+   * written them to creator_profiles itself. Exists so a setting the shared
+   * chrome reads from this context (today: `locale`, via lib/i18n/use-locale.ts)
+   * can change on the same render as the write, rather than on the next
+   * session load. No-op when there is no creator profile.
+   */
+  patchCreatorProfile: (patch: Partial<CreatorProfile>) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -108,6 +116,7 @@ const AuthContext = createContext<AuthContextType>({
   authError: null,
   retryAuth: () => {},
   signOut: async () => {},
+  patchCreatorProfile: () => {},
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -282,6 +291,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setRetryToken((t) => t + 1);
   }
 
+  function patchCreatorProfile(patch: Partial<CreatorProfile>) {
+    setCreatorProfile((prev) => (prev ? { ...prev, ...patch } : prev));
+  }
+
   async function signOut() {
     // signOut() must work even if the client's internal auth lock is stuck
     // behind an earlier hung call (e.g. a token refresh with no timeout) —
@@ -299,7 +312,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, brandProfile, creatorProfile, userRole, loading, authError, retryAuth, signOut }}>
+    <AuthContext.Provider value={{ user, brandProfile, creatorProfile, userRole, loading, authError, retryAuth, signOut, patchCreatorProfile }}>
       {children}
     </AuthContext.Provider>
   );
