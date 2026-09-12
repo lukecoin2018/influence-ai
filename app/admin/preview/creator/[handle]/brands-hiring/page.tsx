@@ -23,7 +23,7 @@ export default async function AdminBrandsHiringPreviewPage({ params }: { params:
   ]);
 
   return (
-    <AdminPreviewShell handle={normalized}>
+    <AdminPreviewShell handle={normalized} creatorId={creatorId}>
       <BrandsHiring
         matches={brandMatches?.matches ?? []}
         creatorFollowers={brandMatches?.creatorFollowers ?? null}

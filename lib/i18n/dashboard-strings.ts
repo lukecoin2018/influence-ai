@@ -1,6 +1,7 @@
 /**
- * en/es strings for the creator-dashboard CHROME: the sidebar, the layout's
- * verification gate, the Overview page and the Brands Hiring page.
+ * en/es strings for the creator-dashboard CHROME: the sidebar, the mobile tab
+ * bar and its sheets, the layout's verification gate, the Overview page and
+ * the Brands Hiring page.
  *
  * A fourth sibling of lib/i18n/auth-strings.ts, lib/i18n/nav-strings.ts and
  * lib/outreach/ui-strings.ts rather than a section inside any of them:
@@ -31,13 +32,16 @@
  * Translating those tools is what should remove the inconsistency.
  *
  * That covers, and it is the complete list:
- *  - the five tool names in the sidebar nav (Sidebar.tsx NAV_ITEMS)
+ *  - the five tool names in the sidebar nav (nav-config.ts navItems) and the
+ *    one-line tool descriptions in the mobile Tools sheet (MobileChrome.tsx)
  *  - the whole Creator Tools card block on the Overview, titles, descriptions
  *    and the "Open tool →" CTA — the block names and describes English
  *    destinations, so it reads as one English unit
  *  - both "Edit Profile" controls on the Overview's profile card
- *  - the entire sidebar token box and plan badge. Tokens exist to gate those
- *    same English tools, so the token chrome belongs with them. This is also
+ *  - the entire sidebar token box and plan badge, the mobile tokens pill and
+ *    the Profile sheet's tokens card (Upgrade / Subscribe / Manage / Buy more).
+ *    Tokens exist to gate those same English tools, so the token chrome
+ *    belongs with them. This is also
  *    why TIER_LABELS[tier] + " Plan" needs no key: that concatenation stays
  *    English, so its baked-in English word order never has to survive a
  *    translation.
@@ -109,8 +113,33 @@ interface DashboardStrings {
     signOut: string;
   };
 
+  /**
+   * The bottom tab bar and its two sheets (components/creator-dashboard/
+   * MobileChrome.tsx). Tab labels render at 10.5px in a fifth of the viewport
+   * — 74.8px on a 390px phone — and clip with an ellipsis past that, so keep
+   * them to one short word. "Herramientas" (71.3px measured at 10.5px/600) is
+   * the ceiling. The two sheets carry the long names.
+   */
+  mobileNav: {
+    /** aria-label of the tab bar <nav>. */
+    navLabel: string;
+    tabOverview: string;
+    tabBrands: string;
+    tabOutreach: string;
+    tabTools: string;
+    tabProfile: string;
+    /** Section title inside the Tools sheet. */
+    toolsTitle: string;
+    /** aria-label of the tokens pill in the top bar. */
+    tokensAria: string;
+    /** Takes an already-formatted count ("120K"). */
+    followers: (count: string) => string;
+    language: string;
+    /** aria-label of the sheet scrim. */
+    close: string;
+  };
+
   layout: {
-    backToSite: string;
     /**
      * The verification gate. Its CTA leads to /creator-dashboard/verify, which
      * is ALREADY bilingual off creator_profiles.locale
@@ -214,8 +243,21 @@ const en: DashboardStrings = {
     signOut: 'Sign out',
   },
 
+  mobileNav: {
+    navLabel: 'Dashboard',
+    tabOverview: 'Overview',
+    tabBrands: 'Brands',
+    tabOutreach: 'Outreach',
+    tabTools: 'Tools',
+    tabProfile: 'Profile',
+    toolsTitle: 'Tools',
+    tokensAria: 'Tokens',
+    followers: (count) => `${count} followers`,
+    language: 'Language',
+    close: 'Close',
+  },
+
   layout: {
-    backToSite: '← Back to site',
     verifyGateTitle: 'Verify your profile to continue',
     verifyGateBody:
       'Add your verification code to your Instagram or TikTok bio to prove you own this account and unlock your dashboard.',
@@ -300,8 +342,30 @@ const es: DashboardStrings = {
     signOut: 'Cerrar sesión',
   },
 
+  mobileNav: {
+    // "Panel" — the same word the verify page uses for the dashboard.
+    navLabel: 'Panel',
+    // Same word as the sidebar's navOverview, so the two never disagree.
+    tabOverview: 'Resumen',
+    // The tab bar has room for one word; "Marcas" is the head of the sidebar's
+    // "Marcas que contratan" and lands on that same page.
+    tabBrands: 'Marcas',
+    // "Mensajes" rather than the sidebar's "Escribir a marcas": the tab needs
+    // one word, and the page it opens is the message sequence. Neutral in
+    // both LatAm and Spain.
+    tabOutreach: 'Mensajes',
+    // Opens a sheet, not an English page, so it may be Spanish. Widest label
+    // in either locale — see the note on the interface.
+    tabTools: 'Herramientas',
+    tabProfile: 'Perfil',
+    toolsTitle: 'Herramientas',
+    tokensAria: 'Tokens',
+    followers: (count) => `${count} seguidores`,
+    language: 'Idioma',
+    close: 'Cerrar',
+  },
+
   layout: {
-    backToSite: '← Volver al sitio',
     verifyGateTitle: 'Verifica tu perfil para continuar',
     // "biografía" not "bio", "código", "panel" — the vocabulary the verify page
     // this modal leads to already uses (auth-strings bioCode / claimForm).

@@ -8,7 +8,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div style={{ display: "flex", minHeight: "100vh", backgroundColor: "#FAFAFA" }}>
-      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(prev => !prev)} />
+      <Sidebar isOpen={sidebarOpen} onToggle={() => setSidebarOpen(prev => !prev)} tokens={{ tokenBalance: null, subscriptionTier: "free" }} />
       <main
         style={{
           flex: 1,

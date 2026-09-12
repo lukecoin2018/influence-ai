@@ -18,8 +18,16 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
   // It ships its own minimal logo + legal-only footer instead of the full shell.
   // /es/claim/[handle] is the same page, localized — same reasoning applies.
   const isClaim = pathname.startsWith('/claim/') || pathname.startsWith('/es/claim/');
+  // The creator dashboard ships its own chrome at every viewport: the sidebar
+  // on desktop, the top bar + bottom tab bar on a phone (components/
+  // creator-dashboard/MobileChrome.tsx). The brand-facing site nav on top of
+  // that was a second header — two stacked on a phone — and its hamburger
+  // competed with the dashboard's own navigation. Nothing on a dashboard route
+  // depended on <Navigation />: AuthProvider wraps this shell, not the other
+  // way round, and there is no portal target. The Footer goes with it.
+  const isCreatorDashboard = pathname === '/creator-dashboard' || pathname.startsWith('/creator-dashboard/');
 
-  if (isAdmin || isHome || isReport || isClaim) {
+  if (isAdmin || isHome || isReport || isClaim || isCreatorDashboard) {
     return <>{children}</>;
   }
 

@@ -2,6 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { Sidebar } from "@/components/creator-dashboard/Sidebar";
+import { MobileChrome } from "@/components/creator-dashboard/MobileChrome";
+import { useCreatorTokens } from "@/components/creator-dashboard/tokens";
+import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
@@ -15,15 +18,19 @@ export default function CreatorDashboardLayout({
 }) {
   // `null` until the creator uses the toggle: components/creator-dashboard/
   // sidebar.css picks collapsed or expanded from the viewport before first
-  // paint, so a phone never renders the 240px sidebar and then animates it
-  // away. State still lives here, so it survives navigation between dashboard
+  // paint. State still lives here, so it survives navigation between dashboard
   // pages — this layout is not remounted by a <Link> to a sibling route.
+  // Desktop only: below 1024px the stylesheet ignores the attribute entirely.
   const [sidebarOpen, setSidebarOpen] = useState<boolean | null>(null);
   const [claimStatus, setClaimStatus] = useState<string | null>(null);
   const [statusLoading, setStatusLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
   const isVerifyPage = pathname === '/creator-dashboard/verify';
+  const { user, creatorProfile } = useAuth();
+  // One fetch + one realtime channel for the whole shell; the sidebar token
+  // box and the mobile tokens pill both read from here (tokens.ts).
+  const tokens = useCreatorTokens(user);
   // The gate's CTA leads to /creator-dashboard/verify, which already reads
   // creator_profiles.locale itself — so this makes the modal agree with the page
   // behind it, rather than putting an English modal in front of a Spanish one.
@@ -57,28 +64,23 @@ export default function CreatorDashboardLayout({
       data-open={sidebarOpen === null ? undefined : String(sidebarOpen)}
       style={{ display: "flex", minHeight: "100vh", backgroundColor: "#FAFAFA" }}
     >
-      <Sidebar isOpen={sidebarOpen} onToggle={setSidebarOpen} />
+      <Sidebar isOpen={sidebarOpen} onToggle={setSidebarOpen} tokens={tokens} />
       <main style={{
         flex: 1,
         marginLeft: "var(--cd-sidebar-w, 240px)",
         transition: "margin-left 0.2s ease",
         minWidth: 0,
       }}>
-        <div style={{
-          height: "64px", backgroundColor: "#fff", borderBottom: "1px solid #E5E7EB",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          padding: "0 24px", position: "sticky", top: 0, zIndex: 10,
-        }}>
-          <a href="/" style={{
-            fontSize: "13px", fontWeight: 500, color: "#6B7280", textDecoration: "none",
-            padding: "6px 12px", borderRadius: "8px", border: "1px solid #E5E7EB",
-            backgroundColor: "#F9FAFB",
-          }}>
-            {t.backToSite}
-          </a>
-        </div>
+        {/* Phone chrome: sticky top bar at the top of <main>'s flow, fixed tab
+            bar and sheets. Hidden by sidebar.css at the desktop breakpoint,
+            where the sidebar's logo tile is the link back to the site. */}
+        <MobileChrome
+          creatorId={creatorProfile?.creator_id ?? null}
+          tokenBalance={tokens.tokenBalance}
+          subscriptionTier={tokens.subscriptionTier}
+        />
 
-        <div style={{ padding: "32px 32px 80px", position: "relative" }}>
+        <div style={{ padding: "var(--cd-content-pad, 32px 32px 80px)", position: "relative" }}>
 
           {/* Greyed out children when pending — never on the verify page itself,
               since that's the one page a pending creator must be able to use. */}
