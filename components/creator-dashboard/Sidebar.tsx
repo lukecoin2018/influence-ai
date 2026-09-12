@@ -64,7 +64,7 @@ function useIsDesktop() {
     subscribeToDesktop,
     () => window.matchMedia(DESKTOP_QUERY).matches,
     // Server render and hydration. `true` is the honest answer for a no-JS
-    // client: the CSS still collapses the sidebar on a phone, but the toggle
+    // client: the CSS hides the sidebar on a phone regardless, and the toggle
     // is a link-free button that does nothing without JS anyway.
     () => true
   );
@@ -93,15 +93,9 @@ export function Sidebar({ isOpen, onToggle, previewHandle, tokens }: SidebarProp
 
   return (
     <>
-      {/* Mobile overlay. Always mounted now; sidebar.css decides whether it
-          shows, so it costs nothing on the server render. */}
-      <div
-        className="cd-overlay fixed inset-0 z-20"
-        style={{ backgroundColor: "rgba(0,0,0,0.3)" }}
-        onClick={() => onToggle(false)}
-      />
-
-      {/* Sidebar */}
+      {/* Desktop only: sidebar.css sets --cd-sidebar-display to none below
+          1024px, where MobileChrome.tsx's tab bar takes over. Still mounted
+          there so the stylesheet, not JS, decides — no first-paint jump. */}
       <aside
         style={{
           position: "fixed",
@@ -111,7 +105,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle, tokens }: SidebarProp
           width: "var(--cd-sidebar-w, 240px)",
           backgroundColor: "#fff",
           borderRight: "1px solid #E5E7EB",
-          display: "flex",
+          display: "var(--cd-sidebar-display, flex)",
           flexDirection: "column",
           transition: "width 0.2s ease",
           overflow: "hidden",
@@ -147,10 +141,9 @@ export function Sidebar({ isOpen, onToggle, previewHandle, tokens }: SidebarProp
           </span>
         </Link>
 
-        {/* Collapse toggle. Directly under the logo, and above the nav, because
-            on a phone the sidebar now starts collapsed and this is the control
-            that reveals the menu — at the bottom of a 100vh column it sat below
-            the fold, so the creator had to scroll to find the way in. */}
+        {/* Collapse toggle. Directly under the logo, and above the nav — at the
+            bottom of a 100vh column it sat below the fold. Desktop only, like
+            the rest of this component. */}
         <div style={{ padding: "8px 8px 0", flexShrink: 0 }}>
           <button
             onClick={toggle}
