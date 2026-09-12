@@ -119,8 +119,10 @@ export function Sidebar({ isOpen, onToggle, previewHandle, tokens }: SidebarProp
           boxShadow: "2px 0 8px rgba(0,0,0,0.04)",
         }}
       >
-        {/* Logo */}
-        <div style={{
+        {/* Logo — the link back to the site. The dashboard's own "Back to
+            site" bar above the content is gone; on desktop this tile is the
+            way out, on a phone the top bar's logo is. */}
+        <Link href="/" title="InfluenceIT" style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -128,6 +130,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle, tokens }: SidebarProp
           borderBottom: "1px solid #F3F4F6",
           minHeight: "64px",
           flexShrink: 0,
+          textDecoration: "none",
         }}>
           <div style={{
             width: "32px", height: "32px", borderRadius: "8px",
@@ -142,7 +145,7 @@ export function Sidebar({ isOpen, onToggle, previewHandle, tokens }: SidebarProp
           }}>
             InfluenceIT
           </span>
-        </div>
+        </Link>
 
         {/* Collapse toggle. Directly under the logo, and above the nav, because
             on a phone the sidebar now starts collapsed and this is the control

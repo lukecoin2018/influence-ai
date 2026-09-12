@@ -140,7 +140,6 @@ interface DashboardStrings {
   };
 
   layout: {
-    backToSite: string;
     /**
      * The verification gate. Its CTA leads to /creator-dashboard/verify, which
      * is ALREADY bilingual off creator_profiles.locale
@@ -259,7 +258,6 @@ const en: DashboardStrings = {
   },
 
   layout: {
-    backToSite: '← Back to site',
     verifyGateTitle: 'Verify your profile to continue',
     verifyGateBody:
       'Add your verification code to your Instagram or TikTok bio to prove you own this account and unlock your dashboard.',
@@ -368,7 +366,6 @@ const es: DashboardStrings = {
   },
 
   layout: {
-    backToSite: '← Volver al sitio',
     verifyGateTitle: 'Verifica tu perfil para continuar',
     // "biografía" not "bio", "código", "panel" — the vocabulary the verify page
     // this modal leads to already uses (auth-strings bioCode / claimForm).
