@@ -35,6 +35,7 @@
   --cd-sidebar-display: none;
   --cd-sidebar-w: 0px;
   --cd-content-pad: 20px 20px calc(84px + env(safe-area-inset-bottom, 0px));
+  --cd-preview-banner-display: none;
 }
 
 .cd-mobile {
@@ -54,6 +55,7 @@
     --cd-collapsed-inline: none;
     --cd-collapsed-flex: none;
     --cd-content-pad: 32px 32px 80px;
+    --cd-preview-banner-display: flex;
   }
 
   /* Set only once the creator has used the toggle. */

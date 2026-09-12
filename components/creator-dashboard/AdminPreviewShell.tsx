@@ -11,6 +11,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { Search, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { Sidebar } from '@/components/creator-dashboard/Sidebar';
 import { MobileChrome } from '@/components/creator-dashboard/MobileChrome';
@@ -21,6 +22,39 @@ interface AdminPreviewShellProps {
   /** creators.id of the previewed creator — the mobile Profile sheet's identity row reads it. */
   creatorId: string;
   children: React.ReactNode;
+}
+
+/**
+ * Below 1024px only (the `.cd-mobile` wrapper hides it on desktop, where the
+ * full-width banner below is unchanged). One line, 36px: "Preview" already
+ * says read-only, so the parenthetical is dropped; the handle truncates and
+ * never wraps. The Exit control is drawn at 26px inside a 44px-tall hit area.
+ */
+function CompactPreviewBanner({ handle }: { handle: string }) {
+  return (
+    <div style={{
+      height: '36px', padding: '0 8px 0 14px', boxSizing: 'border-box',
+      backgroundColor: '#3A3A3A', color: '#fff',
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
+    }}>
+      <span style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, fontSize: '13px', fontWeight: 600 }}>
+        <Search size={14} strokeWidth={2} aria-hidden="true" />
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Preview · @{handle}</span>
+      </span>
+      <Link href="/admin/creators" style={{
+        display: 'inline-flex', alignItems: 'center', height: '44px', padding: '0 4px', flexShrink: 0,
+        textDecoration: 'none',
+      }}>
+        <span style={{
+          display: 'inline-flex', alignItems: 'center', gap: '5px', height: '26px', padding: '0 10px',
+          borderRadius: '8px', border: '1px solid #6B7280', color: '#D1D5DB', fontSize: '12px', fontWeight: 500,
+        }}>
+          <X size={12} strokeWidth={2} aria-hidden="true" />
+          Exit
+        </span>
+      </Link>
+    </div>
+  );
 }
 
 export function AdminPreviewShell({ handle, creatorId, children }: AdminPreviewShellProps) {
@@ -52,11 +86,13 @@ export function AdminPreviewShell({ handle, creatorId, children }: AdminPreviewS
           tokenBalance={tokens.tokenBalance}
           subscriptionTier={tokens.subscriptionTier}
           previewHandle={handle}
+          banner={<CompactPreviewBanner handle={handle} />}
         />
 
+        {/* Desktop banner — unchanged; sidebar.css switches it off below 1024px. */}
         <div style={{
           backgroundColor: '#3A3A3A', color: 'white',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          display: 'var(--cd-preview-banner-display, flex)', alignItems: 'center', justifyContent: 'space-between',
           padding: '10px 24px', position: 'sticky', top: 0, zIndex: 10,
           fontSize: '13px', fontWeight: 600,
         }}>
