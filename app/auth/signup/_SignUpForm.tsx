@@ -307,17 +307,9 @@ function SignUpContent() {
       <div style={{ width: '100%', maxWidth: '440px' }}>
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <Link
-            href="/"
-            style={{
-              textDecoration: 'none',
-              fontSize: '22px',
-              fontWeight: 800,
-              color: '#FFD700',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            InfluenceIT
+          <Link href="/" style={{ display: 'inline-block', textDecoration: 'none' }} aria-label="InfluenceIT">
+            {/* Same regular light lockup as the login page. */}
+            <img src="/brand/lockup-light-bg.svg" alt="InfluenceIT" width={214} height={38} style={{ display: 'block' }} />
           </Link>
         </div>
 

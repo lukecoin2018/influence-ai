@@ -27,10 +27,9 @@ function AdminSidebar() {
     <div style={{ width: '220px', minHeight: '100vh', backgroundColor: '#3A3A3A', display: 'flex', flexDirection: 'column', flexShrink: 0, position: 'sticky', top: 0, height: '100vh' }}>
       <div style={{ padding: '20px 16px', borderBottom: '1px solid #374151' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <div style={{ width: '28px', height: '28px', borderRadius: '6px', backgroundColor: '#FFD700', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <BarChart2 size={14} color="white" />
-          </div>
-          <span style={{ fontSize: '13px', fontWeight: 700, color: 'white', letterSpacing: '-0.01em' }}>InfluenceIT Admin</span>
+          {/* Dark-header lockup, then "Admin" as text beside it. */}
+          <img src="/brand/lockup-dark-bg-small.svg" alt="InfluenceIT" width={124} height={22} style={{ display: 'block', flexShrink: 0 }} />
+          <span style={{ fontSize: '13px', fontWeight: 700, color: 'white', letterSpacing: '-0.01em' }}>Admin</span>
         </div>
       </div>
 

@@ -26,9 +26,10 @@ export function Nav() {
   return (
     <nav>
       <div className="wrap nav-in">
-        <Link className="logo" href="/">
-          <span className="logo-mark"><i></i><i></i><i></i></span>
-          Influence<em>IT</em>
+        <Link className="logo" href="/" aria-label="InfluenceIT">
+          {/* Dark-header lockup from the brand kit (public/brand/usage.md):
+              28px tile + wordmark at 18px, the "-small" cut for header sizes. */}
+          <img src="/brand/lockup-dark-bg-small.svg" alt="InfluenceIT" width={158} height={28} style={{ display: 'block' }} />
         </Link>
         <div className="nav-links">
           <a href="#board" onClick={(e) => scrollToSection(e, 'board')}>Leaderboard</a>

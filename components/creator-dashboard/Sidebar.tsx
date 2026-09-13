@@ -126,19 +126,13 @@ export function Sidebar({ isOpen, onToggle, previewHandle, tokens }: SidebarProp
           flexShrink: 0,
           textDecoration: "none",
         }}>
-          <div style={{
-            width: "32px", height: "32px", borderRadius: "8px",
-            backgroundColor: "#FFD700", display: "flex", alignItems: "center",
-            justifyContent: "center", flexShrink: 0,
-          }}>
-            <span style={{ fontSize: "16px", fontWeight: 800, color: "#3A3A3A" }}>I</span>
-          </div>
-          <span style={{
-            fontSize: "15px", fontWeight: 700, color: "#3A3A3A", whiteSpace: "nowrap",
-            marginLeft: "8px", display: "var(--cd-expanded-inline, inline)",
-          }}>
-            InfluenceIT
-          </span>
+          {/* Expanded: the light-header lockup (wordmark at 18px, the kit's
+              minimum on a light background). Collapsed: the symbol tile alone,
+              toggled by the same CSS variables the nav labels use. */}
+          <img src="/brand/lockup-light-bg-small.svg" alt="InfluenceIT" width={158} height={28}
+            style={{ display: "var(--cd-expanded-inline, inline)", flexShrink: 0 }} />
+          <img src="/brand/symbol-tile-yellow.svg" alt="InfluenceIT" width={32} height={32}
+            style={{ display: "var(--cd-collapsed-inline, none)", flexShrink: 0 }} />
         </Link>
 
         {/* Collapse toggle. Directly under the logo, and above the nav — at the

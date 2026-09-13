@@ -62,8 +62,10 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <Link href="/" style={{ textDecoration: 'none', fontSize: '22px', fontWeight: 800, color: '#FFD700', letterSpacing: '-0.02em' }}>
-            InfluenceIT
+          <Link href="/" style={{ display: 'inline-block', textDecoration: 'none' }} aria-label="InfluenceIT">
+            {/* Regular (rough-brush) light lockup — the kit reserves this cut
+                for the wordmark set at 24px and above. */}
+            <img src="/brand/lockup-light-bg.svg" alt="InfluenceIT" width={214} height={38} style={{ display: 'block' }} />
           </Link>
         </div>
 

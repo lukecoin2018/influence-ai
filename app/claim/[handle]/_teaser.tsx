@@ -99,9 +99,7 @@ function TopBar({ handle, locale }: { handle: string; locale: Locale }) {
   const t = getClaimStrings(locale).topBar;
   return (
     <header style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <span style={{ fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em', color: GREY }}>
-        Influence<span style={{ color: YELLOW }}>IT</span>
-      </span>
+      <img src="/brand/lockup-light-bg-small.svg" alt="InfluenceIT" width={158} height={28} style={{ display: 'block' }} />
       <span
         style={{
           marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 12px',
