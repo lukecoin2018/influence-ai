@@ -4,7 +4,9 @@ export function Footer() {
   return (
     <footer>
       <div className="wrap foot-in">
-        <Link className="foot-brand" href="/">Influence<em>IT</em></Link>
+        <Link className="foot-brand" href="/" aria-label="InfluenceIT">
+          <img src="/brand/lockup-dark-bg-small.svg" alt="InfluenceIT" width={158} height={28} style={{ display: 'block' }} />
+        </Link>
         <div className="foot-links">
           <Link href="/creators">Browse creators</Link>
           <Link href="/compare">Compare</Link>

@@ -2,6 +2,17 @@ import { ImageResponse } from 'next/og';
 import { getPublicStats } from './_queries';
 import { withTimeout } from '@/lib/withTimeout';
 import type { PublicStats } from './_data';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+// The dark-background lockup from the brand kit, read from /public at build
+// time and handed to Satori as a data URI. Satori can't fetch relative URLs
+// and ships no fonts, and the kit's SVGs are outlined paths, so this is the
+// one way the share image draws the real wordmark rather than a system-font
+// approximation of it.
+const LOCKUP_DATA_URI = `data:image/svg+xml;base64,${readFileSync(
+  join(process.cwd(), 'public', 'brand', 'lockup-dark-bg.svg')
+).toString('base64')}`;
 
 export const alt = 'InfluenceIT — creator intelligence database';
 export const size = { width: 1200, height: 630 };
@@ -42,12 +53,11 @@ export default async function OpengraphImage() {
           fontFamily: 'sans-serif',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 56 }}>
-          <div style={{ display: 'flex', width: 56, height: 56, background: '#FFD700', borderRadius: 14 }} />
-          <div style={{ display: 'flex', fontSize: 40, fontWeight: 700 }}>
-            <span>Influence</span>
-            <span style={{ color: '#FFD700' }}>IT</span>
-          </div>
+        {/* The brand lockup, inlined as SVG data URIs: this runs in Satori at
+            build time, which can't fetch /public and has no fonts, so the
+            kit's outlined-path SVGs are the only way to draw the real mark. */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 56 }}>
+          <img src={LOCKUP_DATA_URI} width={316} height={56} alt="" />
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', fontSize: 78, fontWeight: 700, lineHeight: 1.05 }}>
           <span>{stats.creators.toLocaleString()} creators.</span>

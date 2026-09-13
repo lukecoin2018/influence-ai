@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart2, Sparkles, User, LogOut, Menu, X } from 'lucide-react';
+import { Sparkles, User, LogOut, Menu, X } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { useState } from 'react';
 import { getNavStrings } from '@/lib/i18n/nav-strings';
@@ -34,13 +34,11 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between" style={{ height: '64px' }}>
 
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 no-underline" onClick={() => setMenuOpen(false)}>
-          <div className="flex items-center justify-center rounded-lg flex-shrink-0" style={{ width: '32px', height: '32px', backgroundColor: '#FFD700' }}>
-            <BarChart2 size={16} color="#3A3A3A" strokeWidth={2.5} />
-          </div>
-          <span className="font-semibold text-primary" style={{ fontSize: '15px', letterSpacing: '-0.01em' }}>
-            InfluenceIT
-          </span>
+        <Link href="/" className="flex items-center no-underline" onClick={() => setMenuOpen(false)} aria-label="InfluenceIT">
+          {/* Light-header lockup from the brand kit (public/brand/usage.md).
+              The wordmark is 18px here, the minimum the kit allows on a light
+              background for the pink "IT" to pass contrast. */}
+          <img src="/brand/lockup-light-bg-small.svg" alt="InfluenceIT" width={158} height={28} style={{ display: 'block' }} />
         </Link>
 
         {/* Desktop Nav */}

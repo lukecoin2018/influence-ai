@@ -136,17 +136,11 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         padding: "16px", borderBottom: "1px solid #F3F4F6",
         minHeight: "64px", flexShrink: 0,
       }}>
-        <div style={{
-          width: "32px", height: "32px", borderRadius: "8px",
-          backgroundColor: "#FFD700", display: "flex", alignItems: "center",
-          justifyContent: "center", flexShrink: 0,
-        }}>
-          <span style={{ fontSize: "16px", fontWeight: 800, color: "#3A3A3A" }}>I</span>
-        </div>
-        {isOpen && (
-          <span style={{ fontSize: "15px", fontWeight: 700, color: "#3A3A3A", whiteSpace: "nowrap", marginLeft: "8px" }}>
-            InfluenceIT
-          </span>
+        {/* Light-header lockup when open, symbol tile alone when collapsed. */}
+        {isOpen ? (
+          <img src="/brand/lockup-light-bg-small.svg" alt="InfluenceIT" width={158} height={28} style={{ display: "block", flexShrink: 0 }} />
+        ) : (
+          <img src="/brand/symbol-tile-yellow.svg" alt="InfluenceIT" width={32} height={32} style={{ display: "block", flexShrink: 0 }} />
         )}
       </div>
 

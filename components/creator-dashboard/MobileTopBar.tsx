@@ -49,17 +49,8 @@ export function MobileTopBar({ tokenBalance, subscriptionTier, tokensLabel, onOp
         }}
       >
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", color: "#3A3A3A" }}>
-          <span
-            aria-hidden="true"
-            style={{
-              width: "28px", height: "28px", borderRadius: "8px", background: "#FFD700",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "15px", fontWeight: 800, color: "#3A3A3A",
-            }}
-          >
-            I
-          </span>
-          <span style={{ fontSize: "16px", fontWeight: 700, letterSpacing: "-0.01em" }}>InfluenceIT</span>
+          {/* Light-header lockup: 28px tile + wordmark at 18px. */}
+          <img src="/brand/lockup-light-bg-small.svg" alt="InfluenceIT" width={158} height={28} style={{ display: "block", flexShrink: 0 }} />
         </Link>
 
         {/* Hidden until the balance has loaded — and for good when the signed-in
