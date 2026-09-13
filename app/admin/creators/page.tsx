@@ -45,17 +45,27 @@ export default function AdminCreatorsPage() {
     }
   }
 
-  async function updateStatus(creatorProfileId: string, status: string) {
+  // Through /api/admin/creators/status, not a browser-side UPDATE. The route
+  // writes the full field set verify-bio writes (claimed_at, cleared code,
+  // reset attempts) and the audit row; the old one-column update left
+  // claimed_at NULL and the code live. See the route's header.
+  async function updateStatus(creatorProfileId: string, status: 'verified' | 'rejected') {
     setActionLoading(creatorProfileId + status);
     setActionError(null);
     try {
-      const { error } = await supabase.from('creator_profiles').update({ claim_status: status }).eq('id', creatorProfileId);
-      if (error) throw error;
-      await supabase.from('activity_log').insert({ event_type: status === 'verified' ? 'creator_verified' : 'creator_rejected', target_id: creatorProfileId, details: { action: status } });
+      const res = await fetch('/api/admin/creators/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ creatorProfileId, status }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => null);
+        throw new Error(body?.reason ? `${res.status} ${body.reason}` : `HTTP ${res.status}`);
+      }
       await load();
     } catch (err) {
       console.error('Failed to update creator status:', err);
-      setActionError(err instanceof Error ? err.message : 'Failed to update');
+      setActionError(err instanceof Error ? `Failed to update — ${err.message}` : 'Failed to update');
     } finally {
       setActionLoading(null);
     }

@@ -32,8 +32,14 @@ async function resolveCreatorProfile(): Promise<{ creatorProfileId: string } | {
   const { data: { user } } = await session.auth.getUser();
   if (!user) return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
 
-  const { data: profile } = await session.from('creator_profiles').select('id, claim_status').eq('id', user.id).maybeSingle();
-  if (!profile?.id) return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
+  // Same three-way split as app/api/creator/brand-matches/route.ts: a failed
+  // SELECT is a 503, not a 403 — it says nothing about the caller.
+  const { data: profile, error: profileError } = await session.from('creator_profiles').select('id, claim_status').eq('id', user.id).maybeSingle();
+  if (profileError) {
+    console.error(`[outreach] creator_profiles lookup failed for ${user.id.slice(0, 8)}…: ${profileError.message}`);
+    return { error: NextResponse.json({ error: 'Lookup failed', reason: 'lookup_failed' }, { status: 503 }) };
+  }
+  if (!profile?.id) return { error: NextResponse.json({ error: 'Forbidden', reason: 'no_profile' }, { status: 403 }) };
 
   // Verified only. Outreach speaks to brands in the creator's name, so an
   // unproven claim must not be able to send it — nor to read back the history

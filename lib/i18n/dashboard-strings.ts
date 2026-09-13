@@ -90,6 +90,14 @@ const BRANDS_HIRING_ES = 'Marcas que contratan';
 interface DashboardStrings {
   common: {
     loading: string;
+    /**
+     * The inline retry state the dashboard pages render when AuthContext could
+     * not determine the account (userRole undefined + authError). Rendered
+     * INSTEAD of a redirect: a failed lookup used to bounce a verified creator
+     * to the brand dashboard. Also reused by Brands Hiring's own load failure.
+     */
+    accountLoadFailed: string;
+    retry: string;
   };
 
   /**
@@ -151,6 +159,15 @@ interface DashboardStrings {
     verifyGateBody: string;
     verifyGateCta: string;
     verifyGateTime: string;
+    /**
+     * The same locked screen for claim_status 'rejected'. Different copy, same
+     * lock: no dashboard, no API (the routes 403 on anything but 'verified').
+     * Its CTA goes to /contact rather than to the verify page — there is no
+     * code to add to a bio when the claim has been turned down.
+     */
+    rejectedGateTitle: string;
+    rejectedGateBody: string;
+    rejectedGateCta: string;
   };
 
   overview: {
@@ -196,6 +213,12 @@ interface DashboardStrings {
     brandsCanFindYou: string;
     pendingVerificationBody: string;
     claimToSeeDetails: string;
+    /**
+     * Shown in the Brands Hiring hero when /api/creator/brand-matches did not
+     * answer 2xx. Non-blocking: the rest of the Overview renders. Before this
+     * the hero silently showed the zero-match copy, which claims we looked.
+     */
+    brandsLoadFailed: string;
     noInquiries: string;
     /** Shown when an inquiry has no brand_profiles.company_name — our own fallback, not a brand's name. */
     brandFallback: string;
@@ -217,6 +240,12 @@ interface DashboardStrings {
     detectingSub: string;
     noMatchesCard: string;
     /**
+     * The page's own load failure: anything that is not a 2xx and not a
+     * 403 not_verified. Never the pending sentence — a 5xx or a dropped
+     * connection says nothing about the creator's claim.
+     */
+    loadFailed: string;
+    /**
      * The LABEL of the "All" filter chip only. The chip's identity is the
      * untranslated ALL_CATEGORY sentinel in BrandsHiring.tsx, which is compared
      * against consolidated bucket names and must never be translated.
@@ -230,6 +259,8 @@ interface DashboardStrings {
 const en: DashboardStrings = {
   common: {
     loading: 'Loading...',
+    accountLoadFailed: "Couldn't load your account.",
+    retry: 'Retry',
   },
 
   sidebar: {
@@ -263,6 +294,9 @@ const en: DashboardStrings = {
       'Add your verification code to your Instagram or TikTok bio to prove you own this account and unlock your dashboard.',
     verifyGateCta: 'Verify Now →',
     verifyGateTime: 'Takes less than 2 minutes',
+    rejectedGateTitle: 'Claim not approved',
+    rejectedGateBody: "This profile claim wasn't approved. If you think that's a mistake, contact us.",
+    rejectedGateCta: 'Contact us →',
   },
 
   overview: {
@@ -295,6 +329,7 @@ const en: DashboardStrings = {
     pendingVerificationBody:
       'Your profile is pending verification. Full details will be visible once verified.',
     claimToSeeDetails: 'Claim your profile to see full details.',
+    brandsLoadFailed: "Brands couldn't load.",
     noInquiries: 'No brand inquiries yet. Make sure your profile is complete to attract brands.',
     brandFallback: 'A brand',
     campaignFallback: 'Campaign',
@@ -308,6 +343,7 @@ const en: DashboardStrings = {
     detectingSub: "We're detecting brands for your size — check back as we scan more.",
     noMatchesCard:
       'No brand matches detected yet — this updates automatically as we scan more brands.',
+    loadFailed: "Your brand matches couldn't load.",
     filterAll: 'All',
     noCategoryMatches: (categoryLabel) =>
       `No ${categoryLabel} brands detected — try a different category.`,
@@ -319,6 +355,10 @@ const es: DashboardStrings = {
     // Three dots, not the … character, matching auth-strings' 'Cargando...'
     // and the English literal this replaces.
     loading: 'Cargando...',
+    // "No pudimos" over "No se pudo": addresses the creator directly, same
+    // register as the rest of the table, and neutral in both regions.
+    accountLoadFailed: 'No pudimos cargar tu cuenta.',
+    retry: 'Reintentar',
   },
 
   sidebar: {
@@ -374,6 +414,15 @@ const es: DashboardStrings = {
     // Matches auth-strings bioCode.verifyButton's "Verificar ahora".
     verifyGateCta: 'Verificar ahora →',
     verifyGateTime: 'Toma menos de 2 minutos',
+    // "Solicitud", not "reclamo"/"reclamación": in Spain a reclamación is a
+    // complaint, and "reclamar un perfil" is already a stretch. The claim
+    // funnel's own Spanish calls it reclamar, so the body keeps that verb.
+    rejectedGateTitle: 'Solicitud no aprobada',
+    // "escríbenos" matches the "Escribir a" verb used across the dashboard
+    // and sidesteps contactar a / contactar con.
+    rejectedGateBody:
+      'La solicitud para reclamar este perfil no fue aprobada. Si crees que es un error, escríbenos.',
+    rejectedGateCta: 'Escríbenos →',
   },
 
   overview: {
@@ -417,6 +466,7 @@ const es: DashboardStrings = {
     pendingVerificationBody:
       'Tu perfil está pendiente de verificación. Verás todos los detalles cuando esté verificado.',
     claimToSeeDetails: 'Reclama tu perfil para ver todos los detalles.',
+    brandsLoadFailed: 'No pudimos cargar las marcas.',
     noInquiries: 'Todavía no hay consultas de marcas. Completa tu perfil para atraer marcas.',
     brandFallback: 'Una marca',
     campaignFallback: 'Campaña',
@@ -436,6 +486,7 @@ const es: DashboardStrings = {
       'Estamos detectando marcas para tu tamaño — vuelve a revisar mientras escaneamos más.',
     noMatchesCard:
       'Todavía no detectamos marcas para ti — esto se actualiza automáticamente a medida que escaneamos más.',
+    loadFailed: 'No pudimos cargar tus marcas.',
     // "Todas", feminine plural, agreeing with the "marcas" it filters.
     filterAll: 'Todas',
     // Spanish puts the category after the noun and needs a preposition the

@@ -33,6 +33,15 @@ interface DashboardOverviewProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inquiries: any[];
   brandMatches: CreatorBrandMatches | null;
+  /**
+   * True when the caller's /api/creator/brand-matches request did not answer
+   * 2xx. Optional so the admin preview (which reads matches server-side and
+   * never fails this way) is unaffected. Renders a non-blocking line in the
+   * hero with a Retry, instead of the zero-match copy — that copy says we
+   * looked and found nothing, which is not what happened.
+   */
+  brandMatchesFailed?: boolean;
+  onRetryBrandMatches?: () => void;
   brandsHiringHref: string;
   /**
    * Passed in rather than resolved here, because this component is shared with
@@ -48,9 +57,35 @@ interface DashboardOverviewProps {
   locale?: Locale;
 }
 
-function BrandsHiringHero({ totalMatchCount, categories, brandsHiringHref, locale, t }: { totalMatchCount: number; categories: CategoryCount[]; brandsHiringHref: string; locale: Locale; t: OverviewStrings }) {
+function BrandsHiringHero({ totalMatchCount, categories, brandsHiringHref, locale, t, failed, onRetry, retryLabel }: { totalMatchCount: number; categories: CategoryCount[]; brandsHiringHref: string; locale: Locale; t: OverviewStrings; failed: boolean; onRetry?: () => void; retryLabel: string }) {
   const shown = categories.slice(0, 4);
   const moreCount = categories.length - shown.length;
+
+  if (failed) {
+    return (
+      <div style={{
+        backgroundColor: '#fff', borderRadius: '16px', padding: '24px',
+        border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        marginBottom: '24px',
+      }}>
+        <p style={{ fontSize: '11px', fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', margin: '0 0 12px 0' }}>
+          {t.brandsHiringEyebrow}
+        </p>
+        <p style={{ fontSize: '14px', color: '#6B7280', margin: 0, display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <span>{t.brandsLoadFailed}</span>
+          {onRetry && (
+            <button
+              type="button"
+              onClick={onRetry}
+              style={{ padding: '6px 12px', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: '#FFD700', color: '#3A3A3A', fontSize: '12px', fontWeight: 700 }}
+            >
+              {retryLabel}
+            </button>
+          )}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div style={{
@@ -103,8 +138,9 @@ function BrandsHiringHero({ totalMatchCount, categories, brandsHiringHref, local
   );
 }
 
-export function DashboardOverview({ creatorProfile, creatorData, socialProfiles, inquiries, brandMatches, brandsHiringHref, locale = 'en' }: DashboardOverviewProps) {
-  const t = getDashboardStrings(locale).overview;
+export function DashboardOverview({ creatorProfile, creatorData, socialProfiles, inquiries, brandMatches, brandMatchesFailed = false, onRetryBrandMatches, brandsHiringHref, locale = 'en' }: DashboardOverviewProps) {
+  const strings = getDashboardStrings(locale);
+  const t = strings.overview;
   const primaryProfile = socialProfiles.find(p => p.platform === 'instagram') ?? socialProfiles[0];
   const enrichment = primaryProfile?.enrichment_data as any;
   const aiSummary = socialProfiles.find(p => p.ai_summary)?.ai_summary ?? null;
@@ -139,6 +175,9 @@ export function DashboardOverview({ creatorProfile, creatorData, socialProfiles,
         brandsHiringHref={brandsHiringHref}
         locale={locale}
         t={t}
+        failed={brandMatchesFailed}
+        onRetry={onRetryBrandMatches}
+        retryLabel={strings.common.retry}
       />
 
       {/* ── Stat Cards ─────────────────────────────────────────────── */}

@@ -1,6 +1,7 @@
 -- 0017_rls_hardening.sql
 --
--- STATUS: NOT YET APPLIED as of 2026-08-24.
+-- STATUS: APPLIED (both sections). Confirmed live in production 2026-09-12
+-- via pg_policies and pg_trigger. The ordering box below is kept as history.
 --
 -- ┌──────────────────────────────────────────────────────────────────────────┐
 -- │  ORDER OF OPERATIONS — READ THIS FIRST                                   │

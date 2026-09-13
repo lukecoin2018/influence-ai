@@ -1,0 +1,176 @@
+"use client";
+
+// app/creator-dashboard/_CreatorDashboardChrome.tsx
+//
+// The client shell of the creator dashboard: sidebar, mobile chrome, and the
+// locked screen for a claim that is not yet (or no longer) verified. This was
+// app/creator-dashboard/layout.tsx until the layout became a server component
+// (see that file and requireCreatorSession in lib/auth/server-guards.ts).
+// Same split as app/admin/layout.tsx + app/admin/_AdminChrome.tsx.
+//
+// The claim gate below is a React overlay, not a security boundary. The API
+// routes refuse anything but claim_status 'verified' on their own.
+
+import React, { useState, useEffect } from "react";
+import { Sidebar } from "@/components/creator-dashboard/Sidebar";
+import { MobileChrome } from "@/components/creator-dashboard/MobileChrome";
+import { useCreatorTokens } from "@/components/creator-dashboard/tokens";
+import { useAuth } from "@/context/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { useRouter, usePathname } from "next/navigation";
+import Link from "next/link";
+import { useLocale } from "@/lib/i18n/use-locale";
+import { getDashboardStrings } from "@/lib/i18n/dashboard-strings";
+
+export function CreatorDashboardChrome({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  // `null` until the creator uses the toggle: components/creator-dashboard/
+  // sidebar.css picks collapsed or expanded from the viewport before first
+  // paint. State still lives here, so it survives navigation between dashboard
+  // pages — this layout is not remounted by a <Link> to a sibling route.
+  // Desktop only: below 1024px the stylesheet ignores the attribute entirely.
+  const [sidebarOpen, setSidebarOpen] = useState<boolean | null>(null);
+  const [claimStatus, setClaimStatus] = useState<string | null>(null);
+  const [statusLoading, setStatusLoading] = useState(true);
+  const router = useRouter();
+  const pathname = usePathname();
+  const isVerifyPage = pathname === '/creator-dashboard/verify';
+  const { user, creatorProfile } = useAuth();
+  // One fetch + one realtime channel for the whole shell; the sidebar token
+  // box and the mobile tokens pill both read from here (tokens.ts).
+  const tokens = useCreatorTokens(user);
+  // The gate's CTA leads to /creator-dashboard/verify, which already reads
+  // creator_profiles.locale itself — so this makes the modal agree with the page
+  // behind it, rather than putting an English modal in front of a Spanish one.
+  const t = getDashboardStrings(useLocale()).layout;
+
+  useEffect(() => {
+    async function checkVerification() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push('/auth/login');
+        return;
+      }
+
+      const { data } = await supabase
+        .from('creator_profiles')
+        .select('claim_status')
+        .eq('id', user.id)
+        .single();
+
+      setClaimStatus(data?.claim_status ?? null);
+      setStatusLoading(false);
+    }
+    checkVerification();
+  }, [router]);
+
+  const isPending = claimStatus === 'pending';
+  // Same lock as pending, different copy. 'rejected' used to fall through
+  // every check here (only 'pending' locked), so a rejected creator saw an
+  // ungated dashboard whose every API call 403'd.
+  const isRejected = claimStatus === 'rejected';
+  const isLocked = isPending || isRejected;
+
+  return (
+    <div
+      className="cd-shell"
+      data-open={sidebarOpen === null ? undefined : String(sidebarOpen)}
+      style={{ display: "flex", minHeight: "100vh", backgroundColor: "#FAFAFA" }}
+    >
+      <Sidebar isOpen={sidebarOpen} onToggle={setSidebarOpen} tokens={tokens} />
+      <main style={{
+        flex: 1,
+        marginLeft: "var(--cd-sidebar-w, 240px)",
+        transition: "margin-left 0.2s ease",
+        minWidth: 0,
+      }}>
+        {/* Phone chrome: sticky top bar at the top of <main>'s flow, fixed tab
+            bar and sheets. Hidden by sidebar.css at the desktop breakpoint,
+            where the sidebar's logo tile is the link back to the site. */}
+        <MobileChrome
+          creatorId={creatorProfile?.creator_id ?? null}
+          tokenBalance={tokens.tokenBalance}
+          subscriptionTier={tokens.subscriptionTier}
+        />
+
+        <div style={{ padding: "var(--cd-content-pad, 32px 32px 80px)", position: "relative" }}>
+
+          {/* Greyed out children when locked — never on the verify page itself,
+              since that's the one page a pending creator must be able to use. */}
+          <div style={{
+            opacity: isLocked && !isVerifyPage ? 0.3 : 1,
+            pointerEvents: isLocked && !isVerifyPage ? 'none' : 'auto',
+            filter: isLocked && !isVerifyPage ? 'blur(1px)' : 'none',
+            transition: 'opacity 0.2s',
+          }}>
+            {children}
+          </div>
+
+          {/* Verification lock overlay: pending → verify page; rejected → contact */}
+          {!statusLoading && isLocked && !isVerifyPage && (
+            <div style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 50,
+              width: '100%',
+              maxWidth: '460px',
+              padding: '0 24px',
+            }}>
+              <div style={{
+                backgroundColor: 'white',
+                borderRadius: '20px',
+                padding: '40px 36px',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.15)',
+                border: '1px solid #E5E7EB',
+                textAlign: 'center',
+              }}>
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔐</div>
+                <h2 style={{
+                  fontSize: '22px', fontWeight: 800, color: '#3A3A3A',
+                  margin: '0 0 10px 0', letterSpacing: '-0.02em',
+                }}>
+                  {isRejected ? t.rejectedGateTitle : t.verifyGateTitle}
+                </h2>
+                <p style={{
+                  fontSize: '14px', color: '#6B7280', margin: '0 0 28px 0',
+                  lineHeight: 1.6,
+                }}>
+                  {isRejected ? t.rejectedGateBody : t.verifyGateBody}
+                </p>
+                <Link
+                  href={isRejected ? '/contact' : '/creator-dashboard/verify'}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: '10px',
+                    backgroundColor: '#FFD700',
+                    color: '#3A3A3A',
+                    fontSize: '15px',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {isRejected ? t.rejectedGateCta : t.verifyGateCta}
+                </Link>
+                {!isRejected && (
+                  <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '16px 0 0 0' }}>
+                    {t.verifyGateTime}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+        </div>
+      </main>
+    </div>
+  );
+}

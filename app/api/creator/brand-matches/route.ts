@@ -29,8 +29,21 @@ async function handleGET() {
   // serving that creator's brand matches hands their data to whoever asserted
   // it. The dashboard's own gate (creator-dashboard/layout.tsx) is a React
   // modal and does not reach this route.
-  const { data: profile } = await session.from('creator_profiles').select('creator_id, claim_status').eq('id', user.id).maybeSingle();
-  if (!profile?.creator_id) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  //
+  // Three outcomes, and they must stay distinct on the wire:
+  //   error      → 503 lookup_failed   the SELECT itself failed (statement
+  //                                    timeout, PostgREST 5xx). Says nothing
+  //                                    about the caller. Was a bare 403, which
+  //                                    the dashboard rendered as "pending
+  //                                    verification" for verified creators.
+  //   no row     → 403 no_profile      a session with no creator profile
+  //   unverified → 403 not_verified    the only 403 the client treats as a gate
+  const { data: profile, error: profileError } = await session.from('creator_profiles').select('creator_id, claim_status').eq('id', user.id).maybeSingle();
+  if (profileError) {
+    console.error(`[brand-matches] creator_profiles lookup failed for ${user.id.slice(0, 8)}…: ${profileError.message}`);
+    return NextResponse.json({ error: 'Lookup failed', reason: 'lookup_failed' }, { status: 503 });
+  }
+  if (!profile?.creator_id) return NextResponse.json({ error: 'Forbidden', reason: 'no_profile' }, { status: 403 });
   if (profile.claim_status !== 'verified') {
     return NextResponse.json({ error: 'Forbidden', reason: 'not_verified' }, { status: 403 });
   }
