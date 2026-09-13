@@ -111,6 +111,25 @@ Then restart **InfluenceIT** in the Webuzo dashboard.
   cache problem from a real one.
 - Vercel green before VPS.
 
+**Confirm the new build is actually being served.** The Node process is not
+supervised, so a build with a stale process is the failure mode above. Check
+it with the chunk-file method:
+
+```
+curl -sS 'https://influenceit.app/?buildcheck=1' \
+  | grep -o '_next/static/chunks/[a-zA-Z0-9_.-]*\.js' | head -1
+ls -la /home/lukelmg/public_html/influenceit.app/.next/static/chunks/<that filename>
+```
+
+If the file exists and its timestamp matches the build you just ran, the new
+build is live. If `ls` says no such file, the old process is still serving;
+restart InfluenceIT in Webuzo again. The `?buildcheck=1` query keeps this
+request out of the cache key you verify with in the next section.
+
+Do **not** grep the homepage for `.next/BUILD_ID`. With the App Router the
+HTML never contains the build id, so `grep -c` returns 0 on a perfectly good
+deploy. That check was tried on 2026-09-13 and gave a false negative.
+
 ### nginx bypass for authenticated routes
 
 `deploy/nginx/influenceit.app.custom.conf` in this repo is the source of truth
@@ -140,6 +159,9 @@ proxy headers, because a `location` block does not inherit `proxy_pass`.
 - After changing it: `nginx -t`, `nginx -s reload`, purge the cache (below),
   then curl `/creator-dashboard` and `/api/creator/brand-matches`. Both must
   answer `X-Cache-Status: BYPASS`. `/` must still go `MISS` then `HIT`.
+- `nginx -t` on this box reports `/etc/nginx/nginx.conf`, not the
+  `/usr/local/apps/nginx/etc` path. That is fine: the custom domains include
+  is picked up either way. Verified 2026-09-13 when the block went live.
 
 ### nginx caches everything, and this caused a cross-user data leak
 
