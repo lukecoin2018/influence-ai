@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
 
 /**
- * Server-side route gates for /admin/* and /dashboard/*.
+ * Server-side route gates for /admin/*, /dashboard/* and /creator-dashboard/*.
  *
  * ── WHY THESE EXIST ────────────────────────────────────────────────────────
  *
@@ -99,6 +99,41 @@ export async function requireSession(): Promise<{ userId: string }> {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect('/login');
+
+  return { userId: user.id };
+}
+
+/**
+ * Server gate for /creator-dashboard/*.
+ *
+ * Session only — deliberately NOT a claim_status check. The client shell
+ * (app/creator-dashboard/_CreatorDashboardChrome.tsx) renders the locked
+ * screen for 'pending' and 'rejected' over the page, and the API routes
+ * refuse anything but 'verified' on their own. This gate's two jobs are the
+ * ones only a server layout can do:
+ *
+ *   1. An anonymous request gets a redirect, never the dashboard HTML.
+ *   2. Reading cookies() here de-opts the whole creator tree to ƒ (Dynamic).
+ *      Until this existed the tree prerendered as static HTML — /creator-
+ *      dashboard, /brands-hiring, /calculator, /contract, /edit and their
+ *      .rsc twins were all in prerender-manifest.json — and Next served them
+ *      with `s-maxage=31536000`, which the VPS's nginx honours over its own
+ *      60m default. Dynamic pages emit `private, no-cache, no-store` instead.
+ *      That header change is the fix for the cache; the redirect is a bonus.
+ *
+ * Redirects with ?redirectTo=, which is the parameter app/login/page.tsx:34
+ * reads and middleware.ts:73 sets. A layout has no access to the request path,
+ * so the tree root is used; middleware already carries the exact path for the
+ * common case.
+ *
+ * Vercel note: this turns the creator pages from static files into a function
+ * call per request. Intended — a per-user dashboard has no business being
+ * static — and recorded here so it is not "fixed" back later.
+ */
+export async function requireCreatorSession(): Promise<{ userId: string }> {
+  const supabase = await createSupabaseServerClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login?redirectTo=%2Fcreator-dashboard');
 
   return { userId: user.id };
 }

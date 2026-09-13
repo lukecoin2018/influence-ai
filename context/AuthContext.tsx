@@ -88,11 +88,28 @@ interface CreatorProfile {
   locale?: 'en' | 'es' | null;
 }
 
+/**
+ * Three-state role, and the third state is the point.
+ *
+ *   'brand' | 'creator' | 'admin'   determined: a user_roles row said so
+ *   null                            determined: the lookup ran and found no row
+ *   undefined                       NOT determined: the lookup has not run, or
+ *                                   it failed (network, RLS, statement timeout)
+ *
+ * Before this, a failed lookup collapsed into null. The user_roles SELECT
+ * discarded its `error`, so a PostgREST error resolved with data null, and
+ * app/creator-dashboard/page.tsx read that null as "not a creator" and sent a
+ * verified creator to the brand dashboard. A failed check is not a finding;
+ * it stays undefined and `authError` says why. Consumers must only redirect on
+ * a determined value.
+ */
+export type UserRole = 'brand' | 'creator' | 'admin' | null | undefined;
+
 interface AuthContextType {
   user: User | null;
   brandProfile: BrandProfile | null;
   creatorProfile: CreatorProfile | null;
-  userRole: 'brand' | 'creator' | 'admin' | null;
+  userRole: UserRole;
   loading: boolean;
   authError: string | null;
   retryAuth: () => void;
@@ -111,7 +128,7 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   brandProfile: null,
   creatorProfile: null,
-  userRole: null,
+  userRole: undefined,
   loading: true,
   authError: null,
   retryAuth: () => {},
@@ -123,7 +140,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [brandProfile, setBrandProfile] = useState<BrandProfile | null>(null);
   const [creatorProfile, setCreatorProfile] = useState<CreatorProfile | null>(null);
-  const [userRole, setUserRole] = useState<'brand' | 'creator' | 'admin' | null>(null);
+  // undefined until a lookup has actually answered — see UserRole above.
+  const [userRole, setUserRole] = useState<UserRole>(undefined);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [retryToken, setRetryToken] = useState(0);
@@ -160,14 +178,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function loadProfileForUser(userId: string) {
-    const { data: roleData } = await timed(stageRef, 'user_roles query', supabase
+    // maybeSingle(), not single(): single() reports "no row" as an error
+    // (PGRST116), and now that errors are read rather than discarded, a user
+    // with no user_roles row must still resolve to a determined null rather
+    // than look like a failed lookup.
+    const { data: roleData, error: roleError } = await timed(stageRef, 'user_roles query', supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', userId)
-      .single());
+      .maybeSingle());
 
+    // Thrown, not swallowed. This is what lets loadProfileWithRetry's second
+    // attempt engage, and what keeps userRole undefined (not null) when both
+    // attempts fail. The old code resolved a failed query as role null.
+    if (roleError) throw new Error(`user_roles lookup failed: ${roleError.message}`);
 
-    const role = roleData?.role ?? null;
+    const role = (roleData?.role ?? null) as UserRole;
     if (!isMounted.current) return;
     setUserRole(role);
 
@@ -176,20 +202,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setBrandProfile(null);
       setCreatorProfile(null);
     } else if (role === 'creator') {
-      const { data } = await timed(stageRef, 'creator_profiles query', supabase
+      const { data, error } = await timed(stageRef, 'creator_profiles query', supabase
         .from('creator_profiles')
         .select('*')
         .eq('id', userId)
-        .single());
+        .maybeSingle());
+      if (error) throw new Error(`creator_profiles lookup failed: ${error.message}`);
       if (!isMounted.current) return;
       setCreatorProfile(data ?? null);
       setBrandProfile(null);
     } else {
-      const { data } = await timed(stageRef, 'brand_profiles query', supabase
+      const { data, error } = await timed(stageRef, 'brand_profiles query', supabase
         .from('brand_profiles')
         .select('*')
         .eq('id', userId)
-        .single());
+        .maybeSingle());
+      if (error) throw new Error(`brand_profiles lookup failed: ${error.message}`);
       if (!isMounted.current) return;
       setBrandProfile(data ?? null);
       setCreatorProfile(null);
@@ -227,6 +255,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // A failed *check* is not the same thing as "no session" — leave
         // user/userRole/profiles untouched here. Only an explicit signal
         // from Supabase (session === null, handled below) clears them.
+        // userRole is left as it was (undefined on a first load), so a
+        // consumer sees "not determined" plus authError, never a false null.
         if (isCurrent(runId)) setAuthError('Failed to verify your session.');
       } finally {
         if (isCurrent(runId)) setLoading(false);
@@ -264,6 +294,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (session?.user) {
               await loadProfileWithRetry(session.user.id);
             } else {
+              // Signed out: no role is a determined fact here, not a failure.
               setBrandProfile(null);
               setCreatorProfile(null);
               setUserRole(null);

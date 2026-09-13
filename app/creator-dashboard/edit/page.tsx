@@ -7,11 +7,12 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
+import { AccountLoadError } from '@/components/creator-dashboard/AccountLoadError';
 
 const INDUSTRIES = ['Fashion', 'Beauty', 'Travel', 'Food & Beverage', 'Tech', 'Fitness', 'Lifestyle', 'Gaming', 'Music', 'Sports'];
 
 export default function EditProfilePage() {
-  const { user, userRole, creatorProfile, loading } = useAuth();
+  const { user, userRole, creatorProfile, loading, authError } = useAuth();
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -61,6 +62,11 @@ export default function EditProfilePage() {
 
   // Auth guard — after all hooks
   if (loading || dataLoading) return <div style={{ padding: '80px', textAlign: 'center', color: '#9CA3AF' }}>Loading...</div>;
+  // Same rule as app/creator-dashboard/page.tsx: never redirect on a failed
+  // lookup. This tool is English by design, so the retry state is 'en'.
+  // A signed-out visitor (no user, no error) falls through to the existing
+  // /login redirect below; a failed check renders the retry state instead.
+  if (authError || (user && userRole === undefined)) return <AccountLoadError locale="en" />;
   if (!user || userRole !== 'creator') { window.location.href = '/login'; return null; }
 
   async function handleSave(e: React.FormEvent) {

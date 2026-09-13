@@ -28,6 +28,7 @@ import { getOutreachUiStrings } from '@/lib/outreach/ui-strings';
 // Overview page's pending sentence rather than minting a third phrasing for the
 // same situation — three wordings for one state is how they drift apart.
 import { getDashboardStrings } from '@/lib/i18n/dashboard-strings';
+import { AccountLoadError } from '@/components/creator-dashboard/AccountLoadError';
 
 const GREY = '#3A3A3A';
 
@@ -91,7 +92,7 @@ function EmptyState({ title, body, backLabel }: { title: string; body: string; b
 }
 
 function OutreachPageInner() {
-  const { user, creatorProfile, userRole, loading } = useAuth();
+  const { user, creatorProfile, userRole, loading, authError } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const brandParam = searchParams.get('brand');
@@ -118,11 +119,16 @@ function OutreachPageInner() {
   // document reload. The `loading` check is the one thing taken from the
   // brands-hiring guard instead: without it this redirects to /login on the
   // first render, before AuthContext has resolved a session that exists.
+  //
+  // Never on an error. When the session or role lookup failed, `user` may be
+  // null and `userRole` undefined; neither is a fact about the account, so
+  // the render below shows a retry state instead. Redirects only fire on a
+  // determined "no session" or a determined non-creator role.
   useEffect(() => {
-    if (loading) return;
+    if (loading || authError) return;
     if (!user) { router.push('/login'); return; }
-    if (userRole && userRole !== 'creator') router.push('/dashboard');
-  }, [loading, user, userRole, router]);
+    if (userRole !== undefined && userRole !== null && userRole !== 'creator') router.push('/dashboard');
+  }, [loading, authError, user, userRole, router]);
 
   const creatorId = creatorProfile?.creator_id;
 
@@ -143,9 +149,16 @@ function OutreachPageInner() {
         // string also means the message can never quote a figure that has since
         // changed underneath it.
         const [matchesRes, profilesRes, summaryRes, sendsRes] = await Promise.all([
-          fetch('/api/creator/brand-matches').then((r) => {
-            if (r.status === 403) refused = true;
-            return r.ok ? r.json() : null;
+          fetch('/api/creator/brand-matches').then(async (r) => {
+            if (r.ok) return r.json();
+            // Only a 403 that SAYS not_verified is a refusal. A 403 with any
+            // other reason, a 503 lookup_failed or a 5xx is a failed load and
+            // must not render the pending copy.
+            if (r.status === 403) {
+              const body = await r.json().catch(() => null);
+              if (body?.reason === 'not_verified') refused = true;
+            }
+            return null;
           }),
           supabase.from('social_profiles').select('*').eq('creator_id', creatorId),
           // maybeSingle(), where Overview uses single() — the one deliberate
@@ -254,7 +267,11 @@ function OutreachPageInner() {
 
   const ui = getOutreachUiStrings(locale);
 
-  if (loading || dataLoading) return <Centered><p style={{ color: '#9CA3AF' }}>{ui.loading}</p></Centered>;
+  if (loading) return <Centered><p style={{ color: '#9CA3AF' }}>{ui.loading}</p></Centered>;
+  // A signed-out visitor (no user, no error) is being redirected by the
+  // effect above; a failed check renders the retry state instead.
+  if (authError || (user && userRole === undefined)) return <AccountLoadError locale={locale} />;
+  if (dataLoading) return <Centered><p style={{ color: '#9CA3AF' }}>{ui.loading}</p></Centered>;
   if (!user) return null;
 
   // Titled for the brand once we know which one. Before that — no ?brand=, or a

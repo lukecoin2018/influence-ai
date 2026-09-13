@@ -2,16 +2,17 @@
 
 // app/creator-dashboard/page.tsx
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { DashboardOverview } from '@/components/creator-dashboard/DashboardOverview';
+import { AccountLoadError } from '@/components/creator-dashboard/AccountLoadError';
 import type { CreatorBrandMatches } from '@/lib/reports/creator-brand-matches';
 import { useLocale } from '@/lib/i18n/use-locale';
 import { getDashboardStrings } from '@/lib/i18n/dashboard-strings';
 
 export default function CreatorDashboardPage() {
-  const { user, creatorProfile, userRole, loading } = useAuth();
+  const { user, creatorProfile, userRole, loading, authError } = useAuth();
   // This route owns the session, so it resolves the locale and hands it to
   // DashboardOverview as a prop — that component is shared with the admin
   // preview, which renders it from a server component and must keep passing
@@ -23,7 +24,32 @@ export default function CreatorDashboardPage() {
   const [socialProfiles, setSocialProfiles] = useState<any[]>([]);
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [brandMatches, setBrandMatches] = useState<CreatorBrandMatches | null>(null);
+  // True when /api/creator/brand-matches did not answer 2xx (or the fetch
+  // threw). Surfaced as a non-blocking line in the hero rather than left
+  // silent: a null here used to render the "we're detecting brands" copy,
+  // which claims we looked when we did not.
+  const [brandMatchesFailed, setBrandMatchesFailed] = useState(false);
   const [dataLoading, setDataLoading] = useState(true);
+
+  // Separate from the rest of loadData so the hero's Retry re-runs only this
+  // request. A non-2xx still yields null (the shape every caller types), and a
+  // thrown fetch is caught here rather than rejecting the whole Promise.all
+  // below, which previously left dataLoading stuck at true.
+  const loadBrandMatches = useCallback(async () => {
+    setBrandMatchesFailed(false);
+    try {
+      const res = await fetch('/api/creator/brand-matches');
+      if (!res.ok) {
+        setBrandMatchesFailed(true);
+        setBrandMatches(null);
+        return;
+      }
+      setBrandMatches(await res.json());
+    } catch {
+      setBrandMatchesFailed(true);
+      setBrandMatches(null);
+    }
+  }, []);
 
   useEffect(() => {
     if (!creatorProfile || !creatorProfile.creator_id) {
@@ -34,7 +60,7 @@ export default function CreatorDashboardPage() {
 
     async function loadData() {
       setDataLoading(true);
-      const [creatorRes, socialRes, inquiryRes, brandMatchesRes] = await Promise.all([
+      const [creatorRes, socialRes, inquiryRes] = await Promise.all([
         supabase.from('v_creator_summary').select('*').eq('creator_id', creatorId).single(),
         supabase.from('social_profiles').select('*').eq('creator_id', creatorId),
         supabase.from('inquiries')
@@ -42,23 +68,29 @@ export default function CreatorDashboardPage() {
           .eq('creator_id', creatorId)
           .order('created_at', { ascending: false })
           .limit(10),
-        fetch('/api/creator/brand-matches').then((res) => (res.ok ? res.json() : null)),
+        loadBrandMatches(),
       ]);
       setCreatorData(creatorRes.data ?? null);
       setSocialProfiles(socialRes.data ?? []);
       setInquiries(inquiryRes.data ?? []);
-      setBrandMatches(brandMatchesRes);
       setDataLoading(false);
     }
 
     loadData();
-  }, [creatorProfile?.creator_id]);
+  }, [creatorProfile?.creator_id, loadBrandMatches]);
 
   if (loading) return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
       <p style={{ color: '#9CA3AF' }}>{t.common.loading}</p>
     </div>
   );
+  // Order matters. An error is checked before anything redirects: on a failed
+  // session or role lookup, `user` may be null and `userRole` is undefined,
+  // and neither is a fact about the account. Redirect only on determined
+  // values — a real "no session", or a role that is known and is not creator.
+  // A signed-out visitor (no user, no error) falls through to the existing
+  // /login redirect below; a failed check renders the retry state instead.
+  if (authError || (user && userRole === undefined)) return <AccountLoadError locale={locale} />;
   if (!user) { window.location.href = '/login'; return null; }
   if (userRole !== 'creator') { window.location.href = '/dashboard'; return null; }
   if (dataLoading || !creatorProfile) return (
@@ -74,6 +106,8 @@ export default function CreatorDashboardPage() {
       socialProfiles={socialProfiles}
       inquiries={inquiries}
       brandMatches={brandMatches}
+      brandMatchesFailed={brandMatchesFailed}
+      onRetryBrandMatches={loadBrandMatches}
       brandsHiringHref="/creator-dashboard/brands-hiring"
       locale={locale}
     />

@@ -1,6 +1,6 @@
 -- 0016_brand_profiles_approval_status.sql
 --
--- STATUS: NOT YET APPLIED as of 2026-08-24.
+-- STATUS: APPLIED. Confirmed live in production 2026-09-12.
 --
 -- Hardens brand_profiles.approval_status so that "nobody has decided yet"
 -- cannot be mistaken for "approved" at the database level, matching the check

@@ -23,11 +23,18 @@ async function handlePOST(request: Request) {
     }
 
     // Verify this is actually a creator
-    const { data: creatorProfile } = await supabase
+    const { data: creatorProfile, error: profileError } = await supabase
       .from('creator_profiles')
       .select('id, token_balance, claim_status')
       .eq('id', user.id)
       .maybeSingle();
+
+    // A failed lookup is neither "not a creator" (which skips the charge) nor
+    // "not verified" (which refuses it). Same split as brand-matches.
+    if (profileError) {
+      console.error(`[creator-spend] creator_profiles lookup failed for ${user.id.slice(0, 8)}…: ${profileError.message}`);
+      return NextResponse.json({ error: 'Lookup failed', reason: 'lookup_failed' }, { status: 503 });
+    }
 
     if (!creatorProfile) {
       // Not a creator — allow through without charging

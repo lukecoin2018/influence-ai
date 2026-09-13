@@ -111,6 +111,36 @@ Then restart **InfluenceIT** in the Webuzo dashboard.
   cache problem from a real one.
 - Vercel green before VPS.
 
+### nginx bypass for authenticated routes
+
+`deploy/nginx/influenceit.app.custom.conf` in this repo is the source of truth
+for a `location` block that switches the proxy cache off for
+`/creator-dashboard`, `/admin`, `/dashboard` and `/api`, and everything under
+them. On the VPS it lives at
+
+```
+/var/webuzo-data/nginx/custom/domains/influenceit.app.conf
+```
+
+which Webuzo includes inside both the `:80` and `:443` server blocks for
+influenceit.app, after `location /`. A regex `location` beats the `/` prefix
+regardless of order, so the include position is irrelevant. The block repeats
+`proxy_pass $webuzoproxy` (set per server block: `http://127.0.0.1:8081` on
+`:80`, `https://127.0.0.1:8082` on `:443`) and includes `proxy.conf` for the
+proxy headers, because a `location` block does not inherit `proxy_pass`.
+
+- It lives in the custom domains file, not `webuzoVH.conf`, because Webuzo
+  regenerates the vhost and leaves the custom file alone.
+- It is a second line of defence, not a replacement for `withNoStore()` below.
+  Only paths matching the regex are covered; a session-reading route outside
+  `/api` would still depend on its own headers.
+- `add_header` inside a `location` replaces every server-level `add_header`
+  for that location. Before installing, check what `webuzoVH.conf` sets at
+  server level and repeat anything beyond `X-Cache-Status` inside the block.
+- After changing it: `nginx -t`, `nginx -s reload`, purge the cache (below),
+  then curl `/creator-dashboard` and `/api/creator/brand-matches`. Both must
+  answer `X-Cache-Status: BYPASS`. `/` must still go `MISS` then `HIT`.
+
 ### nginx caches everything, and this caused a cross-user data leak
 
 Config: `/usr/local/apps/nginx/etc/conf.d/webuzoVH.conf`
@@ -160,8 +190,9 @@ rm -rf /var/webuzo-data/nginx_proxy_cache/lukelmg/*
 curl -sS -D- -o /dev/null 'https://influenceit.app/api/creator/brand-matches'
 ```
 
-`X-Cache-Status` must never be `HIT`. No cookie needed — the headers apply on
-every branch, so a 401 proves it.
+`X-Cache-Status` must never be `HIT`; with the bypass block installed it is
+`BYPASS`. No cookie needed — the headers apply on every branch, so a 401
+proves it.
 
 ### Testing habit
 

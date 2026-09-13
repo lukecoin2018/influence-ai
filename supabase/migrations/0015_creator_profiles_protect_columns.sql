@@ -1,6 +1,7 @@
 -- 0015_creator_profiles_protect_columns.sql
 --
--- STATUS: NOT YET APPLIED.
+-- STATUS: APPLIED. Confirmed live in production 2026-09-12 (pg_trigger shows
+-- creator_profiles_protect_columns on creator_profiles).
 --
 -- Stops a signed-in creator from writing the columns that decide whether their
 -- claim is verified, which creator they are, and what they have paid for.
@@ -43,10 +44,12 @@
 --   the right test: PostgREST SET ROLEs the connection to anon, authenticated
 --   or service_role per request. NULL/postgres covers the SQL editor and psql.
 --
---   Admins. app/admin/creators/page.tsx:52 sets claim_status from the BROWSER,
---   through the anon-key client as an authenticated admin user — not through a
---   route handler — so the Verify/Reject buttons on /admin/creators would start
---   failing without this. The subquery runs as the caller (SECURITY INVOKER),
+--   Admins. When this was written, app/admin/creators/page.tsx:52 set
+--   claim_status from the BROWSER through the anon-key client as an
+--   authenticated admin user. Since 2026-09-12 that write goes through
+--   app/api/admin/creators/status/route.ts on the service-role client, so the
+--   admin exemption is no longer load-bearing for the Verify/Reject buttons.
+--   Kept: it still covers any future browser-side admin write. The subquery runs as the caller (SECURITY INVOKER),
 --   which is fine because an authenticated user can already read their own
 --   user_roles row: context/AuthContext.tsx:154 and app/auth/login/page.tsx:35
 --   both do exactly that from the browser.
