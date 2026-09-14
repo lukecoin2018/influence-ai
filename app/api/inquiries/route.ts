@@ -1,24 +1,25 @@
 // Place at: app/api/inquiries/route.ts (replace existing file)
 
 import { NextRequest, NextResponse } from 'next/server';
+import { createElement } from 'react';
 import { createClient } from '@supabase/supabase-js';
-import nodemailer from 'nodemailer';
 import { grantCreatorTokens } from '@/lib/tokens';
 import { requireApprovedBrand } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
+import { sendEmail, SITE_URL } from '@/lib/email/client';
+import { BrandInquiry, brandInquirySubject } from '@/lib/email/templates/BrandInquiry';
+import { BrandInquiryConfirmation, brandInquiryConfirmationSubject } from '@/lib/email/templates/BrandInquiryConfirmation';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-});
+// Both emails below go through lib/email/client.ts (Resend). They used to go
+// over a Gmail app password via nodemailer; that transport and its
+// GMAIL_USER / GMAIL_APP_PASSWORD env vars are gone. sendEmail never throws,
+// so the try/catch around each send is belt-and-braces, kept so the two
+// outcomes stay logged under their original messages.
 
 // Reads a session, so it carries no-store by construction. See
 // lib/http/no-store.ts.
@@ -111,75 +112,59 @@ async function handlePOST(req: NextRequest) {
     const creatorPlatform = creatorSummary?.instagram_handle ? 'Instagram' : 'TikTok';
 
     // ── Admin notification email ──────────────────────────────────────────────
+    // Reply-To is the inquirer, so answering from the admin inbox reaches the
+    // brand directly.
     try {
-      await transporter.sendMail({
-        from: `InfluenceIT <${process.env.GMAIL_USER}>`,
-        to: process.env.ADMIN_EMAIL,
-        subject: `New Inquiry: ${brandProfile?.company_name} → @${creatorHandle}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: #FFD700; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
-              <h1 style="margin: 0; font-size: 20px;">New Creator Inquiry</h1>
-            </div>
-            <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb;">
-              <h2 style="color: #FFD700; margin-top: 0;">Brand</h2>
-              <p><strong>Company:</strong> ${brandProfile?.company_name}</p>
-              <p><strong>Contact:</strong> ${brandProfile?.contact_name || 'Not provided'}</p>
-              <p><strong>Email:</strong> ${brandProfile?.email}</p>
-              <p><strong>Industry:</strong> ${brandProfile?.industry || 'Not specified'}</p>
-              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;">
-              <h2 style="color: #FFD700;">Creator</h2>
-              <p><strong>Handle:</strong> @${creatorHandle}</p>
-              <p><strong>Name:</strong> ${creatorName}</p>
-              <p><strong>Followers:</strong> ${creatorFollowers.toLocaleString()}</p>
-              <p><strong>Platform:</strong> ${creatorPlatform}</p>
-              <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 16px 0;">
-              <h2 style="color: #FFD700;">Inquiry Details</h2>
-              <p><strong>Campaign Type:</strong> ${campaignType || 'Not specified'}</p>
-              <p><strong>Budget Range:</strong> ${budgetRange || 'Not specified'}</p>
-              <p><strong>Timeline:</strong> ${timeline || 'Not specified'}</p>
-              <div style="background: white; padding: 16px; border-radius: 8px; border: 1px solid #e5e7eb; margin-top: 12px;">
-                <p style="margin: 0; color: #374151;">${message}</p>
-              </div>
-            </div>
-            <div style="background: #f3f4f6; padding: 16px; border-radius: 0 0 8px 8px; border: 1px solid #e5e7eb; border-top: none; text-align: center; color: #6b7280; font-size: 14px;">
-              <p style="margin: 0;">InfluenceIT Platform</p>
-            </div>
-          </div>
-        `,
-      });
+      const adminTo = process.env.ADMIN_EMAIL;
+      if (!adminTo) {
+        console.error('Failed to send admin notification: ADMIN_EMAIL unset');
+      } else {
+        const sent = await sendEmail({
+          to: adminTo,
+          subject: brandInquirySubject(brandProfile?.company_name, creatorHandle),
+          react: createElement(BrandInquiry, {
+            companyName: brandProfile?.company_name,
+            contactName: brandProfile?.contact_name,
+            brandEmail: brandProfile?.email,
+            industry: brandProfile?.industry,
+            creatorHandle,
+            creatorName,
+            creatorFollowers,
+            creatorPlatform,
+            campaignType,
+            budgetRange,
+            timeline,
+            message: message.trim(),
+          }),
+          replyTo: brandProfile?.email ?? undefined,
+          tags: [{ name: 'type', value: 'brand_inquiry' }],
+        });
+        if (!sent.ok) console.error('Failed to send admin notification:', sent.error);
+      }
     } catch (emailError) {
       console.error('Failed to send admin notification:', emailError);
     }
 
     // ── Brand confirmation email ──────────────────────────────────────────────
     try {
-      await transporter.sendMail({
-        from: `InfluenceIT <${process.env.GMAIL_USER}>`,
-        to: brandProfile?.email,
-        subject: `Inquiry Confirmed: @${creatorHandle}`,
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: #FFD700; color: white; padding: 20px; border-radius: 8px 8px 0 0;">
-              <h1 style="margin: 0; font-size: 20px;">Inquiry Received</h1>
-            </div>
-            <div style="background: #f9fafb; padding: 20px; border: 1px solid #e5e7eb; border-radius: 0 0 8px 8px;">
-              <p>Hi ${brandProfile?.contact_name || brandProfile?.company_name},</p>
-              <p>We've received your inquiry about working with <strong>@${creatorHandle}</strong>.</p>
-              <p>Our team will review the details and get back to you within 24 hours.</p>
-              <p style="margin-top: 20px;">
-                <strong>Campaign Type:</strong> ${campaignType || 'Not specified'}<br>
-                <strong>Budget:</strong> ${budgetRange || 'Not specified'}<br>
-                <strong>Timeline:</strong> ${timeline || 'Not specified'}
-              </p>
-              <p style="color: #6b7280; font-size: 14px; margin-top: 20px;">
-                You can view your inquiries anytime in your
-                <a href="https://influenceit.vercel.app/dashboard" style="color: #FFD700;">dashboard</a>.
-              </p>
-            </div>
-          </div>
-        `,
-      });
+      if (!brandProfile?.email) {
+        console.error('Failed to send brand confirmation: no email on brand_profiles row');
+      } else {
+        const sent = await sendEmail({
+          to: brandProfile.email,
+          subject: brandInquiryConfirmationSubject(creatorHandle),
+          react: createElement(BrandInquiryConfirmation, {
+            greetingName: brandProfile.contact_name || brandProfile.company_name,
+            creatorHandle,
+            campaignType,
+            budgetRange,
+            timeline,
+            dashboardUrl: `${SITE_URL}/dashboard`,
+          }),
+          tags: [{ name: 'type', value: 'brand_inquiry_confirmation' }],
+        });
+        if (!sent.ok) console.error('Failed to send brand confirmation:', sent.error);
+      }
     } catch (emailError) {
       console.error('Failed to send brand confirmation:', emailError);
     }

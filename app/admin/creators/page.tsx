@@ -17,6 +17,7 @@ export default function AdminCreatorsPage() {
   const [loadError, setLoadError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
   const requestSeq = useRef(0);
 
   useEffect(() => {
@@ -49,18 +50,32 @@ export default function AdminCreatorsPage() {
   // writes the full field set verify-bio writes (claimed_at, cleared code,
   // reset attempts) and the audit row; the old one-column update left
   // claimed_at NULL and the code live. See the route's header.
+  //
+  // Approve also emails the creator (Reject does not). The route reports the
+  // outcome as emailStatus; the DB write succeeded regardless, so a failed
+  // send is a notice next to a successful approval, never an error state.
   async function updateStatus(creatorProfileId: string, status: 'verified' | 'rejected') {
     setActionLoading(creatorProfileId + status);
     setActionError(null);
+    setActionNotice(null);
     try {
       const res = await fetch('/api/admin/creators/status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ creatorProfileId, status }),
       });
+      const body = await res.json().catch(() => null);
       if (!res.ok) {
-        const body = await res.json().catch(() => null);
         throw new Error(body?.reason ? `${res.status} ${body.reason}` : `HTTP ${res.status}`);
+      }
+      if (status === 'verified') {
+        const emailStatus = body?.emailStatus as 'sent' | 'failed' | 'skipped' | undefined;
+        setActionNotice(
+          emailStatus === 'sent' ? 'Approved · email sent'
+          : emailStatus === 'failed' ? 'Approved · email FAILED — check server logs'
+          : emailStatus === 'skipped' ? 'Already verified · no email sent'
+          : 'Approved',
+        );
       }
       await load();
     } catch (err) {
@@ -99,6 +114,9 @@ export default function AdminCreatorsPage() {
       </div>
       {actionError && (
         <p style={{ color: '#DC2626', fontSize: '13px', margin: '0 0 12px 0' }}>{actionError}</p>
+      )}
+      {actionNotice && (
+        <p style={{ color: actionNotice.includes('FAILED') ? '#B45309' : '#065F46', fontSize: '13px', margin: '0 0 12px 0' }}>{actionNotice}</p>
       )}
       {dataLoading ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>

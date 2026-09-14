@@ -5,17 +5,18 @@ import 'server-only';
  *
  * ── IT DOES NOT SEND ANYTHING. ─────────────────────────────────────────────
  *
- * That is deliberate and agreed, not an oversight. The only mail transport in
- * this codebase is nodemailer over Gmail SMTP (app/api/inquiries/route.ts),
- * pointed at ADMIN_EMAIL — it sends to us, internally. Approval mail goes to an
- * external stranger, which is a different proposition: an app password caps out
- * around 500 a day and lands in spam far more readily than a real transactional
- * sender. Proper sending from a real address is its own piece of work, with a
- * verified domain and DNS records behind it.
+ * That is deliberate and agreed, not an oversight. A transactional sender now
+ * exists — lib/email/client.ts over Resend, used by the creator approval mail
+ * in app/api/admin/creators/status/route.ts and the inquiry mails in
+ * app/api/inquiries/route.ts — so the old reason (the only transport was a
+ * Gmail app password that caps out around 500 a day) no longer applies. What
+ * remains undecided is the brand-side copy and whether brand approval should
+ * email at all; that is its own item and has not been picked up. Until it is,
+ * this stays a logged no-op.
  *
  * So this records the intent, in one place, with one caller, and returns. When
- * a transactional sender exists, this function body is where it goes — nothing
- * else has to change.
+ * the brand approval email is designed, this function body is where the
+ * sendEmail() call goes — nothing else has to change.
  *
  * ── WHY IT EXISTS AT ALL RATHER THAN A TODO ────────────────────────────────
  *

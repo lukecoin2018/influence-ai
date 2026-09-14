@@ -297,6 +297,45 @@ the app with an `instagram://` scheme.
 
 ---
 
+## Email
+
+Provider is **Resend over its HTTP API** (`resend` npm package). The domain
+influenceit.app is verified in Resend, region eu-west-1, since 2026-09-14.
+Never SMTP: the old transport was nodemailer over a Gmail app password, which
+caps around 500 a day and lands in spam for anyone who is not us.
+
+- Two env vars, set in `.env.local`, the VPS `.env` and Vercel:
+  `RESEND_API_KEY` and `EMAIL_FROM` (`InfluenceIT <noreply@influenceit.app>`).
+  Never print the key.
+- `GMAIL_USER` and `GMAIL_APP_PASSWORD` are **dead** since the nodemailer
+  removal. Safe to delete from the VPS `.env` and Vercel.
+- One sender, `sendEmail()` in `lib/email/client.ts`. It never throws; every
+  failure returns `{ ok: false, error }` and one `[email]` log line with the
+  recipient masked. Missing config returns `email_not_configured`.
+- Templates are React Email, one file per email under `lib/email/templates/`,
+  with the plain-text alternative rendered from the same component.
+- **Mail never blocks or rolls back a database write.** The write commits
+  first; the send outcome is recorded (on the `activity_log` row's `details`
+  for creator approval) and surfaced, and the route returns 200 regardless.
+- **Approve emails the creator, Reject sends nothing.** The approval mail goes
+  only on a real transition: the route reads `claim_status` before writing and
+  skips the send if it was already `verified`, so re-clicking Approve cannot
+  resend. Recipient is `auth.users.email` via `auth.admin.getUserById(id)`;
+  `creator_profiles` has no email column and its `id` is the auth user id.
+- Absolute links use `SITE_URL` from the same module:
+  `NEXT_PUBLIC_SITE_URL` with a fallback of `https://influenceit.app`. Unset
+  locally on purpose.
+- To test delivery without touching the database: a throwaway
+  `scripts/email-smoke.ts` that imports `sendEmail` and a template and sends
+  to `ADMIN_EMAIL`, run with `npx tsx --env-file=.env.local scripts/email-smoke.ts`.
+  Check Resend → Logs for the send. Delete the script before committing.
+- To test the approval flow end to end: set the demo profile back to
+  `pending` in the SQL editor, click Verify in `/admin/creators`, expect the
+  notice `Approved · email sent`; click again and expect
+  `Already verified · no email sent` with exactly one send in Resend Logs.
+
+---
+
 ## Product rules — non-negotiable
 
 - Everything is **"detected"** from a sample. Never absolute.
