@@ -30,7 +30,7 @@ export function CreatorApproved({ firstName, dashboardUrl }: CreatorApprovedProp
         <Container style={{ maxWidth: '560px', margin: '0 auto', padding: '32px 24px' }}>
           <Text style={{ fontSize: '16px', lineHeight: '24px', margin: '0 0 16px' }}>Hi {firstName || 'there'},</Text>
           <Text style={{ fontSize: '16px', lineHeight: '24px', margin: '0 0 24px' }}>
-            Your creator profile on InfluenceIT has been verified. Your dashboard is now unlocked: see which brands are hiring in your niche, build your media kit, and reach out directly.
+            Your creator profile on InfluenceIT has been verified. Your dashboard is now unlocked: see which brands are hiring in your niche, upload your media kit, and reach out directly.
           </Text>
           <Button
             href={dashboardUrl}
@@ -41,7 +41,7 @@ export function CreatorApproved({ firstName, dashboardUrl }: CreatorApprovedProp
           <Text style={{ fontSize: '16px', lineHeight: '24px', margin: '24px 0 16px' }}>
             If anything looks wrong on your profile, just reply to this email.
           </Text>
-          <Text style={{ fontSize: '16px', lineHeight: '24px', margin: '0 0 24px' }}>— Luke, InfluenceIT</Text>
+          <Text style={{ fontSize: '16px', lineHeight: '24px', margin: '0 0 24px' }}>— The InfluenceIT team</Text>
           <Hr style={{ borderColor: '#E5E7EB', margin: '0 0 16px' }} />
           <Text style={{ fontSize: '12px', lineHeight: '18px', color: MUTED, margin: 0 }}>
             You&apos;re receiving this because you claimed your creator profile on influenceit.app.
