@@ -22,13 +22,39 @@ import type { ReactElement } from 'react';
  * into a client bundle unless a 'use client' file imports it, which none does.
  */
 
+const SITE_URL_FALLBACK = 'https://influenceit.app';
+
 /**
  * Canonical origin for absolute links in email. NEXT_PUBLIC_SITE_URL is the
  * name the checkout routes already read (app/api/checkout/*), unset locally on
  * purpose so those fall back to the request origin; mail has no request to
  * fall back to, so it falls back to production.
+ *
+ * Validated, not trusted. On 2026-09-14 the VPS process carried a malformed
+ * value (two .env lines run together) and the approval email linked to
+ * `https://influenceit.appadmin_user_id=…/creator-dashboard`. The value is
+ * accepted only if it parses, is https, is a bare origin (path `/`, no query
+ * or fragment) and its host is influenceit.app or a subdomain of it — the
+ * host rule is what actually catches the run-together case, since
+ * `https://influenceit.appadmin_user_id=x` is a syntactically valid URL with
+ * pathname `/`. Anything else logs once and falls back to production.
  */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://influenceit.app').replace(/\/+$/, '');
+export function resolveSiteUrl(raw: string | undefined = process.env.NEXT_PUBLIC_SITE_URL): string {
+  if (!raw) return SITE_URL_FALLBACK;
+  try {
+    const u = new URL(raw);
+    const hostOk = u.hostname === 'influenceit.app' || u.hostname.endsWith('.influenceit.app');
+    if (u.protocol === 'https:' && u.pathname === '/' && u.search === '' && u.hash === '' && hostOk) {
+      return u.origin;
+    }
+  } catch {
+    // fall through: not parseable
+  }
+  console.error('[email] NEXT_PUBLIC_SITE_URL invalid, using fallback');
+  return SITE_URL_FALLBACK;
+}
+
+export const SITE_URL = resolveSiteUrl();
 
 let resend: Resend | null = null;
 
