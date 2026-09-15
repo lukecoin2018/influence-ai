@@ -17,6 +17,7 @@ import { ClauseCustomizer } from "@/components/tools/contract/ClauseCustomizer";
 import { ContractPreview } from "@/components/tools/contract/ContractPreview";
 import { useCreatorTokenGate } from "@/hooks/useCreatorTokenGate";
 import { TokenGateModal } from "@/components/shared/TokenGateModal";
+import { track, useTrackOnMount } from "@/lib/dashboard/track";
 
 type BuilderStep = 1 | 2 | 3 | 4;
 const STEP_LABELS = ["Deal Type", "Sections", "Customize", "Preview"];
@@ -37,6 +38,7 @@ function ContractPageInner() {
   const { user, creatorProfile, userRole } = useAuth();
   const searchParams = useSearchParams();
   const router = useRouter();
+  useTrackOnMount('tool_opened', { tool: 'contract' });
 
   const [prefillNote, setPrefillNote] = useState("");
   const [step, setStep] = useState<BuilderStep>(1);
@@ -137,6 +139,9 @@ function ContractPageInner() {
 
   // ── Step 3 → 4: Save draft and move to preview (token already spent) ─────
   const handleCustomizerNext = async () => {
+    // The preview is the produced contract. Deal type and section count only —
+    // never brandName, creatorName or clause text.
+    track('tool_used', { tool: 'contract', deal_type: contract.dealType, section_count: contract.selectedSections.length });
     if (user) {
       setSaving(true);
       try {

@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { track, useTrackOnMount } from "@/lib/dashboard/track";
 
 interface MediaKitInfo {
   url: string;
@@ -26,6 +27,7 @@ export default function MediaKitPage() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState("");
   const [dragOver, setDragOver] = useState(false);
+  useTrackOnMount('media_kit_opened');
 
   // Auth guard
   useEffect(() => {
@@ -98,6 +100,8 @@ export default function MediaKitPage() {
         .upload(`${creatorProfile!.creator_id}/${fileName}`, file, { contentType: "application/pdf" });
 
       if (uploadError) throw uploadError;
+      // Only PDFs pass the check above, so file_type is always 'pdf' today.
+      track('media_kit_uploaded', { file_type: 'pdf', size_kb: Math.round(file.size / 1024) });
 
       await loadMediaKit();
     } catch (e: any) {

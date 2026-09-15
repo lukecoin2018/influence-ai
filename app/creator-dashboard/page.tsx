@@ -10,6 +10,7 @@ import { AccountLoadError } from '@/components/creator-dashboard/AccountLoadErro
 import type { CreatorBrandMatches } from '@/lib/reports/creator-brand-matches';
 import { useLocale } from '@/lib/i18n/use-locale';
 import { getDashboardStrings } from '@/lib/i18n/dashboard-strings';
+import { useTrackOnMount } from '@/lib/dashboard/track';
 
 export default function CreatorDashboardPage() {
   const { user, creatorProfile, userRole, loading, authError } = useAuth();
@@ -19,6 +20,10 @@ export default function CreatorDashboardPage() {
   // plain props (see its header, and the note on the `locale` prop).
   const locale = useLocale();
   const t = getDashboardStrings(locale);
+  // Fires on mount, before the session resolves; the route decides whether
+  // there is a creator behind it. Recorded for pending creators too — the
+  // only event that is (see app/api/creator/events/route.ts).
+  useTrackOnMount('dashboard_opened');
 
   const [creatorData, setCreatorData] = useState<any>(null);
   const [socialProfiles, setSocialProfiles] = useState<any[]>([]);
