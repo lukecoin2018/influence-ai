@@ -5,6 +5,7 @@ import { requireOwnerApi } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
 import { recordFunnelEvent } from '@/lib/funnel/events';
 import { sendEmail, SITE_URL } from '@/lib/email/client';
+import { firstNameOf } from '@/lib/email/first-name';
 import { CreatorApproved, CREATOR_APPROVED_SUBJECT } from '@/lib/email/templates/CreatorApproved';
 
 /**
@@ -46,15 +47,6 @@ import { CreatorApproved, CREATOR_APPROVED_SUBJECT } from '@/lib/email/templates
  */
 
 type EmailStatus = 'sent' | 'failed' | 'skipped';
-
-/** Whitespace-split first token of whichever display name exists, or undefined. */
-function firstNameOf(...candidates: (string | null | undefined)[]): string | undefined {
-  for (const c of candidates) {
-    const token = c?.trim().split(/\s+/)[0];
-    if (token) return token;
-  }
-  return undefined;
-}
 
 const ALLOWED = ['verified', 'rejected'] as const;
 type Status = (typeof ALLOWED)[number];

@@ -50,6 +50,9 @@ export function targetTableFor(eventType: string | null): 'brand' | 'creator' | 
   if (!eventType) return null;
   if (eventType.startsWith('brand_')) return 'brand';
   if (eventType.startsWith('creator_')) return 'creator';
+  // System-written by /api/cron/verification-nudge; target_id is a
+  // creator_profiles.id like the creator_* events, just without the prefix.
+  if (eventType === 'verification_nudge_sent') return 'creator';
   return null;
 }
 
@@ -106,6 +109,14 @@ export function describeActivity(
       return { title: name ? `Verified ${name}` : 'Creator verified', detail: null };
     case 'creator_rejected':
       return { title: name ? `Rejected ${name}` : 'Creator rejected', detail: null };
+    case 'verification_nudge_sent': {
+      // details.email is 'sent' or 'failed' (app/api/cron/verification-nudge).
+      const outcome = str(details?.email);
+      return {
+        title: name ? `Nudged ${name} about an expired code` : 'Creator nudged about an expired code',
+        detail: outcome === 'failed' ? `Email failed: ${str(details?.error) ?? 'unknown error'}` : null,
+      };
+    }
 
     case 'contact_form': {
       // The one event where `details` is the whole point — it is the only

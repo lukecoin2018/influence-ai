@@ -202,3 +202,54 @@ export async function requireOwnerApi(): Promise<{ error: NextResponse } | { use
 
   return { userId: user.id };
 }
+
+/**
+ * Gate for routes that a scheduler calls, not a person: today only
+ * app/api/cron/verification-nudge. Same discriminated-union shape as
+ * requireOwnerApi() above so the call site is the same two lines.
+ *
+ * Vercel Cron sends `Authorization: Bearer <CRON_SECRET>` on every invocation
+ * when the CRON_SECRET env var is set on the project; the same header lets the
+ * job be run by hand from any host (see CLAUDE.md "Cron"). The secret is read
+ * at request time, not captured at build like ADMIN_USER_ID, because it is
+ * only ever read server-side inside this function.
+ *
+ * Unset denies everyone with a 500 rather than a 401 — "unconfigured" must
+ * never widen access, and a 500 with a clear message is what makes a missing
+ * env var visible in the cron log rather than looking like a bad caller.
+ */
+export function requireCronSecret(req: Request): { error: NextResponse } | { ok: true } {
+  const secret = process.env.CRON_SECRET?.trim();
+
+  if (!secret) {
+    console.error('[cron-gate] CRON_SECRET is unset or empty — denying every cron call. Set it and redeploy.');
+    return {
+      error: NextResponse.json({ error: 'CRON_SECRET is not configured', reason: 'cron_secret_unset' }, { status: 500 }),
+    };
+  }
+
+  const header = req.headers.get('authorization') ?? '';
+  const presented = header.startsWith('Bearer ') ? header.slice('Bearer '.length).trim() : '';
+
+  if (!presented || !constantTimeEqual(presented, secret)) {
+    return {
+      error: NextResponse.json({ error: 'Unauthorized', reason: 'cron_secret_invalid' }, { status: 401 }),
+    };
+  }
+
+  return { ok: true };
+}
+
+/**
+ * Length-independent string compare. A plain `===` short-circuits on the
+ * first differing byte, which leaks the prefix length under timing; for a
+ * 64-hex secret that is theoretical, but the cost of doing it right is nil.
+ */
+function constantTimeEqual(a: string, b: string): boolean {
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  if (ab.length !== bb.length) return false;
+  let diff = 0;
+  for (let i = 0; i < ab.length; i++) diff |= ab[i] ^ bb[i];
+  return diff === 0;
+}
