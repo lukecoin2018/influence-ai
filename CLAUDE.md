@@ -568,7 +568,12 @@ inside `/creator-dashboard` after claiming. Not `funnel_events`, which stops at
   `has_*` per type, plus `claim_status` and `claimed_at` joined in.
   `security_invoker`, readable only by admins (the table's single policy is
   an admin SELECT; writes stay service-role). `/admin/creators` reads it in
-  one batched query for its `Last active:` line.
+  one batched query for its `Last active:` line and the per-type count line
+  (`n_<type>` columns, 0021), and its `Activity ▸` toggle reads the last 20
+  rows of the table directly. **A new event type needs a `has_`/`n_` column
+  added to the view for the count line; the activity list renders it
+  automatically**, as the raw type until `lib/admin/dashboard-event-labels.ts`
+  gets a wording for it.
 
   ```sql
   select * from v_creator_engagement where last_event_at > claimed_at;
