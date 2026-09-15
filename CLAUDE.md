@@ -334,6 +334,49 @@ caps around 500 a day and lands in spam for anyone who is not us.
   notice `Approved · email sent`; click again and expect
   `Already verified · no email sent` with exactly one send in Resend Logs.
 
+### Cron — the expired-code nudge
+
+One scheduled job: `GET /api/cron/verification-nudge`, run by Vercel Cron at
+09:00 UTC daily (`vercel.json`). It emails a creator who claimed a profile,
+was issued a bio-verification code, and let it expire unused, inviting them
+back to `/creator-dashboard/verify`, which mints a fresh code on load.
+
+- **Eligibility, all of:** `claim_status = 'pending'`;
+  `verification_code_expires_at` not null and more than 24 hours ago;
+  `nudge_sent_at` null; `created_at` within the last 14 days (new signups
+  only, no backfill of old rows, deliberately); the auth user has an email.
+  Codes live 24 hours, so the earliest nudge is ~48 hours after the claim.
+- **One nudge per profile unless the creator clears the column.**
+  `creator_profiles.nudge_sent_at` (0018) is set *before* the send with
+  `WHERE nudge_sent_at IS NULL`; a row that update misses was taken by an
+  overlapping run and is skipped. A send failure leaves it set and is only
+  logged: a missed nudge is acceptable, a duplicate is not. The column is
+  not in 0015's protected list, so a creator could unset it from the browser
+  and re-qualify for one more email to themselves. Accepted.
+- **Per-run cap 50**, oldest expiry first. The response reports
+  `beyondCap` when more rows were eligible.
+- **Audit:** one `activity_log` row per attempt, `verification_nudge_sent`,
+  `user_id` null (system action), `details` `{ email: 'sent', resend_id }`
+  or `{ email: 'failed', error }`. Plus one `nudge_sent` funnel event (0019)
+  with `userAgent` null, so it is never classified as a bot.
+- **Guard:** `Authorization: Bearer $CRON_SECRET`, checked by
+  `requireCronSecret()` in `lib/auth/api-guards.ts`. Vercel sends that
+  header itself once `CRON_SECRET` is set on the project. Unset answers 500
+  (deliberately not 401, so a missing var is visible in the cron log);
+  wrong or missing header answers 401.
+- **Run by hand** from any host:
+
+  ```
+  curl -H "Authorization: Bearer $CRON_SECRET" https://influenceit.app/api/cron/verification-nudge
+  ```
+
+  Response is `{ checked, eligible, beyondCap, sent, failed, skipped, ids }`
+  with masked emails only. Safe to repeat: the second call sends nothing.
+- **Webuzo panel variables override `.env` on the VPS** (learned
+  2026-09-14, when a run-together `NEXT_PUBLIC_SITE_URL` came from the
+  panel, not the file). If a value on the VPS looks wrong, check the app's
+  environment variables in the Webuzo dashboard before the `.env` file.
+
 ---
 
 ## Product rules — non-negotiable
