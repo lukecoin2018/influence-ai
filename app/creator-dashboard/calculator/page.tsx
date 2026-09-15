@@ -17,6 +17,7 @@ import { FormStepFinal } from "@/components/tools/calculator/FormStepFinal";
 import { ResultsPage } from "@/components/tools/calculator/ResultsPage";
 import { useCreatorTokenGate } from "@/hooks/useCreatorTokenGate";
 import { TokenGateModal } from "@/components/shared/TokenGateModal";
+import { track, useTrackOnMount } from "@/lib/dashboard/track";
 
 const TOTAL_STEPS = 4;
 const STEP_LABELS = ["Basics", "Deliverables", "Rights & Terms", "Final Details"];
@@ -38,6 +39,7 @@ const defaultInput: CalculatorInput = {
 export default function CalculatorPage() {
   const { user, creatorProfile, userRole } = useAuth();
   const router = useRouter();
+  useTrackOnMount('tool_opened', { tool: 'calculator' });
 
   const [step, setStep] = useState(1);
   const [input, setInput] = useState<CalculatorInput>(defaultInput);
@@ -135,6 +137,8 @@ export default function CalculatorPage() {
   const handleCalculate = async () => {
     const calculatedResult = calculateRate(input);
     setResult(calculatedResult);
+    // Enum and count facts only — not followers, engagement or the rates.
+    track('tool_used', { tool: 'calculator', niche: input.niche, deliverable_count: input.deliverables.length, platforms: [...new Set(input.deliverables.map((d) => d.platform))] });
 
     if (user) {
       setSaving(true);

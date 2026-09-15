@@ -24,6 +24,7 @@ import { Step4Flexibility } from "@/components/tools/negotiate/Step4Flexibility"
 import { ResponseOptions } from "@/components/tools/negotiate/ResponseOptions";
 import { useCreatorTokenGate } from "@/hooks/useCreatorTokenGate";
 import { TokenGateModal } from "@/components/shared/TokenGateModal";
+import { track, useTrackOnMount } from "@/lib/dashboard/track";
 
 const TOTAL_STEPS = 4;
 const STEP_LABELS = ["Stage", "Numbers", "Objection", "Flexibility"];
@@ -60,6 +61,7 @@ function NegotiatePageInner() {
   const { user, creatorProfile, userRole } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
+  useTrackOnMount('tool_opened', { tool: 'negotiate' });
 
   const [agreedPrice, setAgreedPrice] = useState("");
   const [step, setStep] = useState(1);
@@ -183,6 +185,9 @@ function NegotiatePageInner() {
 
     const generatedOptions = generateResponseOptions(input);
     setOptions(generatedOptions);
+    // The three enums only — not the amounts, the free-text objection,
+    // the deliverables description or either name.
+    track('tool_used', { tool: 'negotiate', stage: input.stage, objection_type: input.objectionType, flexibility: input.flexibility });
 
     if (user) {
       setSaving(true);

@@ -7,6 +7,7 @@ import { AccountLoadError } from '@/components/creator-dashboard/AccountLoadErro
 import type { CreatorBrandMatches } from '@/lib/reports/creator-brand-matches';
 import { useLocale } from '@/lib/i18n/use-locale';
 import { getDashboardStrings } from '@/lib/i18n/dashboard-strings';
+import { useTrackOnMount } from '@/lib/dashboard/track';
 
 type BrandMatchesResponse = CreatorBrandMatches & { detectedNiche: string | null };
 
@@ -16,6 +17,7 @@ export default function BrandsHiringPage() {
   // see the `locale` prop note in BrandsHiring.tsx.
   const locale = useLocale();
   const t = getDashboardStrings(locale);
+  useTrackOnMount('brands_hiring_opened');
 
   const [data, setData] = useState<BrandMatchesResponse | null>(null);
   const [dataLoading, setDataLoading] = useState(true);

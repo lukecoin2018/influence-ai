@@ -12,6 +12,10 @@ export default function AdminCreatorsPage() {
   const { user, userRole, loading } = useAuth();
   const router = useRouter();
   const [creators, setCreators] = useState<any[]>([]);
+  // creator_profile_id → v_creator_engagement row. null until the view has
+  // answered; stays null if it errors (0020 not applied yet), in which case
+  // the row line is simply not rendered rather than claiming "never".
+  const [engagement, setEngagement] = useState<Record<string, { last_event_at: string; event_count: number }> | null>(null);
   const [filter, setFilter] = useState<FilterType>('all');
   const [dataLoading, setDataLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -37,6 +41,15 @@ export default function AdminCreatorsPage() {
       if (error) throw error;
       if (seq !== requestSeq.current) return;
       setCreators(data ?? []);
+      // One batched read of the view for the rows just loaded — not one per
+      // row. Admin-only SELECT policy + security_invoker view (0020); a
+      // non-admin session would get zero rows, never an error.
+      const ids = (data ?? []).map((cp) => cp.id);
+      const { data: eng, error: engError } = ids.length
+        ? await supabase.from('v_creator_engagement').select('creator_profile_id, last_event_at, event_count').in('creator_profile_id', ids)
+        : { data: [], error: null };
+      if (seq !== requestSeq.current) return;
+      setEngagement(engError ? null : Object.fromEntries((eng ?? []).map((r) => [r.creator_profile_id, r])));
     } catch (err) {
       if (seq !== requestSeq.current) return;
       console.error('Failed to load creator_profiles:', err);
@@ -148,6 +161,13 @@ export default function AdminCreatorsPage() {
                     <p style={{ fontSize: '13px', color: '#6B7280', margin: '0 0 2px 0' }}>@{handle}</p>
                     {cp.custom_bio && <p style={{ fontSize: '13px', color: '#374151', margin: '4px 0 0 0', maxWidth: '500px' }}>{cp.custom_bio.slice(0, 120)}...</p>}
                     <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '6px 0 0 0' }}>Claimed: {new Date(cp.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                    {engagement && (
+                      <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '2px 0 0 0' }}>
+                        Last active: {engagement[cp.id]
+                          ? `${new Date(engagement[cp.id].last_event_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} · ${engagement[cp.id].event_count} events`
+                          : 'never'}
+                      </p>
+                    )}
                   </div>
                   <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                     {handle !== 'unknown' && (

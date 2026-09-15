@@ -522,6 +522,61 @@ select event_type, occurred_at, details from funnel_events
 where handle = 'somehandle' order by occurred_at;
 ```
 
+### Dashboard events — post-claim usage
+
+`creator_dashboard_events` (0020) is the **other** table: what a creator does
+inside `/creator-dashboard` after claiming. Not `funnel_events`, which stops at
+`verified` plus the three outreach events, and which stays exactly as it is.
+
+- **Path:** browser → `track()` in `lib/dashboard/track.ts` (fire-and-forget,
+  `keepalive`, swallows everything, no-op in SSR) → `POST /api/creator/events`
+  (session, then the caller's own `creator_profiles` row, then service-role
+  insert via `recordDashboardEvent()` in `lib/dashboard/events.ts`). No client
+  insert, no anon-key write. The insert is **awaited**, not `after()`, because
+  the route's 2-second per-profile, per-type dedupe reads the latest row first.
+- **Event types are the TypeScript union, not a CHECK.** Adding one is a code
+  change only: extend `DashboardEventType` and `ALLOWED_DETAIL_KEYS` in
+  `lib/dashboard/events.ts`, add the call site. No migration. The view gets a
+  `has_<type>` column only if you add one; the counts include it regardless.
+- **Events and their `details` keys:**
+
+  | event | fires when | details |
+  |---|---|---|
+  | `dashboard_opened` | `/creator-dashboard` mounts | — |
+  | `brands_hiring_opened` | `/brands-hiring` mounts | — |
+  | `brand_card_action` | the card's Contact link is clicked | `canonical_name`, `platform`, `action: 'contact_brand'` |
+  | `tool_opened` | calculator / contract / negotiate mounts | `tool` |
+  | `tool_used` | rate calculated / preview opened / script generated | `tool` + enums and counts only |
+  | `media_kit_opened` | `/media-kit` mounts | — |
+  | `media_kit_uploaded` | a PDF is stored | `file_type`, `size_kb` |
+  | `profile_edited` | `/edit` save succeeds | `fields_changed: string[]` |
+
+  There is no `brand_id`; brands are keyed by `canonical_name` everywhere.
+  `fields_changed` is diffed against the form as loaded (including scraped
+  fallbacks), not against the row, so an untouched form reports `[]`.
+- **No PII in `details`, ever.** No emails, names, free text, amounts or brand
+  contact data. The route strips any key not in the per-type allowlist and
+  drops the whole object over 2 KB, so a client bug cannot smuggle any in.
+- **Pending creators are counted once.** The lock overlay still mounts every
+  page underneath it, so the route records `dashboard_opened` for any
+  `claim_status` and answers 204 without inserting for every other type unless
+  the claim is `verified`. The rule lives in the route, not in the pages.
+- **Mount events fire once per mount** via `useTrackOnMount()`, ref-guarded,
+  so dev's Strict Mode double-effect still fires once.
+- **Reporting:** `v_creator_engagement`, one row per creator with
+  `first_event_at`, `last_event_at`, `event_count`, `distinct_days`, a
+  `has_*` per type, plus `claim_status` and `claimed_at` joined in.
+  `security_invoker`, readable only by admins (the table's single policy is
+  an admin SELECT; writes stay service-role). `/admin/creators` reads it in
+  one batched query for its `Last active:` line.
+
+  ```sql
+  select * from v_creator_engagement where last_event_at > claimed_at;
+
+  select event_type, created_at, details from creator_dashboard_events
+  where creator_profile_id = '<uuid>' order by created_at;
+  ```
+
 ---
 
 ## Known open items — parked deliberately, don't re-raise as discoveries

@@ -3,16 +3,47 @@
 // app/creator-dashboard/edit/page.tsx
 // Creator edit profile — bio, availability, preferences
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/context/AuthContext';
 import { AccountLoadError } from '@/components/creator-dashboard/AccountLoadError';
+import { track } from '@/lib/dashboard/track';
 
 const INDUSTRIES = ['Fashion', 'Beauty', 'Travel', 'Food & Beverage', 'Tech', 'Fitness', 'Lifestyle', 'Gaming', 'Music', 'Sports'];
 
+/** The seven columns the form writes, normalized exactly as handleSave writes them. */
+type ProfileFields = {
+  display_name: string | null;
+  custom_bio: string | null;
+  website: string | null;
+  availability_status: string;
+  availability_note: string | null;
+  preferred_categories: string[] | null;
+  min_budget: number | null;
+};
+
+function toProfileFields(v: { displayName: string; customBio: string; website: string; availabilityStatus: string; availabilityNote: string; preferredCategories: string[]; minBudget: string }): ProfileFields {
+  return {
+    display_name: v.displayName || null,
+    custom_bio: v.customBio || null,
+    website: v.website || null,
+    availability_status: v.availabilityStatus,
+    availability_note: v.availabilityNote || null,
+    preferred_categories: v.preferredCategories.length > 0 ? v.preferredCategories : null,
+    min_budget: v.minBudget ? parseFloat(v.minBudget) : null,
+  };
+}
+
 export default function EditProfilePage() {
   const { user, userRole, creatorProfile, loading, authError } = useAuth();
+
+  // What the form held when it finished loading — including the scraped/AI
+  // fallbacks below, which are NOT in creator_profiles. profile_edited's
+  // fields_changed is diffed against this, not against creatorProfile:
+  // diffing against the row would report display_name and custom_bio as
+  // changed on every first save even when the creator touched nothing.
+  const initialFields = useRef<ProfileFields | null>(null);
 
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -47,13 +78,23 @@ export default function EditProfilePage() {
       const socialBio = socialProfiles[0]?.bio ?? null;
 
       // Use saved value if set, otherwise fall back to scraped/AI data
-      setDisplayName(creatorProfile!.display_name ?? summary?.name ?? '');
-      setCustomBio(creatorProfile!.custom_bio ?? aiSummary ?? socialBio ?? '');
-      setWebsite(creatorProfile!.website ?? '');
-      setAvailabilityStatus(creatorProfile!.availability_status ?? 'open');
-      setAvailabilityNote(creatorProfile!.availability_note ?? '');
-      setPreferredCategories(creatorProfile!.preferred_categories ?? []);
-      setMinBudget(creatorProfile!.min_budget ? String(creatorProfile!.min_budget) : '');
+      const loaded = {
+        displayName: creatorProfile!.display_name ?? summary?.name ?? '',
+        customBio: creatorProfile!.custom_bio ?? aiSummary ?? socialBio ?? '',
+        website: creatorProfile!.website ?? '',
+        availabilityStatus: creatorProfile!.availability_status ?? 'open',
+        availabilityNote: creatorProfile!.availability_note ?? '',
+        preferredCategories: creatorProfile!.preferred_categories ?? [],
+        minBudget: creatorProfile!.min_budget ? String(creatorProfile!.min_budget) : '',
+      };
+      setDisplayName(loaded.displayName);
+      setCustomBio(loaded.customBio);
+      setWebsite(loaded.website);
+      setAvailabilityStatus(loaded.availabilityStatus);
+      setAvailabilityNote(loaded.availabilityNote);
+      setPreferredCategories(loaded.preferredCategories);
+      setMinBudget(loaded.minBudget);
+      initialFields.current = toProfileFields(loaded);
       setDataLoading(false);
     }
 
@@ -74,16 +115,8 @@ export default function EditProfilePage() {
     setSaving(true);
     setError('');
 
-    const updates = {
-      display_name: displayName || null,
-      custom_bio: customBio || null,
-      website: website || null,
-      availability_status: availabilityStatus,
-      availability_note: availabilityNote || null,
-      preferred_categories: preferredCategories.length > 0 ? preferredCategories : null,
-      min_budget: minBudget ? parseFloat(minBudget) : null,
-      updated_at: new Date().toISOString(),
-    };
+    const fields = toProfileFields({ displayName, customBio, website, availabilityStatus, availabilityNote, preferredCategories, minBudget });
+    const updates = { ...fields, updated_at: new Date().toISOString() };
 
     const { error: updateError } = await supabase
       .from('creator_profiles')
@@ -95,6 +128,14 @@ export default function EditProfilePage() {
     } else {
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
+      // Column names only, never the values. Diffed against the post-load
+      // snapshot; then the snapshot moves forward so a second save reports
+      // only what changed since the first.
+      const before = initialFields.current;
+      const fieldsChanged = (Object.keys(fields) as (keyof ProfileFields)[])
+        .filter((k) => !before || JSON.stringify(before[k]) !== JSON.stringify(fields[k]));
+      initialFields.current = fields;
+      track('profile_edited', { fields_changed: fieldsChanged });
     }
     setSaving(false);
   }

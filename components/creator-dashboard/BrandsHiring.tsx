@@ -16,6 +16,7 @@ import { BrandMatchCard } from '@/components/brand-matches/BrandMatchCard';
 import { getClaimStrings, type Locale } from '@/app/claim/[handle]/_strings';
 import { getDashboardStrings } from '@/lib/i18n/dashboard-strings';
 import { BRANDS_HIRING_GATING_ENABLED, BRANDS_HIRING_FREE_TIER_LIMIT } from '@/lib/reports/brands-hiring-config';
+import { track } from '@/lib/dashboard/track';
 
 const GREY = '#3A3A3A';
 
@@ -186,6 +187,10 @@ export function BrandsHiring({ matches, creatorFollowers, detectedNiche, outreac
                     label: getClaimStrings(locale).brandMatchCard.contactBrand(match.canonicalName),
                     href: `${outreachBasePath}?brand=${encodeURIComponent(match.canonicalName)}`,
                     icon: Pencil,
+                    // The card's only action today, so the only `action` value.
+                    // Only wired when an outreachBasePath exists, so the admin
+                    // preview (which passes none) records nothing.
+                    onClick: () => track('brand_card_action', { canonical_name: match.canonicalName, platform: match.platform, action: 'contact_brand' }),
                   }] : undefined}
                 />
               ))}

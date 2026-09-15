@@ -58,6 +58,13 @@ export interface BrandMatchCardAction {
   label: string;
   href: string;
   icon: LucideIcon;
+  /**
+   * Optional, forwarded to the <Link> untouched. The dashboard uses it to
+   * record brand_card_action before the navigation; the teaser and signup
+   * form pass nothing and are unchanged. Never preventDefault here — the
+   * action IS the navigation.
+   */
+  onClick?: () => void;
 }
 
 export interface BrandMatchCardProps {
@@ -173,6 +180,7 @@ export function BrandMatchCard({ match, creatorFollowers, actions, locale = 'en'
                 <Link
                   key={action.label}
                   href={action.href}
+                  onClick={action.onClick}
                   style={{
                     flex: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 7, height: 42,
                     borderRadius: 999, textDecoration: 'none', fontSize: 13, fontWeight: 700,
