@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
 import { supabase } from '@/lib/supabase'
 import { describeActivity, targetTableFor, type ActivityRow } from '@/lib/admin/activity-log'
+import { CREATOR_HANDLE_SELECT, primaryHandle } from '@/lib/admin/primary-handle'
 
 interface Stats {
   totalCreators: number
@@ -103,7 +104,7 @@ export default function AdminOverviewPage() {
         // then the handle.
         ? supabase
             .from('creator_profiles')
-            .select('id, display_name, creators!creator_id(display_name, instagram_handle)')
+            .select(`id, display_name, ${CREATOR_HANDLE_SELECT}`)
             .in('id', [...creatorIds])
         : Promise.resolve({ data: [] as any[] }),
     ])
@@ -116,10 +117,8 @@ export default function AdminOverviewPage() {
 
     for (const c of (creators.data ?? []) as any[]) {
       const joined = Array.isArray(c.creators) ? c.creators[0] : c.creators
-      const name =
-        c.display_name ??
-        joined?.display_name ??
-        (joined?.instagram_handle ? `@${joined.instagram_handle}` : null)
+      const handle = primaryHandle(joined?.social_profiles)
+      const name = c.display_name ?? joined?.display_name ?? (handle ? `@${handle}` : null)
       if (c?.id && name) next[c.id] = name
     }
 
