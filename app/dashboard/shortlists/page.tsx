@@ -33,6 +33,9 @@ interface Shortlist {
   item_count: number;
 }
 
+/** A shortlists row as the `shortlist_items(count)` join returns it. */
+type ShortlistRow = Omit<Shortlist, 'item_count'> & { shortlist_items?: { count: number }[] };
+
 export default function ShortlistsPage() {
   const { user, loading } = useAuth();
   const [shortlists, setShortlists] = useState<Shortlist[]>([]);
@@ -43,36 +46,35 @@ export default function ShortlistsPage() {
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    if (user) load();
     // The layout redirects when there is no session, so there is no
     // router.push('/login') here — it would race that redirect.
-  }, [user]);
+    if (!user) return;
+    let cancelled = false;
 
-  async function load() {
-    setDataLoading(true);
-    setLoadError(null);
-
-    const { data, error } = await supabase
+    supabase
       .from('shortlists')
       .select('*, shortlist_items(count)')
-      .eq('brand_id', user!.id)
-      .order('created_at', { ascending: false });
+      .eq('brand_id', user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          console.error('Failed to load shortlists:', error);
+          setLoadError('Could not load your shortlists.');
+          setDataLoading(false);
+          return;
+        }
+        setShortlists(
+          ((data ?? []) as ShortlistRow[]).map((s) => ({
+            ...s,
+            item_count: s.shortlist_items?.[0]?.count ?? 0,
+          })),
+        );
+        setDataLoading(false);
+      });
 
-    if (error) {
-      console.error('Failed to load shortlists:', error);
-      setLoadError('Could not load your shortlists.');
-      setDataLoading(false);
-      return;
-    }
-
-    setShortlists(
-      (data ?? []).map((s: any) => ({
-        ...s,
-        item_count: s.shortlist_items?.[0]?.count ?? 0,
-      })),
-    );
-    setDataLoading(false);
-  }
+    return () => { cancelled = true; };
+  }, [user]);
 
   async function createShortlist() {
     const name = newListName.trim();
