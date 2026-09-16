@@ -14,7 +14,15 @@ import { Footer } from './_components/Footer';
 
 export const revalidate = 3600;
 
-const STATS_TIMEOUT_MS = 10_000;
+// 30 s, up from 10 s (2026-09-16). public_stats() measured 7.8 s on a cold
+// call with the service-role client and 0.25 s warm; during `next build` the
+// database is also serving top_creators, the featured pool and the discover
+// pages, so the cold call crossed 10 s and both log lines below fired on
+// every build, leaving the prerendered page on FALLBACK_STATS for its first
+// hour. The function body lives only in Supabase and has not been read yet,
+// so a cheaper query or an index is not yet possible; this keeps the page
+// static and only lengthens a build in the worst case.
+const STATS_TIMEOUT_MS = 30_000;
 
 // Same rationale and same last-known-good snapshot as app/opengraph-image.tsx's
 // FALLBACK_STATS: this route is statically prerendered at build time too, and a
