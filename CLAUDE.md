@@ -89,11 +89,18 @@ Vercel has been clean throughout. Every environment-specific bug has been the VP
 
 ```
 cd /home/lukelmg/public_html/influenceit.app \
+  && git checkout -- package-lock.json \
   && git pull origin main \
-  && npm install \
+  && npm ci \
   && rm -rf .next \
   && npm run build
 ```
+
+`npm ci`, not `npm install`: install rewrote `package-lock.json` on the VPS
+and the dirty file blocked the next `git pull` (2026-09-14). The
+`git checkout -- package-lock.json` before the pull is belt and braces for a
+box that already has a rewritten lockfile. Node on the VPS is 24.x; the
+lockfile is v3 and `npm ci` was verified against it locally on 2026-09-16.
 
 Then restart **InfluenceIT** in the Webuzo dashboard.
 
