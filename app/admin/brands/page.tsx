@@ -149,6 +149,13 @@ export default function AdminBrandsPage() {
                   {brand.approval_status !== 'approved' && <button onClick={() => updateStatus(brand.id, 'approved')} disabled={actionLoading === brand.id + 'approved'} style={{ padding: '7px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#ECFDF5', color: '#065F46' }}>✅ Approve</button>}
                   {brand.approval_status !== 'rejected' && <button onClick={() => updateStatus(brand.id, 'rejected')} disabled={actionLoading === brand.id + 'rejected'} style={{ padding: '7px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FEF2F2', color: '#991B1B' }}>❌ Reject</button>}
                   {brand.approval_status === 'approved' && <button onClick={() => updateStatus(brand.id, 'suspended')} disabled={actionLoading === brand.id + 'suspended'} style={{ padding: '7px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#F3F4F6', color: '#6B7280' }}>🚫 Suspend</button>}
+                  {/* Every other status could be reached from the UI except this one.
+                      A suspended brand offered only Approve and Reject, so putting one
+                      back into the queue meant editing approval_status by hand in SQL.
+                      The route already accepts 'pending' — it validates against the same
+                      four values migration 0016's CHECK permits — so this was only ever
+                      a missing button. */}
+                  {(brand.approval_status ?? 'pending') !== 'pending' && <button onClick={() => updateStatus(brand.id, 'pending')} disabled={actionLoading === brand.id + 'pending'} style={{ padding: '7px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FFFBEB', color: '#92400E' }}>↩️ Move to Pending</button>}
                 </div>
               </div>
             </div>
