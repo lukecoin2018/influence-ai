@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { render } from '@react-email/components';
+import { render } from 'react-email';
 import type { ReactElement } from 'react';
 
 /**
@@ -105,10 +105,13 @@ export async function sendEmail(opts: SendEmailOptions): Promise<SendEmailResult
 
   try {
     // Both bodies rendered here, not by the SDK. Passing `react` makes the
-    // Resend SDK dynamic-import @react-email/render itself, and npm nests that
-    // package under @react-email/components where the SDK cannot resolve it —
-    // the smoke test failed with "Failed to render React component" on
-    // 2026-09-14. Rendering here removes the dependency on hoisting.
+    // Resend SDK dynamic-import @react-email/render itself, and when that
+    // package was nested under @react-email/components the SDK could not
+    // resolve it — the smoke test failed with "Failed to render React
+    // component" on 2026-09-14. The components now come from `react-email`
+    // (2026-09-16, the @react-email/* packages were deprecated on npm) and
+    // `render` is re-exported from it; rendering here still keeps the send
+    // independent of how npm happens to hoist that package.
     const [html, text] = await Promise.all([
       render(opts.react),
       render(opts.react, { plainText: true }),

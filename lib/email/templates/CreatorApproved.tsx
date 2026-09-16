@@ -1,4 +1,4 @@
-import { Body, Button, Container, Head, Hr, Html, Preview, Text } from '@react-email/components';
+import { Body, Button, Container, Head, Hr, Html, Preview, Text } from 'react-email';
 
 /**
  * Sent once, from app/api/admin/creators/status/route.ts, when a creator's

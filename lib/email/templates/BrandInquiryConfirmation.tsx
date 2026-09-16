@@ -1,4 +1,4 @@
-import { Body, Container, Head, Heading, Html, Link, Preview, Section, Text } from '@react-email/components';
+import { Body, Container, Head, Heading, Html, Link, Preview, Section, Text } from 'react-email';
 
 /**
  * The confirmation a brand receives after filing an inquiry, sent from
