@@ -89,27 +89,67 @@ Vercel has been clean throughout. Every environment-specific bug has been the VP
 
 ```
 cd /home/lukelmg/public_html/influenceit.app \
+  && git checkout -- package-lock.json \
   && git pull origin main \
-  && npm install \
+  && npm ci \
   && rm -rf .next \
   && npm run build
 ```
 
-Then restart **InfluenceIT** in the Webuzo dashboard.
+`npm ci`, not `npm install`: install rewrote `package-lock.json` on the VPS
+and the dirty file blocked the next `git pull` (2026-09-14). The
+`git checkout -- package-lock.json` before the pull is belt and braces for a
+box that already has a rewritten lockfile. Node on the VPS is 24.x; the
+lockfile is v3 and `npm ci` was verified against it locally on 2026-09-16.
 
-- Four Webuzo apps run on that box. **InfluenceIT is port 30001.** `lmg.media` is
+Then restart the process **by port**. Webuzo's Stop/Start for this app
+currently errors (support ticket open), and a `pgrep` for `next start` misses
+the `next-server` child, so never restart by process name:
+
+```
+fuser -k 30001/tcp; sleep 3
+su - lukelmg -c 'cd /home/lukelmg/public_html/influenceit.app && setsid nohup npx next start -p 30001 > /home/lukelmg/next-30001.log 2>&1 < /dev/null &'
+```
+
+- The app is a Webuzo "Self Managed" Node app. Four `next-server` processes
+  run on that box, one per app, and **only 30001 is this repo**: `lmg.media` is
   30000, the scraper 30002, `creators.lmg.media` 30003.
 - The old chain ended `fuser -k 30000/tcp && pm2 restart all`, which restarts a
   *different site*. InfluenceIT kept serving its old build from memory while
   `.next` was replaced underneath — producing `ChunkLoadError` and, for a whole
   day, a stale client running against a new server.
 - pm2 manages only the old `lmgmedia` app. Its logs are not InfluenceIT's.
-- Nothing supervises the Node process. Killing it does **not** respawn it; use the
-  Webuzo dashboard.
+- Nothing supervises the Node process. Killing it does **not** respawn it; the
+  `setsid nohup` line above is what brings it back.
+- The VPS env file is `.env.local` (`next build` prints `Environments:
+  .env.local` there). Webuzo panel environment variables **override** it and
+  must be unquoted. The file must end with a newline: a missing one glued two
+  variables together on 2026-09-14.
 - `rm -rf .next` before building is required.
 - Hard-refresh after deploying. An incognito window is the cleanest way to tell a
   cache problem from a real one.
 - Vercel green before VPS.
+
+### Env var inventory
+
+Names only, from `process.env` reads in `app`, `lib` and `scripts`. Every name
+below must exist in all three places: Mac `.env.local`, VPS `.env.local` plus
+the Webuzo panel, and Vercel.
+
+- Supabase: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+  `SUPABASE_SERVICE_ROLE_KEY`
+- Admin: `ADMIN_USER_ID`, `ADMIN_EMAIL`
+- Email: `RESEND_API_KEY`, `EMAIL_FROM`
+- Cron: `CRON_SECRET`
+- Scraper and AI: `APIFY_API_TOKEN`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`
+- Stripe: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
+  `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_BRAND_STARTER_PRICE_ID`,
+  `STRIPE_BRAND_GROWTH_PRICE_ID`, `STRIPE_BRAND_PRO_PRICE_ID`,
+  `STRIPE_CREATOR_STARTER_PRICE_ID`, `STRIPE_CREATOR_ACTIVE_PRICE_ID`,
+  `STRIPE_CREATOR_TOPUP_100_PRICE_ID`, `STRIPE_CREATOR_TOPUP_250_PRICE_ID`
+
+Production only: `NEXT_PUBLIC_SITE_URL` (unset on the Mac on purpose).
+Dead: `GMAIL_USER`, `GMAIL_APP_PASSWORD` (see Email).
 
 **Confirm the new build is actually being served.** The Node process is not
 supervised, so a build with a stale process is the failure mode above. Check
@@ -304,7 +344,7 @@ influenceit.app is verified in Resend, region eu-west-1, since 2026-09-14.
 Never SMTP: the old transport was nodemailer over a Gmail app password, which
 caps around 500 a day and lands in spam for anyone who is not us.
 
-- Two env vars, set in `.env.local`, the VPS `.env` and Vercel:
+- Two env vars, set in `.env.local`, the VPS `.env.local` and Vercel:
   `RESEND_API_KEY` and `EMAIL_FROM` (`InfluenceIT <noreply@influenceit.app>`).
   Never print the key.
 - `GMAIL_USER` and `GMAIL_APP_PASSWORD` are **dead** since the nodemailer
@@ -372,10 +412,10 @@ back to `/creator-dashboard/verify`, which mints a fresh code on load.
 
   Response is `{ checked, eligible, beyondCap, sent, failed, skipped, ids }`
   with masked emails only. Safe to repeat: the second call sends nothing.
-- **Webuzo panel variables override `.env` on the VPS** (learned
+- **Webuzo panel variables override `.env.local` on the VPS** (learned
   2026-09-14, when a run-together `NEXT_PUBLIC_SITE_URL` came from the
   panel, not the file). If a value on the VPS looks wrong, check the app's
-  environment variables in the Webuzo dashboard before the `.env` file.
+  environment variables in the Webuzo dashboard before the `.env.local` file.
 
 ---
 

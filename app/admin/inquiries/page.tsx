@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
+import { primaryHandle } from '@/lib/admin/primary-handle';
 
 export default function AdminInquiriesPage() {
   const { user, userRole, loading } = useAuth();
@@ -24,7 +25,7 @@ export default function AdminInquiriesPage() {
     try {
       const { data, error } = await supabase
         .from('inquiries')
-        .select('*, brand_profiles(company_name, email), creators!creator_id(display_name, instagram_handle, contact_email)')
+        .select('*, brand_profiles(company_name, email), creators!creator_id(display_name, contact_email, social_profiles(platform, handle))')
         .order('created_at', { ascending: false });
       if (error) throw error;
       setInquiries(data ?? []);
@@ -58,7 +59,7 @@ export default function AdminInquiriesPage() {
           {inquiries.map((inq) => {
             const creator = inq.creators as any;
             const brand = inq.brand_profiles as any;
-            const handle = creator?.instagram_handle ?? creator?.tiktok_handle ?? 'unknown';
+            const handle = primaryHandle(creator?.social_profiles) ?? 'unknown';
             return (
               <div key={inq.id} style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '20px 24px' }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>

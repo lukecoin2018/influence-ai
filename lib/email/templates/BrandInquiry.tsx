@@ -1,4 +1,4 @@
-import { Body, Container, Head, Heading, Hr, Html, Preview, Section, Text } from '@react-email/components';
+import { Body, Container, Head, Heading, Hr, Html, Preview, Section, Text } from 'react-email';
 
 /**
  * The admin notification for a brand → creator inquiry, sent to ADMIN_EMAIL

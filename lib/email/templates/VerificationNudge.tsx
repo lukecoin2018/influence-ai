@@ -1,4 +1,4 @@
-import { Body, Button, Container, Head, Hr, Html, Preview, Text } from '@react-email/components';
+import { Body, Button, Container, Head, Hr, Html, Preview, Text } from 'react-email';
 
 /**
  * Sent once per profile, from app/api/cron/verification-nudge/route.ts, to a

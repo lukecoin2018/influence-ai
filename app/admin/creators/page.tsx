@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { countLine, describeEvent, type DashboardEventRow, type EngagementCounts } from '@/lib/admin/dashboard-event-labels';
+import { CREATOR_HANDLE_SELECT, primaryHandle } from '@/lib/admin/primary-handle';
 
 type FilterType = 'all' | 'pending' | 'verified' | 'rejected';
 
@@ -50,7 +51,7 @@ export default function AdminCreatorsPage() {
     setDataLoading(true);
     setLoadError(null);
     try {
-      let query = supabase.from('creator_profiles').select('*, creators!creator_id(display_name, instagram_handle)').order('created_at', { ascending: false });
+      let query = supabase.from('creator_profiles').select(`*, ${CREATOR_HANDLE_SELECT}`).order('created_at', { ascending: false });
       if (filter !== 'all') query = query.eq('claim_status', filter);
       const { data, error } = await query;
       if (error) throw error;
@@ -184,7 +185,7 @@ export default function AdminCreatorsPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {creators.map((cp) => {
             const creatorData = (cp.creators as any) ?? {};
-            const handle = creatorData.instagram_handle ?? creatorData.tiktok_handle ?? 'unknown';
+            const handle = primaryHandle(creatorData.social_profiles) ?? 'unknown';
             const eng = engagement?.[cp.id];
             // '' before 0021 (no n_* columns) and for a creator with no
             // events; the line is omitted in both cases.
