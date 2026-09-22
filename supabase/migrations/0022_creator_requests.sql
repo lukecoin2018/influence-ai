@@ -1,14 +1,15 @@
 -- 0022_creator_requests.sql
 --
--- STATUS: NOT YET APPLIED. Lukas applies this by hand in the Supabase SQL
--- editor before the deploy that ships app/api/creators/request; update this
--- header with the date once it is live.
+-- STATUS: APPLIED 2026-09-22, by hand in the Supabase SQL editor, and verified
+-- there: the partial unique index rejected a second open request for the same
+-- handle with 23505 and accepted one after the first was declined, and an
+-- anon-key select returns zero rows.
 --
 -- Creators asking to be ADDED to the database — the other end of the claim
--- funnel. Today a creator whose handle we have not scraped reaches the signup
--- form, is told "we'll add you and notify you when your profile is ready",
--- and nothing happens: there is no notification system and nothing recorded
--- the request. This table is what records it.
+-- funnel. Before this, a creator whose handle we had not scraped reached the
+-- signup form, was told "we'll add you and notify you when your profile is
+-- ready", and nothing happened: there was no notification system and nothing
+-- recorded the request. This table is what records it.
 --
 -- Instagram only for now. The `platform` column exists, defaults to
 -- 'instagram' and is part of the unique index, but the form's TikTok option
@@ -121,13 +122,31 @@ comment on column creator_requests.creator_id is
   'Set by the fulfil pass when a creators row with this handle appears. NULL until then.';
 
 -- ── VERIFICATION ───────────────────────────────────────────────────────────
--- After applying:
---   select policyname, cmd, roles from pg_policies where tablename = 'creator_requests';
--- expect exactly one row: admins_can_read_creator_requests | SELECT | {authenticated}.
 --
---   insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
---   insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
--- the second must fail with 23505; then
---   update creator_requests set status = 'declined' where handle = 'x';
---   insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
--- must succeed. Clean up with: delete from creator_requests where handle = 'x';
+-- READ THIS FIRST: step 3 below is SUPPOSED to raise an error. Every other
+-- statement in this file must succeed, so an error there is a failure — but in
+-- step 3 the error IS the passing result, and a silent success would mean the
+-- partial unique index is not doing its job. Run the five steps ONE AT A TIME:
+-- the SQL editor wraps a multi-statement run in a transaction, so pasting them
+-- together rolls the whole sequence back on step 3's expected error and proves
+-- nothing.
+--
+-- 1. MUST return exactly one row —
+--      admins_can_read_creator_requests | SELECT | {authenticated}
+--    select policyname, cmd, roles from pg_policies where tablename = 'creator_requests';
+--
+-- 2. MUST succeed:
+--    insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
+--
+-- 3. MUST FAIL, with: 23505 duplicate key value violates unique constraint
+--    "idx_creator_requests_open_handle". This is the passing result — one OPEN
+--    request per handle. If it succeeds, the index is missing or not partial.
+--    insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
+--
+-- 4. MUST succeed, both of them — a handle is requestable again once the
+--    previous request is resolved, which is why the index is partial:
+--    update creator_requests set status = 'declined' where handle = 'x';
+--    insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
+--
+-- 5. Clean up. MUST remove the two rows steps 2 and 4 left behind:
+--    delete from creator_requests where handle = 'x';
