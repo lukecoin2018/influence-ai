@@ -461,10 +461,22 @@ creator hit a dead end and two strings that lied to them.
   **where `status = 'new'`** — one OPEN request per handle, but a declined or
   fulfilled handle can be requested again. RLS: one admin SELECT policy, writes
   service-role only, same lockdown as `creator_dashboard_events`.
-- **Instagram only.** The form shows TikTok disabled and the route rejects it,
-  because TikTok verification has never run successfully (see "Known open
-  items") — inviting TikTok creators in would fill the queue with people we
-  cannot finish serving.
+- **Instagram and TikTok.** The form's platform `<select>` is built from
+  `REQUEST_PLATFORMS` in `lib/creator-requests/shared.ts` and the route
+  validates against the same list — `creator_requests.platform` has no CHECK,
+  so that constant is the whitelist. Absent means Instagram, an unknown string
+  is a 400. The handle field's label, placeholder and hint all follow the
+  selected platform, and `normalizeRequestHandle()` accepts
+  `tiktok.com/@handle` as well as `instagram.com/handle`.
+- **`profileUrl()` and `platformLabel()`, both in that same module, are the
+  only places a profile URL is built.** The two shapes differ by more than the
+  domain — TikTok puts the `@` back in the path — and the admin queue and the
+  admin notification email must never disagree about where a handle lives.
+- **Open, and it predates this:** TikTok verification has never run
+  successfully (see "Known open items"). A TikTok creator can now be requested,
+  added, and sent `RequestFulfilled`, whose copy says claiming unlocks the
+  dashboard — and they will then hit a bio-code step nobody has proven works.
+  The request side is fine; the promise at the end of it is the thing to watch.
 - **Three entry points**, each naming itself in `?from=`: the signup form's
   handle-not-found line (`signup_not_found`), the `/claim/[handle]` not-found
   page (`claim_not_found`), and the footer (`footer`). Anything else stores as

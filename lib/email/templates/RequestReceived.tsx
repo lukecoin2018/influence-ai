@@ -11,6 +11,11 @@ import { Body, Container, Head, Hr, Html, Preview, Text } from 'react-email';
  * commitment here is conditional: IF we add the handle, one more email
  * follows. That one is RequestFulfilled, and the cron pass is what sends it.
  *
+ * Platform-neutral wording. It used to say "add Instagram creators who fit";
+ * requests now accept TikTok too, and a TikTok creator reading that sentence
+ * would reasonably conclude their request had been filed under the wrong
+ * thing. The handle in the body is the only identifier it needs.
+ *
  * Same visual rules as CreatorApproved.tsx and VerificationNudge.tsx: flat, no
  * images, no tracking pixels. No button — there is nothing for the creator to
  * do, and a button would imply there is.
@@ -34,7 +39,7 @@ export function RequestReceived({ handle }: RequestReceivedProps) {
         <Container style={{ maxWidth: '560px', margin: '0 auto', padding: '32px 24px' }}>
           <Text style={{ fontSize: '16px', lineHeight: '24px', margin: '0 0 16px' }}>Hi,</Text>
           <Text style={{ fontSize: '16px', lineHeight: '24px', margin: '0 0 16px' }}>
-            Thanks for asking to be added to InfluenceIT. We review every request by hand and add Instagram creators who fit the database.
+            Thanks for asking to be added to InfluenceIT. We review every request by hand and add creators who fit the database.
           </Text>
           <Text style={{ fontSize: '16px', lineHeight: '24px', margin: '0 0 24px' }}>
             If we add @{handle}, you&apos;ll get one more email with a link to claim your profile. No need to do anything now.

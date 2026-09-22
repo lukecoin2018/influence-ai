@@ -5,17 +5,35 @@
 -- handle with 23505 and accepted one after the first was declined, and an
 -- anon-key select returns zero rows.
 --
+-- One statement below changed AFTER that: the `comment on column
+-- creator_requests.platform` text, when TikTok was enabled. It is
+-- documentation only — nothing reads it and no behaviour depends on it — so
+-- the live comment is one revision behind until that single statement is
+-- re-run. Re-running it is safe and idempotent.
+--
 -- Creators asking to be ADDED to the database — the other end of the claim
 -- funnel. Before this, a creator whose handle we had not scraped reached the
 -- signup form, was told "we'll add you and notify you when your profile is
 -- ready", and nothing happened: there was no notification system and nothing
 -- recorded the request. This table is what records it.
 --
--- Instagram only for now. The `platform` column exists, defaults to
--- 'instagram' and is part of the unique index, but the form's TikTok option
--- is disabled and the route rejects anything else — TikTok verification has
--- never run successfully (CLAUDE.md, "Known open items"), so inviting TikTok
--- creators in would fill the queue with people we cannot finish serving.
+-- Instagram AND TikTok. `platform` defaults to 'instagram' (so a row written
+-- without it means Instagram) and is part of the unique index, so the same
+-- handle on the two platforms is two separate requests — which it is, they
+-- are two different accounts.
+--
+-- There is deliberately NO CHECK on this column: the whitelist is
+-- REQUEST_PLATFORMS in lib/creator-requests/shared.ts, which the route
+-- validates against and the form's <select> is built from. Adding a third
+-- platform is then a code change, the same call 0020 made for its event
+-- types. The cost is that a hand-written row can carry anything, which is why
+-- profileUrl() in that module falls back to Instagram rather than throwing.
+--
+-- NOTE, and it is not a schema problem: TikTok verification has never run
+-- successfully (CLAUDE.md, "Known open items"). A TikTok creator can be
+-- requested, added and sent a claim link, and will then hit a bio-code step
+-- that has never been proven to work. That is tracked as an open item, not
+-- here.
 --
 -- ── WHAT WRITES HERE ───────────────────────────────────────────────────────
 --
@@ -109,7 +127,7 @@ create policy admins_can_read_creator_requests
 comment on table creator_requests is
   'Creators asking to be added to the database. Written only by service_role (app/api/creators/request, app/api/admin/creator-requests/status, the auto-fulfil pass in app/api/cron/verification-nudge). RLS: no write policy for anon/authenticated; one admin-only SELECT policy for /admin/creators.';
 comment on column creator_requests.platform is
-  'instagram only today. The column and the unique index are ready for tiktok; the route rejects it until TikTok verification works.';
+  'instagram | tiktok. No CHECK: the whitelist is REQUEST_PLATFORMS in lib/creator-requests/shared.ts, validated by app/api/creators/request. Part of the unique index, so the same handle on both platforms is two separate requests.';
 comment on column creator_requests.handle is
   'Normalized the same way every other handle in this repo is: @ stripped, URL stripped, lowercased. Matches social_profiles.handle so the fulfil pass can join on it directly.';
 comment on column creator_requests.status is

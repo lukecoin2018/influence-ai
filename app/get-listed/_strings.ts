@@ -1,4 +1,5 @@
 import type { Locale } from '@/app/claim/[handle]/_strings';
+import type { RequestPlatform } from '@/lib/creator-requests/shared';
 
 /**
  * en/es copy for /get-listed.
@@ -39,13 +40,19 @@ export interface GetListedStrings {
   subtitle: string;
 
   platformLabel: string;
-  platformInstagram: string;
-  /** The disabled TikTok option. Says why, rather than just being greyed out. */
-  platformTikTokSoon: string;
 
-  handleLabel: string;
-  handlePlaceholder: string;
-  handleHelp: string;
+  /**
+   * The three handle-field strings all take the SELECTED platform, because all
+   * three genuinely differ: TikTok handles are written with the `@` and
+   * Instagram's are not, and the hint has to name the domain whose links are
+   * accepted or it is telling the creator nothing they can act on.
+   *
+   * `RequestPlatform`, not a boolean — a third platform is then a compile
+   * error here rather than a silent "not TikTok, so Instagram".
+   */
+  handleLabel: (platform: RequestPlatform) => string;
+  handlePlaceholder: (platform: RequestPlatform) => string;
+  handleHelp: (platform: RequestPlatform) => string;
 
   emailLabel: string;
   emailPlaceholder: string;
@@ -74,7 +81,8 @@ export interface GetListedStrings {
 
   errors: {
     handleRequired: string;
-    handleInvalid: string;
+    /** Names the platform the creator actually picked, so the rule it states is the right one. */
+    handleInvalid: (platform: RequestPlatform) => string;
     emailRequired: string;
     emailInvalid: string;
     noteTooLong: string;
@@ -87,15 +95,18 @@ export interface GetListedStrings {
 const en: GetListedStrings = {
   title: 'Ask us to add you',
   subtitle:
-    "We don't have your profile yet. Tell us your handle and we'll take a look — we review every request by hand and add Instagram creators who fit the database.",
+    "We don't have your profile yet. Tell us your handle and we'll take a look — we review every request by hand and add creators who fit the database.",
 
   platformLabel: 'Platform',
-  platformInstagram: 'Instagram',
-  platformTikTokSoon: 'TikTok — coming soon',
 
-  handleLabel: 'Instagram handle',
-  handlePlaceholder: 'yourhandle',
-  handleHelp: 'Your username or a link to your profile — either works.',
+  handleLabel: (platform) => (platform === 'tiktok' ? 'TikTok handle' : 'Instagram handle'),
+  // TikTok handles are written with the @ everywhere TikTok shows them;
+  // Instagram's are not. The @ is stripped on the way in either way.
+  handlePlaceholder: (platform) => (platform === 'tiktok' ? '@yourhandle' : 'yourhandle'),
+  handleHelp: (platform) =>
+    platform === 'tiktok'
+      ? 'Your username or a tiktok.com link — either works.'
+      : 'Your username or an instagram.com link — either works.',
 
   emailLabel: 'Email',
   emailPlaceholder: 'you@example.com',
@@ -122,8 +133,9 @@ const en: GetListedStrings = {
   existsCta: 'Claim your profile',
 
   errors: {
-    handleRequired: 'Enter your Instagram handle.',
-    handleInvalid: "That doesn't look like an Instagram handle. Letters, numbers, periods and underscores only.",
+    handleRequired: 'Enter your handle.',
+    handleInvalid: (platform) =>
+      `That doesn't look like a ${platform === 'tiktok' ? 'TikTok' : 'Instagram'} handle. Letters, numbers, periods and underscores only.`,
     emailRequired: 'Enter your email address.',
     emailInvalid: "That email address doesn't look right.",
     noteTooLong: 'Your note is too long — 300 characters maximum.',
@@ -135,15 +147,16 @@ const en: GetListedStrings = {
 const es: GetListedStrings = {
   title: 'Pídenos que te agreguemos',
   subtitle:
-    'Todavía no tenemos tu perfil. Dinos tu usuario y lo revisamos — revisamos cada solicitud a mano y agregamos creadores de Instagram que encajan en la base de datos.',
+    'Todavía no tenemos tu perfil. Dinos tu usuario y lo revisamos — revisamos cada solicitud a mano y agregamos creadores que encajan en la base de datos.',
 
   platformLabel: 'Plataforma',
-  platformInstagram: 'Instagram',
-  platformTikTokSoon: 'TikTok — próximamente',
 
-  handleLabel: 'Usuario de Instagram',
-  handlePlaceholder: 'tuusuario',
-  handleHelp: 'Tu nombre de usuario o un enlace a tu perfil — cualquiera sirve.',
+  handleLabel: (platform) => (platform === 'tiktok' ? 'Usuario de TikTok' : 'Usuario de Instagram'),
+  handlePlaceholder: (platform) => (platform === 'tiktok' ? '@tuusuario' : 'tuusuario'),
+  handleHelp: (platform) =>
+    platform === 'tiktok'
+      ? 'Tu nombre de usuario o un enlace de tiktok.com — cualquiera sirve.'
+      : 'Tu nombre de usuario o un enlace de instagram.com — cualquiera sirve.',
 
   emailLabel: 'Correo electrónico',
   emailPlaceholder: 'tu@ejemplo.com',
@@ -171,8 +184,9 @@ const es: GetListedStrings = {
   existsCta: 'Reclamar tu perfil',
 
   errors: {
-    handleRequired: 'Escribe tu usuario de Instagram.',
-    handleInvalid: 'Eso no parece un usuario de Instagram. Solo letras, números, puntos y guiones bajos.',
+    handleRequired: 'Escribe tu usuario.',
+    handleInvalid: (platform) =>
+      `Eso no parece un usuario de ${platform === 'tiktok' ? 'TikTok' : 'Instagram'}. Solo letras, números, puntos y guiones bajos.`,
     emailRequired: 'Escribe tu correo electrónico.',
     emailInvalid: 'Ese correo electrónico no parece correcto.',
     noteTooLong: 'Tu nota es muy larga — máximo 300 caracteres.',
@@ -193,14 +207,21 @@ export function getGetListedStrings(locale: Locale): GetListedStrings {
  * prose — the route's bodies are English and "already listed" is a legitimate
  * 200 (CLAUDE.md, "Localization").
  */
-export function requestErrorMessage(locale: Locale, reason: string | null | undefined): string {
+export function requestErrorMessage(
+  locale: Locale,
+  reason: string | null | undefined,
+  platform: RequestPlatform,
+): string {
   const t = getGetListedStrings(locale).errors;
   switch (reason) {
     case 'handle_required':
       return t.handleRequired;
     case 'handle_invalid':
+    // invalid_platform cannot come from this form — the <select> offers only
+    // the two the route accepts — so it means a hand-rolled POST. Showing the
+    // handle rule is the least confusing thing available.
     case 'invalid_platform':
-      return t.handleInvalid;
+      return t.handleInvalid(platform);
     case 'email_required':
       return t.emailRequired;
     case 'email_invalid':

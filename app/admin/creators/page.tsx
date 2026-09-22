@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { countLine, describeEvent, type DashboardEventRow, type EngagementCounts } from '@/lib/admin/dashboard-event-labels';
 import { CREATOR_HANDLE_SELECT, primaryHandle } from '@/lib/admin/primary-handle';
+import { platformLabel, profileUrl } from '@/lib/creator-requests/shared';
 
 type FilterType = 'all' | 'pending' | 'verified' | 'rejected';
 
@@ -291,23 +292,36 @@ export default function AdminCreatorsPage() {
                 <div key={r.id} style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '16px 20px' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                     <div style={{ minWidth: 0 }}>
-                      {/* The handle is the ONLY thing that has to be pasted
-                          into the scraper, so it is the thing the row leads
-                          with and the thing the link opens. */}
-                      <a
-                        href={`https://instagram.com/${r.handle}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', textDecoration: 'underline', overflowWrap: 'anywhere' }}
-                      >
-                        @{r.handle}
-                      </a>
+                      {/* Handle + platform together, because neither is
+                          actionable without the other: the handle is what gets
+                          pasted into the scraper, and the platform is which
+                          scraper. The link goes through profileUrl() rather
+                          than a literal — instagram.com/<handle> and
+                          tiktok.com/@<handle> differ by more than the domain,
+                          and this and the admin email must never disagree. */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                        <a
+                          href={profileUrl(r.platform, r.handle)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', textDecoration: 'underline', overflowWrap: 'anywhere' }}
+                        >
+                          @{r.handle}
+                        </a>
+                        <span style={{
+                          padding: '2px 8px', borderRadius: '999px', fontSize: '11px', fontWeight: 700,
+                          backgroundColor: r.platform === 'tiktok' ? '#F3F4F6' : '#FFF7ED',
+                          color: r.platform === 'tiktok' ? '#374151' : '#9A3412',
+                        }}>
+                          {platformLabel(r.platform)}
+                        </span>
+                      </div>
                       <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0 0 0', overflowWrap: 'anywhere' }}>{r.email}</p>
                       {r.note && (
                         <p style={{ fontSize: '13px', color: '#374151', margin: '6px 0 0 0', maxWidth: '520px', overflowWrap: 'anywhere' }}>{r.note}</p>
                       )}
                       <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '6px 0 0 0' }}>
-                        {fmtDate(r.created_at)} · {r.source} · {r.platform}
+                        {fmtDate(r.created_at)} · {r.source}
                       </p>
                     </div>
                     <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>

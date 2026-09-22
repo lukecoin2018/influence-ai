@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   // InfluenceIT" in the tab.
   title: 'Ask us to add you',
   description:
-    'Not in the InfluenceIT database yet? Tell us your Instagram handle. We review every request by hand.',
+    'Not in the InfluenceIT database yet? Tell us your Instagram or TikTok handle. We review every request by hand.',
 };
 
 export default async function GetListedPage({
