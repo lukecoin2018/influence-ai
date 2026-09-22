@@ -494,11 +494,18 @@ creator hit a dead end and two strings that lied to them.
     requests sat in it.
   - "Mark added" on a TikTok row answers **409 `platform_disabled`** and
     changes nothing, so the request is still there when TikTok is switched on.
-- **Three entry points**, each naming itself in `?from=`: the signup form's
-  handle-not-found line (`signup_not_found`), the `/claim/[handle]` not-found
-  page (`claim_not_found`), and the footer (`footer`). Anything else stores as
-  `direct`. Adding a fourth is one `<Link>` plus one value in
-  `REQUEST_SOURCES` — `GetListedForm` takes `source` as a prop and nothing else.
+- **Six entry points**, each naming itself in `?from=`. The original three sit
+  inside the claim funnel: the signup form's handle-not-found line
+  (`signup_not_found`), the `/claim/[handle]` not-found page
+  (`claim_not_found`), and the footer (`footer`). Three more surface the
+  creator paths outside it: the brand signup form (`brand_signup`),
+  `/pricing/creators` (`pricing_creators`), and the homepage strip above the
+  footer (`home_strip`). Anything else stores as `direct`. Adding another is
+  one `<Link>` plus one value in `REQUEST_SOURCES` — `GetListedForm` takes
+  `source` as a prop and nothing else.
+- **Give each placement its own source value; never reuse a neighbour's.**
+  Pointing a new link at `?from=footer` would merge two placements into one
+  number and defeat the only reason the column exists.
 - **`/get-listed` is bilingual**, because two of its three entry points are. It
   reads `?handle=`, `?from=` and `?locale=` in its **server** component and
   passes them down as props, so the form needs no `useSearchParams()` and
@@ -588,6 +595,12 @@ lands on, and the pitch is "evidence, not follower counts".
 - **English by design:** the legacy tools (Rate Calculator, Negotiation, Contract
   Builder, Media Kit, Edit Profile), the sidebar token box, and the plan badge.
   Tokens gate the tools, so the token chrome belongs with them.
+- **Creator-facing cross-links live on brand-facing pages**, and they follow
+  the page they are on, not the destination: `/signup`, `/pricing/creators` and
+  the homepage are all outside the i18n tree, so their lines are English
+  literals. Only `/auth/signup`'s mirror line ("Looking to hire creators?
+  Sign up as a brand") is in `auth-strings.ts`, because that page is bilingual.
+  `/get-listed` resolves its own locale either way.
 - **The rule for labels that name a page:** a label must not disagree with its
   destination. A Spanish sidebar entry opening an English tool is a small broken
   promise, so tool names stay English until the tools are translated.

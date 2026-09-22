@@ -10,6 +10,7 @@ import { StatsBand } from './_components/StatsBand';
 import { Leaderboard } from './_components/Leaderboard';
 import { Methodology } from './_components/Methodology';
 import { Cta } from './_components/Cta';
+import { CreatorStrip } from './_components/CreatorStrip';
 import { Footer } from './_components/Footer';
 
 export const revalidate = 3600;
@@ -113,6 +114,7 @@ export default async function HomePage() {
       <Leaderboard instagram={instagram} tiktok={tiktok} totalCreators={stats.creators} />
       <Methodology lastIndexRun={stats.lastIndex} />
       <Cta totalCreators={stats.creators} />
+      <CreatorStrip />
       <Footer />
     </div>
   );

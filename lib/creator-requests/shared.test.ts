@@ -105,6 +105,9 @@ describe('normalizeSource', () => {
     expect(normalizeSource('signup_not_found')).toBe('signup_not_found');
     expect(normalizeSource('claim_not_found')).toBe('claim_not_found');
     expect(normalizeSource('footer')).toBe('footer');
+    expect(normalizeSource('brand_signup')).toBe('brand_signup');
+    expect(normalizeSource('pricing_creators')).toBe('pricing_creators');
+    expect(normalizeSource('home_strip')).toBe('home_strip');
   });
 
   it('falls back to direct for anything else', () => {

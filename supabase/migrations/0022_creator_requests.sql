@@ -5,11 +5,12 @@
 -- handle with 23505 and accepted one after the first was declined, and an
 -- anon-key select returns zero rows.
 --
--- One statement below changed AFTER that: the `comment on column
--- creator_requests.platform` text, when TikTok was enabled. It is
--- documentation only — nothing reads it and no behaviour depends on it — so
--- the live comment is one revision behind until that single statement is
--- re-run. Re-running it is safe and idempotent.
+-- TWO statements below changed AFTER that, both `comment on column`: the
+-- `platform` text when TikTok was enabled, and the `source` text when three
+-- more entry points were added. They are documentation only — nothing reads
+-- them and no behaviour depends on them — so the live comments are one
+-- revision behind until those statements are re-run. Re-running them is safe
+-- and idempotent.
 --
 -- Creators asking to be ADDED to the database — the other end of the claim
 -- funnel. Before this, a creator whose handle we had not scraped reached the
@@ -135,7 +136,7 @@ comment on column creator_requests.handle is
 comment on column creator_requests.status is
   'new | added | declined. Only new rows are unique per handle, and only new rows are considered by the fulfil pass.';
 comment on column creator_requests.source is
-  'Which entry point produced the request: signup_not_found | claim_not_found | footer | direct. Whitelisted in the route; anything else is stored as direct.';
+  'Which entry point produced the request: signup_not_found | claim_not_found | footer | brand_signup | pricing_creators | home_strip | direct. Whitelisted by REQUEST_SOURCES in lib/creator-requests/shared.ts; anything else is stored as direct.';
 comment on column creator_requests.ip_hash is
   'SHA-256 of the client IP, for the per-hour submission limit only. Never the IP itself. NULL when no forwarding header was present, in which case the limit was skipped for that request.';
 comment on column creator_requests.creator_id is

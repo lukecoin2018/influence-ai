@@ -53,6 +53,20 @@ interface AuthStrings {
     passwordPlaceholder: string;
     submit: string;
     submitting: string;
+    /**
+     * The mirror of the cross-link on /signup (the brand form), which points
+     * the other way. Both exist because the two signup routes are separate
+     * funnels with no link between them: a brand landing on the creator form
+     * had to guess, and CLAUDE.md's rule that a label must not disagree with
+     * its destination cuts both ways — a form that only offers one audience's
+     * path should say where the other one goes.
+     *
+     * Two keys, not one sentence with a hole in it: the link text is the part
+     * that has to be a <Link>, and splitting here keeps the prompt free to be
+     * phrased differently per locale.
+     */
+    brandCrossLinkPrompt: string;
+    brandCrossLinkCta: string;
   };
   /**
    * The bio-code block, shared verbatim by the inline verify step and the
@@ -191,6 +205,8 @@ const en: AuthStrings = {
     passwordPlaceholder: 'Min. 8 characters',
     submit: 'Create Account',
     submitting: 'Creating account...',
+    brandCrossLinkPrompt: 'Looking to hire creators?',
+    brandCrossLinkCta: 'Sign up as a brand',
   },
   bioCode: {
     addCodePrompt: (platformName) => `Add this code to your ${platformName} bio:`,
@@ -276,6 +292,12 @@ const es: AuthStrings = {
     passwordPlaceholder: 'Mínimo 8 caracteres',
     submit: 'Crear cuenta',
     submitting: 'Creando tu cuenta...',
+    // "marca" rather than "empresa": it matches the word the rest of the
+    // Spanish surfaces use for the other side of the marketplace (brand cards,
+    // "Marcas que contratan"), and it sidesteps having to pick between
+    // empresa/compañía, which splits by region.
+    brandCrossLinkPrompt: '¿Buscas contratar creadores?',
+    brandCrossLinkCta: 'Regístrate como marca',
   },
   bioCode: {
     addCodePrompt: (platformName) => `Agrega este código a tu biografía de ${platformName}:`,

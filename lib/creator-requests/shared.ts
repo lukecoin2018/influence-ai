@@ -87,7 +87,19 @@ export function isFulfilEnabled(platform: string): boolean {
  * only reason it exists is to compare entry points against each other, which
  * an open set makes impossible.
  */
-export const REQUEST_SOURCES = ['signup_not_found', 'claim_not_found', 'footer', 'direct'] as const;
+export const REQUEST_SOURCES = [
+  'signup_not_found',
+  'claim_not_found',
+  'footer',
+  // The three cross-links added when the creator paths were surfaced outside
+  // the claim funnel. Each names its own page rather than reusing 'footer',
+  // which would quietly merge four different placements into one number and
+  // defeat the only reason this column exists.
+  'brand_signup',
+  'pricing_creators',
+  'home_strip',
+  'direct',
+] as const;
 export type RequestSource = (typeof REQUEST_SOURCES)[number];
 
 export const DEFAULT_SOURCE: RequestSource = 'direct';
