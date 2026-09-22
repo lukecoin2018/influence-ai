@@ -29,11 +29,13 @@
 -- types. The cost is that a hand-written row can carry anything, which is why
 -- profileUrl() in that module falls back to Instagram rather than throwing.
 --
--- NOTE, and it is not a schema problem: TikTok verification has never run
--- successfully (CLAUDE.md, "Known open items"). A TikTok creator can be
--- requested, added and sent a claim link, and will then hit a bio-code step
--- that has never been proven to work. That is tracked as an open item, not
--- here.
+-- NOTE, and it is not a schema problem: TikTok rows are accepted but are NOT
+-- auto-fulfilled. FULFIL_ENABLED_PLATFORMS in lib/creator-requests/shared.ts
+-- is ['instagram'], because TikTok verification has never run successfully
+-- (CLAUDE.md, "Known open items") and the claim link fulfilment sends would
+-- land a TikTok creator on a bio-code step nobody has proven works. So a
+-- TikTok row can sit at status 'new' indefinitely — that is the intended
+-- state, not a stuck row.
 --
 -- ── WHAT WRITES HERE ───────────────────────────────────────────────────────
 --

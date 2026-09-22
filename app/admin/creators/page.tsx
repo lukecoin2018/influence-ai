@@ -152,6 +152,17 @@ export default function AdminCreatorsPage() {
           );
           return;
         }
+        // Held platform, not a failure: the row is untouched and still open.
+        // Says what would have to change, because "disabled" on its own reads
+        // as a bug rather than a decision.
+        if (body?.reason === 'platform_disabled') {
+          setActionNotice(
+            'TikTok fulfilment is disabled until TikTok verification is proven — nothing changed. ' +
+            'You can still add the creator to the scraper; the request stays open, and it will ' +
+            'close and email them once TikTok is switched on in FULFIL_ENABLED_PLATFORMS.',
+          );
+          return;
+        }
         throw new Error(body?.reason ? `${res.status} ${body.reason}` : `HTTP ${res.status}`);
       }
       if (status === 'added') {

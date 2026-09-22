@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
+  FULFIL_ENABLED_PLATFORMS,
   NOTE_MAX_LENGTH,
   REQUEST_PLATFORMS,
+  isFulfilEnabled,
   isValidRequestEmail,
   isValidRequestHandle,
   normalizeRequestEmail,
@@ -155,5 +157,30 @@ describe('platformLabel', () => {
     expect(platformLabel('instagram')).toBe('Instagram');
     expect(platformLabel('tiktok')).toBe('TikTok');
     expect(platformLabel('')).toBe('Instagram');
+  });
+});
+
+describe('isFulfilEnabled', () => {
+  it('holds TikTok out of auto-fulfilment while Instagram stays in', () => {
+    // The gap between REQUEST_PLATFORMS and FULFIL_ENABLED_PLATFORMS is the
+    // whole point: a TikTok creator may ASK to be added, but nothing closes
+    // their request or sends them a claim link, because TikTok verification
+    // has never run successfully (CLAUDE.md, "Known open items") and that
+    // link would land them on a step nobody has proven works.
+    expect(isFulfilEnabled('instagram')).toBe(true);
+    expect(isFulfilEnabled('tiktok')).toBe(false);
+  });
+
+  it('is a strict subset of the platforms requests can be made on', () => {
+    for (const p of FULFIL_ENABLED_PLATFORMS) {
+      expect(REQUEST_PLATFORMS).toContain(p);
+    }
+    expect(FULFIL_ENABLED_PLATFORMS.length).toBeLessThan(REQUEST_PLATFORMS.length);
+  });
+
+  it('refuses anything it does not recognise, rather than defaulting to enabled', () => {
+    for (const raw of ['', 'Instagram', 'youtube', 'INSTAGRAM']) {
+      expect(isFulfilEnabled(raw)).toBe(false);
+    }
   });
 });

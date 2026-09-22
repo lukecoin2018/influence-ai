@@ -57,6 +57,31 @@ export function platformLabel(platform: string): string {
 }
 
 /**
+ * Platforms whose requests may be AUTO-FULFILLED — closed and sent a claim
+ * link. A strict subset of REQUEST_PLATFORMS, and the gap between the two is
+ * deliberate: a creator may ASK to be added on TikTok, and we will add them,
+ * but nothing automatically tells them to go and claim.
+ *
+ * ── WHY TIKTOK IS HELD BACK ────────────────────────────────────────────────
+ *
+ * TikTok verification has never run successfully — CLAUDE.md, "Known open
+ * items", and the note in the "Creator requests" section. The claim link in
+ * RequestFulfilled says claiming unlocks the dashboard, and for a TikTok
+ * creator that lands them on a bio-code step nobody has proven works. Sending
+ * it would be the "don't promise what the product can't do" rule broken by
+ * automation, which is the worst way to break it: at volume, unattended.
+ *
+ * Adding 'tiktok' here is the ONE change that turns the whole path on, once
+ * TikTok verification is proven. Both callers of fulfilRequest() route through
+ * this, so neither can be switched on by accident without the other.
+ */
+export const FULFIL_ENABLED_PLATFORMS = ['instagram'] as const;
+
+export function isFulfilEnabled(platform: string): boolean {
+  return (FULFIL_ENABLED_PLATFORMS as readonly string[]).includes(platform);
+}
+
+/**
  * Where the request came from. Whitelisted rather than free text: it is
  * written to a NOT NULL column straight from a `?from=` query param, and the
  * only reason it exists is to compare entry points against each other, which
