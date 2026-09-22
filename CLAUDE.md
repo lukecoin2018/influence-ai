@@ -763,11 +763,31 @@ inside `/creator-dashboard` after claiming. Not `funnel_events`, which stops at
 - **`/api/creators/claim` trusts `detectedEmail` from the request body**, so
   auto-verification can be bypassed by anyone posting two matching values. Also no
   validation of any field. Fix before any public batch.
-- **TikTok verification has never run successfully.** The code path exists
-  (`apifyTikTokBio`, the platform branch in `verify-bio`, translated instructions)
-  but the only verified creator is Instagram. Blocked on there being no way to add
-  a TikTok account to the scraper manually, so there's no account to test with.
-  Until it's proven, **don't DM TikTok creators** — ~55% of the database.
+- **TikTok verification is proven on the direct-fetch path only** (2026-09-22,
+  `@lmg.media`, from a Mac on a home IP, dev server against the shared
+  database: `direct=found apify=skipped`, row flipped to `verified`, funnel
+  `verified` event with `platform: tiktok`). Two things are still unproven:
+  the abe fallback never ran, because the Apify account behind this repo's
+  `APIFY_API_TOKEN` answers `HTTP 403 platform-feature-disabled: Monthly usage
+  hard limit exceeded` (that token has zero runs of any actor, ever, and is not
+  the scraper's token); and whether TikTok serves the profile page to Vercel
+  and VPS IPs at all, which is what decides whether production ever needs the
+  fallback. Until the fallback has run once, a TikTok creator in production may
+  see "we couldn't check your bio" rather than a verification, and that is the
+  safe failure. The Googlebot user-agent gets a bare 403 from TikTok; the
+  TikTok path sends a desktop Chrome UA and parses the
+  `__UNIVERSAL_DATA_FOR_REHYDRATION__` blob, `lib/apify.ts`.
+- **72 handles exist on both platforms, under different creators, and the claim
+  funnel resolves by handle alone.** The teaser
+  (`lib/reports/creator-brand-matches.ts`, `app/claim/[handle]/_data.ts`), the
+  signup existence check (`app/auth/signup/_SignUpForm.tsx`) and the claim API
+  (`app/api/creators/claim/route.ts`) all query `social_profiles.handle` with
+  `.limit(1)` and no platform filter, so for those 72 the platform that gets
+  claimed is whichever row PostgREST returns first. Measured 2026-09-22: 8,711
+  rows, 8,639 distinct handles, 0 creators with more than one row. The fix is
+  carrying `platform` on the claim link (the fulfil email builds it in
+  `lib/creator-requests/fulfil.ts`) through signup into the claim API's lookup.
+  Not started.
 - **Private Instagram accounts can never verify** and nothing tells the creator. A
   private profile returning an empty bio field classifies as `absent` and costs an
   attempt. Settling it needs one real Apify response body to confirm the privacy
