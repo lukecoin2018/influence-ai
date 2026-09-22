@@ -253,6 +253,36 @@ interface DashboardStrings {
     filterAll: string;
     /** Takes the already-localized bucket label (via categoryBucketLabel), never the raw bucket identity. */
     noCategoryMatches: (categoryLabel: string) => string;
+
+    /**
+     * "Showing 1–50 of 676 brands", under the title. Reports the FILTERED
+     * total, so it agrees with what the pager is paging through rather than
+     * with countLine() above, which always reports the whole list.
+     *
+     * A whole sentence per locale, not a template with three holes: the
+     * en-dash range and the noun that has to agree with the count are
+     * arranged differently enough that a shared skeleton would only be
+     * English's skeleton.
+     */
+    showingRange: (from: number, to: number, total: number) => string;
+
+    /**
+     * The sort <select>'s own label. The three option labels below are the
+     * only visible text for the untranslated 'match' | 'active' | 'recent'
+     * values in brands-hiring-sort.ts — those live in `?sort=` and are never
+     * translated, exactly like the ALL_CATEGORY sentinel.
+     */
+    sortLabel: string;
+    sortBestMatch: string;
+    sortMostActive: string;
+    sortRecentlyHiring: string;
+
+    pagerPrevious: string;
+    pagerNext: string;
+    /** aria-label for one numbered pager button. */
+    pagerPageLabel: (n: number) => string;
+    /** aria-label for the pager <nav>, distinguishing it from the category filter. */
+    pagerNavLabel: string;
   };
 }
 
@@ -347,6 +377,16 @@ const en: DashboardStrings = {
     filterAll: 'All',
     noCategoryMatches: (categoryLabel) =>
       `No ${categoryLabel} brands detected — try a different category.`,
+    showingRange: (from, to, total) =>
+      `Showing ${from}–${to} of ${total} brand${total === 1 ? '' : 's'}`,
+    sortLabel: 'Sort',
+    sortBestMatch: 'Best match',
+    sortMostActive: 'Most active',
+    sortRecentlyHiring: 'Recently hiring',
+    pagerPrevious: 'Previous',
+    pagerNext: 'Next',
+    pagerPageLabel: (n) => `Page ${n}`,
+    pagerNavLabel: 'Pages',
   },
 };
 
@@ -494,6 +534,20 @@ const es: DashboardStrings = {
     // prefix with the label pasted in front.
     noCategoryMatches: (categoryLabel) =>
       `No detectamos marcas de ${categoryLabel} — prueba con otra categoría.`,
+    // "marca" / "marcas" agrees with the total, not with the range.
+    showingRange: (from, to, total) =>
+      `Mostrando ${from}–${to} de ${total} ${total === 1 ? 'marca' : 'marcas'}`,
+    sortLabel: 'Ordenar',
+    // Feminine plural throughout — these describe "marcas".
+    sortBestMatch: 'Mejor coincidencia',
+    sortMostActive: 'Más activas',
+    // Keeps the verb from "Marcas que contratan" (the page's own title) rather
+    // than flattening to "Más recientes", which would not say recent at what.
+    sortRecentlyHiring: 'Contratando hace poco',
+    pagerPrevious: 'Anterior',
+    pagerNext: 'Siguiente',
+    pagerPageLabel: (n) => `Página ${n}`,
+    pagerNavLabel: 'Páginas',
   },
 };
 

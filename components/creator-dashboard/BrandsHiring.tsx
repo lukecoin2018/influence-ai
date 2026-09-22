@@ -8,7 +8,7 @@
 // (app/admin/preview/creator/[handle]/brands-hiring/page.tsx) — same pattern
 // as DashboardOverview.tsx.
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { Pencil } from 'lucide-react';
 import type { MatchedBrand } from '@/lib/reports/creator-brand-matches';
 import { categoryBucketLabel, consolidateCategory, nicheLeadBucket, orderCategoriesForDisplay, summarizeCategories } from '@/lib/reports/category-consolidation';
@@ -17,8 +17,18 @@ import { getClaimStrings, type Locale } from '@/app/claim/[handle]/_strings';
 import { getDashboardStrings } from '@/lib/i18n/dashboard-strings';
 import { BRANDS_HIRING_GATING_ENABLED, BRANDS_HIRING_FREE_TIER_LIMIT } from '@/lib/reports/brands-hiring-config';
 import { track } from '@/lib/dashboard/track';
+import { SORT_VALUES, sortMatches, type BrandsHiringSort } from './brands-hiring-sort';
+import { useBrandsHiringQuery } from './use-brands-hiring-query';
+import { BrandsHiringPager } from './BrandsHiringPager';
 
 const GREY = '#3A3A3A';
+
+/**
+ * Brands per page. The page still fetches the whole list in one request
+ * (676 brands today) and paginates what it RENDERS — the cost this addresses
+ * is 676 cards in the DOM, not the payload.
+ */
+const PAGE_SIZE = 50;
 
 /**
  * The "no filter" SENTINEL, and never a display label. It is held in
@@ -63,6 +73,11 @@ interface BrandsHiringProps {
 export function BrandsHiring({ matches, creatorFollowers, detectedNiche, outreachBasePath, locale = 'en' }: BrandsHiringProps) {
   const t = getDashboardStrings(locale).brandsHiring;
   const [selectedCategory, setSelectedCategory] = useState<string>(ALL_CATEGORY);
+  const [query, pushQuery] = useBrandsHiringQuery();
+  // Anchors the page-change scroll. Deliberately the LIST, not the window: a
+  // creator who clicks "3" wants the top of page 3, and scrolling past the
+  // filter chips they just set would hide the state they are working with.
+  const listRef = useRef<HTMLDivElement>(null);
 
   const categories = useMemo(() => {
     const leadBucket = nicheLeadBucket(detectedNiche);
@@ -74,10 +89,49 @@ export function BrandsHiring({ matches, creatorFollowers, detectedNiche, outreac
     return matches.filter((m) => consolidateCategory(m.category) === selectedCategory);
   }, [matches, selectedCategory]);
 
+  // Sorted AFTER the category filter and BEFORE the gate, so a future gate
+  // still hands out the top N of whatever order the creator chose rather than
+  // the top N of "best match" relabelled.
+  const sortedMatches = useMemo(() => sortMatches(filteredMatches, query.sort), [filteredMatches, query.sort]);
+
   // Gating seam (lib/reports/brands-hiring-config.ts) — v1 always shows the
   // full filtered list. A future gate slots in here without touching the
   // filter/list rendering above or below.
-  const visibleMatches = BRANDS_HIRING_GATING_ENABLED ? filteredMatches.slice(0, BRANDS_HIRING_FREE_TIER_LIMIT) : filteredMatches;
+  const visibleMatches = BRANDS_HIRING_GATING_ENABLED ? sortedMatches.slice(0, BRANDS_HIRING_FREE_TIER_LIMIT) : sortedMatches;
+
+  // Clamped at render rather than written back to the URL. `?page=99` on a
+  // two-page list shows page 2; rewriting the address bar under the creator
+  // would also push a history entry they did not ask for.
+  const totalPages = Math.max(1, Math.ceil(visibleMatches.length / PAGE_SIZE));
+  const page = Math.min(query.page, totalPages);
+  const pageStart = (page - 1) * PAGE_SIZE;
+  const pageMatches = visibleMatches.slice(pageStart, pageStart + PAGE_SIZE);
+
+  // Both reset to page 1: page 4 of a re-sorted or re-filtered list is a
+  // different set of brands than the one the creator was looking at.
+  //
+  // The category reset REPLACES rather than pushes — see QueryWriteMode in
+  // use-brands-hiring-query.ts. The category itself is not in the URL, so a
+  // history entry for it would only ever be a dropped `page`.
+  function selectCategory(name: string) {
+    setSelectedCategory(name);
+    pushQuery({ page: 1 }, 'replace');
+  }
+
+  function selectSort(sort: BrandsHiringSort) {
+    pushQuery({ sort, page: 1 });
+  }
+
+  function goToPage(next: number) {
+    pushQuery({ page: next });
+    listRef.current?.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+
+  const sortOptionLabel: Record<BrandsHiringSort, string> = {
+    match: t.sortBestMatch,
+    active: t.sortMostActive,
+    recent: t.sortRecentlyHiring,
+  };
 
   return (
     <div style={{ maxWidth: '900px' }}>
@@ -90,6 +144,14 @@ export function BrandsHiring({ matches, creatorFollowers, detectedNiche, outreac
             ? t.countLine(matches.length)
             : t.detectingSub}
         </p>
+        {/* Reports the FILTERED total, so with a category chip active it says
+            how many of that category there are — which is the number the pager
+            below is actually paging through. */}
+        {visibleMatches.length > 0 && (
+          <p style={{ fontSize: '13px', color: '#9CA3AF', margin: '4px 0 0 0' }}>
+            {t.showingRange(pageStart + 1, pageStart + pageMatches.length, visibleMatches.length)}
+          </p>
+        )}
       </div>
 
       {matches.length === 0 ? (
@@ -105,9 +167,9 @@ export function BrandsHiring({ matches, creatorFollowers, detectedNiche, outreac
       ) : (
         <>
           {/* ── Category filter (design 2b) — tappable chips, "All" default ── */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
             <button
-              onClick={() => setSelectedCategory(ALL_CATEGORY)}
+              onClick={() => selectCategory(ALL_CATEGORY)}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '999px',
                 border: selectedCategory === ALL_CATEGORY ? 'none' : '1px solid #E5E7EB',
@@ -129,7 +191,7 @@ export function BrandsHiring({ matches, creatorFollowers, detectedNiche, outreac
                   // here and in the `active` check and the filter above. Only
                   // the text below it is localized. Wrapping either of those in
                   // categoryBucketLabel() would silently break filtering.
-                  onClick={() => setSelectedCategory(c.name)}
+                  onClick={() => selectCategory(c.name)}
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '7px 14px', borderRadius: '999px',
                     border: active ? 'none' : '1px solid #E5E7EB',
@@ -143,6 +205,32 @@ export function BrandsHiring({ matches, creatorFollowers, detectedNiche, outreac
                 </button>
               );
             })}
+
+            {/* ── Sort control ─────────────────────────────────────────────
+                A native <select> rather than three more pills: the chips above
+                are already a wrapping row of up to a dozen, and a second row
+                of look-alike pills that do something entirely different would
+                read as more categories. `marginLeft: auto` pushes it to the
+                end of the row and lets it wrap onto its own line on a phone.
+
+                The VALUES are the untranslated 'match' | 'active' | 'recent'
+                identities that live in `?sort=`; only the labels are
+                localized — the same split as the category chips above. */}
+            <label style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#6B7280' }}>
+              {t.sortLabel}
+              <select
+                value={query.sort}
+                onChange={(e) => selectSort(e.target.value as BrandsHiringSort)}
+                style={{
+                  padding: '7px 10px', borderRadius: '999px', border: '1px solid #E5E7EB',
+                  backgroundColor: '#fff', color: GREY, fontSize: '13px', fontWeight: 600, cursor: 'pointer',
+                }}
+              >
+                {SORT_VALUES.map((value) => (
+                  <option key={value} value={value}>{sortOptionLabel[value]}</option>
+                ))}
+              </select>
+            </label>
           </div>
 
           {/* ── Ranked list ────────────────────────────────────────────── */}
@@ -160,8 +248,9 @@ export function BrandsHiring({ matches, creatorFollowers, detectedNiche, outreac
               </p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px' }}>
-              {visibleMatches.map((match) => (
+            <>
+            <div ref={listRef} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '16px', scrollMarginTop: '16px' }}>
+              {pageMatches.map((match) => (
                 <BrandMatchCard
                   key={match.canonicalName}
                   match={match}
@@ -195,6 +284,19 @@ export function BrandsHiring({ matches, creatorFollowers, detectedNiche, outreac
                 />
               ))}
             </div>
+
+            <BrandsHiringPager
+              page={page}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+              labels={{
+                previous: t.pagerPrevious,
+                next: t.pagerNext,
+                pageLabel: t.pagerPageLabel,
+                navLabel: t.pagerNavLabel,
+              }}
+            />
+            </>
           )}
         </>
       )}
