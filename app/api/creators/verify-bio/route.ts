@@ -7,6 +7,7 @@ import { createSupabaseServerClient } from '@/lib/supabase-server';
 import { recordFunnelEvent } from '@/lib/funnel/events';
 import { checkBioForCode } from '@/lib/apify';
 import { withNoStore } from '@/lib/http/no-store';
+import { sendCreatorApproved } from '@/lib/email/send-creator-approved';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,6 +43,7 @@ type Reason =
   | 'too_many_attempts'
   | 'code_absent'
   | 'check_unavailable'
+  | 'write_failed'
   | 'unexpected';
 
 /**
@@ -189,7 +191,7 @@ async function handlePOST(req: NextRequest) {
     const outcome = await checkBioForCode(handle, platform, code);
 
     if (outcome === 'found') {
-      await supabaseAdmin
+      const { error: writeError } = await supabaseAdmin
         .from('creator_profiles')
         .update({
           claim_status: 'verified',
@@ -202,6 +204,47 @@ async function handlePOST(req: NextRequest) {
           last_verification_attempt_at: null,
         })
         .eq('id', user.id);
+
+      // The code was in the bio, but the row did not change. This used to
+      // fall through to `verified: true`, so a creator could be told they
+      // were verified by a write that never happened — and then find the
+      // dashboard still locked. Nothing below (email, audit, funnel) is
+      // allowed to run either: every one of them would describe a
+      // transition that did not occur. The code is still in the bio and
+      // still valid, so a retry is the right answer, hence 503 not 500.
+      if (writeError) {
+        console.error(`[verify-bio] failed to mark ${user.id} verified: ${writeError.message}`);
+        return NextResponse.json(
+          { ok: false, reason: 'write_failed' satisfies Reason },
+          { status: 503 }
+        );
+      }
+
+      // ── The creator's own approval email ──────────────────────────────
+      // Same mail, same helper as the admin Approve button
+      // (lib/email/send-creator-approved.ts). Only on the transition: the
+      // already-verified early return above is the guard, so this branch is
+      // reached once per claim in the ordinary case. Two overlapping calls
+      // could both get here — accepted, the admin route accepts the same
+      // race. The helper never throws and its outcome cannot touch the
+      // response: the row is verified whatever Resend says.
+      const emailOutcome = await sendCreatorApproved(supabaseAdmin, user.id);
+
+      // ── Audit row ─────────────────────────────────────────────────────
+      // The same event_type the admin route writes, so the activity list
+      // reads "Verified <name>" for both roads. user_id is the creator: they
+      // are the actor here. `path` tells the two apart, and the email
+      // outcome lands next to it exactly as it does on the admin's row.
+      // Best-effort: a failed audit insert is logged, never surfaced.
+      const { error: logError } = await supabaseAdmin.from('activity_log').insert({
+        event_type: 'creator_verified',
+        target_id: user.id,
+        user_id: user.id,
+        details: { action: 'verified', path: 'bio_code', ...emailOutcome },
+      });
+      if (logError) {
+        console.error(`[verify-bio] activity_log insert failed for ${user.id}: ${logError.message}`);
+      }
 
       // `verified` is now single-sourced here. The claim route's auto-verify
       // branch used to fire the other half with details { path:

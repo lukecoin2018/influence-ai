@@ -105,8 +105,17 @@ export function describeActivity(
         title: name ? `Moved ${name} back to pending` : 'Brand moved back to pending',
         detail: null,
       };
-    case 'creator_verified':
-      return { title: name ? `Verified ${name}` : 'Creator verified', detail: null };
+    case 'creator_verified': {
+      // details.email is 'sent', 'failed' or 'skipped' on rows written since
+      // the approval email existed (app/api/admin/creators/status and, for
+      // self-verification, app/api/creators/verify-bio). Older rows have no
+      // such key and get no detail line, as before.
+      const outcome = str(details?.email);
+      return {
+        title: name ? `Verified ${name}` : 'Creator verified',
+        detail: outcome === 'failed' ? `Email failed: ${str(details?.error) ?? 'unknown error'}` : null,
+      };
+    }
     case 'creator_rejected':
       return { title: name ? `Rejected ${name}` : 'Creator rejected', detail: null };
     case 'verification_nudge_sent': {
