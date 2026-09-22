@@ -1,8 +1,6 @@
 -- 0018_creator_profiles_nudge_sent_at.sql
 --
--- STATUS: NOT YET APPLIED. Lukas applies this by hand in the Supabase SQL
--- editor before the deploy that ships app/api/cron/verification-nudge; update
--- this header with the date once it is live.
+-- STATUS: APPLIED 2026-09-15, by hand in the Supabase SQL editor.
 --
 -- One column: when the expired-verification-code nudge email was claimed for
 -- this profile. The cron route (app/api/cron/verification-nudge/route.ts)

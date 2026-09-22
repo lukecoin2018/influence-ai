@@ -105,6 +105,13 @@ interface ClaimStrings {
   notFound: {
     title: string;
     body: string;
+    /**
+     * The primary action, added when /get-listed shipped. This page is where a
+     * cold DM lands when the handle in the link is not one we scraped, so
+     * "Back to InfluenceIT" was the only exit from a dead end — the creator had
+     * no way to tell us they existed. `backHome` is now the secondary action.
+     */
+    getListedCta: string;
     backHome: string;
   };
 }
@@ -190,7 +197,8 @@ const en: ClaimStrings = {
   },
   notFound: {
     title: "We don't have this creator yet",
-    body: "We couldn't find a creator with that handle in our database.",
+    body: "We couldn't find a creator with that handle in our database. If it's yours, ask us to add it — we review every request by hand.",
+    getListedCta: 'Ask us to add you',
     backHome: 'Back to InfluenceIT',
   },
 };
@@ -280,7 +288,8 @@ const es: ClaimStrings = {
   },
   notFound: {
     title: 'Todavía no tenemos a este creador',
-    body: 'No encontramos ningún creador con ese usuario en nuestra base de datos.',
+    body: 'No encontramos ningún creador con ese usuario en nuestra base de datos. Si es tuyo, pídenos que lo agreguemos — revisamos cada solicitud a mano.',
+    getListedCta: 'Pídenos que te agreguemos',
     backHome: 'Volver a InfluenceIT',
   },
 };

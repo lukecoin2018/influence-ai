@@ -36,6 +36,20 @@ function normalizeLocale(raw: string | null): Locale {
   return raw === 'es' ? 'es' : 'en';
 }
 
+/**
+ * Where a creator whose handle we do not have actually goes. `from` names this
+ * entry point so the queue can tell it apart from the claim page and the
+ * footer; `handle` arrives pre-filled so they do not type it twice; `locale`
+ * is carried because /get-listed is bilingual and has no session to read it
+ * from (the creator has not signed up — that is the whole problem).
+ */
+function getListedHref(handle: string, locale: Locale): string {
+  const params = new URLSearchParams({ from: 'signup_not_found', locale });
+  const trimmed = handle.trim();
+  if (trimmed) params.set('handle', trimmed);
+  return `/get-listed?${params.toString()}`;
+}
+
 function SignUpContent() {
   const router = useRouter();
   const [role, setRole] = useState<Role>(null);
@@ -81,6 +95,12 @@ function SignUpContent() {
   const [handleStatus, setHandleStatus] = useState<
     'idle' | 'checking' | 'found' | 'not-found'
   >('idle');
+  // Whether the CURRENT error is "this handle is not in the database", which
+  // is the one error with somewhere to send the creator. Tracked as its own
+  // flag rather than by comparing `error` against the string: the mapping from
+  // reason code to prose lives in claimErrorMessage(), and matching on the
+  // result would break the moment a wording changes.
+  const [notIndexed, setNotIndexed] = useState(false);
 
   // Verify step state
   const [verifyCode, setVerifyCode] = useState('');
@@ -185,9 +205,11 @@ function SignUpContent() {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setNotIndexed(false);
 
     if (handleStatus === 'not-found') {
       setError(t.errors.handleNotIndexed);
+      setNotIndexed(true);
       setLoading(false);
       return;
     }
@@ -208,6 +230,11 @@ function SignUpContent() {
       // Keyed off the reason code, never the server's prose — same contract as
       // the verify step below.
       setError(claimErrorMessage(locale, data?.reason));
+      // The same two reasons claimErrorMessage() maps to handleNotIndexed. A
+      // creator can reach here without the inline check having fired: the
+      // lookup races a database change, or the form was submitted before it
+      // finished.
+      setNotIndexed(data?.reason === 'handle_not_found' || data?.reason === 'handle_missing');
       setLoading(false);
       return;
     }
@@ -626,7 +653,13 @@ function SignUpContent() {
                         margin: '4px 0 0 0',
                       }}
                     >
-                      {t.claimForm.handleNotFound}
+                      {t.claimForm.handleNotFound}{' '}
+                      <Link
+                        href={getListedHref(handle, locale)}
+                        style={{ color: '#DC2626', fontWeight: 600, textDecoration: 'underline' }}
+                      >
+                        {t.claimForm.handleNotFoundCta}
+                      </Link>
                     </p>
                   )}
                 </div>
@@ -656,6 +689,17 @@ function SignUpContent() {
                 {error && (
                   <p style={{ fontSize: '13px', color: '#DC2626', margin: 0 }}>
                     {error}
+                    {notIndexed && (
+                      <>
+                        {' '}
+                        <Link
+                          href={getListedHref(handle, locale)}
+                          style={{ color: '#DC2626', fontWeight: 600, textDecoration: 'underline' }}
+                        >
+                          {t.errors.handleNotIndexedCta}
+                        </Link>
+                      </>
+                    )}
                   </p>
                 )}
                 <button

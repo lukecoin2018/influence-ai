@@ -35,7 +35,18 @@ interface AuthStrings {
     handlePlaceholder: string;
     handleChecking: string;
     handleFound: string;
+    /**
+     * Shown under the handle field when the handle is NOT in the database.
+     *
+     * It used to read "Profile not found. You can still sign up and we'll add
+     * you." Both halves were false: handleCreatorSignup() blocks the submit on
+     * exactly this state (_SignUpForm.tsx), and nothing added anyone. The
+     * replacement says what is true and hands the creator the one thing that
+     * does something — the link below it, to /get-listed.
+     */
     handleNotFound: string;
+    /** Label of the /get-listed link rendered next to handleNotFound. */
+    handleNotFoundCta: string;
     emailLabel: string;
     emailPlaceholder: string;
     passwordLabel: string;
@@ -100,7 +111,21 @@ interface AuthStrings {
      * client, which /api/auth/signup uses), so this points at support.
      */
     brandProfileFailed: string;
+    /**
+     * The submit-time version of claimForm.handleNotFound, returned by
+     * /api/creators/claim as handle_missing / handle_not_found.
+     *
+     * It used to read "We'll add you to our database and notify you when your
+     * profile is ready." There is no notification system, and nothing recorded
+     * the intent to add anyone — CLAUDE.md names this exact string as a live
+     * example of promising what the product cannot do. What replaces it is the
+     * truth plus the link, and /get-listed is what makes the promise keepable:
+     * it records the request and the daily cron sends one email if the handle
+     * is ever added.
+     */
     handleNotIndexed: string;
+    /** Label of the /get-listed link rendered next to handleNotIndexed. */
+    handleNotIndexedCta: string;
     /** Last-resort fallback for a reason code this build doesn't recognise. */
     verificationFailed: string;
     /** Shown when /api/creators/regenerate-code fails and no code can be displayed. */
@@ -158,7 +183,8 @@ const en: AuthStrings = {
     handlePlaceholder: 'yourhandle',
     handleChecking: 'Checking...',
     handleFound: 'Profile found in our database',
-    handleNotFound: "Profile not found. You can still sign up and we'll add you.",
+    handleNotFound: "We don't have this profile yet, so there's nothing to claim.",
+    handleNotFoundCta: 'Ask us to add you',
     emailLabel: 'Email',
     emailPlaceholder: 'you@example.com',
     passwordLabel: 'Password',
@@ -203,7 +229,8 @@ const en: AuthStrings = {
     brandProfileFailed:
       'Your account was created, but we could not finish setting up your company profile. Please get in touch and we will sort it out.',
     handleNotIndexed:
-      "We don't have a profile for this handle yet. We'll add you to our database and notify you when your profile is ready.",
+      "We don't have a profile for this handle yet, so it can't be claimed. You can ask us to add it — we review every request by hand.",
+    handleNotIndexedCta: 'Ask us to add you',
     verificationFailed: 'Verification failed. Please try again.',
     codeRegenerationFailed:
       "We couldn't create a new verification code. Reload the page to try again.",
@@ -241,7 +268,8 @@ const es: AuthStrings = {
     handlePlaceholder: 'tuusuario',
     handleChecking: 'Comprobando...',
     handleFound: 'Encontramos tu perfil en nuestra base de datos',
-    handleNotFound: 'No encontramos ese perfil. Puedes registrarte igual y lo agregamos.',
+    handleNotFound: 'Todavía no tenemos este perfil, así que no hay nada que reclamar.',
+    handleNotFoundCta: 'Pídenos que te agreguemos',
     emailLabel: 'Correo electrónico',
     emailPlaceholder: 'tu@ejemplo.com',
     passwordLabel: 'Contraseña',
@@ -287,7 +315,8 @@ const es: AuthStrings = {
     brandProfileFailed:
       'Creamos tu cuenta, pero no pudimos terminar de configurar el perfil de tu empresa. Escríbenos y lo resolvemos.',
     handleNotIndexed:
-      'Todavía no tenemos un perfil para ese usuario. Te agregaremos a nuestra base de datos y te avisaremos cuando tu perfil esté listo.',
+      'Todavía no tenemos un perfil para ese usuario, así que no se puede reclamar. Puedes pedirnos que lo agreguemos — revisamos cada solicitud a mano.',
+    handleNotIndexedCta: 'Pídenos que te agreguemos',
     verificationFailed: 'No pudimos verificarte. Inténtalo de nuevo.',
     codeRegenerationFailed:
       'No pudimos crear un código de verificación nuevo. Recarga la página para intentarlo de nuevo.',
