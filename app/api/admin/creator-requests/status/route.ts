@@ -18,14 +18,24 @@ import { OPEN_REQUEST_SELECT, fulfilRequest, type OpenRequest } from '@/lib/crea
  * decided not to add you" that is worth sending.
  *
  * `added` does NOT simply stamp the column. It runs the same fulfilRequest()
- * the daily cron pass runs, which means it can answer `not_in_database` and
- * change nothing. That refusal is the point. The natural admin workflow is to
- * paste the handle into the scraper and immediately mark the request added —
- * and a plain status write there would take the row out of 'new', which is the
- * only state the fulfil pass looks at, so the creator would never get the
- * claim link this whole feature exists to send them. Refusing until the handle
- * is actually in the database makes that impossible, and once it IS in, this
- * button is simply "do it now instead of at 09:00 UTC".
+ * the daily cron pass runs, which means it can answer `not_in_database` or
+ * `platform_disabled` and change nothing. Those refusals are the point.
+ *
+ * `platform_disabled` is the newer of the two: TikTok requests are held out of
+ * fulfilment entirely (FULFIL_ENABLED_PLATFORMS in
+ * lib/creator-requests/shared.ts) because TikTok verification has never run
+ * successfully, so the claim link would land the creator on a step nobody has
+ * proven works. The button refuses rather than closing the row, so the request
+ * is still there when TikTok verification is fixed.
+ *
+ * `not_in_database` is the older one, and it exists because the natural admin
+ * workflow is to paste the handle into the scraper and immediately mark the
+ * request added — and a plain status write there would take the row out of
+ * 'new', which is the only state the fulfil pass looks at, so the creator
+ * would never get the claim link this whole feature exists to send them.
+ * Refusing until the handle is actually in the database makes that
+ * impossible, and once it IS in, this button is simply "do it now instead of
+ * at 09:00 UTC".
  */
 
 const ALLOWED = ['added', 'declined'] as const;
@@ -65,6 +75,20 @@ async function handlePOST(req: NextRequest) {
   // ── Mark added: delegate, and let it refuse ─────────────────────────────
   if (status === 'added') {
     const result = await fulfilRequest(admin, row as OpenRequest, auth.userId);
+
+    // Held platform: nothing was read, written or sent. A 409 like
+    // not_in_database — the request is untouched and still open — with its own
+    // reason code so the queue can say why, because "not in the database yet"
+    // would be a lie here and would send the admin off to check the scraper.
+    if (result.outcome === 'platform_disabled') {
+      return NextResponse.json(
+        {
+          error: 'TikTok fulfilment is disabled until TikTok verification is proven',
+          reason: 'platform_disabled',
+        },
+        { status: 409 },
+      );
+    }
 
     if (result.outcome === 'not_in_database') {
       return NextResponse.json(

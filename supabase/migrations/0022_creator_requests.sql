@@ -1,20 +1,41 @@
 -- 0022_creator_requests.sql
 --
--- STATUS: NOT YET APPLIED. Lukas applies this by hand in the Supabase SQL
--- editor before the deploy that ships app/api/creators/request; update this
--- header with the date once it is live.
+-- STATUS: APPLIED 2026-09-22, by hand in the Supabase SQL editor, and verified
+-- there: the partial unique index rejected a second open request for the same
+-- handle with 23505 and accepted one after the first was declined, and an
+-- anon-key select returns zero rows.
+--
+-- One statement below changed AFTER that: the `comment on column
+-- creator_requests.platform` text, when TikTok was enabled. It is
+-- documentation only — nothing reads it and no behaviour depends on it — so
+-- the live comment is one revision behind until that single statement is
+-- re-run. Re-running it is safe and idempotent.
 --
 -- Creators asking to be ADDED to the database — the other end of the claim
--- funnel. Today a creator whose handle we have not scraped reaches the signup
--- form, is told "we'll add you and notify you when your profile is ready",
--- and nothing happens: there is no notification system and nothing recorded
--- the request. This table is what records it.
+-- funnel. Before this, a creator whose handle we had not scraped reached the
+-- signup form, was told "we'll add you and notify you when your profile is
+-- ready", and nothing happened: there was no notification system and nothing
+-- recorded the request. This table is what records it.
 --
--- Instagram only for now. The `platform` column exists, defaults to
--- 'instagram' and is part of the unique index, but the form's TikTok option
--- is disabled and the route rejects anything else — TikTok verification has
--- never run successfully (CLAUDE.md, "Known open items"), so inviting TikTok
--- creators in would fill the queue with people we cannot finish serving.
+-- Instagram AND TikTok. `platform` defaults to 'instagram' (so a row written
+-- without it means Instagram) and is part of the unique index, so the same
+-- handle on the two platforms is two separate requests — which it is, they
+-- are two different accounts.
+--
+-- There is deliberately NO CHECK on this column: the whitelist is
+-- REQUEST_PLATFORMS in lib/creator-requests/shared.ts, which the route
+-- validates against and the form's <select> is built from. Adding a third
+-- platform is then a code change, the same call 0020 made for its event
+-- types. The cost is that a hand-written row can carry anything, which is why
+-- profileUrl() in that module falls back to Instagram rather than throwing.
+--
+-- NOTE, and it is not a schema problem: TikTok rows are accepted but are NOT
+-- auto-fulfilled. FULFIL_ENABLED_PLATFORMS in lib/creator-requests/shared.ts
+-- is ['instagram'], because TikTok verification has never run successfully
+-- (CLAUDE.md, "Known open items") and the claim link fulfilment sends would
+-- land a TikTok creator on a bio-code step nobody has proven works. So a
+-- TikTok row can sit at status 'new' indefinitely — that is the intended
+-- state, not a stuck row.
 --
 -- ── WHAT WRITES HERE ───────────────────────────────────────────────────────
 --
@@ -108,7 +129,7 @@ create policy admins_can_read_creator_requests
 comment on table creator_requests is
   'Creators asking to be added to the database. Written only by service_role (app/api/creators/request, app/api/admin/creator-requests/status, the auto-fulfil pass in app/api/cron/verification-nudge). RLS: no write policy for anon/authenticated; one admin-only SELECT policy for /admin/creators.';
 comment on column creator_requests.platform is
-  'instagram only today. The column and the unique index are ready for tiktok; the route rejects it until TikTok verification works.';
+  'instagram | tiktok. No CHECK: the whitelist is REQUEST_PLATFORMS in lib/creator-requests/shared.ts, validated by app/api/creators/request. Part of the unique index, so the same handle on both platforms is two separate requests.';
 comment on column creator_requests.handle is
   'Normalized the same way every other handle in this repo is: @ stripped, URL stripped, lowercased. Matches social_profiles.handle so the fulfil pass can join on it directly.';
 comment on column creator_requests.status is
@@ -121,13 +142,31 @@ comment on column creator_requests.creator_id is
   'Set by the fulfil pass when a creators row with this handle appears. NULL until then.';
 
 -- ── VERIFICATION ───────────────────────────────────────────────────────────
--- After applying:
---   select policyname, cmd, roles from pg_policies where tablename = 'creator_requests';
--- expect exactly one row: admins_can_read_creator_requests | SELECT | {authenticated}.
 --
---   insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
---   insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
--- the second must fail with 23505; then
---   update creator_requests set status = 'declined' where handle = 'x';
---   insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
--- must succeed. Clean up with: delete from creator_requests where handle = 'x';
+-- READ THIS FIRST: step 3 below is SUPPOSED to raise an error. Every other
+-- statement in this file must succeed, so an error there is a failure — but in
+-- step 3 the error IS the passing result, and a silent success would mean the
+-- partial unique index is not doing its job. Run the five steps ONE AT A TIME:
+-- the SQL editor wraps a multi-statement run in a transaction, so pasting them
+-- together rolls the whole sequence back on step 3's expected error and proves
+-- nothing.
+--
+-- 1. MUST return exactly one row —
+--      admins_can_read_creator_requests | SELECT | {authenticated}
+--    select policyname, cmd, roles from pg_policies where tablename = 'creator_requests';
+--
+-- 2. MUST succeed:
+--    insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
+--
+-- 3. MUST FAIL, with: 23505 duplicate key value violates unique constraint
+--    "idx_creator_requests_open_handle". This is the passing result — one OPEN
+--    request per handle. If it succeeds, the index is missing or not partial.
+--    insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
+--
+-- 4. MUST succeed, both of them — a handle is requestable again once the
+--    previous request is resolved, which is why the index is partial:
+--    update creator_requests set status = 'declined' where handle = 'x';
+--    insert into creator_requests (handle, email, source) values ('x', 'a@b.c', 'direct');
+--
+-- 5. Clean up. MUST remove the two rows steps 2 and 4 left behind:
+--    delete from creator_requests where handle = 'x';

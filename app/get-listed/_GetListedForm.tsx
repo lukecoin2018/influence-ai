@@ -15,7 +15,14 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Locale } from '@/app/claim/[handle]/_strings';
 import { HtmlLangSync } from '@/app/claim/[handle]/_HtmlLangSync';
-import { NOTE_MAX_LENGTH, type RequestSource } from '@/lib/creator-requests/shared';
+import {
+  DEFAULT_PLATFORM,
+  NOTE_MAX_LENGTH,
+  REQUEST_PLATFORMS,
+  platformLabel,
+  type RequestPlatform,
+  type RequestSource,
+} from '@/lib/creator-requests/shared';
 import { getGetListedStrings, requestErrorMessage } from './_strings';
 
 const GREY = '#3A3A3A';
@@ -57,6 +64,10 @@ export type GetListedFormProps = {
 export function GetListedForm({ initialHandle, source, locale }: GetListedFormProps) {
   const t = getGetListedStrings(locale);
 
+  // Instagram by default — it is ~45% of the database and every entry point
+  // that pre-fills a handle got it from a flow that only knows Instagram
+  // handles, so defaulting the other way would mislabel the common case.
+  const [platform, setPlatform] = useState<RequestPlatform>(DEFAULT_PLATFORM);
   const [handle, setHandle] = useState(initialHandle);
   const [email, setEmail] = useState('');
   const [note, setNote] = useState('');
@@ -79,7 +90,7 @@ export function GetListedForm({ initialHandle, source, locale }: GetListedFormPr
         // The handle is sent as typed. The route normalizes it — and is the
         // only place that may, since it is what writes the row; normalizing
         // twice in two places is how the two drift apart.
-        body: JSON.stringify({ platform: 'instagram', handle, email, note, source, website }),
+        body: JSON.stringify({ platform, handle, email, note, source, website }),
       });
       const body = await res.json().catch(() => null);
 
@@ -97,9 +108,9 @@ export function GetListedForm({ initialHandle, source, locale }: GetListedFormPr
         setOutcome({ kind: 'sent' });
         return;
       }
-      setError(requestErrorMessage(locale, body?.reason));
+      setError(requestErrorMessage(locale, body?.reason, platform));
     } catch {
-      setError(requestErrorMessage(locale, null));
+      setError(requestErrorMessage(locale, null, platform));
     } finally {
       setSubmitting(false);
     }
@@ -166,20 +177,31 @@ export function GetListedForm({ initialHandle, source, locale }: GetListedFormPr
       >
         <div>
           <label style={labelStyle} htmlFor="platform">{t.platformLabel}</label>
-          {/* Instagram is the only value the route accepts. TikTok is present
-              and disabled rather than absent, because "not yet" is a different
-              and more useful answer than silence — and because TikTok
-              verification has never run successfully (CLAUDE.md, "Known open
-              items"), so inviting TikTok creators in would fill the queue with
-              people we cannot finish serving. */}
-          <select id="platform" value="instagram" disabled style={{ ...inputStyle, cursor: 'not-allowed', backgroundColor: '#F9FAFB' }} onChange={() => {}}>
-            <option value="instagram">{t.platformInstagram}</option>
-            <option value="tiktok" disabled>{t.platformTikTokSoon}</option>
+          {/* Both options are live. The route validates the value
+              independently against the same REQUEST_PLATFORMS list, because
+              this form is not the only thing that can POST there.
+
+              Option LABELS are brand names, so they come from
+              platformLabel() rather than the locale table — "Instagram" and
+              "TikTok" are the same in both locales, and putting them in the
+              string table would invite someone to translate them. */}
+          <select
+            id="platform"
+            value={platform}
+            onChange={(e) => setPlatform(e.target.value as RequestPlatform)}
+            style={inputStyle}
+          >
+            {REQUEST_PLATFORMS.map((p) => (
+              <option key={p} value={p}>{platformLabel(p)}</option>
+            ))}
           </select>
         </div>
 
         <div>
-          <label style={labelStyle} htmlFor="handle">{t.handleLabel}</label>
+          {/* All three of these follow the platform: the label names it, the
+              placeholder shows TikTok's leading @, and the hint names the
+              domain whose links are accepted. */}
+          <label style={labelStyle} htmlFor="handle">{t.handleLabel(platform)}</label>
           <input
             id="handle"
             style={inputStyle}
@@ -187,9 +209,9 @@ export function GetListedForm({ initialHandle, source, locale }: GetListedFormPr
             onChange={(e) => setHandle(e.target.value)}
             required
             autoComplete="off"
-            placeholder={t.handlePlaceholder}
+            placeholder={t.handlePlaceholder(platform)}
           />
-          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '4px 0 0 0' }}>{t.handleHelp}</p>
+          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '4px 0 0 0' }}>{t.handleHelp(platform)}</p>
         </div>
 
         <div>

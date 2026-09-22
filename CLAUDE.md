@@ -417,8 +417,10 @@ back to `/creator-dashboard/verify`, which mints a fresh code on load.
   ```
 
   Response is `{ checked, eligible, beyondCap, sent, failed, skipped, ids,
-  requests: { ... } }` with masked emails only — the nudge's counts at the top
-  level, job 2's in `requests`. Safe to repeat: the second call sends nothing.
+  requests: { checked, eligible, beyondCap, sent, failed, skipped,
+  notInDatabase, heldByPlatform, ids } }` with masked emails only — the
+  nudge's counts at the top level, job 2's in `requests`. Safe to repeat: the
+  second call sends nothing.
 - **Webuzo panel variables override `.env.local` on the VPS** (learned
   2026-09-14, when a run-together `NEXT_PUBLIC_SITE_URL` came from the
   panel, not the file). If a value on the VPS looks wrong, check the app's
@@ -435,6 +437,9 @@ flipped to `added` with `resolved_at` and `creator_id`, and the creator gets
   that the two cannot both email the same creator: the status flip carries
   `WHERE status = 'new'` and happens before the send, so whichever runs second
   gets zero rows and sends nothing.
+- **Only `FULFIL_ENABLED_PLATFORMS` rows are selected** — Instagram today. See
+  "Creator requests" below for why TikTok is held back and what switching it on
+  takes. `requests.heldByPlatform` counts what the filter excluded.
 - `not_in_database` is the outcome for most open rows on most days. It is
   counted in `requests.notInDatabase` and deliberately **not** listed in
   `requests.ids` — 50 "nothing happened" entries bury the ones where something
@@ -461,10 +466,34 @@ creator hit a dead end and two strings that lied to them.
   **where `status = 'new'`** — one OPEN request per handle, but a declined or
   fulfilled handle can be requested again. RLS: one admin SELECT policy, writes
   service-role only, same lockdown as `creator_dashboard_events`.
-- **Instagram only.** The form shows TikTok disabled and the route rejects it,
-  because TikTok verification has never run successfully (see "Known open
-  items") — inviting TikTok creators in would fill the queue with people we
-  cannot finish serving.
+- **Instagram and TikTok.** The form's platform `<select>` is built from
+  `REQUEST_PLATFORMS` in `lib/creator-requests/shared.ts` and the route
+  validates against the same list — `creator_requests.platform` has no CHECK,
+  so that constant is the whitelist. Absent means Instagram, an unknown string
+  is a 400. The handle field's label, placeholder and hint all follow the
+  selected platform, and `normalizeRequestHandle()` accepts
+  `tiktok.com/@handle` as well as `instagram.com/handle`.
+- **`profileUrl()` and `platformLabel()`, both in that same module, are the
+  only places a profile URL is built.** The two shapes differ by more than the
+  domain — TikTok puts the `@` back in the path — and the admin queue and the
+  admin notification email must never disagree about where a handle lives.
+- **TikTok is held out of auto-fulfilment.** `FULFIL_ENABLED_PLATFORMS` in
+  `lib/creator-requests/shared.ts` is `['instagram']` — a strict subset of
+  `REQUEST_PLATFORMS`, and the gap is deliberate. A TikTok creator may ask to
+  be added and we will add them, but nothing closes their request or sends
+  `RequestFulfilled`, because that email's claim link would land them on a
+  bio-code step nobody has proven works (see "Known open items"). **Adding
+  `'tiktok'` to that one constant turns the whole path on**, once TikTok
+  verification is proven.
+  - The cron's row query filters on it, so held rows never consume a slot in
+    the per-run cap, and `fulfilRequest()` checks it again as its FIRST step,
+    before any read or write — which is what keeps the admin button honest and
+    will keep a third caller honest.
+  - `requests.heldByPlatform` in the cron response counts the open rows that
+    filter excluded. Without it a run would report an empty queue while TikTok
+    requests sat in it.
+  - "Mark added" on a TikTok row answers **409 `platform_disabled`** and
+    changes nothing, so the request is still there when TikTok is switched on.
 - **Three entry points**, each naming itself in `?from=`: the signup form's
   handle-not-found line (`signup_not_found`), the `/claim/[handle]` not-found
   page (`claim_not_found`), and the footer (`footer`). Anything else stores as

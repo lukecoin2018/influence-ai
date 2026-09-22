@@ -3,6 +3,7 @@ import { createElement } from 'react';
 import type { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { sendEmail, SITE_URL, maskEmail } from '@/lib/email/client';
 import { RequestFulfilled, requestFulfilledSubject } from '@/lib/email/templates/RequestFulfilled';
+import { FULFIL_ENABLED_PLATFORMS, isFulfilEnabled } from '@/lib/creator-requests/shared';
 
 /**
  * Closing a creator request: the handle someone asked for has appeared in the
@@ -32,9 +33,20 @@ import { RequestFulfilled, requestFulfilledSubject } from '@/lib/email/templates
  *
  * Every outcome is a return value, so the cron's loop can count it and carry
  * on. sendEmail() has the same contract (lib/email/client.ts).
+ *
+ * ── NOT EVERY PLATFORM IS FULFILLABLE ──────────────────────────────────────
+ *
+ * The platform gate below (FULFIL_ENABLED_PLATFORMS in shared.ts) is the FIRST
+ * thing this function checks, before the handle lookup and well before the
+ * status flip, so a held platform cannot be closed or emailed by either
+ * caller. The cron's query also filters on it, so held rows never reach here
+ * from that direction at all; this check is what makes the rule true for the
+ * admin button too, and what will keep it true for a third caller.
  */
 
 export type FulfilOutcome =
+  /** The row's platform is not in FULFIL_ENABLED_PLATFORMS. Nothing read, nothing written, nothing sent; the request stays open. */
+  | 'platform_disabled'
   /** The handle is not in `creators` yet. The request stays open. Not an error — it is the normal state of most open requests. */
   | 'not_in_database'
   /** Flipped to 'added' and the creator was emailed. */
@@ -66,6 +78,13 @@ type Admin = ReturnType<typeof createSupabaseAdminClient>;
 export const OPEN_REQUEST_SELECT = 'id, platform, handle, email';
 
 /**
+ * Re-exported so the cron's row query can filter on the same list this
+ * function gates on, rather than hardcoding 'instagram' in a second place
+ * that would then have to be remembered when TikTok is switched on.
+ */
+export { FULFIL_ENABLED_PLATFORMS };
+
+/**
  * `actorUserId` is the admin who clicked, or null when the daily pass ran it —
  * the same "system action = null user_id" convention the nudge uses.
  */
@@ -74,6 +93,16 @@ export async function fulfilRequest(
   row: OpenRequest,
   actorUserId: string | null,
 ): Promise<FulfilResult> {
+  // ── Is this platform fulfillable at all? ────────────────────────────────
+  // First, and before any read or write. See FULFIL_ENABLED_PLATFORMS in
+  // lib/creator-requests/shared.ts for why TikTok is held back — short
+  // version: TikTok verification has never run successfully, so the claim
+  // link this function sends would land the creator on a step nobody has
+  // proven works.
+  if (!isFulfilEnabled(row.platform)) {
+    return { id: row.id, outcome: 'platform_disabled', handle: row.handle };
+  }
+
   // ── Is the handle in the database yet? ──────────────────────────────────
   // social_profiles, not creators: `handle` lives on social_profiles, and it
   // is stored normalized, which is the same shape creator_requests.handle is

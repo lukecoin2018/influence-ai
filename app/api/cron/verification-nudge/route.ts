@@ -10,7 +10,7 @@ import {
   VerificationNudge,
   VERIFICATION_NUDGE_SUBJECT,
 } from '@/lib/email/templates/VerificationNudge';
-import { OPEN_REQUEST_SELECT, fulfilRequest, type FulfilResult, type OpenRequest } from '@/lib/creator-requests/fulfil';
+import { FULFIL_ENABLED_PLATFORMS, OPEN_REQUEST_SELECT, fulfilRequest, type FulfilResult, type OpenRequest } from '@/lib/creator-requests/fulfil';
 
 /**
  * TWO daily jobs behind one route and one schedule.
@@ -118,7 +118,7 @@ async function handleGET(req: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(`[request-fulfil] job threw: ${message}`);
-    requests = { checked: 0, eligible: 0, beyondCap: 0, sent: 0, failed: 0, skipped: 0, notInDatabase: 0, ids: [], error: message };
+    requests = { checked: 0, eligible: 0, beyondCap: 0, sent: 0, failed: 0, skipped: 0, notInDatabase: 0, heldByPlatform: 0, ids: [], error: message };
   }
 
   // The nudge half stays at the TOP LEVEL of the response, unchanged, because
@@ -327,6 +327,13 @@ type RequestsSummary = {
   skipped: number;
   /** Still waiting for the scrape. The normal outcome, and not a problem. */
   notInDatabase: number;
+  /**
+   * Open requests on a platform that is not auto-fulfilled (TikTok today).
+   * They are NOT processed and NOT counted in `eligible` — this is the only
+   * place the run admits they exist, so a growing number here means a backlog
+   * nothing is working through.
+   */
+  heldByPlatform: number;
   ids: FulfilResult[];
   /** Present only when the whole job threw; job 1's result is unaffected. */
   error?: string;
@@ -340,10 +347,18 @@ type RequestsSummary = {
  * same creator. Nothing about job 1 is reachable from here.
  */
 async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>): Promise<RequestsSummary> {
+  // Only fulfillable platforms are SELECTED, so a held row never reaches
+  // fulfilRequest() from here and never consumes a slot in the per-run cap.
+  // The list is FULFIL_ENABLED_PLATFORMS (lib/creator-requests/shared.ts) —
+  // Instagram today, because TikTok verification has never run successfully
+  // (CLAUDE.md, "Known open items"), so the claim link this pass sends would
+  // land a TikTok creator on a step nobody has proven works. fulfilRequest()
+  // checks the same list itself, which is what keeps the admin button honest.
   const { data: rows, error: selectError, count } = await admin
     .from('creator_requests')
     .select(OPEN_REQUEST_SELECT, { count: 'exact' })
     .eq('status', 'new')
+    .in('platform', FULFIL_ENABLED_PLATFORMS as readonly string[] as string[])
     .order('created_at', { ascending: true })
     .limit(PER_RUN_CAP);
 
@@ -352,12 +367,23 @@ async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>)
     // PostgREST error, not a throw. Reported rather than raised: the nudge
     // half of this run already succeeded and must still be returned.
     console.error(`[request-fulfil] open-request query failed: ${selectError.message}`);
-    return { checked: 0, eligible: 0, beyondCap: 0, sent: 0, failed: 0, skipped: 0, notInDatabase: 0, ids: [], error: selectError.message };
+    return { checked: 0, eligible: 0, beyondCap: 0, sent: 0, failed: 0, skipped: 0, notInDatabase: 0, heldByPlatform: 0, ids: [], error: selectError.message };
   }
 
   const eligible = count ?? rows?.length ?? 0;
   const checked = rows?.length ?? 0;
   const beyondCap = Math.max(0, eligible - checked);
+
+  // Open rows the platform filter above excluded. Counted, not processed:
+  // without this the summary would report an empty queue while TikTok
+  // requests sat in it, which is the kind of quiet that hides a backlog.
+  // head: true, so it is a count and no rows cross the wire.
+  const { count: heldCount } = await admin
+    .from('creator_requests')
+    .select('id', { count: 'exact', head: true })
+    .eq('status', 'new')
+    .not('platform', 'in', `(${FULFIL_ENABLED_PLATFORMS.join(',')})`);
+  const heldByPlatform = heldCount ?? 0;
 
   let sent = 0;
   let failed = 0;
@@ -375,6 +401,12 @@ async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>)
         notInDatabase += 1;
         continue;
       }
+      // Unreachable from here — the query filtered these out — but counted
+      // rather than mislabelled if a future change to that query lets one
+      // through. It is not 'failed'; nothing failed.
+      if (result.outcome === 'platform_disabled') {
+        continue;
+      }
       ids.push(result);
       if (result.outcome === 'sent') sent += 1;
       else if (result.outcome === 'failed') failed += 1;
@@ -388,8 +420,8 @@ async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>)
   }
 
   console.log(
-    `[request-fulfil] checked=${checked} eligible=${eligible} beyondCap=${beyondCap} sent=${sent} failed=${failed} skipped=${skipped} notInDatabase=${notInDatabase}`,
+    `[request-fulfil] checked=${checked} eligible=${eligible} beyondCap=${beyondCap} sent=${sent} failed=${failed} skipped=${skipped} notInDatabase=${notInDatabase} heldByPlatform=${heldByPlatform}`,
   );
 
-  return { checked, eligible, beyondCap, sent, failed, skipped, notInDatabase, ids };
+  return { checked, eligible, beyondCap, sent, failed, skipped, notInDatabase, heldByPlatform, ids };
 }

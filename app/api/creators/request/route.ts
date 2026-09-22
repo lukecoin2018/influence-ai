@@ -7,12 +7,14 @@ import { sendEmail, SITE_URL, maskEmail } from '@/lib/email/client';
 import { RequestReceived, requestReceivedSubject } from '@/lib/email/templates/RequestReceived';
 import { CreatorRequestNotice, creatorRequestNoticeSubject } from '@/lib/email/templates/CreatorRequestNotice';
 import {
+  DEFAULT_PLATFORM,
   NOTE_MAX_LENGTH,
   isValidRequestEmail,
   isValidRequestHandle,
   normalizeRequestEmail,
   normalizeRequestHandle,
   normalizeRequestNote,
+  normalizeRequestPlatform,
   normalizeSource,
 } from '@/lib/creator-requests/shared';
 
@@ -31,6 +33,11 @@ import {
  * `website` is the honeypot — a field no human sees. Anything in it is
  * answered 200 with nothing written, so a bot gets the same response a person
  * gets. Same trick app/contact/page.tsx already uses.
+ *
+ * `platform` is 'instagram' or 'tiktok', and absent means 'instagram'. The
+ * handle lookup and the stored row both carry it, so the same handle on the
+ * two platforms is two different requests — which it is, they are two
+ * different accounts.
  *
  * Every response carries a machine-readable `reason`, and the client keys off
  * that rather than the prose (CLAUDE.md, "Localization"): the bodies here are
@@ -108,13 +115,22 @@ async function handlePOST(req: NextRequest) {
   }
 
   // ── Validation ──────────────────────────────────────────────────────────
-  // Instagram only. The form's TikTok option is disabled; this is what makes
-  // that a rule rather than a suggestion, since the form is not the only thing
-  // that can POST here.
-  const platform = typeof body.platform === 'string' ? body.platform : 'instagram';
-  if (platform !== 'instagram') {
+  // Instagram or TikTok, validated against REQUEST_PLATFORMS rather than
+  // trusted: the form is not the only thing that can POST here, and
+  // creator_requests.platform has no CHECK constraint, so this is the only
+  // thing standing between a hand-rolled request and a row with a platform
+  // nothing else in the system understands.
+  //
+  // ABSENT means Instagram, so a caller written against the Instagram-only
+  // version of this route keeps working unchanged. An unknown STRING is a 400,
+  // not a silent fallback.
+  const platform = body.platform === undefined || body.platform === null
+    ? DEFAULT_PLATFORM
+    : normalizeRequestPlatform(typeof body.platform === 'string' ? body.platform : null);
+
+  if (!platform) {
     return NextResponse.json(
-      { error: 'Instagram only for now', reason: 'invalid_platform' satisfies Reason },
+      { error: 'Platform must be instagram or tiktok', reason: 'invalid_platform' satisfies Reason },
       { status: 400 },
     );
   }
@@ -247,7 +263,7 @@ async function handlePOST(req: NextRequest) {
     toAdmin = await sendEmail({
       to: adminTo,
       subject: creatorRequestNoticeSubject(handle),
-      react: createElement(CreatorRequestNotice, { handle, email, source, note }),
+      react: createElement(CreatorRequestNotice, { handle, platform, email, source, note }),
       // Answering the notification from the admin inbox reaches the creator,
       // the same arrangement /api/inquiries uses.
       replyTo: email,

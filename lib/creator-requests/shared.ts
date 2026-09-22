@@ -10,9 +10,76 @@
 // route normalizes again because the form's output is untrusted input by the
 // time it arrives.
 
-/** Instagram only today — see supabase/migrations/0022_creator_requests.sql. */
-export const REQUEST_PLATFORMS = ['instagram'] as const;
+/**
+ * Both platforms the request form offers. `creator_requests.platform` has no
+ * CHECK constraint, so THIS is the whitelist — the route validates against it
+ * and rejects anything else, and the partial unique index on
+ * `(platform, handle)` means the same handle can be requested once per
+ * platform, which is correct: they are different accounts.
+ *
+ * The order is the order the form's <select> shows them.
+ */
+export const REQUEST_PLATFORMS = ['instagram', 'tiktok'] as const;
 export type RequestPlatform = (typeof REQUEST_PLATFORMS)[number];
+
+/** What a request with no `platform` field is taken to mean. */
+export const DEFAULT_PLATFORM: RequestPlatform = 'instagram';
+
+/**
+ * Untrusted input, and deliberately NOT falling back to a default: an unknown
+ * platform is a caller error the route answers with a 400, not something to
+ * silently file under Instagram. Absent is handled by the caller, which
+ * substitutes DEFAULT_PLATFORM before calling this.
+ */
+export function normalizeRequestPlatform(raw: string | null | undefined): RequestPlatform | null {
+  return REQUEST_PLATFORMS.includes(raw as RequestPlatform) ? (raw as RequestPlatform) : null;
+}
+
+/**
+ * Public profile URL for a stored handle. One definition, because three
+ * surfaces need it and they must agree: the admin queue's handle link, the
+ * admin notification email, and anything added later.
+ *
+ * The two differ by more than the domain — TikTok puts the `@` back in the
+ * path, Instagram does not — which is exactly the kind of detail that goes
+ * wrong when it is written out at each call site. Handles are stored
+ * normalized (no `@`), so the `@` here is added, never doubled.
+ */
+export function profileUrl(platform: string, handle: string): string {
+  return platform === 'tiktok'
+    ? `https://tiktok.com/@${handle}`
+    : `https://instagram.com/${handle}`;
+}
+
+/** Display name for a platform value. Brand names, so never translated. */
+export function platformLabel(platform: string): string {
+  return platform === 'tiktok' ? 'TikTok' : 'Instagram';
+}
+
+/**
+ * Platforms whose requests may be AUTO-FULFILLED — closed and sent a claim
+ * link. A strict subset of REQUEST_PLATFORMS, and the gap between the two is
+ * deliberate: a creator may ASK to be added on TikTok, and we will add them,
+ * but nothing automatically tells them to go and claim.
+ *
+ * ── WHY TIKTOK IS HELD BACK ────────────────────────────────────────────────
+ *
+ * TikTok verification has never run successfully — CLAUDE.md, "Known open
+ * items", and the note in the "Creator requests" section. The claim link in
+ * RequestFulfilled says claiming unlocks the dashboard, and for a TikTok
+ * creator that lands them on a bio-code step nobody has proven works. Sending
+ * it would be the "don't promise what the product can't do" rule broken by
+ * automation, which is the worst way to break it: at volume, unattended.
+ *
+ * Adding 'tiktok' here is the ONE change that turns the whole path on, once
+ * TikTok verification is proven. Both callers of fulfilRequest() route through
+ * this, so neither can be switched on by accident without the other.
+ */
+export const FULFIL_ENABLED_PLATFORMS = ['instagram'] as const;
+
+export function isFulfilEnabled(platform: string): boolean {
+  return (FULFIL_ENABLED_PLATFORMS as readonly string[]).includes(platform);
+}
 
 /**
  * Where the request came from. Whitelisted rather than free text: it is
@@ -32,9 +99,16 @@ export function normalizeSource(raw: string | null | undefined): RequestSource {
 export const NOTE_MAX_LENGTH = 300;
 
 /**
- * Instagram's own rule: letters, digits, periods and underscores, up to 30
- * characters. Applied AFTER normalization, so it is a check on what would be
- * stored rather than on what was typed.
+ * Letters, digits, periods and underscores, up to 30 characters. Applied AFTER
+ * normalization, so it is a check on what would be stored rather than on what
+ * was typed.
+ *
+ * ONE pattern for both platforms, and it is Instagram's (the looser of the
+ * two — TikTok caps at 24). Deliberate: this is a typo guard, not an
+ * authority on what exists. The only thing that settles whether a handle is
+ * real is a person opening the profile, which the admin queue links to, and a
+ * platform-specific length rule here would reject a valid handle on the
+ * strength of a rule the platform could change tomorrow.
  */
 const HANDLE_PATTERN = /^[a-z0-9._]{1,30}$/;
 
@@ -63,7 +137,9 @@ export function normalizeRequestHandle(raw: unknown): string | null {
   let s = raw.trim();
   if (!s) return null;
 
-  // A pasted profile URL, with or without scheme and www.
+  // A pasted profile URL, with or without scheme and www, on either platform.
+  // TikTok profile URLs are `tiktok.com/@handle` — the `@` is inside the path,
+  // which is why it is stripped after the path split below rather than before.
   const url = s.match(/^(?:https?:\/\/)?(?:[a-z0-9-]+\.)*(?:instagram|tiktok)\.com\/(.*)$/i);
   if (url) s = url[1];
 
