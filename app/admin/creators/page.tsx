@@ -16,6 +16,18 @@ type EngagementRow = { creator_profile_id: string; last_event_at: string; event_
 /** Per-creator activity list: absent = not opened yet; 'loading' / 'error' one-word states. */
 type ActivityState = DashboardEventRow[] | 'loading' | 'error';
 
+/** One row of the "Add requests" queue (0022). */
+type CreatorRequest = {
+  id: string;
+  platform: string;
+  handle: string;
+  email: string;
+  note: string | null;
+  status: string;
+  source: string;
+  created_at: string;
+};
+
 const DATE_FMT: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'short', year: 'numeric' };
 const fmtDate = (iso: string) => new Date(iso).toLocaleDateString('en-GB', DATE_FMT);
 // Same date wording as "Claimed", plus the time, in the admin's local zone.
@@ -38,6 +50,13 @@ export default function AdminCreatorsPage() {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionNotice, setActionNotice] = useState<string | null>(null);
+  // The open "Add requests" queue. null means the table could not be read —
+  // 0022 is applied by hand, so before it lands this select fails and the
+  // whole section is simply not rendered, the same tolerance the 0021 count
+  // columns get below. Never an error banner: a missing migration must not
+  // look like a broken page.
+  const [requests, setRequests] = useState<CreatorRequest[] | null>(null);
+  const [resolvedCounts, setResolvedCounts] = useState<{ added: number; declined: number } | null>(null);
   const requestSeq = useRef(0);
 
   useEffect(() => {
@@ -71,12 +90,85 @@ export default function AdminCreatorsPage() {
         : { data: [], error: null };
       if (seq !== requestSeq.current) return;
       setEngagement(engError ? null : Object.fromEntries(((eng ?? []) as EngagementRow[]).map((r) => [r.creator_profile_id, r])));
+      await loadRequests(seq);
     } catch (err) {
       if (seq !== requestSeq.current) return;
       console.error('Failed to load creator_profiles:', err);
       setLoadError(err instanceof Error ? err.message : 'Failed to load');
     } finally {
       if (seq === requestSeq.current) setDataLoading(false);
+    }
+  }
+
+  // Read straight from the table through the admin SELECT policy (0022), the
+  // same way the activity list below reads creator_dashboard_events: no route
+  // and no service role, because this is a read the admin's own session is
+  // entitled to. Only OPEN requests carry actions; the resolved ones are a
+  // count, so "have I already dealt with this" is answerable without a
+  // second list to scroll past.
+  async function loadRequests(seq: number) {
+    const [open, resolved] = await Promise.all([
+      supabase
+        .from('creator_requests')
+        .select('id, platform, handle, email, note, status, source, created_at')
+        .eq('status', 'new')
+        .order('created_at', { ascending: true }),
+      supabase.from('creator_requests').select('status').neq('status', 'new'),
+    ]);
+    if (seq !== requestSeq.current) return;
+    setRequests(open.error ? null : ((open.data ?? []) as CreatorRequest[]));
+    setResolvedCounts(
+      resolved.error
+        ? null
+        : {
+            added: (resolved.data ?? []).filter((r) => r.status === 'added').length,
+            declined: (resolved.data ?? []).filter((r) => r.status === 'declined').length,
+          },
+    );
+  }
+
+  // Both actions go through /api/admin/creator-requests/status. "Mark added"
+  // can legitimately REFUSE with 409 not_in_database — see that route's header:
+  // closing a request before the handle is actually in the database is what
+  // would silently cost the creator their claim email, so the button tells the
+  // truth instead of stamping the row.
+  async function updateRequest(requestId: string, status: 'added' | 'declined') {
+    setActionLoading(requestId + status);
+    setActionError(null);
+    setActionNotice(null);
+    try {
+      const res = await fetch('/api/admin/creator-requests/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ requestId, status }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) {
+        if (body?.reason === 'not_in_database') {
+          setActionNotice(
+            'Not in the database yet — nothing changed. Add the handle to the scraper first; ' +
+            'the daily job closes the request and emails them automatically once it lands.',
+          );
+          return;
+        }
+        throw new Error(body?.reason ? `${res.status} ${body.reason}` : `HTTP ${res.status}`);
+      }
+      if (status === 'added') {
+        const emailStatus = body?.emailStatus as 'sent' | 'failed' | 'skipped' | undefined;
+        setActionNotice(
+          emailStatus === 'sent' ? 'Marked added · claim email sent'
+          : emailStatus === 'failed' ? 'Marked added · claim email FAILED — check server logs'
+          : 'Already resolved · no email sent',
+        );
+      } else {
+        setActionNotice('Declined · no email sent');
+      }
+      await load();
+    } catch (err) {
+      console.error('Failed to update creator request:', err);
+      setActionError(err instanceof Error ? `Failed to update — ${err.message}` : 'Failed to update');
+    } finally {
+      setActionLoading(null);
     }
   }
 
@@ -160,16 +252,92 @@ export default function AdminCreatorsPage() {
 
   return (
     <div>
-      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Creator Verification</h1>
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        {filterBtn('all', 'All')}{filterBtn('pending', 'Pending')}{filterBtn('verified', 'Verified')}{filterBtn('rejected', 'Rejected')}
-      </div>
+      {/* Both action banners live at the top of the page, not under the
+          Creator Verification heading where they used to: they are now written
+          by the request queue above as well, and a notice rendered below the
+          list that produced it is a notice nobody reads. */}
       {actionError && (
         <p style={{ color: '#DC2626', fontSize: '13px', margin: '0 0 12px 0' }}>{actionError}</p>
       )}
       {actionNotice && (
-        <p style={{ color: actionNotice.includes('FAILED') ? '#B45309' : '#065F46', fontSize: '13px', margin: '0 0 12px 0' }}>{actionNotice}</p>
+        <p style={{ color: actionNotice.includes('FAILED') ? '#B45309' : '#065F46', fontSize: '13px', margin: '0 0 12px 0', maxWidth: '640px' }}>{actionNotice}</p>
       )}
+
+      {/* ── Add requests ────────────────────────────────────────────────────
+          At the TOP, above Creator Verification, because it is the only list
+          on this page with someone waiting on the other end of it: a creator
+          who asked to be added and is getting nothing until a handle is pasted
+          into the scraper. Verification is self-service and can wait a day.
+
+          A section rather than a tab: the two lists are short, they are read in
+          the same sitting, and a tab would hide a queue whose whole problem is
+          being forgotten. `requests === null` means the 0022 table is not there
+          yet and the section does not render at all. */}
+      {requests !== null && (
+        <div style={{ marginBottom: '32px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap', marginBottom: '12px' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: 0, letterSpacing: '-0.02em' }}>Add requests</h1>
+            <span style={{ fontSize: '13px', color: '#6B7280' }}>
+              {requests.length} open
+              {resolvedCounts ? ` · ${resolvedCounts.added} added · ${resolvedCounts.declined} declined` : ''}
+            </span>
+          </div>
+
+          {requests.length === 0 ? (
+            <p style={{ color: '#9CA3AF', fontSize: '14px', margin: 0 }}>No open requests.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {requests.map((r) => (
+                <div key={r.id} style={{ backgroundColor: 'white', borderRadius: '12px', border: '1px solid #E5E7EB', padding: '16px 20px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                    <div style={{ minWidth: 0 }}>
+                      {/* The handle is the ONLY thing that has to be pasted
+                          into the scraper, so it is the thing the row leads
+                          with and the thing the link opens. */}
+                      <a
+                        href={`https://instagram.com/${r.handle}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ fontSize: '16px', fontWeight: 700, color: '#3A3A3A', textDecoration: 'underline', overflowWrap: 'anywhere' }}
+                      >
+                        @{r.handle}
+                      </a>
+                      <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0 0 0', overflowWrap: 'anywhere' }}>{r.email}</p>
+                      {r.note && (
+                        <p style={{ fontSize: '13px', color: '#374151', margin: '6px 0 0 0', maxWidth: '520px', overflowWrap: 'anywhere' }}>{r.note}</p>
+                      )}
+                      <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '6px 0 0 0' }}>
+                        {fmtDate(r.created_at)} · {r.source} · {r.platform}
+                      </p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      <button
+                        onClick={() => updateRequest(r.id, 'added')}
+                        disabled={actionLoading === r.id + 'added'}
+                        style={{ padding: '7px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#ECFDF5', color: '#065F46' }}
+                      >
+                        ✅ Mark added
+                      </button>
+                      <button
+                        onClick={() => updateRequest(r.id, 'declined')}
+                        disabled={actionLoading === r.id + 'declined'}
+                        style={{ padding: '7px 14px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FEF2F2', color: '#991B1B' }}
+                      >
+                        ❌ Decline
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <h1 style={{ fontSize: '22px', fontWeight: 700, color: '#3A3A3A', margin: '0 0 24px 0', letterSpacing: '-0.02em' }}>Creator Verification</h1>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        {filterBtn('all', 'All')}{filterBtn('pending', 'Pending')}{filterBtn('verified', 'Verified')}{filterBtn('rejected', 'Rejected')}
+      </div>
       {dataLoading ? (
         <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
       ) : loadError ? (

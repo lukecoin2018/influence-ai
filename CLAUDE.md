@@ -374,10 +374,16 @@ caps around 500 a day and lands in spam for anyone who is not us.
   notice `Approved · email sent`; click again and expect
   `Already verified · no email sent` with exactly one send in Resend Logs.
 
-### Cron — the expired-code nudge
+### Cron — one route, two daily jobs
 
-One scheduled job: `GET /api/cron/verification-nudge`, run by Vercel Cron at
-09:00 UTC daily (`vercel.json`). It emails a creator who claimed a profile,
+`GET /api/cron/verification-nudge`, run by Vercel Cron at 09:00 UTC daily
+(`vercel.json`). The path is historical: it now runs **two** jobs, in separate
+functions with separate try/catch and separate `[nudge]` / `[request-fulfil]`
+log lines. A throw in one cannot cost the other its run, and the nudge's half
+of the response stays at the top level of the body so a hand-run reads as it
+always did.
+
+**Job 1 — the expired-code nudge.** It emails a creator who claimed a profile,
 was issued a bio-verification code, and let it expire unused, inviting them
 back to `/creator-dashboard/verify`, which mints a fresh code on load.
 
@@ -410,12 +416,94 @@ back to `/creator-dashboard/verify`, which mints a fresh code on load.
   curl -H "Authorization: Bearer $CRON_SECRET" https://influenceit.app/api/cron/verification-nudge
   ```
 
-  Response is `{ checked, eligible, beyondCap, sent, failed, skipped, ids }`
-  with masked emails only. Safe to repeat: the second call sends nothing.
+  Response is `{ checked, eligible, beyondCap, sent, failed, skipped, ids,
+  requests: { ... } }` with masked emails only — the nudge's counts at the top
+  level, job 2's in `requests`. Safe to repeat: the second call sends nothing.
 - **Webuzo panel variables override `.env.local` on the VPS** (learned
   2026-09-14, when a run-together `NEXT_PUBLIC_SITE_URL` came from the
   panel, not the file). If a value on the VPS looks wrong, check the app's
   environment variables in the Webuzo dashboard before the `.env.local` file.
+
+**Job 2 — the creator-request fulfil pass.** Every `creator_requests` row with
+`status = 'new'`, oldest first, capped at 50: has the handle appeared in
+`social_profiles` (same platform) since it was requested? If it has, the row is
+flipped to `added` with `resolved_at` and `creator_id`, and the creator gets
+`RequestFulfilled` with a link to `/claim/<handle>`.
+
+- The per-row work is `fulfilRequest()` in `lib/creator-requests/fulfil.ts`,
+  **shared with the admin "Mark added" button**. That sharing is the guarantee
+  that the two cannot both email the same creator: the status flip carries
+  `WHERE status = 'new'` and happens before the send, so whichever runs second
+  gets zero rows and sends nothing.
+- `not_in_database` is the outcome for most open rows on most days. It is
+  counted in `requests.notInDatabase` and deliberately **not** listed in
+  `requests.ids` — 50 "nothing happened" entries bury the ones where something
+  did.
+- **A failed send still closes the request.** Same trade as the nudge: a missed
+  fulfilment email is acceptable, a duplicate is not.
+- **Audit:** one `activity_log` row per attempt, `creator_request_fulfilled`,
+  `user_id` null when the cron ran it and the admin's id when the button did.
+  Declines write `creator_request_declined`. No `funnel_events` row — that
+  table's `event_type` CHECK would need a migration, and this is post-request
+  admin work, not the pre-claim funnel.
+- A missing `creator_requests` table (0022 not applied) comes back as a
+  PostgREST error, is reported in `requests.error`, and does not disturb job 1.
+
+---
+
+## Creator requests — asking to be added
+
+The other end of the claim funnel. `/claim/[handle]` and signup serve a creator
+we already scraped; **`/get-listed` serves one we did not.** Before it, that
+creator hit a dead end and two strings that lied to them.
+
+- **Table `creator_requests` (0022).** Unique index on `(platform, handle)`
+  **where `status = 'new'`** — one OPEN request per handle, but a declined or
+  fulfilled handle can be requested again. RLS: one admin SELECT policy, writes
+  service-role only, same lockdown as `creator_dashboard_events`.
+- **Instagram only.** The form shows TikTok disabled and the route rejects it,
+  because TikTok verification has never run successfully (see "Known open
+  items") — inviting TikTok creators in would fill the queue with people we
+  cannot finish serving.
+- **Three entry points**, each naming itself in `?from=`: the signup form's
+  handle-not-found line (`signup_not_found`), the `/claim/[handle]` not-found
+  page (`claim_not_found`), and the footer (`footer`). Anything else stores as
+  `direct`. Adding a fourth is one `<Link>` plus one value in
+  `REQUEST_SOURCES` — `GetListedForm` takes `source` as a prop and nothing else.
+- **`/get-listed` is bilingual**, because two of its three entry points are. It
+  reads `?handle=`, `?from=` and `?locale=` in its **server** component and
+  passes them down as props, so the form needs no `useSearchParams()` and
+  therefore no Suspense boundary. Copy lives in `app/get-listed/_strings.ts`.
+- **`POST /api/creators/request`** is public, no session. Honeypot field
+  (`website`) answered 200 with no write. Handle already in `social_profiles` →
+  **200 with `exists: true` and a `claimUrl`, no insert** — a legitimate 200
+  that the client must not read as failure. New handle → 201 plus two emails.
+  Duplicate open request → 200 `already_requested`, **no email** (the one branch
+  that could otherwise be driven to mail an address repeatedly).
+- **Rate limit: 3 per hour per IP**, counted from `creator_requests.ip_hash`
+  rather than held in memory — this runs on Vercel (many lambdas) and on the VPS
+  (one process), and an in-memory counter would mean something different on
+  each. `ip_hash` is SHA-256 of the **first** `x-forwarded-for` entry, else
+  `x-real-ip`. **With neither header the limit is skipped** and the fact is
+  logged once per process: bucketing every headerless request under one key
+  would let one bot lock out every creator behind a header-stripping proxy. A
+  counting error also fails open — this is abuse control, not a boundary.
+- **Emails:** `RequestReceived` to the creator, `CreatorRequestNotice` to
+  `ADMIN_EMAIL` (Reply-To the creator), and later `RequestFulfilled`. Neither of
+  the first two can fail the request; the row is what matters and it is already
+  written.
+- **Admin queue:** "Add requests" at the TOP of `/admin/creators`, above Creator
+  Verification, because it is the only list on that page with someone waiting on
+  the other end. Reads the table directly under the admin's session. If 0022 is
+  not applied the whole section simply does not render.
+- **"Mark added" can refuse, and that is the point.** It runs the same
+  `fulfilRequest()` the cron does, so if the handle is not in the database yet it
+  answers 409 `not_in_database` and changes nothing. A plain status write there
+  would take the row out of `'new'` — the only state the fulfil pass looks at —
+  and the creator would never get the claim link this whole feature exists to
+  send. Once the handle IS in, the button is just "do it now instead of 09:00
+  UTC". **Decline sends nothing.**
+- The automatic half is **job 2 of the cron** — see "Cron" above.
 
 ---
 
@@ -428,10 +516,14 @@ back to `/creator-dashboard/verify`, which mints a fresh code on load.
 - Region, niche and recency are **additive, never penalizing**.
 - Category is **a lens the creator looks through**, never a niche assumed about
   them.
-- **Don't promise what the product can't do.** Live examples to avoid repeating:
-  copy telling a creator "we'll notify you when your profile is ready" (there is
-  no notification system), and a card claiming tools arrive "pre-filled with
-  {brand}'s context" when they didn't.
+- **Don't promise what the product can't do.** Live example to avoid repeating:
+  a card claiming tools arrive "pre-filled with {brand}'s context" when they
+  didn't. The other long-standing one — signup telling a creator "you can still
+  sign up and we'll add you" and "we'll notify you when your profile is ready",
+  when signup blocked on exactly that state and no notification system existed —
+  was **fixed** by `/get-listed` (see "Creator requests"). What replaced it
+  promises one thing only, conditionally: *if* we add the handle, one email
+  follows. That email is what job 2 of the cron actually sends.
 - Where the product records something it can't verify, **say so** — the outreach
   tool says "marked as sent", not "sent".
 

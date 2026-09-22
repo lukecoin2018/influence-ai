@@ -10,8 +10,25 @@ import {
   VerificationNudge,
   VERIFICATION_NUDGE_SUBJECT,
 } from '@/lib/email/templates/VerificationNudge';
+import { OPEN_REQUEST_SELECT, fulfilRequest, type FulfilResult, type OpenRequest } from '@/lib/creator-requests/fulfil';
 
 /**
+ * TWO daily jobs behind one route and one schedule.
+ *
+ * The route path and the Vercel Cron entry are unchanged (vercel.json, 09:00
+ * UTC); what runs is now the verification nudge AND the creator-request fulfil
+ * pass. They share nothing but the bearer gate and the clock: separate
+ * functions, separate try/catch, separate `[nudge]` / `[request-fulfil]` log
+ * lines, separate halves of the response body. A throw in one cannot cost the
+ * other its run.
+ *
+ * Kept on one schedule rather than split into a second route because the two
+ * jobs answer the same question at the same cadence — "who is waiting on an
+ * email from us today" — and a second route would be a second CRON_SECRET
+ * surface and a second vercel.json entry for no gain.
+ *
+ * ── JOB 1: THE VERIFICATION NUDGE ──────────────────────────────────────────
+ *
  * Daily nudge for creators who claimed a profile, were issued a bio
  * verification code, and let it expire unused. One email per profile, ever.
  *
@@ -46,6 +63,17 @@ import {
  * Each row's work is wrapped so a throw anywhere inside it counts as `failed`
  * for that row and the loop continues. sendEmail() never throws on its own
  * (lib/email/client.ts), but the auth lookup and the two selects can.
+ *
+ * ── JOB 2: THE CREATOR-REQUEST FULFIL PASS ─────────────────────────────────
+ *
+ * Every open row in creator_requests, oldest first, capped at 50: has the
+ * handle appeared in the database since it was requested? If so the request is
+ * closed and the creator gets their claim link. `not_in_database` is the
+ * normal answer for most rows on most days and is counted, not logged.
+ *
+ * The work itself is lib/creator-requests/fulfil.ts, shared with the admin
+ * "Mark added" button so the two cannot send the same creator two emails.
+ * Its claim-then-send rule is the nudge's, for the same reason.
  */
 
 const PER_RUN_CAP = 50;
@@ -78,6 +106,43 @@ async function handleGET(req: NextRequest) {
   if ('error' in gate) return gate.error;
 
   const admin = createSupabaseAdminClient();
+
+  const nudge = await runNudgeJob(admin);
+  if ('error' in nudge) return nudge.error;
+
+  // Wrapped: job 2 must not be able to cost job 1 its already-completed run,
+  // and the nudge summary is in `nudge` by this point either way.
+  let requests: RequestsSummary;
+  try {
+    requests = await runFulfilJob(admin);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[request-fulfil] job threw: ${message}`);
+    requests = { checked: 0, eligible: 0, beyondCap: 0, sent: 0, failed: 0, skipped: 0, notInDatabase: 0, ids: [], error: message };
+  }
+
+  // The nudge half stays at the TOP LEVEL of the response, unchanged, because
+  // CLAUDE.md documents that shape and a hand-run reads it. The new job gets
+  // its own nested object rather than merging counts that mean different
+  // things.
+  return NextResponse.json({ ...nudge.summary, requests });
+}
+
+// ── JOB 1 ──────────────────────────────────────────────────────────────────
+
+type NudgeSummary = {
+  checked: number;
+  eligible: number;
+  beyondCap: number;
+  sent: number;
+  failed: number;
+  skipped: number;
+  ids: { id: string; outcome: RowOutcome; to?: string; error?: string }[];
+};
+
+async function runNudgeJob(
+  admin: ReturnType<typeof createSupabaseAdminClient>,
+): Promise<{ error: NextResponse } | { summary: NudgeSummary }> {
   const now = Date.now();
   const expiryCutoff = new Date(now - EXPIRY_AGE_MS).toISOString();
   const signupCutoff = new Date(now - SIGNUP_WINDOW_MS).toISOString();
@@ -99,10 +164,12 @@ async function handleGET(req: NextRequest) {
     // A missing nudge_sent_at column (0018 not applied) lands here as a
     // PostgREST error, not a throw. Say so plainly: the fix is the migration.
     console.error(`[nudge] eligibility query failed: ${selectError.message}`);
-    return NextResponse.json(
-      { error: 'Eligibility query failed', reason: 'query_failed', detail: selectError.message },
-      { status: 500 },
-    );
+    return {
+      error: NextResponse.json(
+        { error: 'Eligibility query failed', reason: 'query_failed', detail: selectError.message },
+        { status: 500 },
+      ),
+    };
   }
 
   const eligible = count ?? rows?.length ?? 0;
@@ -133,7 +200,7 @@ async function handleGET(req: NextRequest) {
     `[nudge] checked=${checked} eligible=${eligible} beyondCap=${beyondCap} sent=${sent} failed=${failed} skipped=${skipped}`,
   );
 
-  return NextResponse.json({ checked, eligible, beyondCap, sent, failed, skipped, ids });
+  return { summary: { checked, eligible, beyondCap, sent, failed, skipped, ids } };
 }
 
 async function nudgeOne(
@@ -247,4 +314,82 @@ async function nudgeOne(
     return { id: row.id, outcome: 'sent', to: maskEmail(to!) };
   }
   return { id: row.id, outcome: 'failed', ...(to ? { to: maskEmail(to) } : {}), error: emailDetails.error };
+}
+
+// ── JOB 2 ──────────────────────────────────────────────────────────────────
+
+type RequestsSummary = {
+  checked: number;
+  eligible: number;
+  beyondCap: number;
+  sent: number;
+  failed: number;
+  skipped: number;
+  /** Still waiting for the scrape. The normal outcome, and not a problem. */
+  notInDatabase: number;
+  ids: FulfilResult[];
+  /** Present only when the whole job threw; job 1's result is unaffected. */
+  error?: string;
+};
+
+/**
+ * Every open creator_requests row, oldest first, capped like the nudge.
+ *
+ * The per-row work is lib/creator-requests/fulfil.ts — shared with the admin
+ * "Mark added" button, which is what guarantees the two cannot both email the
+ * same creator. Nothing about job 1 is reachable from here.
+ */
+async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>): Promise<RequestsSummary> {
+  const { data: rows, error: selectError, count } = await admin
+    .from('creator_requests')
+    .select(OPEN_REQUEST_SELECT, { count: 'exact' })
+    .eq('status', 'new')
+    .order('created_at', { ascending: true })
+    .limit(PER_RUN_CAP);
+
+  if (selectError) {
+    // A missing creator_requests table (0022 not applied) lands here as a
+    // PostgREST error, not a throw. Reported rather than raised: the nudge
+    // half of this run already succeeded and must still be returned.
+    console.error(`[request-fulfil] open-request query failed: ${selectError.message}`);
+    return { checked: 0, eligible: 0, beyondCap: 0, sent: 0, failed: 0, skipped: 0, notInDatabase: 0, ids: [], error: selectError.message };
+  }
+
+  const eligible = count ?? rows?.length ?? 0;
+  const checked = rows?.length ?? 0;
+  const beyondCap = Math.max(0, eligible - checked);
+
+  let sent = 0;
+  let failed = 0;
+  let skipped = 0;
+  let notInDatabase = 0;
+  const ids: FulfilResult[] = [];
+
+  for (const row of (rows ?? []) as OpenRequest[]) {
+    try {
+      const result = await fulfilRequest(admin, row, null);
+      // 'not_in_database' is most rows most days. Counted, never listed: a
+      // response carrying 50 "nothing happened" entries buries the ones where
+      // something did.
+      if (result.outcome === 'not_in_database') {
+        notInDatabase += 1;
+        continue;
+      }
+      ids.push(result);
+      if (result.outcome === 'sent') sent += 1;
+      else if (result.outcome === 'failed') failed += 1;
+      else skipped += 1;
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`[request-fulfil] ${row.id} threw: ${message}`);
+      ids.push({ id: row.id, outcome: 'failed', handle: row.handle, error: message });
+      failed += 1;
+    }
+  }
+
+  console.log(
+    `[request-fulfil] checked=${checked} eligible=${eligible} beyondCap=${beyondCap} sent=${sent} failed=${failed} skipped=${skipped} notInDatabase=${notInDatabase}`,
+  );
+
+  return { checked, eligible, beyondCap, sent, failed, skipped, notInDatabase, ids };
 }

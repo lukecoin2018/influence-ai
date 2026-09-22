@@ -19,6 +19,7 @@ import {
 } from './_data';
 import { getClaimStrings, type Locale } from './_strings';
 import { HtmlLangSync } from './_HtmlLangSync';
+import { GetListedLink } from './_GetListedLink';
 
 const READ_TIMEOUT_MS = 15_000;
 
@@ -441,16 +442,25 @@ export function ClaimNotFound({ locale }: { locale: Locale }) {
         <p style={{ fontSize: '15px', color: '#6B7280', margin: '0 0 24px 0' }}>
           {t.body}
         </p>
-        <Link
-          href="/"
-          style={{
-            display: 'inline-flex', padding: '10px 20px', borderRadius: '8px',
-            backgroundColor: 'var(--color-lmg-yellow)', color: 'var(--color-lmg-grey)',
-            fontSize: '14px', fontWeight: 600, textDecoration: 'none',
-          }}
-        >
-          {t.backHome}
-        </Link>
+        {/* The primary action is now "ask us to add you", not "go home".
+            This page is the end of a cold DM whose handle we turned out not to
+            have, and the creator reading it is exactly the person /get-listed
+            exists for. The handle comes from the pathname — see the header of
+            _GetListedLink.tsx for why that cannot be done on the server. */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'center' }}>
+          <GetListedLink locale={locale} label={t.getListedCta} />
+          <Link
+            href="/"
+            style={{
+              display: 'inline-flex', padding: '10px 20px', borderRadius: '8px',
+              border: '1px solid #E5E7EB', backgroundColor: '#fff',
+              color: 'var(--color-lmg-grey)',
+              fontSize: '14px', fontWeight: 600, textDecoration: 'none',
+            }}
+          >
+            {t.backHome}
+          </Link>
+        </div>
       </div>
       <div style={{ textAlign: 'center', fontSize: 12, color: '#9C9A91' }}>
         <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'underline' }}>

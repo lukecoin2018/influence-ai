@@ -67,6 +67,11 @@ export function Footer() {
               {[
                 { href: '/login',   label: 'Login'   },
                 { href: '/signup',  label: 'Sign Up' },
+                // For a creator we have not scraped. English like the rest of
+                // this footer; the page itself is bilingual and resolves its
+                // locale from ?locale=, which the two funnel entry points pass
+                // and this one has no way to know.
+                { href: '/get-listed?from=footer', label: 'Get listed' },
                 { href: '/contact', label: 'Contact' },
               ].map(({ href, label }) => (
                 <li key={href}>
