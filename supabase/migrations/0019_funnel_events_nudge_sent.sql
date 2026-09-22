@@ -1,8 +1,7 @@
 -- 0019_funnel_events_nudge_sent.sql
 -- Extends funnel_events.event_type with the expired-code nudge.
 --
--- STATUS: NOT YET APPLIED. Lukas applies this by hand in the Supabase SQL
--- editor, after 0018; update this header with the date once it is live.
+-- STATUS: APPLIED 2026-09-15, by hand in the Supabase SQL editor, after 0018.
 --
 --   nudge_sent — /api/cron/verification-nudge claimed and attempted the
 --                one-time "your code expired" email for a pending profile.
