@@ -30,13 +30,11 @@
 -- types. The cost is that a hand-written row can carry anything, which is why
 -- profileUrl() in that module falls back to Instagram rather than throwing.
 --
--- NOTE, and it is not a schema problem: TikTok rows are accepted but are NOT
--- auto-fulfilled. FULFIL_ENABLED_PLATFORMS in lib/creator-requests/shared.ts
--- is ['instagram'], because TikTok verification has never run successfully
--- (CLAUDE.md, "Known open items") and the claim link fulfilment sends would
--- land a TikTok creator on a bio-code step nobody has proven works. So a
--- TikTok row can sit at status 'new' indefinitely — that is the intended
--- state, not a stuck row.
+-- Rows on both platforms are auto-fulfilled. TikTok was held back for one
+-- release, until TikTok bio-code verification was proven on 2026-09-22;
+-- FULFIL_ENABLED_PLATFORMS in lib/creator-requests/shared.ts now carries both,
+-- and a request is matched against social_profiles on (platform, handle), so
+-- each one resolves against its own platform.
 --
 -- ── WHAT WRITES HERE ───────────────────────────────────────────────────────
 --

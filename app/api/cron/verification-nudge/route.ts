@@ -66,10 +66,11 @@ import { FULFIL_ENABLED_PLATFORMS, OPEN_REQUEST_SELECT, fulfilRequest, type Fulf
  *
  * ── JOB 2: THE CREATOR-REQUEST FULFIL PASS ─────────────────────────────────
  *
- * Every open row in creator_requests, oldest first, capped at 50: has the
- * handle appeared in the database since it was requested? If so the request is
- * closed and the creator gets their claim link. `not_in_database` is the
- * normal answer for most rows on most days and is counted, not logged.
+ * Every open row in creator_requests, oldest first, capped at 50, on EITHER
+ * platform: has the handle appeared in the database since it was requested? If
+ * so the request is closed and the creator gets their claim link.
+ * `not_in_database` is the normal answer for most rows on most days and is
+ * counted, not logged.
  *
  * The work itself is lib/creator-requests/fulfil.ts, shared with the admin
  * "Mark added" button so the two cannot send the same creator two emails.
@@ -328,10 +329,11 @@ type RequestsSummary = {
   /** Still waiting for the scrape. The normal outcome, and not a problem. */
   notInDatabase: number;
   /**
-   * Open requests on a platform that is not auto-fulfilled (TikTok today).
-   * They are NOT processed and NOT counted in `eligible` — this is the only
-   * place the run admits they exist, so a growing number here means a backlog
-   * nothing is working through.
+   * Open requests whose platform is not in FULFIL_ENABLED_PLATFORMS. Both
+   * Instagram and TikTok are, so this should read 0; anything else means a row
+   * was written by hand with a platform value nothing understands. NOT
+   * processed and NOT counted in `eligible`, so this is the only place the run
+   * admits such a row exists.
    */
   heldByPlatform: number;
   ids: FulfilResult[];
@@ -347,13 +349,13 @@ type RequestsSummary = {
  * same creator. Nothing about job 1 is reachable from here.
  */
 async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>): Promise<RequestsSummary> {
-  // Only fulfillable platforms are SELECTED, so a held row never reaches
-  // fulfilRequest() from here and never consumes a slot in the per-run cap.
-  // The list is FULFIL_ENABLED_PLATFORMS (lib/creator-requests/shared.ts) —
-  // Instagram today, because TikTok verification has never run successfully
-  // (CLAUDE.md, "Known open items"), so the claim link this pass sends would
-  // land a TikTok creator on a step nobody has proven works. fulfilRequest()
-  // checks the same list itself, which is what keeps the admin button honest.
+  // Filtered to FULFIL_ENABLED_PLATFORMS (lib/creator-requests/shared.ts),
+  // which is Instagram AND TikTok since 2026-09-22 — both are fulfilled, and
+  // each row is matched against its own platform's social_profiles row. The
+  // filter earns its keep against a row carrying a platform value this
+  // codebase does not understand, which the schema permits; such a row never
+  // reaches fulfilRequest() from here and never consumes a slot in the cap.
+  // fulfilRequest() checks the same list itself, for the admin button.
   const { data: rows, error: selectError, count } = await admin
     .from('creator_requests')
     .select(OPEN_REQUEST_SELECT, { count: 'exact' })
@@ -374,10 +376,10 @@ async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>)
   const checked = rows?.length ?? 0;
   const beyondCap = Math.max(0, eligible - checked);
 
-  // Open rows the platform filter above excluded. Counted, not processed:
-  // without this the summary would report an empty queue while TikTok
-  // requests sat in it, which is the kind of quiet that hides a backlog.
-  // head: true, so it is a count and no rows cross the wire.
+  // Open rows the platform filter above excluded — expected to be 0 now that
+  // both real platforms fulfil. Counted, not processed, so a row with a
+  // platform value nothing understands is visible rather than silently
+  // skipped forever. head: true, so it is a count and no rows cross the wire.
   const { count: heldCount } = await admin
     .from('creator_requests')
     .select('id', { count: 'exact', head: true })
@@ -401,7 +403,7 @@ async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>)
         notInDatabase += 1;
         continue;
       }
-      // Unreachable from here — the query filtered these out — but counted
+      // Unreachable from here — the query filtered these out — but handled
       // rather than mislabelled if a future change to that query lets one
       // through. It is not 'failed'; nothing failed.
       if (result.outcome === 'platform_disabled') {

@@ -58,24 +58,24 @@ export function platformLabel(platform: string): string {
 
 /**
  * Platforms whose requests may be AUTO-FULFILLED — closed and sent a claim
- * link. A strict subset of REQUEST_PLATFORMS, and the gap between the two is
- * deliberate: a creator may ASK to be added on TikTok, and we will add them,
- * but nothing automatically tells them to go and claim.
+ * link. Both of them, since 2026-09-22: TikTok bio-code verification was
+ * proven end to end that day, so a TikTok creator who follows the claim link
+ * in RequestFulfilled can now finish the flow it invites them into.
  *
- * ── WHY TIKTOK IS HELD BACK ────────────────────────────────────────────────
+ * It was `['instagram']` for one release. TikTok was held back because
+ * verification had never once succeeded, and mailing a claim link into a step
+ * nobody had proven would have been "don't promise what the product can't do"
+ * broken by automation — at volume and unattended. That reason is gone.
  *
- * TikTok verification has never run successfully — CLAUDE.md, "Known open
- * items", and the note in the "Creator requests" section. The claim link in
- * RequestFulfilled says claiming unlocks the dashboard, and for a TikTok
- * creator that lands them on a bio-code step nobody has proven works. Sending
- * it would be the "don't promise what the product can't do" rule broken by
- * automation, which is the worst way to break it: at volume, unattended.
- *
- * Adding 'tiktok' here is the ONE change that turns the whole path on, once
- * TikTok verification is proven. Both callers of fulfilRequest() route through
- * this, so neither can be switched on by accident without the other.
+ * The constant stays rather than the gate being deleted, for two reasons: it
+ * keeps both callers of fulfilRequest() routed through one decision, and it
+ * still means something. `creator_requests.platform` has no CHECK constraint,
+ * so a hand-written row can carry any string; a value that is not a platform
+ * this codebase understands must not be treated as fulfillable, because the
+ * social_profiles lookup would match on it and the claim link would be built
+ * for a platform with no profile URL shape.
  */
-export const FULFIL_ENABLED_PLATFORMS = ['instagram'] as const;
+export const FULFIL_ENABLED_PLATFORMS = ['instagram', 'tiktok'] as const;
 
 export function isFulfilEnabled(platform: string): boolean {
   return (FULFIL_ENABLED_PLATFORMS as readonly string[]).includes(platform);
