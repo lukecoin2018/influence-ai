@@ -164,24 +164,23 @@ describe('platformLabel', () => {
 });
 
 describe('isFulfilEnabled', () => {
-  it('holds TikTok out of auto-fulfilment while Instagram stays in', () => {
-    // The gap between REQUEST_PLATFORMS and FULFIL_ENABLED_PLATFORMS is the
-    // whole point: a TikTok creator may ASK to be added, but nothing closes
-    // their request or sends them a claim link, because TikTok verification
-    // has never run successfully (CLAUDE.md, "Known open items") and that
-    // link would land them on a step nobody has proven works.
+  it('fulfils BOTH platforms', () => {
+    // TikTok was held out for one release, until TikTok bio-code verification
+    // was proven on 2026-09-22. Both are now closed and sent a claim link the
+    // same way. This assertion is the inverse of the one it replaces.
     expect(isFulfilEnabled('instagram')).toBe(true);
-    expect(isFulfilEnabled('tiktok')).toBe(false);
+    expect(isFulfilEnabled('tiktok')).toBe(true);
   });
 
-  it('is a strict subset of the platforms requests can be made on', () => {
-    for (const p of FULFIL_ENABLED_PLATFORMS) {
-      expect(REQUEST_PLATFORMS).toContain(p);
+  it('covers every platform a request can be made on, leaving no request unfulfillable', () => {
+    for (const p of REQUEST_PLATFORMS) {
+      expect(isFulfilEnabled(p)).toBe(true);
     }
-    expect(FULFIL_ENABLED_PLATFORMS.length).toBeLessThan(REQUEST_PLATFORMS.length);
+    expect([...FULFIL_ENABLED_PLATFORMS].sort()).toEqual([...REQUEST_PLATFORMS].sort());
   });
 
-  it('refuses anything it does not recognise, rather than defaulting to enabled', () => {
+  it('still refuses a value it does not recognise, rather than defaulting to enabled', () => {
+    // The column has no CHECK, so a hand-written row can carry anything.
     for (const raw of ['', 'Instagram', 'youtube', 'INSTAGRAM']) {
       expect(isFulfilEnabled(raw)).toBe(false);
     }

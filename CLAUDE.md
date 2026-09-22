@@ -437,9 +437,10 @@ flipped to `added` with `resolved_at` and `creator_id`, and the creator gets
   that the two cannot both email the same creator: the status flip carries
   `WHERE status = 'new'` and happens before the send, so whichever runs second
   gets zero rows and sends nothing.
-- **Only `FULFIL_ENABLED_PLATFORMS` rows are selected** — Instagram today. See
-  "Creator requests" below for why TikTok is held back and what switching it on
-  takes. `requests.heldByPlatform` counts what the filter excluded.
+- **Only `FULFIL_ENABLED_PLATFORMS` rows are selected** — Instagram and TikTok,
+  i.e. everything real. `requests.heldByPlatform` counts what the filter
+  excluded and should read 0; anything else is a row carrying a platform value
+  nothing understands.
 - `not_in_database` is the outcome for most open rows on most days. It is
   counted in `requests.notInDatabase` and deliberately **not** listed in
   `requests.ids` — 50 "nothing happened" entries bury the ones where something
@@ -477,23 +478,13 @@ creator hit a dead end and two strings that lied to them.
   only places a profile URL is built.** The two shapes differ by more than the
   domain — TikTok puts the `@` back in the path — and the admin queue and the
   admin notification email must never disagree about where a handle lives.
-- **TikTok is held out of auto-fulfilment.** `FULFIL_ENABLED_PLATFORMS` in
-  `lib/creator-requests/shared.ts` is `['instagram']` — a strict subset of
-  `REQUEST_PLATFORMS`, and the gap is deliberate. A TikTok creator may ask to
-  be added and we will add them, but nothing closes their request or sends
-  `RequestFulfilled`, because that email's claim link would land them on a
-  bio-code step nobody has proven works (see "Known open items"). **Adding
-  `'tiktok'` to that one constant turns the whole path on**, once TikTok
-  verification is proven.
-  - The cron's row query filters on it, so held rows never consume a slot in
-    the per-run cap, and `fulfilRequest()` checks it again as its FIRST step,
-    before any read or write — which is what keeps the admin button honest and
-    will keep a third caller honest.
-  - `requests.heldByPlatform` in the cron response counts the open rows that
-    filter excluded. Without it a run would report an empty queue while TikTok
-    requests sat in it.
-  - "Mark added" on a TikTok row answers **409 `platform_disabled`** and
-    changes nothing, so the request is still there when TikTok is switched on.
+- **Both platforms are fulfilled.** `FULFIL_ENABLED_PLATFORMS` in
+  `lib/creator-requests/shared.ts` is `['instagram', 'tiktok']` since
+  2026-09-22, when TikTok bio-code verification was proven end to end, so an
+  Instagram and a TikTok request are closed and sent their claim link the same
+  way. The gate stays because `creator_requests.platform` has no CHECK: it now
+  rejects only a platform value this codebase does not understand, which is
+  also the only thing "Mark added" still answers 409 `platform_disabled` for.
 - **Six entry points**, each naming itself in `?from=`. The original three sit
   inside the claim funnel: the signup form's handle-not-found line
   (`signup_not_found`), the `/claim/[handle]` not-found page

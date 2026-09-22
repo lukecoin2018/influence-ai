@@ -21,12 +21,11 @@ import { OPEN_REQUEST_SELECT, fulfilRequest, type OpenRequest } from '@/lib/crea
  * the daily cron pass runs, which means it can answer `not_in_database` or
  * `platform_disabled` and change nothing. Those refusals are the point.
  *
- * `platform_disabled` is the newer of the two: TikTok requests are held out of
- * fulfilment entirely (FULFIL_ENABLED_PLATFORMS in
- * lib/creator-requests/shared.ts) because TikTok verification has never run
- * successfully, so the claim link would land the creator on a step nobody has
- * proven works. The button refuses rather than closing the row, so the request
- * is still there when TikTok verification is fixed.
+ * `platform_disabled` no longer applies to TikTok. Instagram and TikTok are
+ * both fulfilled (FULFIL_ENABLED_PLATFORMS in lib/creator-requests/shared.ts);
+ * this answer is left for a row carrying a platform value this codebase does
+ * not understand, which the schema permits. It refuses rather than closing the
+ * row, so nothing is lost.
  *
  * `not_in_database` is the older one, and it exists because the natural admin
  * workflow is to paste the handle into the scraper and immediately mark the
@@ -76,14 +75,15 @@ async function handlePOST(req: NextRequest) {
   if (status === 'added') {
     const result = await fulfilRequest(admin, row as OpenRequest, auth.userId);
 
-    // Held platform: nothing was read, written or sent. A 409 like
-    // not_in_database — the request is untouched and still open — with its own
-    // reason code so the queue can say why, because "not in the database yet"
-    // would be a lie here and would send the admin off to check the scraper.
+    // Unrecognised platform: nothing was read, written or sent. Instagram and
+    // TikTok both fulfil, so this is only reachable for a row written by hand
+    // with some other value — the column has no CHECK. A 409 like
+    // not_in_database, with its own reason code, because "not in the database
+    // yet" would be a lie and would send the admin off to check the scraper.
     if (result.outcome === 'platform_disabled') {
       return NextResponse.json(
         {
-          error: 'TikTok fulfilment is disabled until TikTok verification is proven',
+          error: 'Unsupported platform on this request; nothing changed',
           reason: 'platform_disabled',
         },
         { status: 409 },

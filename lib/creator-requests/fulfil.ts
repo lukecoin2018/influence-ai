@@ -34,18 +34,26 @@ import { FULFIL_ENABLED_PLATFORMS, isFulfilEnabled } from '@/lib/creator-request
  * Every outcome is a return value, so the cron's loop can count it and carry
  * on. sendEmail() has the same contract (lib/email/client.ts).
  *
- * ── NOT EVERY PLATFORM IS FULFILLABLE ──────────────────────────────────────
+ * ── BOTH PLATFORMS ARE FULFILLED ───────────────────────────────────────────
  *
- * The platform gate below (FULFIL_ENABLED_PLATFORMS in shared.ts) is the FIRST
- * thing this function checks, before the handle lookup and well before the
- * status flip, so a held platform cannot be closed or emailed by either
- * caller. The cron's query also filters on it, so held rows never reach here
- * from that direction at all; this check is what makes the rule true for the
- * admin button too, and what will keep it true for a third caller.
+ * Instagram and TikTok alike, since 2026-09-22 — the handle lookup below
+ * matches social_profiles on (platform, handle), so each request resolves
+ * against its own platform's profile and a TikTok row can never close an
+ * Instagram request or vice versa.
+ *
+ * The gate below is the FIRST thing this function checks, before the handle
+ * lookup and well before the status flip. It no longer holds a platform back;
+ * it rejects a platform value this codebase does not understand, which the
+ * schema permits because creator_requests.platform has no CHECK.
  */
 
 export type FulfilOutcome =
-  /** The row's platform is not in FULFIL_ENABLED_PLATFORMS. Nothing read, nothing written, nothing sent; the request stays open. */
+  /**
+   * The row's platform is not one this codebase understands — not Instagram
+   * and not TikTok, both of which are fulfilled. Only reachable for a row
+   * written by hand, since the schema does not constrain the column. Nothing
+   * read, nothing written, nothing sent; the request stays open.
+   */
   | 'platform_disabled'
   /** The handle is not in `creators` yet. The request stays open. Not an error — it is the normal state of most open requests. */
   | 'not_in_database'
@@ -79,8 +87,8 @@ export const OPEN_REQUEST_SELECT = 'id, platform, handle, email';
 
 /**
  * Re-exported so the cron's row query can filter on the same list this
- * function gates on, rather than hardcoding 'instagram' in a second place
- * that would then have to be remembered when TikTok is switched on.
+ * function gates on, rather than naming the platforms in a second place that
+ * would then have to be remembered whenever the list changes.
  */
 export { FULFIL_ENABLED_PLATFORMS };
 
@@ -93,12 +101,11 @@ export async function fulfilRequest(
   row: OpenRequest,
   actorUserId: string | null,
 ): Promise<FulfilResult> {
-  // ── Is this platform fulfillable at all? ────────────────────────────────
-  // First, and before any read or write. See FULFIL_ENABLED_PLATFORMS in
-  // lib/creator-requests/shared.ts for why TikTok is held back — short
-  // version: TikTok verification has never run successfully, so the claim
-  // link this function sends would land the creator on a step nobody has
-  // proven works.
+  // ── Is this platform one we understand? ─────────────────────────────────
+  // First, and before any read or write. Instagram and TikTok both pass; the
+  // check is here for a row carrying a platform value this codebase does not
+  // know, which the schema permits (creator_requests.platform has no CHECK).
+  // See FULFIL_ENABLED_PLATFORMS in lib/creator-requests/shared.ts.
   if (!isFulfilEnabled(row.platform)) {
     return { id: row.id, outcome: 'platform_disabled', handle: row.handle };
   }

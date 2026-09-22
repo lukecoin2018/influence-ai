@@ -152,14 +152,13 @@ export default function AdminCreatorsPage() {
           );
           return;
         }
-        // Held platform, not a failure: the row is untouched and still open.
-        // Says what would have to change, because "disabled" on its own reads
-        // as a bug rather than a decision.
+        // Unrecognised platform, not a failure: the row is untouched and
+        // still open. Instagram and TikTok both fulfil, so reaching this means
+        // the row carries some other platform value — it was written by hand.
         if (body?.reason === 'platform_disabled') {
           setActionNotice(
-            'TikTok fulfilment is disabled until TikTok verification is proven — nothing changed. ' +
-            'You can still add the creator to the scraper; the request stays open, and it will ' +
-            'close and email them once TikTok is switched on in FULFIL_ENABLED_PLATFORMS.',
+            "This request's platform isn't one the fulfilment path understands — nothing changed. " +
+            "Instagram and TikTok both work, so check the row's platform value.",
           );
           return;
         }
