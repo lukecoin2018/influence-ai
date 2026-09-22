@@ -380,6 +380,7 @@ export type VerificationReason =
   | 'too_many_attempts'
   | 'code_absent'
   | 'check_unavailable'
+  | 'write_failed'
   | 'unexpected';
 
 /** The reason codes /api/creators/claim can return on a failed claim. */
@@ -480,6 +481,11 @@ export function verificationErrorMessage(
     // server sends this for an unhandled 500, where there is nothing specific
     // to say. Listed explicitly so it doesn't trip the warning below.
     case 'unexpected':
+      return t.verificationFailed;
+    // The code was found but the row could not be updated (503). The code is
+    // still in the bio and still valid, so "try again" is exactly right, and
+    // the generic line says that without claiming the check itself failed.
+    case 'write_failed':
       return t.verificationFailed;
     default:
       // Reaching here means the response didn't carry a reason we know, so the

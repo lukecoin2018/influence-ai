@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createElement } from 'react';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { requireOwnerApi } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
 import { recordFunnelEvent } from '@/lib/funnel/events';
-import { sendEmail, SITE_URL } from '@/lib/email/client';
-import { firstNameOf } from '@/lib/email/first-name';
-import { CreatorApproved, CREATOR_APPROVED_SUBJECT } from '@/lib/email/templates/CreatorApproved';
+import { sendCreatorApproved } from '@/lib/email/send-creator-approved';
 
 /**
  * Sets a creator claim's status by hand. Owner only.
@@ -32,8 +29,10 @@ import { CreatorApproved, CREATOR_APPROVED_SUBJECT } from '@/lib/email/templates
  * ── EMAIL ──────────────────────────────────────────────────────────────────
  *
  * Approve sends the creator one email (lib/email/templates/CreatorApproved.tsx)
- * through Resend, with ADMIN_EMAIL as Reply-To. Reject sends nothing. Three
- * rules, all deliberate:
+ * through Resend, with ADMIN_EMAIL as Reply-To, via sendCreatorApproved() in
+ * lib/email/send-creator-approved.ts — the same helper verify-bio calls when a
+ * creator proves the code themselves, so the two roads to verified send the
+ * same mail. Reject sends nothing. Three rules, all deliberate:
  *
  *  1. Only on a real transition. The row's claim_status is read BEFORE the
  *     update; if it was already 'verified', the write still happens (it is
@@ -43,7 +42,8 @@ import { CreatorApproved, CREATOR_APPROVED_SUBJECT } from '@/lib/email/templates
  *     admin as emailStatus: 'failed', and the route still returns 200.
  *  3. The recipient is auth.users.email for the profile's id — creator_profiles
  *     has no email column, and its id IS the auth user id (claim/route.ts
- *     inserts `id: userId` from auth.admin.createUser).
+ *     inserts `id: userId` from auth.admin.createUser). Resolved inside the
+ *     helper.
  */
 
 type EmailStatus = 'sent' | 'failed' | 'skipped';
@@ -97,7 +97,7 @@ async function handlePOST(req: NextRequest) {
   // 404 gate either; the update below handles "no such row" on its own.
   const { data: before } = await admin
     .from('creator_profiles')
-    .select('claim_status, display_name')
+    .select('claim_status')
     .eq('id', creatorProfileId)
     .maybeSingle();
   const previousStatus: string | null = before?.claim_status ?? null;
@@ -122,8 +122,8 @@ async function handlePOST(req: NextRequest) {
 
   // ── Creator email, only on pending/rejected/anything → verified ───────────
   // Runs after the update has committed and before the audit row so the
-  // outcome lands on that row. Every branch produces an emailStatus; nothing
-  // here can throw past sendEmail's own contract.
+  // outcome lands on that row. Every branch produces an emailStatus; the
+  // helper never throws, so nothing here can either.
   let emailStatus: EmailStatus = 'skipped';
   let emailDetails: Record<string, string> = {};
   let resendId: string | undefined;
@@ -131,49 +131,13 @@ async function handlePOST(req: NextRequest) {
   if (status === 'verified' && previousStatus === 'verified') {
     emailDetails = { email: 'skipped', reason: 'already_verified' };
   } else if (status === 'verified') {
-    const { data: authUser, error: authLookupError } = await admin.auth.admin.getUserById(creatorProfileId);
-    const to = authUser?.user?.email ?? null;
-
-    if (!to) {
-      emailStatus = 'failed';
-      const reason = authLookupError?.message ?? 'no_email_on_auth_user';
-      emailDetails = { email: 'failed', error: reason };
-      console.error(`[admin-creators] no email address for ${creatorProfileId}: ${reason}`);
+    const outcome = await sendCreatorApproved(admin, creatorProfileId);
+    emailDetails = outcome;
+    if (outcome.email === 'sent') {
+      emailStatus = 'sent';
+      resendId = outcome.resend_id;
     } else {
-      // Greeting: the claimed profile's own display_name first, then the
-      // scraped creator record — the same order app/admin/creators/page.tsx
-      // uses at its :127.
-      let scrapedName: string | null = null;
-      if (updated.creator_id) {
-        const { data: creator } = await admin
-          .from('creators')
-          .select('display_name')
-          .eq('id', updated.creator_id)
-          .maybeSingle();
-        scrapedName = creator?.display_name ?? null;
-      }
-
-      const sent = await sendEmail({
-        to,
-        subject: CREATOR_APPROVED_SUBJECT,
-        // createElement rather than JSX: Next's route-handler convention is
-        // route.ts, and a .tsx rename is not in the file-convention list.
-        react: createElement(CreatorApproved, {
-          firstName: firstNameOf(before?.display_name, scrapedName),
-          dashboardUrl: `${SITE_URL}/creator-dashboard`,
-        }),
-        replyTo: process.env.ADMIN_EMAIL,
-        tags: [{ name: 'type', value: 'creator_approved' }],
-      });
-
-      if (sent.ok) {
-        emailStatus = 'sent';
-        resendId = sent.id;
-        emailDetails = { email: 'sent', resend_id: sent.id };
-      } else {
-        emailStatus = 'failed';
-        emailDetails = { email: 'failed', error: sent.error };
-      }
+      emailStatus = 'failed';
     }
   }
 
