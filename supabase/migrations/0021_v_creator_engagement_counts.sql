@@ -1,10 +1,9 @@
 -- 0021_v_creator_engagement_counts.sql
 --
--- STATUS: NOT YET APPLIED. Lukas applies this by hand in the Supabase SQL
--- editor; update this header with the date once it is live. The code that
--- reads the new columns (app/admin/creators/page.tsx) selects `*` from the
--- view and treats a missing n_* column as 0, so it renders correctly before
--- and after this is applied.
+-- STATUS: APPLIED 2026-09-15/16, by hand in the Supabase SQL editor. The code
+-- that reads the new columns (app/admin/creators/page.tsx) selects `*` from the
+-- view and treats a missing n_* column as 0, so it rendered correctly before
+-- this was applied as well as after.
 --
 -- Adds one integer count per event type to v_creator_engagement (0020), so
 -- /admin/creators can show a per-type breakdown under "Last active" without

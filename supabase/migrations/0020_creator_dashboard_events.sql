@@ -1,8 +1,6 @@
 -- 0020_creator_dashboard_events.sql
 --
--- STATUS: NOT YET APPLIED. Lukas applies this by hand in the Supabase SQL
--- editor before the deploy that ships app/api/creator/events; update this
--- header with the date once it is live.
+-- STATUS: APPLIED 2026-09-15/16, by hand in the Supabase SQL editor.
 --
 -- Post-claim dashboard usage: one row per event a verified (or, for
 -- dashboard_opened only, pending/rejected) creator triggers inside
