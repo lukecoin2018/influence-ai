@@ -144,6 +144,25 @@ export default function SignupPage() {
             Already have an account?{' '}
             <Link href="/login" style={{ color: '#FFD700', fontWeight: 600, textDecoration: 'none' }}>Log in</Link>
           </p>
+
+          {/* The two creator paths, because this form is brand-only and a
+              creator landing here had no way to tell. Which one they want
+              depends on something they may not know — whether we already
+              scraped them — so both are offered rather than guessing:
+              /auth/signup claims an existing profile, /get-listed asks for one
+              that does not exist yet. Same muted style as the line above.
+
+              English literals, not lib/i18n/auth-strings.ts: this page is
+              deliberately outside the i18n tree (CLAUDE.md, "Localization" —
+              that table covers /auth/signup, the creator funnel). Both
+              destinations resolve their own locale. */}
+          <p style={{ textAlign: 'center', fontSize: '13px', color: '#6B7280', margin: 0 }}>
+            Are you a creator?{' '}
+            <Link href="/auth/signup?role=creator" style={{ color: '#FFD700', fontWeight: 600, textDecoration: 'none' }}>Sign up as a creator</Link>
+            {' · '}
+            Not listed yet?{' '}
+            <Link href="/get-listed?from=brand_signup" style={{ color: '#FFD700', fontWeight: 600, textDecoration: 'none' }}>Get listed</Link>
+          </p>
         </div>
       </div>
     </div>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { Coins } from 'lucide-react';
@@ -198,6 +199,18 @@ export default function CreatorPricingPage() {
         </p>
         <p style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '12px' }}>
           New accounts receive <strong style={{ color: '#3A3A3A' }}>100 free tokens</strong> on signup.
+        </p>
+
+        {/* Every plan on this page assumes a profile to attach it to. A
+            creator we have not scraped cannot get one, so the page was
+            selling them something they could not buy. English literal: this
+            page is not in the i18n tree, and /get-listed resolves its own
+            locale. */}
+        <p style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '8px' }}>
+          Not listed yet?{' '}
+          <Link href="/get-listed?from=pricing_creators" style={{ color: '#FF4D94', fontWeight: 600, textDecoration: 'none' }}>
+            Get listed
+          </Link>
         </p>
 
         {/* Manage subscription link */}

@@ -721,6 +721,18 @@ function SignUpContent() {
                   {loading ? t.claimForm.submitting : t.claimForm.submit}
                 </button>
               </form>
+
+              {/* Mirror of the cross-link on /signup, which points back here.
+                  The two signup routes are separate funnels with no link
+                  between them, so a brand who landed on the creator form had
+                  to guess. Same muted style as the "Already have an account?"
+                  line on the role step. */}
+              <p style={{ textAlign: 'center', fontSize: '13px', color: '#6B7280', margin: '20px 0 0 0' }}>
+                {t.claimForm.brandCrossLinkPrompt}{' '}
+                <Link href="/signup" style={{ color: '#FFD700', fontWeight: 600, textDecoration: 'none' }}>
+                  {t.claimForm.brandCrossLinkCta}
+                </Link>
+              </p>
             </>
           )}
 

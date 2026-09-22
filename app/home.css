@@ -193,6 +193,14 @@
 .hv2 .cta p{font-size:17px;color:var(--muted-d);max-width:46ch;margin-bottom:38px}
 .hv2 .cta-ctas{display:flex;gap:14px;flex-wrap:wrap}
 
+/* ============ creator strip ============ */
+/* Shaped after the footer rules below — same border-top, same padding, same
+   flex row — so it reads as a sibling of it rather than a new section. */
+.hv2 .creator-strip{border-top:1px solid var(--line-d);padding:34px 0}
+.hv2 .creator-strip .strip-in{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
+.hv2 .creator-strip h2{font-size:19px;font-weight:700;color:#F2F0EA;margin:0}
+.hv2 .creator-strip .strip-ctas{display:flex;gap:12px;flex-wrap:wrap}
+
 /* ============ footer ============ */
 .hv2 footer{border-top:1px solid var(--line-d);padding:34px 0}
 .hv2 .foot-in{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;font-size:13.5px;color:var(--muted-d)}
