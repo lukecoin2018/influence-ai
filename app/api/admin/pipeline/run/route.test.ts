@@ -3,8 +3,9 @@ import { NextRequest } from 'next/server';
 
 /**
  * POST /api/admin/pipeline/run end to end at the module boundary: the owner
- * gate, the PIPELINE_ENABLED gate, request validation, the lock's 409, and
- * that a successful start hands the work to after() and answers 202 at once.
+ * gate, the PIPELINE_ENABLED gate, request validation, classify's API-key
+ * gate, the lock's 409, and that a successful start hands the work to after()
+ * and answers 202 at once.
  */
 
 const requireOwnerApi = vi.fn();
@@ -61,6 +62,7 @@ const RUNNING_ROW = {
 describe('POST /api/admin/pipeline/run', () => {
   beforeEach(() => {
     vi.stubEnv('PIPELINE_ENABLED', 'true');
+    vi.stubEnv('ANTHROPIC_API_KEY', 'sk-test');
     requireOwnerApi.mockResolvedValue({ userId: 'owner' });
     insertAnswer = { data: RUNNING_ROW, error: null };
     runningAnswer = { data: null, error: null };
@@ -87,10 +89,11 @@ describe('POST /api/admin/pipeline/run', () => {
     expect(inserted).toEqual([]);
   });
 
-  it('answers 400 for classify in this release and for unknown steps', async () => {
-    expect((await post({ step: 'classify' })).status).toBe(400);
-    expect(await (await post({ step: 'classify' })).json()).toMatchObject({ reason: 'step_not_available' });
+  it('answers 400 for unknown steps and out-of-range classify options', async () => {
     expect((await post({ step: 'nope' })).status).toBe(400);
+    const res = await post({ step: 'classify', options: { limit: 5000 } });
+    expect(res.status).toBe(400);
+    expect(await res.json()).toMatchObject({ reason: 'invalid_options' });
     expect(inserted).toEqual([]);
   });
 
@@ -103,6 +106,27 @@ describe('POST /api/admin/pipeline/run', () => {
     // The scheduled task runs the step; executeRun is what it calls.
     (after.mock.calls[0][0] as () => unknown)();
     expect(executeRun).toHaveBeenCalledWith(expect.anything(), RUNNING_ROW);
+  });
+
+  it('starts classify with its defaults filled in and stored on the row', async () => {
+    const res = await post({ step: 'classify', options: { preview: true } });
+    expect(res.status).toBe(202);
+    expect(inserted).toEqual([{ step: 'classify', status: 'running', options: { minCount: 2, limit: 200, preview: true }, triggered_by: 'owner' }]);
+    expect(after).toHaveBeenCalledTimes(1);
+  });
+
+  it('answers 503 anthropic_key_missing for classify when the server has no key, without taking the lock', async () => {
+    vi.stubEnv('ANTHROPIC_API_KEY', '');
+    const res = await post({ step: 'classify' });
+    expect(res.status).toBe(503);
+    expect(await res.json()).toMatchObject({ reason: 'anthropic_key_missing' });
+    expect(inserted).toEqual([]);
+    expect(after).not.toHaveBeenCalled();
+  });
+
+  it('does not require the key for the other steps', async () => {
+    vi.stubEnv('ANTHROPIC_API_KEY', '');
+    expect((await post({ step: 'prepass' })).status).toBe(202);
   });
 
   it('answers 409 with the blocking run when the lock rejects the insert — a double-click starts nothing', async () => {

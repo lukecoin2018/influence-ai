@@ -3,6 +3,8 @@ import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { requireOwnerApi } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
 import {
+  ANTHROPIC_KEY_MISSING_MESSAGE,
+  anthropicApiKey,
   executeRun,
   isMissingTableError,
   MIGRATION_MISSING_MESSAGE,
@@ -34,7 +36,8 @@ import {
  * step continues in the same process. On `next start` there is no deadline.
  * Progress goes to the row, never to the console.
  *
- * classify answers 400 in this release; the page shows its card disabled.
+ * classify runs here too since PR 3, with bounded options (see parseRunRequest)
+ * and a 503 when the server has no ANTHROPIC_API_KEY.
  */
 export const POST = withNoStore(handlePOST);
 
@@ -48,6 +51,13 @@ async function handlePOST(req: NextRequest) {
   const parsed = parseRunRequest(body);
   if ('error' in parsed) {
     return NextResponse.json({ error: parsed.error, reason: parsed.reason }, { status: 400 });
+  }
+
+  // Checked before the row is inserted: a classify that cannot call the API
+  // must not take the lock and then fail. Read at request time, like
+  // app/api/match/route.ts reads the same variable.
+  if (parsed.step === 'classify' && !anthropicApiKey()) {
+    return NextResponse.json({ error: ANTHROPIC_KEY_MISSING_MESSAGE, reason: 'anthropic_key_missing' }, { status: 503 });
   }
 
   const admin = createSupabaseAdminClient();

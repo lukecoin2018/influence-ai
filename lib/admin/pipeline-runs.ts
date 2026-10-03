@@ -4,6 +4,7 @@ import type { ProgressFn } from '@/lib/pipeline/types';
 import { runSeed } from '@/lib/pipeline/seed';
 import { runPrepass } from '@/lib/pipeline/prepass';
 import { runRefresh } from '@/lib/pipeline/refresh';
+import { runClassify, type BatchOutcome } from '@/lib/pipeline/classify';
 
 /**
  * Everything the three /api/admin/pipeline routes share: the step list, the
@@ -21,20 +22,27 @@ import { runRefresh } from '@/lib/pipeline/refresh';
  * 23505 as "already running", so two clicks race at the database, not in
  * JavaScript, and the loser is told what is blocking it.
  *
- * ── PROGRESS ───────────────────────────────────────────────────────────────
+ * ── PROGRESS AND HEARTBEAT ─────────────────────────────────────────────────
  *
  * Progress never goes to the console — the classify dump already showed how
  * fast next-30001.log fills. Non-transient messages are written to the row's
  * `progress` column at most once every PROGRESS_THROTTLE_MS; transient
  * counters ("  500/23697") are dropped. flush() writes whatever is pending at
  * the end so the final line is never lost to the throttle.
+ *
+ * Every progress write also stamps `heartbeat_at` (0024). The stale rule is
+ * coalesce(heartbeat_at, started_at) older than STALE_AFTER_MS: a classify
+ * run that is still reporting batches is never shown as stuck, however long
+ * it takes, while a run whose process was killed goes quiet and becomes
+ * clearable 20 minutes after its last write. If the column is missing (0024
+ * not applied) the write is retried without it, so progress still lands.
  */
 
 export const PIPELINE_STEPS = ['seed', 'prepass', 'classify', 'refresh'] as const;
 export type PipelineStep = (typeof PIPELINE_STEPS)[number];
 
-/** Steps the run route accepts in this release. classify arrives in the next one. */
-export const RUNNABLE_STEPS: readonly PipelineStep[] = ['seed', 'prepass', 'refresh'];
+/** Every step is runnable from the admin page since PR 3. */
+export const RUNNABLE_STEPS: readonly PipelineStep[] = PIPELINE_STEPS;
 
 export type RunStatus = 'running' | 'done' | 'failed' | 'abandoned';
 
@@ -50,20 +58,33 @@ export type PipelineRun = {
   error: string | null;
   progress: string | null;
   triggered_by: string | null;
+  /** Absent until migration 0024 is applied; null until the first progress write. */
+  heartbeat_at?: string | null;
 };
 
-export type RunOptions = { dryRun?: boolean };
+export type RunOptions = { dryRun?: boolean; minCount?: number; limit?: number; preview?: boolean };
 
 export const STALE_AFTER_MS = 20 * 60 * 1000;
 export const PROGRESS_THROTTLE_MS = 2000;
 
-export const RUN_SELECT = 'id, step, status, started_at, finished_at, duration_ms, options, result, error, progress, triggered_by';
+/** Classify caps. `limit` is in aliases, a hard per-run cap; 50 aliases make one Anthropic call. */
+export const CLASSIFY_MIN_COUNT = { min: 1, max: 10, default: 2 } as const;
+export const CLASSIFY_LIMIT = { min: 1, max: 1000, default: 200 } as const;
+export const CLASSIFY_BATCH_SIZE = 50;
 
-/** A running row older than STALE_AFTER_MS is presumed orphaned by a process restart. */
-export function isStale(startedAt: string, now: number = Date.now()): boolean {
-  const started = Date.parse(startedAt);
-  if (Number.isNaN(started)) return false;
-  return now - started > STALE_AFTER_MS;
+/**
+ * select('*') rather than a column list so a row reads the same before and
+ * after 0024 adds heartbeat_at — an explicit list naming a missing column is
+ * a PostgREST error.
+ */
+export const RUN_SELECT = '*';
+
+/** The stale rule: the last sign of life (heartbeat, else start) is older than STALE_AFTER_MS. */
+export function isStale(run: { started_at: string; heartbeat_at?: string | null }, now: number = Date.now()): boolean {
+  const last = run.heartbeat_at ?? run.started_at;
+  const lastMs = Date.parse(last);
+  if (Number.isNaN(lastMs)) return false;
+  return now - lastMs > STALE_AFTER_MS;
 }
 
 export function pipelineEnabled(env: Record<string, string | undefined> = process.env): boolean {
@@ -77,38 +98,83 @@ export function pipelineDisabledResponse(): NextResponse {
   return NextResponse.json({ error: PIPELINE_DISABLED_MESSAGE, reason: 'pipeline_disabled' }, { status: 503 });
 }
 
+/** Read at request time, like app/api/match/route.ts does, so a key added to the environment needs a restart, not a rebuild. */
+export function anthropicApiKey(env: Record<string, string | undefined> = process.env): string | null {
+  const key = env.ANTHROPIC_API_KEY?.trim();
+  return key ? key : null;
+}
+
+export const ANTHROPIC_KEY_MISSING_MESSAGE =
+  'ANTHROPIC_API_KEY is not set in this server\'s environment, so classify cannot run here. Set it and restart the process.';
+
 /** PostgREST's "relation does not exist" (42P01) or schema-cache miss (PGRST205): migration 0023 not applied. */
 export function isMissingTableError(error: { code?: string; message?: string } | null | undefined): boolean {
   if (!error) return false;
   return error.code === '42P01' || error.code === 'PGRST205' || /pipeline_runs/.test(error.message ?? '') && /not (exist|find)/.test(error.message ?? '');
 }
 
+/** PostgREST's "column not found in schema cache" (PGRST204): migration 0024 not applied. */
+export function isMissingColumnError(error: { code?: string; message?: string } | null | undefined, column: string): boolean {
+  if (!error) return false;
+  return error.code === 'PGRST204' || (error.message ?? '').includes(column);
+}
+
 export const MIGRATION_MISSING_MESSAGE = 'pipeline_runs does not exist — apply supabase/migrations/0023_pipeline_runs.sql.';
 
 export type ParsedRunRequest = { step: PipelineStep; options: RunOptions } | { error: string; reason: string };
 
-/** Validates a POST /run body. Unknown steps and unknown option keys are 400s, never ignored. */
+function parseBoundedInt(value: unknown, bounds: { min: number; max: number }): number | null {
+  if (typeof value !== 'number' || !Number.isInteger(value)) return null;
+  if (value < bounds.min || value > bounds.max) return null;
+  return value;
+}
+
+/**
+ * Validates a POST /run body. Unknown steps and unknown option keys are 400s,
+ * never ignored. Classify's options are bounded and defaulted here, so the
+ * stored `options` always says exactly what the run was asked to do.
+ */
 export function parseRunRequest(body: unknown): ParsedRunRequest {
   const record = body && typeof body === 'object' ? (body as Record<string, unknown>) : {};
   const step = record.step;
   if (typeof step !== 'string' || !(PIPELINE_STEPS as readonly string[]).includes(step)) {
     return { error: `step must be one of ${PIPELINE_STEPS.join(', ')}`, reason: 'invalid_step' };
   }
-  if (!RUNNABLE_STEPS.includes(step as PipelineStep)) {
-    return { error: 'classify is not runnable from the admin page yet — coming in the next release.', reason: 'step_not_available' };
-  }
   const rawOptions = record.options ?? {};
   if (typeof rawOptions !== 'object' || rawOptions === null || Array.isArray(rawOptions)) {
     return { error: 'options must be an object', reason: 'invalid_options' };
   }
+  const invalid = (message: string): ParsedRunRequest => ({ error: message, reason: 'invalid_options' });
   const options: RunOptions = {};
   for (const [key, value] of Object.entries(rawOptions as Record<string, unknown>)) {
     if (key === 'dryRun' && step === 'refresh') {
-      if (typeof value !== 'boolean') return { error: 'options.dryRun must be a boolean', reason: 'invalid_options' };
+      if (typeof value !== 'boolean') return invalid('options.dryRun must be a boolean');
       options.dryRun = value;
       continue;
     }
-    return { error: `options.${key} is not accepted for step ${step}`, reason: 'invalid_options' };
+    if (key === 'preview' && step === 'classify') {
+      if (typeof value !== 'boolean') return invalid('options.preview must be a boolean');
+      options.preview = value;
+      continue;
+    }
+    if (key === 'minCount' && step === 'classify') {
+      const n = parseBoundedInt(value, CLASSIFY_MIN_COUNT);
+      if (n === null) return invalid(`options.minCount must be an integer from ${CLASSIFY_MIN_COUNT.min} to ${CLASSIFY_MIN_COUNT.max}`);
+      options.minCount = n;
+      continue;
+    }
+    if (key === 'limit' && step === 'classify') {
+      const n = parseBoundedInt(value, CLASSIFY_LIMIT);
+      if (n === null) return invalid(`options.limit must be an integer from ${CLASSIFY_LIMIT.min} to ${CLASSIFY_LIMIT.max}`);
+      options.limit = n;
+      continue;
+    }
+    return invalid(`options.${key} is not accepted for step ${step}`);
+  }
+  if (step === 'classify') {
+    options.minCount ??= CLASSIFY_MIN_COUNT.default;
+    options.limit ??= CLASSIFY_LIMIT.default;
+    options.preview ??= false;
   }
   return { step: step as PipelineStep, options };
 }
@@ -163,9 +229,11 @@ export type ProgressRecorder = {
 };
 
 /**
- * Throttled writer for pipeline_runs.progress. Writes are serialised on one
- * promise chain so a slow write cannot be overtaken by a later one, and a
- * failed write is swallowed: progress is a courtesy, the run is what matters.
+ * Throttled writer for pipeline_runs.progress plus heartbeat_at. Writes are
+ * serialised on one promise chain so a slow write cannot be overtaken by a
+ * later one, and a failed write is swallowed: progress is a courtesy, the run
+ * is what matters. A write refused for the missing heartbeat_at column (0024
+ * not applied) is retried once without it and the column is not sent again.
  */
 export function createProgressRecorder(
   admin: SupabaseClient,
@@ -182,16 +250,28 @@ export function createProgressRecorder(
   let lastWriteAt = -Infinity;
   let timer: ReturnType<typeof setTimeout> | null = null;
   let chain: Promise<void> = Promise.resolve();
+  let heartbeatSupported = true;
+
+  async function persist(message: string): Promise<void> {
+    const stamp = new Date(now()).toISOString();
+    const patch: Record<string, unknown> = heartbeatSupported ? { progress: message, heartbeat_at: stamp } : { progress: message };
+    const { error } = await admin.from('pipeline_runs').update(patch).eq('id', runId).eq('status', 'running');
+    if (error && heartbeatSupported && isMissingColumnError(error, 'heartbeat_at')) {
+      heartbeatSupported = false;
+      console.warn('[pipeline] pipeline_runs.heartbeat_at is missing (migration 0024 not applied) — progress continues without heartbeats.');
+      const retry = await admin.from('pipeline_runs').update({ progress: message }).eq('id', runId).eq('status', 'running');
+      if (retry.error) console.warn(`[pipeline] progress write failed for run ${runId}: ${retry.error.message}`);
+      return;
+    }
+    if (error) console.warn(`[pipeline] progress write failed for run ${runId}: ${error.message}`);
+  }
 
   function write(): void {
     if (latest === null || latest === written) return;
     const message = latest;
     written = message;
     lastWriteAt = now();
-    chain = chain.then(async () => {
-      const { error } = await admin.from('pipeline_runs').update({ progress: message }).eq('id', runId).eq('status', 'running');
-      if (error) console.warn(`[pipeline] progress write failed for run ${runId}: ${error.message}`);
-    });
+    chain = chain.then(() => persist(message));
   }
 
   const onProgress: ProgressFn = (message, transient) => {
@@ -232,6 +312,12 @@ export function toStoredResult(step: PipelineStep, result: unknown): Record<stri
   return copy;
 }
 
+/** The one progress line classify emits per batch on the admin page. */
+export function formatBatchLine(batch: BatchOutcome): string {
+  const base = `batch ${batch.index} of ${batch.total}, ${batch.aliases} aliases, ${batch.classified} classified`;
+  return batch.error ? `${base} (failed: ${batch.error})` : base;
+}
+
 async function runStep(admin: SupabaseClient, run: PipelineRun, onProgress: ProgressFn): Promise<unknown> {
   const options = (run.options ?? {}) as RunOptions;
   switch (run.step) {
@@ -241,8 +327,20 @@ async function runStep(admin: SupabaseClient, run: PipelineRun, onProgress: Prog
       return runPrepass(admin, { onProgress });
     case 'refresh':
       return runRefresh(admin, { dryRun: options.dryRun === true, onProgress });
-    case 'classify':
-      throw new Error('classify is not runnable from the admin page in this release.');
+    case 'classify': {
+      const key = anthropicApiKey();
+      if (!key) throw new Error(ANTHROPIC_KEY_MISSING_MESSAGE);
+      // Progress is one line per batch and nothing else: the step's own
+      // narration (aggregation, loading, raw output) stays out of the row.
+      return runClassify(admin, {
+        anthropicApiKey: key,
+        minCount: options.minCount ?? CLASSIFY_MIN_COUNT.default,
+        maxAliases: options.limit ?? CLASSIFY_LIMIT.default,
+        preview: options.preview === true,
+        verbose: false,
+        onBatch: (batch) => onProgress(formatBatchLine(batch)),
+      });
+    }
   }
 }
 

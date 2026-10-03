@@ -44,8 +44,16 @@ export type ClassifyOptions = PipelineOptions & {
   anthropicApiKey: string;
   /** Minimum creators_count to be eligible. Default 2. */
   minCount?: number;
-  /** Process at most this many batches (~50 aliases each), then stop. Default: every eligible batch. */
+  /** Process at most this many batches (~50 aliases each), then stop. Default: every eligible batch. The CLI's --limit. */
   limit?: number | null;
+  /**
+   * Process at most this many aliases, applied before batching, so a cap of 5
+   * is one batch of 5 rather than one batch of 50. The admin page's cap; it
+   * combines with `limit` (whichever is smaller wins).
+   */
+  maxAliases?: number | null;
+  /** Called after each batch with what it did, for callers that want one line per batch and nothing else. */
+  onBatch?: (batch: BatchOutcome) => void;
   /** Write the verdict to classification_preview instead of the live columns, and don't set classified_at. */
   preview?: boolean;
   /**
@@ -56,6 +64,18 @@ export type ClassifyOptions = PipelineOptions & {
   testSample?: boolean;
   /** Also emit the full raw model output for every batch. The CLI passes true. */
   verbose?: boolean;
+};
+
+export type BatchOutcome = {
+  /** 1-based batch number and the number of batches this run will process. */
+  index: number;
+  total: number;
+  /** Aliases sent in this batch. */
+  aliases: number;
+  /** Rows written (or previewed) from this batch; 0 when the batch failed. */
+  classified: number;
+  /** Set when the API call or the upsert failed; the batch's rows stay unclassified. */
+  error?: string;
 };
 
 export type ClassifyResult = {
@@ -447,9 +467,15 @@ export async function runClassify(client: PipelineClient, options: ClassifyOptio
     `Loading eligible aliases (classified_at IS NULL, creators_count >= ${minCount})` +
       (testSample ? ', stratified test sample...' : '...'),
   );
-  const eligible = testSample
+  const loaded = testSample
     ? await loadStratifiedTestSample(client, minCount, onProgress)
     : await loadEligibleAliases(client, minCount);
+  // The alias cap is applied before batching so a cap of 5 is one batch of 5.
+  const maxAliases = options.maxAliases ?? null;
+  const eligible = maxAliases != null && maxAliases >= 0 ? loaded.slice(0, maxAliases) : loaded;
+  if (maxAliases != null && loaded.length > eligible.length) {
+    onProgress(`  Capped at ${eligible.length} of ${loaded.length} eligible aliases for this run.`);
+  }
   onProgress(
     `  ${eligible.length} aliases eligible for AI classification.${preview ? ' (--preview: writing to classification_preview only)' : ''}`,
   );
@@ -490,6 +516,7 @@ export async function runClassify(client: PipelineClient, options: ClassifyOptio
       const message = err instanceof Error ? err.message : String(err);
       onProgress(`  FAILED: ${message} — leaving this batch unclassified for retry.`);
       failedBatches++;
+      options.onBatch?.({ index: b + 1, total: batches.length, aliases: batch.length, classified: 0, error: message });
       continue;
     }
 
@@ -558,6 +585,7 @@ export async function runClassify(client: PipelineClient, options: ClassifyOptio
       if (writeError) {
         onProgress(`  Upsert failed: ${writeError.message}`);
         failedBatches++;
+        options.onBatch?.({ index: b + 1, total: batches.length, aliases: batch.length, classified: 0, error: `Upsert failed: ${writeError.message}` });
         continue;
       }
       classifiedCount += updates.length;
@@ -574,6 +602,7 @@ export async function runClassify(client: PipelineClient, options: ClassifyOptio
         (missing.length > 0 ? `, ${missing.length} omitted` : '') +
         (skipped > 0 ? `, ${skipped} skipped` : ''),
     );
+    options.onBatch?.({ index: b + 1, total: batches.length, aliases: batch.length, classified: updates.length });
 
     if (b < batches.length - 1) await sleep(DELAY_BETWEEN_BATCHES_MS);
   }

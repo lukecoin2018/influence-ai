@@ -48,9 +48,9 @@ async function handlePOST() {
   if (!running) {
     return NextResponse.json({ error: 'Nothing is running.', reason: 'no_running_run' }, { status: 404 });
   }
-  if (!isStale(running.started_at)) {
+  if (!isStale(running)) {
     return NextResponse.json(
-      { error: `This run started less than ${STALE_AFTER_MS / 60000} minutes ago and may still be live.`, reason: 'run_not_stale', running },
+      { error: `This run showed signs of life less than ${STALE_AFTER_MS / 60000} minutes ago and may still be live.`, reason: 'run_not_stale', running },
       { status: 409 },
     );
   }
@@ -60,7 +60,7 @@ async function handlePOST() {
     .update({
       status: 'abandoned',
       finished_at: new Date().toISOString(),
-      error: `Marked abandoned by admin after running longer than ${STALE_AFTER_MS / 60000} minutes with no finish — presumed killed by a process restart.`,
+      error: `Marked abandoned by admin after ${STALE_AFTER_MS / 60000} minutes without a heartbeat or finish — presumed killed by a process restart.`,
     })
     .eq('id', running.id)
     .eq('status', 'running')

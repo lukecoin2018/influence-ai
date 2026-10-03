@@ -40,6 +40,8 @@ type PipelineRun = {
 type Counts = {
   aliasesUnclassified: number | null;
   aliasesEligible: number | null;
+  /** Eligible for classify at min count 1 and 2 (the only two the status route reports). */
+  eligibleByMinCount?: { 1: number | null; 2: number | null };
   brackets: number | null;
   bracketsRefreshedAt: string | null;
   creatorPosts: number | null;
@@ -48,6 +50,8 @@ type Counts = {
 type Status = {
   enabled: true;
   now: string;
+  /** Whether this server has ANTHROPIC_API_KEY; classify cannot start without it. */
+  anthropicKeyPresent?: boolean;
   running: PipelineRun | null;
   stale: boolean;
   latestByStep: Record<PipelineStep, PipelineRun | null>;
@@ -65,6 +69,23 @@ const STEPS: { step: PipelineStep; title: string; description: string }[] = [
 
 const POLL_MS = 3000;
 const IDLE_POLL_MS = 30000;
+/** Aliases per Anthropic call in lib/pipeline/classify.ts — the unit of the cost hint. */
+const CLASSIFY_BATCH = 50;
+
+function clampInt(raw: string, min: number, max: number, fallback: number): number {
+  const n = Number.parseInt(raw, 10);
+  if (Number.isNaN(n)) return fallback;
+  return Math.min(max, Math.max(min, n));
+}
+
+/** True for a run that wrote nothing live: refresh's dry run or classify's preview. */
+function isPreviewRun(run: PipelineRun): boolean {
+  return run.options?.dryRun === true || run.options?.preview === true;
+}
+
+function previewLabel(run: PipelineRun): string {
+  return run.step === 'refresh' ? 'dry run' : 'preview';
+}
 
 type StatusOutcome =
   | { kind: 'ok'; status: Status }
@@ -180,6 +201,14 @@ function StatusBadge({ status }: { status: RunStatus }) {
   );
 }
 
+function PreviewBadge({ label }: { label: string }) {
+  return (
+    <span style={{ display: 'inline-block', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 600, color: '#92400E', backgroundColor: '#FFFBEB', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+      {label}
+    </span>
+  );
+}
+
 export default function AdminPipelinePage() {
   const { user, userRole, loading } = useAuth();
   const router = useRouter();
@@ -192,6 +221,9 @@ export default function AdminPipelinePage() {
   const [starting, setStarting] = useState<PipelineStep | null>(null);
   const [clearing, setClearing] = useState(false);
   const [refreshDryRun, setRefreshDryRun] = useState(false);
+  const [classifyMinCount, setClassifyMinCount] = useState(2);
+  const [classifyLimit, setClassifyLimit] = useState(200);
+  const [classifyPreview, setClassifyPreview] = useState(false);
   const [nowMs, setNowMs] = useState(() => Date.now());
   const requestSeq = useRef(0);
 
@@ -267,7 +299,10 @@ export default function AdminPipelinePage() {
     setActionError(null);
     setActionNotice(null);
     try {
-      const options = step === 'refresh' ? { dryRun: refreshDryRun } : undefined;
+      const options =
+        step === 'refresh' ? { dryRun: refreshDryRun }
+        : step === 'classify' ? { minCount: classifyMinCount, limit: classifyLimit, preview: classifyPreview }
+        : undefined;
       const res = await fetch('/api/admin/pipeline/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -361,8 +396,16 @@ export default function AdminPipelinePage() {
             {STEPS.map(({ step, title, description }) => {
               const isRunningThis = running?.step === step;
               const last = status.latestByStep[step];
-              const comingSoon = step === 'classify';
+              const keyMissing = step === 'classify' && status.anthropicKeyPresent === false;
+              const disabled = busy || keyMissing;
               const elapsed = isRunningThis && running ? Math.max(0, nowMs - Date.parse(running.started_at)) : null;
+              // Classify cost hint: eligible at the chosen min count (known for 1 and 2 only),
+              // capped by the limit, in batches of 50 — one Anthropic call each.
+              const eligibleAt = step === 'classify'
+                ? (classifyMinCount === 1 ? status.counts?.eligibleByMinCount?.[1] : classifyMinCount === 2 ? status.counts?.eligibleByMinCount?.[2] : undefined) ?? null
+                : null;
+              const plannedAliases = eligibleAt == null ? null : Math.min(eligibleAt, classifyLimit);
+              const plannedBatches = plannedAliases == null ? null : Math.ceil(plannedAliases / CLASSIFY_BATCH);
               return (
                 <div key={step} style={{ backgroundColor: 'white', borderRadius: '12px', border: `1px solid ${isRunningThis ? '#93C5FD' : '#E5E7EB'}`, padding: '16px 20px' }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
@@ -373,23 +416,58 @@ export default function AdminPipelinePage() {
                       </div>
                       <p style={{ fontSize: '12px', color: '#6B7280', margin: 0 }}>{description}</p>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                       {step === 'refresh' && (
                         <label style={{ fontSize: '12px', color: '#374151', display: 'flex', alignItems: 'center', gap: '6px', cursor: busy ? 'default' : 'pointer' }}>
                           <input type="checkbox" checked={refreshDryRun} disabled={busy} onChange={(e) => setRefreshDryRun(e.target.checked)} />
                           dry run
                         </label>
                       )}
+                      {step === 'classify' && (
+                        <>
+                          <label style={optionLabel}>
+                            min count
+                            <input type="number" min={1} max={10} step={1} value={classifyMinCount} disabled={busy}
+                              onChange={(e) => setClassifyMinCount(clampInt(e.target.value, 1, 10, 2))} style={numberInput} />
+                          </label>
+                          <label style={optionLabel}>
+                            limit
+                            <input type="number" min={1} max={1000} step={1} value={classifyLimit} disabled={busy}
+                              onChange={(e) => setClassifyLimit(clampInt(e.target.value, 1, 1000, 200))} style={{ ...numberInput, width: '72px' }} />
+                          </label>
+                          <label style={{ ...optionLabel, cursor: busy ? 'default' : 'pointer' }}>
+                            <input type="checkbox" checked={classifyPreview} disabled={busy} onChange={(e) => setClassifyPreview(e.target.checked)} />
+                            preview
+                          </label>
+                        </>
+                      )}
                       <button
                         onClick={() => startStep(step)}
-                        disabled={busy || comingSoon}
-                        title={comingSoon ? 'Coming in the next release' : undefined}
-                        style={{ ...primaryBtn, opacity: busy || comingSoon ? 0.5 : 1, cursor: busy || comingSoon ? 'default' : 'pointer' }}
+                        disabled={disabled}
+                        title={keyMissing ? 'ANTHROPIC_API_KEY is not set on this server' : undefined}
+                        style={{ ...primaryBtn, opacity: disabled ? 0.5 : 1, cursor: disabled ? 'default' : 'pointer' }}
                       >
-                        {comingSoon ? 'Coming in the next release' : starting === step ? 'Starting...' : isRunningThis ? 'Running...' : 'Run'}
+                        {starting === step ? 'Starting...' : isRunningThis ? 'Running...' : 'Run'}
                       </button>
                     </div>
                   </div>
+
+                  {step === 'classify' && (
+                    <div style={{ marginTop: '10px', fontSize: '12px', color: '#6B7280', display: 'flex', gap: '6px 16px', flexWrap: 'wrap' }}>
+                      <span>
+                        {eligibleAt == null
+                          ? `Eligible count is reported for min count 1 and 2 only (1: ${formatNumber(status.counts?.eligibleByMinCount?.[1] ?? null)}, 2: ${formatNumber(status.counts?.eligibleByMinCount?.[2] ?? null)}).`
+                          : <><strong style={{ color: '#3A3A3A' }}>{formatNumber(eligibleAt)}</strong> eligible at min count {classifyMinCount}</>}
+                      </span>
+                      {plannedBatches != null && (
+                        <span>
+                          → this run: <strong style={{ color: '#3A3A3A' }}>{formatNumber(plannedAliases)}</strong> aliases in <strong style={{ color: '#3A3A3A' }}>{plannedBatches}</strong> batch{plannedBatches === 1 ? '' : 'es'} of {CLASSIFY_BATCH}, one Anthropic call each
+                          {classifyPreview ? ', written to classification_preview only' : ''}
+                        </span>
+                      )}
+                      {keyMissing && <span style={{ color: '#DC2626' }}>ANTHROPIC_API_KEY is not set on this server, so classify cannot run here.</span>}
+                    </div>
+                  )}
 
                   {isRunningThis && running && (
                     <div style={{ marginTop: '12px', padding: '10px 12px', backgroundColor: '#EFF6FF', borderRadius: '8px' }}>
@@ -408,6 +486,7 @@ export default function AdminPipelinePage() {
                           <span>·</span>
                           <span>{formatDuration(last.duration_ms)}</span>
                           <StatusBadge status={last.status} />
+                          {isPreviewRun(last) && <PreviewBadge label={previewLabel(last)} />}
                           {last.options && Object.keys(last.options).length > 0 && (
                             <span style={{ fontFamily: 'monospace', color: '#9CA3AF' }}>{JSON.stringify(last.options)}</span>
                           )}
@@ -447,7 +526,7 @@ export default function AdminPipelinePage() {
                       <td style={{ ...tdStyle, whiteSpace: 'nowrap', color: '#6B7280' }}>{formatWhen(run.started_at)}</td>
                       <td style={{ ...tdStyle, fontWeight: 600 }}>
                         {run.step}
-                        {run.options?.dryRun === true && <span style={{ color: '#9CA3AF', fontWeight: 400 }}> (dry run)</span>}
+                        {isPreviewRun(run) && <span style={{ color: '#9CA3AF', fontWeight: 400 }}> ({previewLabel(run)})</span>}
                       </td>
                       <td style={tdStyle}><StatusBadge status={run.status} /></td>
                       <td style={{ ...tdStyle, textAlign: 'right', color: '#6B7280' }}>{formatDuration(run.duration_ms)}</td>
@@ -480,6 +559,8 @@ function CountTile({ label, value, sub }: { label: string; value: string; sub?: 
   );
 }
 
+const optionLabel: React.CSSProperties = { fontSize: '12px', color: '#374151', display: 'flex', alignItems: 'center', gap: '6px' };
+const numberInput: React.CSSProperties = { width: '56px', padding: '4px 6px', borderRadius: '6px', border: '1px solid #E5E7EB', fontSize: '12px', fontFamily: 'inherit' };
 const primaryBtn: React.CSSProperties = { padding: '7px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', border: 'none', backgroundColor: '#FFD700', color: 'white', whiteSpace: 'nowrap' };
 const thStyle: React.CSSProperties = { textAlign: 'left', padding: '10px 14px', fontSize: '11px', fontWeight: 600, color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.04em' };
 const tdStyle: React.CSSProperties = { padding: '8px 14px', color: '#3A3A3A', verticalAlign: 'top' };
