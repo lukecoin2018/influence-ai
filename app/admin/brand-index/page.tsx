@@ -21,7 +21,7 @@ type BrandAlias = {
 };
 
 // Shape of the classification_preview jsonb blob written by
-// scripts/brand-aliases/classify.mjs's --preview writeback (see writePreview
+// lib/pipeline/classify.ts's --preview writeback (see writePreview
 // there — the verdict object minus classified_at). Field name is
 // classification_notes to match the live column it mirrors, not `notes`
 // (the raw model output key gets renamed on the way into this object).
@@ -47,7 +47,7 @@ type SortColumn = 'recognizability' | 'im_intensity';
 type SortDirection = 'asc' | 'desc';
 
 // `verified` is a purely human-set trust flag — nothing in the classification
-// pipeline (prepass.mjs, classify.mjs) ever writes it, so it means exactly
+// pipeline (lib/pipeline/prepass.ts, classify.ts) ever writes it, so it means exactly
 // "an admin looked at this row," not "the AI was confident."
 //
 // supabase-js's PostgrestFilterBuilder generics don't survive a plain
