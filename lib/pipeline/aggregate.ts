@@ -14,7 +14,7 @@ const POST_PAGE_SIZE = 1000;
 export type AliasStats = { posts: number; creatorIds: Set<string> };
 
 type ProfileRow = { id: string; creator_id: string };
-type PostRow = { social_profile_id: string; detected_brands: unknown };
+type PostRow = { id: string; social_profile_id: string; detected_brands: unknown };
 
 export function normalizeAlias(raw: unknown): string | null {
   if (typeof raw !== 'string') return null;
@@ -27,7 +27,7 @@ export async function aggregateDetectedBrands(client: PipelineClient): Promise<M
   const creatorIdByProfileId = new Map<string, string>();
   await paginate<ProfileRow>(
     () => client.from('social_profiles').select('id, creator_id'),
-    PROFILE_PAGE_SIZE,
+    { key: 'id', pageSize: PROFILE_PAGE_SIZE },
     (rows) => {
       for (const row of rows) creatorIdByProfileId.set(row.id, row.creator_id);
     },
@@ -35,8 +35,8 @@ export async function aggregateDetectedBrands(client: PipelineClient): Promise<M
 
   const stats = new Map<string, AliasStats>();
   await paginate<PostRow>(
-    () => client.from('creator_posts').select('social_profile_id, detected_brands'),
-    POST_PAGE_SIZE,
+    () => client.from('creator_posts').select('id, social_profile_id, detected_brands'),
+    { key: 'id', pageSize: POST_PAGE_SIZE },
     (rows) => {
       for (const row of rows) {
         const brands = Array.isArray(row.detected_brands) ? row.detected_brands : [];

@@ -97,7 +97,7 @@ async function fetchBrandAliases(client: PipelineClient): Promise<BrandAliasRow[
   const rows: BrandAliasRow[] = [];
   await paginate<RawBrandAliasRow>(
     () => client.from('brand_aliases').select('alias, canonical_name, entity_type, category, region, verified'),
-    PAGE_SIZE,
+    { key: 'alias', pageSize: PAGE_SIZE },
     (page) => {
       for (const r of page) {
         rows.push({
@@ -120,7 +120,7 @@ async function fetchSocialProfilesById(client: PipelineClient): Promise<Map<stri
   const byId = new Map<string, SocialProfile>();
   await paginate<RawSocialProfileRow>(
     () => client.from('social_profiles').select('id, creator_id, platform, follower_count'),
-    PAGE_SIZE,
+    { key: 'id', pageSize: PAGE_SIZE },
     (page) => {
       for (const r of page) byId.set(r.id, { creatorId: r.creator_id, platform: r.platform, followerCount: r.follower_count });
     },
@@ -134,7 +134,7 @@ async function fetchSponsoredPosts(client: PipelineClient): Promise<SponsoredPos
   const rows: SponsoredPost[] = [];
   await paginate<RawSponsoredPostRow>(
     () => client.from('creator_posts').select('id, social_profile_id, detected_brands, posted_at').eq('is_sponsored', true),
-    PAGE_SIZE,
+    { key: 'id', pageSize: PAGE_SIZE },
     (page) => {
       for (const r of page) {
         rows.push({
