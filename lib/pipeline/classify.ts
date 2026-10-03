@@ -1,87 +1,143 @@
-// AI batch classification for aliases the pre-pass couldn't resolve.
-// Only classifies aliases with classified_at IS NULL AND creators_count >=
-// --min-count (default 2 — single-creator aliases are almost always
-// mis-detections or one-offs not worth an AI call by default). Pass
-// --min-count 1 to run the singleton sweep, which also scores brand/venue
-// entities (recognizability, im_intensity) as scraping targets.
-//
-// Batches of ~50, each alias annotated with its creator/post counts. Strict
-// JSON out: [{alias, canonical_name, entity_type, category, region,
-// recognizability, im_intensity, notes}, ...]. Uses the same raw-fetch +
-// regex-fallback JSON parsing pattern as app/api/match/route.ts (this
-// codebase's existing precedent for JSON-structured Claude output).
-//
-// Idempotent: only ever selects classified_at IS NULL rows, so already-
-// classified aliases are skipped on rerun regardless of how many times this
-// is run.
-//
-// This pipeline never writes `verified` — that flag is human-only and gates
-// visitor-facing data; the columns here are internal discovery signal only.
-//
-// Run: node scripts/brand-aliases/classify.mjs [--limit N] [--min-count N] [--preview] [--test-sample]
-//   --limit N       process at most N batches (~50 aliases each) then stop —
-//                   useful for reviewing raw model output before committing
-//                   to a full run. Omit to process every eligible batch.
-//   --min-count N   minimum creators_count to be eligible (default 2).
-//   --preview       write the full verdict to classification_preview
-//                   instead of the live columns, and don't set
-//                   classified_at — for stress-testing the prompt on a test
-//                   batch before a real run.
-//   --test-sample   swap the normal eligible-alias query for a stratified
-//                   ~80-row sample (regional-suffix / handle-shaped /
-//                   clean-word / random control) drawn from the same
-//                   eligible pool — stress-tests prompt boundary cases
-//                   instead of sampling whatever happens to sort first.
-//                   Only the row selection changes; prompt, batching, and
-//                   writeback are untouched. Requires --preview (refuses to
-//                   write a hand-picked boundary-case sample to live
-//                   columns).
-import { supabase, paginate, env_ } from './_supabase.mjs';
-import { aggregateDetectedBrands } from './_aggregate.mjs';
+import type { PipelineClient, PipelineOptions } from './types';
+import { noopProgress } from './types';
+import { paginate } from './paginate';
+import { aggregateDetectedBrands } from './aggregate';
 
+/**
+ * Step 3 of the brand-aliases pipeline — AI batch classification for aliases
+ * the pre-pass couldn't resolve. Only classifies aliases with classified_at IS
+ * NULL AND creators_count >= minCount (default 2 — single-creator aliases are
+ * almost always mis-detections or one-offs not worth an AI call by default).
+ * minCount 1 is the singleton sweep, which also scores brand/venue entities
+ * (recognizability, im_intensity) as scraping targets.
+ *
+ * Batches of ~50, each alias annotated with its creator/post counts. Strict
+ * JSON out: [{alias, canonical_name, entity_type, category, region,
+ * recognizability, im_intensity, notes}, ...]. Uses the same raw-fetch +
+ * regex-fallback JSON parsing pattern as app/api/match/route.ts.
+ *
+ * Idempotent: only ever selects classified_at IS NULL rows, so already-
+ * classified aliases are skipped on rerun regardless of how many times this
+ * is run.
+ *
+ * This pipeline never writes `verified` — that flag is human-only and gates
+ * visitor-facing data; the columns here are internal discovery signal only.
+ *
+ * Logic moved from scripts/brand-aliases/classify.mjs with three changes:
+ *  1. Eligible rows are COUNTED first (one HEAD request). Zero eligible returns
+ *     immediately without the creator_posts aggregation, which used to run
+ *     unconditionally and is the slowest part of the step.
+ *  2. The prompt's opening paragraph no longer hardcodes "exactly one detected
+ *     creator"; it describes the actual minCount of the run.
+ *  3. The raw model output is printed only with `verbose: true` (the CLI sets
+ *     it); every batch gets a one-line summary regardless.
+ */
 const BATCH_SIZE = 50;
 const MODEL = 'claude-sonnet-4-5-20250929';
 const VALID_ENTITY_TYPES = new Set(['brand', 'creator', 'celebrity', 'media', 'venue', 'fragment', 'unknown']);
 const DELAY_BETWEEN_BATCHES_MS = 500;
 
-const ANTHROPIC_API_KEY = env_.ANTHROPIC_API_KEY;
-if (!ANTHROPIC_API_KEY) throw new Error('Missing ANTHROPIC_API_KEY in .env.local');
+export type EntityType = 'brand' | 'creator' | 'celebrity' | 'media' | 'venue' | 'fragment' | 'unknown';
 
-function parseLimitArg() {
-  const args = process.argv.slice(2);
-  const eqArg = args.find((a) => a.startsWith('--limit='));
-  if (eqArg) return Number(eqArg.split('=')[1]);
-  const flagIndex = args.indexOf('--limit');
-  if (flagIndex !== -1 && args[flagIndex + 1]) return Number(args[flagIndex + 1]);
-  return null;
+export type ClassifyOptions = PipelineOptions & {
+  /** Anthropic API key. Passed in rather than read from the environment, like the client. */
+  anthropicApiKey: string;
+  /** Minimum creators_count to be eligible. Default 2. */
+  minCount?: number;
+  /** Process at most this many batches (~50 aliases each), then stop. Default: every eligible batch. */
+  limit?: number | null;
+  /** Write the verdict to classification_preview instead of the live columns, and don't set classified_at. */
+  preview?: boolean;
+  /**
+   * Swap the normal eligible-alias query for a stratified ~80-row sample
+   * (regional-suffix / handle-shaped / clean-word / random control) drawn from
+   * the same eligible pool. Requires `preview`; refuses otherwise.
+   */
+  testSample?: boolean;
+  /** Also emit the full raw model output for every batch. The CLI passes true. */
+  verbose?: boolean;
+};
+
+export type ClassifyResult = {
+  minCount: number;
+  preview: boolean;
+  /** Aliases eligible for this run (after the testSample swap, if any). */
+  eligible: number;
+  /** Batches actually processed (after --limit). */
+  batches: number;
+  /** Batches the eligible set would have needed without --limit. */
+  batchesTotal: number;
+  /** Rows written (live or preview). */
+  classified: number;
+  /** Batches that failed on the API call or the upsert; their rows stay unclassified for the next run. */
+  failedBatches: number;
+  /** Rows the model omitted from a batch; also left for the next run. */
+  omitted: number;
+  /** Written rows per entity_type after the invariant guard. */
+  byEntityType: Record<EntityType, number>;
+};
+
+type EligibleRow = { alias: string; creators_count: number };
+type BatchItem = EligibleRow & { posts: number };
+
+type ModelVerdict = {
+  alias?: unknown;
+  canonical_name?: unknown;
+  entity_type?: unknown;
+  category?: unknown;
+  region?: unknown;
+  recognizability?: unknown;
+  im_intensity?: unknown;
+  notes?: unknown;
+};
+
+type LiveUpdate = {
+  alias: string;
+  canonical_name: string | null;
+  entity_type: EntityType;
+  category: string | null;
+  region: string | null;
+  recognizability: number | null;
+  im_intensity: number | null;
+  classification_notes: string | null;
+  classified_at: string;
+};
+
+function emptyBreakdown(): Record<EntityType, number> {
+  return { brand: 0, creator: 0, celebrity: 0, media: 0, venue: 0, fragment: 0, unknown: 0 };
 }
 
-function parseMinCountArg() {
-  const args = process.argv.slice(2);
-  const eqArg = args.find((a) => a.startsWith('--min-count='));
-  if (eqArg) return Number(eqArg.split('=')[1]);
-  const flagIndex = args.indexOf('--min-count');
-  if (flagIndex !== -1 && args[flagIndex + 1]) return Number(args[flagIndex + 1]);
-  return 2;
+function eligibleQuery(client: PipelineClient, minCount: number) {
+  return client
+    .from('brand_aliases')
+    .select('alias, creators_count')
+    .is('classified_at', null)
+    .gte('creators_count', minCount);
 }
 
-async function loadEligibleAliases(minCount) {
-  const aliases = [];
-  await paginate(
-    () =>
-      supabase
-        .from('brand_aliases')
-        .select('alias, creators_count')
-        .is('classified_at', null)
-        .gte('creators_count', minCount)
-        .order('creators_count', { ascending: false }),
+async function countEligible(client: PipelineClient, minCount: number): Promise<number> {
+  const { count, error } = await client
+    .from('brand_aliases')
+    .select('*', { count: 'exact', head: true })
+    .is('classified_at', null)
+    .gte('creators_count', minCount);
+  if (error) throw new Error(`Counting eligible aliases failed: ${error.message}`);
+  return count ?? 0;
+}
+
+async function loadEligibleAliases(client: PipelineClient, minCount: number): Promise<EligibleRow[]> {
+  const aliases: EligibleRow[] = [];
+  await paginate<EligibleRow>(
+    () => eligibleQuery(client, minCount).order('creators_count', { ascending: false }),
     1000,
-    (rows) => aliases.push(...rows)
+    (rows) => {
+      aliases.push(...rows);
+    },
   );
   return aliases;
 }
 
-function shuffle(items) {
+function shuffle<T>(items: T[]): T[] {
   const copy = [...items];
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -99,8 +155,12 @@ const CLEAN_WORD_NOISE_RE = /[_0-9]/;
 
 // Same eligible pool as a normal run — only the row selection differs, so
 // this exercises the exact selection/prompt/writeback path a real run does.
-async function loadStratifiedTestSample(minCount) {
-  const pool = await loadEligibleAliases(minCount);
+async function loadStratifiedTestSample(
+  client: PipelineClient,
+  minCount: number,
+  onProgress: (message: string) => void,
+): Promise<EligibleRow[]> {
+  const pool = await loadEligibleAliases(client, minCount);
 
   const regional = pool.filter((row) => REGIONAL_SUFFIX_RE.test(row.alias)).slice(0, 15);
   const handleShaped = pool
@@ -111,14 +171,48 @@ async function loadStratifiedTestSample(minCount) {
     .slice(0, 25);
   const random = shuffle(pool).slice(0, 20);
 
-  console.log(
+  onProgress(
     `  Stratified test sample: ${regional.length} regional-suffix, ${handleShaped.length} handle-shaped, ` +
-      `${cleanWord.length} clean-word, ${random.length} random control (buckets may overlap, matching the reference SQL).`
+      `${cleanWord.length} clean-word, ${random.length} random control (buckets may overlap, matching the reference SQL).`,
   );
   return [...regional, ...handleShaped, ...cleanWord, ...random];
 }
 
-function buildPrompt(batch) {
+/**
+ * The one prompt change in this refactor: the old opening paragraph said every
+ * alias "has exactly one detected creator so far", which was only true of the
+ * singleton sweep (--min-count 1) and was sent verbatim on default runs too.
+ * The rest of the prompt is byte-for-byte what classify.mjs sent.
+ */
+function describeCreatorCounts(minCount: number): string {
+  if (minCount <= 1) {
+    return `Every alias below has at least one detected creator so far, and most have exactly one. That creator
+count carries NO signal about the entity's real-world importance — a globally famous brand and a random
+typo look identical at count = 1. Judge each alias purely on your own world knowledge of what the string
+refers to, NOT on the count.`;
+  }
+  return `Every alias below has at least ${minCount} distinct detected creators so far. That creator count is
+a weak signal at best about the entity's real-world importance — a globally famous brand and a recurring
+mis-detection can look alike at these counts. Judge each alias primarily on your own world knowledge of
+what the string refers to, NOT on the count.`;
+}
+
+/**
+ * Same correction for the creator bullet: "dominated by single-creator
+ * aliases" is only true of the singleton sweep.
+ */
+function describeCreatorBullet(minCount: number): string {
+  if (minCount <= 1) {
+    return `- creator: an influencer/creator personal handle, not a brand. EXPECT MANY of these — this batch is
+  dominated by single-creator aliases, and personal handles are common here (e.g. "aleaalvarezz",
+  "katiedaisy", "gabriellaelio"). A handle that reads as a person's name/username is a creator.`;
+  }
+  return `- creator: an influencer/creator personal handle, not a brand. EXPECT MANY of these — personal handles
+  are common in this data even when several creators tagged the same one (e.g. "aleaalvarezz",
+  "katiedaisy", "gabriellaelio"). A handle that reads as a person's name/username is a creator.`;
+}
+
+function buildPrompt(batch: BatchItem[], minCount: number): string {
   const lines = batch
     .map((item) => `- "${item.alias}" — ${item.creators_count} distinct creators, ${item.posts} sponsored posts`)
     .join('\n');
@@ -129,17 +223,12 @@ handles, public figures, media properties, events/venues, or plain text noise. Y
 classify each one accurately and, for real brands and venues, score how worthwhile it is as a
 target for finding MORE creators who post about it.
 
-Every alias below has exactly one detected creator so far. That single creator count carries NO
-signal about the entity's real-world importance — a globally famous brand and a random typo look
-identical at count = 1. Judge each alias purely on your own world knowledge of what the string
-refers to, NOT on the count.
+${describeCreatorCounts(minCount)}
 
 ## entity_type — exactly one of: brand, creator, celebrity, media, venue, fragment, unknown
 
 - brand: an actual commercial brand, company, or product line (Prada, Gymshark, The Honest Company).
-- creator: an influencer/creator personal handle, not a brand. EXPECT MANY of these — this batch is
-  dominated by single-creator aliases, and personal handles are common here (e.g. "aleaalvarezz",
-  "katiedaisy", "gabriellaelio"). A handle that reads as a person's name/username is a creator.
+${describeCreatorBullet(minCount)}
 - celebrity: a public figure being mentioned, not a brand they run.
 - media: a publication, TV show, film, festival-as-media-property, or similar.
 - venue: a real place, event, or venue that runs creator/influencer marketing but is not a product
@@ -257,7 +346,7 @@ Rules for the shape:
 - Include an object for EVERY alias in the list.`;
 }
 
-function parseJsonArray(text) {
+function parseJsonArray(text: string): unknown {
   try {
     return JSON.parse(text);
   } catch {
@@ -267,18 +356,18 @@ function parseJsonArray(text) {
   }
 }
 
-async function classifyBatch(batch) {
+async function classifyBatch(batch: BatchItem[], minCount: number, apiKey: string): Promise<ModelVerdict[]> {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': ANTHROPIC_API_KEY,
+      'x-api-key': apiKey,
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
       model: MODEL,
       max_tokens: 8000,
-      messages: [{ role: 'user', content: buildPrompt(batch) }],
+      messages: [{ role: 'user', content: buildPrompt(batch, minCount) }],
     }),
   });
 
@@ -286,109 +375,142 @@ async function classifyBatch(batch) {
     throw new Error(`Claude API error: ${response.status} ${await response.text()}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as { content: { text: string }[] };
   const text = data.content[0].text;
   const parsed = parseJsonArray(text);
   if (!Array.isArray(parsed)) throw new Error('Model response was not a JSON array');
-  return parsed;
+  return parsed as ModelVerdict[];
 }
 
-function sleep(ms) {
+function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function clampScore(v) {
+function clampScore(v: unknown): number | null {
   const n = Number(v);
   return Number.isInteger(n) && n >= 1 && n <= 5 ? n : null;
 }
 
+function asNullableString(v: unknown): string | null {
+  return typeof v === 'string' ? v : null;
+}
+
 // Live run: write the real columns.
-async function writeLive(updates) {
-  const { error } = await supabase.from('brand_aliases').upsert(updates, { onConflict: 'alias' });
+async function writeLive(client: PipelineClient, updates: LiveUpdate[]) {
+  const { error } = await client.from('brand_aliases').upsert(updates, { onConflict: 'alias' });
   return error;
 }
 
-// --preview: stash the full verdict in the scratch classification_preview
+// preview: stash the full verdict in the scratch classification_preview
 // column instead of the live columns, and don't set classified_at, so
 // preview rows stay eligible for the real run.
-async function writePreview(updates) {
+async function writePreview(client: PipelineClient, updates: LiveUpdate[]) {
   const previewUpdates = updates.map((u) => {
-    const verdict = { ...u };
+    const verdict: Partial<LiveUpdate> = { ...u };
     delete verdict.classified_at;
     return { alias: u.alias, classification_preview: verdict };
   });
-  const { error } = await supabase.from('brand_aliases').upsert(previewUpdates, { onConflict: 'alias' });
+  const { error } = await client.from('brand_aliases').upsert(previewUpdates, { onConflict: 'alias' });
   return error;
 }
 
-async function main() {
-  const minCount = parseMinCountArg();
-  const preview = process.argv.includes('--preview');
-  const testSample = process.argv.includes('--test-sample');
+export async function runClassify(client: PipelineClient, options: ClassifyOptions): Promise<ClassifyResult> {
+  const onProgress = options.onProgress ?? noopProgress;
+  const minCount = options.minCount ?? 2;
+  const preview = options.preview ?? false;
+  const testSample = options.testSample ?? false;
+  const verbose = options.verbose ?? false;
+  const limit = options.limit ?? null;
+  const apiKey = options.anthropicApiKey;
 
+  if (!apiKey) throw new Error('Missing Anthropic API key (ClassifyOptions.anthropicApiKey).');
   if (testSample && !preview) {
     throw new Error('--test-sample requires --preview (refusing to write a hand-picked boundary-case sample to live columns).');
   }
 
-  console.log('Aggregating post counts from creator_posts...');
-  const aggregate = await aggregateDetectedBrands();
+  const byEntityType = emptyBreakdown();
+  const base = { minCount, preview, batches: 0, batchesTotal: 0, classified: 0, failedBatches: 0, omitted: 0, byEntityType };
 
-  console.log(
-    `Loading eligible aliases (classified_at IS NULL, creators_count >= ${minCount})` +
-      (testSample ? ', stratified test sample...' : '...')
-  );
-  const eligible = testSample ? await loadStratifiedTestSample(minCount) : await loadEligibleAliases(minCount);
-  console.log(`  ${eligible.length} aliases eligible for AI classification.${preview ? ' (--preview: writing to classification_preview only)' : ''}`);
-
-  if (eligible.length === 0) {
-    console.log('Nothing to do.');
-    return;
+  // Cheap HEAD count first. The aggregation below walks every creator_posts
+  // row and used to run even when nothing was eligible.
+  const eligibleCount = await countEligible(client, minCount);
+  if (eligibleCount === 0) {
+    onProgress(`No aliases eligible for AI classification (classified_at IS NULL, creators_count >= ${minCount}).`);
+    onProgress('Nothing to do.');
+    return { ...base, eligible: 0 };
   }
 
-  const allBatches = [];
+  onProgress('Aggregating post counts from creator_posts...');
+  const aggregate = await aggregateDetectedBrands(client);
+
+  onProgress(
+    `Loading eligible aliases (classified_at IS NULL, creators_count >= ${minCount})` +
+      (testSample ? ', stratified test sample...' : '...'),
+  );
+  const eligible = testSample
+    ? await loadStratifiedTestSample(client, minCount, onProgress)
+    : await loadEligibleAliases(client, minCount);
+  onProgress(
+    `  ${eligible.length} aliases eligible for AI classification.${preview ? ' (--preview: writing to classification_preview only)' : ''}`,
+  );
+
+  if (eligible.length === 0) {
+    onProgress('Nothing to do.');
+    return { ...base, eligible: 0 };
+  }
+
+  const allBatches: EligibleRow[][] = [];
   for (let i = 0; i < eligible.length; i += BATCH_SIZE) allBatches.push(eligible.slice(i, i + BATCH_SIZE));
 
-  const limit = parseLimitArg();
   const batches = limit != null ? allBatches.slice(0, limit) : allBatches;
-  console.log(
+  onProgress(
     `Processing ${batches.length} of ${allBatches.length} batches of up to ${BATCH_SIZE}` +
       (limit != null ? ` (--limit ${limit})` : '') +
-      '...'
+      '...',
   );
 
   const now = new Date().toISOString();
   let classifiedCount = 0;
   let failedBatches = 0;
+  let omittedCount = 0;
 
   for (let b = 0; b < batches.length; b++) {
-    const batch = batches[b].map((item) => ({
+    const batch: BatchItem[] = batches[b].map((item) => ({
       alias: item.alias,
       creators_count: item.creators_count,
       posts: aggregate.get(item.alias)?.posts ?? 0,
     }));
     const aliasSet = new Set(batch.map((item) => item.alias));
 
-    console.log(`Batch ${b + 1}/${batches.length} (${batch.length} aliases)...`);
-    let results;
+    onProgress(`Batch ${b + 1}/${batches.length} (${batch.length} aliases)...`);
+    let results: ModelVerdict[];
     try {
-      results = await classifyBatch(batch);
+      results = await classifyBatch(batch, minCount, apiKey);
     } catch (err) {
-      console.error(`  FAILED: ${err.message} — leaving this batch unclassified for retry.`);
+      const message = err instanceof Error ? err.message : String(err);
+      onProgress(`  FAILED: ${message} — leaving this batch unclassified for retry.`);
       failedBatches++;
       continue;
     }
 
-    console.log(`\n--- RAW MODEL OUTPUT (batch ${b + 1}) ---`);
-    console.log(JSON.stringify(results, null, 2));
-    console.log('--- END RAW OUTPUT ---\n');
+    if (verbose) {
+      onProgress(`\n--- RAW MODEL OUTPUT (batch ${b + 1}) ---`);
+      onProgress(JSON.stringify(results, null, 2));
+      onProgress('--- END RAW OUTPUT ---\n');
+    }
 
-    const updates = [];
+    const updates: LiveUpdate[] = [];
+    const batchBreakdown = emptyBreakdown();
+    let skipped = 0;
     for (const result of results) {
       if (!result || typeof result.alias !== 'string' || !aliasSet.has(result.alias)) {
-        console.warn(`  Skipping unrecognized/hallucinated result: ${JSON.stringify(result)}`);
+        onProgress(`  Skipping unrecognized/hallucinated result: ${JSON.stringify(result)}`);
+        skipped++;
         continue;
       }
-      let entityType = VALID_ENTITY_TYPES.has(result.entity_type) ? result.entity_type : 'unknown';
+      let entityType: EntityType = VALID_ENTITY_TYPES.has(result.entity_type as string)
+        ? (result.entity_type as EntityType)
+        : 'unknown';
 
       // Deterministic invariant guard — runs on every classified row. The
       // prompt has been sharpened twice for these two failure modes and they
@@ -404,9 +526,10 @@ async function main() {
       }
       // 2. Only brand/venue may carry canonical_name, category, region, and scores. Everything else nulls them.
       const scorable = entityType === 'brand' || entityType === 'venue';
-      const canonical = scorable ? (result.canonical_name ?? null) : null;
-      const category = scorable ? (result.category ?? null) : null;
-      const region = scorable ? (result.region ?? null) : null;
+      // Pass-through, not coercion, to write exactly what classify.mjs wrote.
+      const canonical = scorable ? ((result.canonical_name ?? null) as string | null) : null;
+      const category = scorable ? ((result.category ?? null) as string | null) : null;
+      const region = scorable ? ((result.region ?? null) as string | null) : null;
       const recognizability = scorable ? clampScore(result.recognizability) : null;
       const im_intensity = scorable ? clampScore(result.im_intensity) : null;
 
@@ -418,35 +541,55 @@ async function main() {
         region,
         recognizability,
         im_intensity,
-        classification_notes: typeof result.notes === 'string' ? result.notes : null,
+        classification_notes: asNullableString(result.notes),
         classified_at: now,
       });
+      batchBreakdown[entityType]++;
     }
 
     const missing = batch.filter((item) => !updates.some((u) => u.alias === item.alias));
     if (missing.length > 0) {
-      console.warn(`  Model omitted ${missing.length} alias(es) from this batch — left unclassified for retry.`);
+      onProgress(`  Model omitted ${missing.length} alias(es) from this batch — left unclassified for retry.`);
+      omittedCount += missing.length;
     }
 
     if (updates.length > 0) {
-      const writeError = preview ? await writePreview(updates) : await writeLive(updates);
+      const writeError = preview ? await writePreview(client, updates) : await writeLive(client, updates);
       if (writeError) {
-        console.error(`  Upsert failed: ${writeError.message}`);
+        onProgress(`  Upsert failed: ${writeError.message}`);
         failedBatches++;
         continue;
       }
       classifiedCount += updates.length;
+      for (const type of Object.keys(batchBreakdown) as EntityType[]) byEntityType[type] += batchBreakdown[type];
     }
+
+    const breakdown = (Object.entries(batchBreakdown) as [EntityType, number][])
+      .filter(([, n]) => n > 0)
+      .map(([type, n]) => `${type} ${n}`)
+      .join(', ');
+    onProgress(
+      `  Batch ${b + 1}: ${results.length} returned, ${updates.length} ${preview ? 'previewed' : 'written'}` +
+        (breakdown ? ` (${breakdown})` : '') +
+        (missing.length > 0 ? `, ${missing.length} omitted` : '') +
+        (skipped > 0 ? `, ${skipped} skipped` : ''),
+    );
 
     if (b < batches.length - 1) await sleep(DELAY_BETWEEN_BATCHES_MS);
   }
 
-  console.log(
-    `\nDone. ${preview ? 'Previewed' : 'Classified'} ${classifiedCount}/${eligible.length} aliases. ${failedBatches} batch failure(s) left for the next run.`
+  onProgress(
+    `\nDone. ${preview ? 'Previewed' : 'Classified'} ${classifiedCount}/${eligible.length} aliases. ${failedBatches} batch failure(s) left for the next run.`,
   );
-}
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+  return {
+    ...base,
+    eligible: eligible.length,
+    batches: batches.length,
+    batchesTotal: allBatches.length,
+    classified: classifiedCount,
+    failedBatches,
+    omitted: omittedCount,
+    byEntityType,
+  };
+}

@@ -46,4 +46,4 @@ admin in that UI) and "Review — unknown" (the small number of aliases the
 AI genuinely couldn't place). Pass `--min-count 1` to `classify` to include
 singletons — the classify prompt scores `brand`/`venue` results
 (`recognizability`, `im_intensity`) as scraping-target signal; see
-`classify.mjs` for the `--preview` test-batch flow.
+`lib/pipeline/classify.ts` and `scripts/brand-aliases/classify.ts` for the `--preview` test-batch flow.

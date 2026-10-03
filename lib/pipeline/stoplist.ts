@@ -2,7 +2,8 @@
 // captions/hashtags) but aren't brand, creator, celebrity, or media entities —
 // classified straight to 'fragment' without spending an AI call. Not
 // exhaustive; extend as new false positives turn up in the review queue.
-export const COMMON_WORD_FRAGMENTS = new Set([
+// Moved unchanged from scripts/brand-aliases/_stoplist.mjs.
+export const COMMON_WORD_FRAGMENTS: ReadonlySet<string> = new Set([
   // English function words
   'the', 'a', 'an', 'and', 'or', 'but', 'for', 'with', 'without', 'my', 'your', 'our', 'their',
   'his', 'her', 'its', 'it', 'is', 'are', 'was', 'were', 'am', 'be', 'been', 'being',
