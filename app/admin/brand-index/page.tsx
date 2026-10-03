@@ -331,7 +331,7 @@ export default function AdminBrandIndexPage() {
           <p style={{ color: '#9CA3AF', fontSize: '14px' }}>
             {searchTerm
               ? `No preview rows match "${searchTerm}".`
-              : <>No preview data yet — run <code>classify.mjs</code> with <code>--preview</code> to populate this tab.</>}
+              : <>No preview data yet — run <code>npm run brand-aliases:classify -- --preview</code> to populate this tab.</>}
           </p>
         ) : (
           <>

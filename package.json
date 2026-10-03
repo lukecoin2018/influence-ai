@@ -8,10 +8,10 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "brand-aliases:seed": "tsx scripts/brand-aliases/seed.ts",
-    "brand-aliases:prepass": "tsx scripts/brand-aliases/prepass.ts",
-    "brand-aliases:classify": "tsx scripts/brand-aliases/classify.ts",
-    "refresh:brand-brackets": "tsx scripts/brand-brackets/refresh.ts",
+    "brand-aliases:seed": "NODE_OPTIONS=--experimental-websocket tsx scripts/brand-aliases/seed.ts",
+    "brand-aliases:prepass": "NODE_OPTIONS=--experimental-websocket tsx scripts/brand-aliases/prepass.ts",
+    "brand-aliases:classify": "NODE_OPTIONS=--experimental-websocket tsx scripts/brand-aliases/classify.ts",
+    "refresh:brand-brackets": "NODE_OPTIONS=--experimental-websocket tsx scripts/brand-brackets/refresh.ts",
     "check-creator-matches": "tsx scripts/creator-brand-matches/check.ts"
   },
   "dependencies": {
