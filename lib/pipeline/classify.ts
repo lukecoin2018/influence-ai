@@ -1,7 +1,7 @@
 import type { PipelineClient, PipelineOptions } from './types';
 import { noopProgress } from './types';
 import { paginate } from './paginate';
-import { aggregateDetectedBrands } from './aggregate';
+import { normalizeAlias } from './aggregate';
 
 /**
  * Step 3 of the brand-aliases pipeline — AI batch classification for aliases
@@ -23,10 +23,15 @@ import { aggregateDetectedBrands } from './aggregate';
  * This pipeline never writes `verified` — that flag is human-only and gates
  * visitor-facing data; the columns here are internal discovery signal only.
  *
- * Logic moved from scripts/brand-aliases/classify.mjs with three changes:
+ * Logic moved from scripts/brand-aliases/classify.mjs with four changes:
  *  1. Eligible rows are COUNTED first (one HEAD request). Zero eligible returns
- *     immediately without the creator_posts aggregation, which used to run
- *     unconditionally and is the slowest part of the step.
+ *     immediately.
+ *  0. There is no creator_posts aggregation any more. The prompt needs a
+ *     sponsored-post count per alias, and only for the aliases in the batch,
+ *     so each batch runs one `detected_brands && aliases` query against the
+ *     GIN index (loadBatchPostCounts) instead of paging the whole table. The
+ *     full scan took about a minute and, on 2026-10-03, hit PostgREST's
+ *     8-second statement timeout in production before any Anthropic call.
  *  2. The prompt's opening paragraph no longer hardcodes "exactly one detected
  *     creator"; it describes the actual minCount of the run.
  *  3. The raw model output is printed only with `verbose: true` (the CLI sets
@@ -145,16 +150,66 @@ async function countEligible(client: PipelineClient, minCount: number): Promise<
   return count ?? 0;
 }
 
+/**
+ * Loads every eligible alias, highest creators_count first, with alias as a
+ * deterministic tiebreak. Paged by alias (keyset) and sorted in memory: the
+ * eligible set is the unclassified slice of brand_aliases, small enough to
+ * hold, and a creators_count-ordered cursor would need a compound key.
+ */
 async function loadEligibleAliases(client: PipelineClient, minCount: number): Promise<EligibleRow[]> {
   const aliases: EligibleRow[] = [];
   await paginate<EligibleRow>(
-    () => eligibleQuery(client, minCount).order('creators_count', { ascending: false }),
-    1000,
+    () => eligibleQuery(client, minCount),
+    { key: 'alias', pageSize: 1000 },
     (rows) => {
       aliases.push(...rows);
     },
   );
-  return aliases;
+  return aliases.sort((a, b) => b.creators_count - a.creators_count || a.alias.localeCompare(b.alias));
+}
+
+/**
+ * A Postgres text[] literal, every element double-quoted with `\` and `"`
+ * escaped, for PostgREST's `ov.{...}` filter. supabase-js's overlaps(column,
+ * string[]) joins values with commas unquoted, so an alias containing a comma,
+ * quote, brace or space would corrupt the literal; this is the safe form.
+ */
+export function pgTextArrayLiteral(values: readonly string[]): string {
+  return `{${values.map((v) => `"${v.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`).join(',')}}`;
+}
+
+type ContextPostRow = { id: string; detected_brands: unknown };
+
+/**
+ * Sponsored-post counts for ONE batch of aliases, from the posts that mention
+ * any of them (detected_brands && aliases — a GIN index scan, migration 0005)
+ * instead of the full creator_posts aggregation seed uses. Measured
+ * 2026-10-03: ~0.4 s for 50 aliases, against ~1 minute and one statement
+ * timeout for the full scan. A post is counted once per alias it names, as
+ * the aggregation did. creators_count comes from the alias row, so this is
+ * the only context the prompt still needs.
+ */
+export async function loadBatchPostCounts(client: PipelineClient, aliases: readonly string[]): Promise<Map<string, number>> {
+  const counts = new Map<string, number>(aliases.map((alias) => [alias, 0]));
+  if (aliases.length === 0) return counts;
+  const wanted = new Set(aliases);
+  await paginate<ContextPostRow>(
+    () => client.from('creator_posts').select('id, detected_brands').overlaps('detected_brands', pgTextArrayLiteral(aliases)),
+    { key: 'id', pageSize: 1000 },
+    (rows) => {
+      for (const row of rows) {
+        const brands = Array.isArray(row.detected_brands) ? row.detected_brands : [];
+        const seenInThisPost = new Set<string>();
+        for (const raw of brands) {
+          const alias = normalizeAlias(raw);
+          if (!alias || !wanted.has(alias) || seenInThisPost.has(alias)) continue;
+          seenInThisPost.add(alias);
+          counts.set(alias, (counts.get(alias) ?? 0) + 1);
+        }
+      }
+    },
+  );
+  return counts;
 }
 
 function shuffle<T>(items: T[]): T[] {
@@ -460,9 +515,6 @@ export async function runClassify(client: PipelineClient, options: ClassifyOptio
     return { ...base, eligible: 0 };
   }
 
-  onProgress('Aggregating post counts from creator_posts...');
-  const aggregate = await aggregateDetectedBrands(client);
-
   onProgress(
     `Loading eligible aliases (classified_at IS NULL, creators_count >= ${minCount})` +
       (testSample ? ', stratified test sample...' : '...'),
@@ -501,10 +553,12 @@ export async function runClassify(client: PipelineClient, options: ClassifyOptio
   let omittedCount = 0;
 
   for (let b = 0; b < batches.length; b++) {
+    // Context for this batch only: one GIN-indexed overlaps query, not a scan.
+    const postCounts = await loadBatchPostCounts(client, batches[b].map((item) => item.alias));
     const batch: BatchItem[] = batches[b].map((item) => ({
       alias: item.alias,
       creators_count: item.creators_count,
-      posts: aggregate.get(item.alias)?.posts ?? 0,
+      posts: postCounts.get(item.alias) ?? 0,
     }));
     const aliasSet = new Set(batch.map((item) => item.alias));
 

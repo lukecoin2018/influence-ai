@@ -30,15 +30,15 @@ export type PrepassResult = {
   remainingForAi: number;
 };
 
-type ProfileRow = { handle: string | null; creator_id: string };
+type ProfileRow = { id: string; handle: string | null; creator_id: string };
 type CreatorRow = { id: string; display_name: string | null };
 type AliasRow = { alias: string };
 
 async function loadHandleToCreatorName(client: PipelineClient): Promise<Map<string, string>> {
   const handleToCreatorId = new Map<string, string>();
   await paginate<ProfileRow>(
-    () => client.from('social_profiles').select('handle, creator_id'),
-    PAGE_SIZE,
+    () => client.from('social_profiles').select('id, handle, creator_id'),
+    { key: 'id', pageSize: PAGE_SIZE },
     (rows) => {
       for (const row of rows) {
         if (row.handle) handleToCreatorId.set(row.handle.trim().toLowerCase(), row.creator_id);
@@ -49,7 +49,7 @@ async function loadHandleToCreatorName(client: PipelineClient): Promise<Map<stri
   const creatorIdToName = new Map<string, string | null>();
   await paginate<CreatorRow>(
     () => client.from('creators').select('id, display_name'),
-    PAGE_SIZE,
+    { key: 'id', pageSize: PAGE_SIZE },
     (rows) => {
       for (const row of rows) creatorIdToName.set(row.id, row.display_name);
     },
@@ -66,7 +66,7 @@ async function loadUnclassifiedAliases(client: PipelineClient): Promise<string[]
   const aliases: string[] = [];
   await paginate<AliasRow>(
     () => client.from('brand_aliases').select('alias').is('classified_at', null),
-    PAGE_SIZE,
+    { key: 'alias', pageSize: PAGE_SIZE },
     (rows) => {
       aliases.push(...rows.map((r) => r.alias));
     },
