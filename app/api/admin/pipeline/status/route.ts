@@ -3,6 +3,7 @@ import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { requireOwnerApi } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
 import {
+  anthropicApiKey,
   isMissingTableError,
   isStale,
   MIGRATION_MISSING_MESSAGE,
@@ -31,6 +32,8 @@ const HISTORY_LIMIT = 20;
 export type PipelineCounts = {
   aliasesUnclassified: number | null;
   aliasesEligible: number | null;
+  /** Eligible for classify at min count 1 and 2. 1 is the unclassified count itself (every alias has at least one creator); 2 is the default rule. Nothing per-request for other values. */
+  eligibleByMinCount: { 1: number | null; 2: number | null };
   brackets: number | null;
   bracketsRefreshedAt: string | null;
   creatorPosts: number | null;
@@ -77,8 +80,12 @@ async function handleGET(req: NextRequest) {
   return NextResponse.json({
     enabled: true,
     now: new Date().toISOString(),
+    // Lets the page say whether classify can run on this host before anyone clicks.
+    anthropicKeyPresent: anthropicApiKey() !== null,
     running: runningRow,
-    stale: runningRow ? isStale(runningRow.started_at) : false,
+    // Stale = last sign of life (heartbeat, else start) older than 20 minutes;
+    // a long classify that keeps writing batch lines is never stale.
+    stale: runningRow ? isStale(runningRow) : false,
     latestByStep,
     history: (history.data ?? []) as PipelineRun[],
     counts,
@@ -103,9 +110,12 @@ async function loadCounts(admin: ReturnType<typeof createSupabaseAdminClient>): 
     admin.from('brand_brackets').select('refreshed_at').order('refreshed_at', { ascending: false }).limit(1).maybeSingle(),
     admin.from('creator_posts').select('*', planned),
   ]);
+  const aliasesUnclassified = unclassified.error ? null : unclassified.count ?? 0;
+  const aliasesEligible = eligible.error ? null : eligible.count ?? 0;
   return {
-    aliasesUnclassified: unclassified.error ? null : unclassified.count ?? 0,
-    aliasesEligible: eligible.error ? null : eligible.count ?? 0,
+    aliasesUnclassified,
+    aliasesEligible,
+    eligibleByMinCount: { 1: aliasesUnclassified, 2: aliasesEligible },
     brackets: brackets.error ? null : brackets.count ?? 0,
     bracketsRefreshedAt: latestRefresh.error ? null : ((latestRefresh.data as { refreshed_at: string } | null)?.refreshed_at ?? null),
     creatorPosts: posts.error ? null : posts.count ?? 0,
