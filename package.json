@@ -12,6 +12,7 @@
     "brand-aliases:prepass": "NODE_OPTIONS=--experimental-websocket tsx scripts/brand-aliases/prepass.ts",
     "brand-aliases:classify": "NODE_OPTIONS=--experimental-websocket tsx scripts/brand-aliases/classify.ts",
     "refresh:brand-brackets": "NODE_OPTIONS=--experimental-websocket tsx scripts/brand-brackets/refresh.ts",
+    "creator-entity:classify": "NODE_OPTIONS=--experimental-websocket tsx scripts/creator-entity/classify.ts",
     "check-creator-matches": "tsx scripts/creator-brand-matches/check.ts"
   },
   "dependencies": {

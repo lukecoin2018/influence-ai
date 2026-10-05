@@ -1,3 +1,10 @@
+import type {
+  CreatorEntityConfidence,
+  CreatorEntityInputs,
+  CreatorEntitySignals,
+  CreatorEntityType,
+} from './creator-entity/types';
+
 export interface Creator {
   creator_id: string;
   name: string;
@@ -184,6 +191,29 @@ export interface CreatorFilters {
   language?: string;
   country?: string;
   hasEmail?: boolean;
+}
+
+/**
+ * One creator_entity row (migration 0026): what kind of account a scraped
+ * creator is. Written by scripts/creator-entity/classify.ts, reviewed in
+ * /admin/creator-review. The effective type is
+ * `review_entity_type ?? entity_type`.
+ */
+export interface CreatorEntityRow {
+  creator_id: string;
+  entity_type: CreatorEntityType;
+  confidence: CreatorEntityConfidence;
+  reason: string;
+  signals: CreatorEntitySignals;
+  /** True non-creator flags in `signals`, excluding ig_business and creator_category. */
+  flag_count: number;
+  inputs: CreatorEntityInputs;
+  model: string | null;
+  prompt_version: string | null;
+  input_hash: string | null;
+  classified_at: string | null;
+  review_entity_type: CreatorEntityType | null;
+  reviewed_at: string | null;
 }
 
 export interface EnrichmentData {
