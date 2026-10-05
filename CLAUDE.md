@@ -235,9 +235,10 @@ header on the route-handler path — Next derives `isIsr` from the prerender
 manifest, and the header is only written inside the ISR branch. Adding it looks
 like a fix and does nothing.
 
-Six public GETs stay deliberately cacheable, because their body depends only on
-the URL: `creators/[handle]`, `creators/compare`, `creators/featured`,
-`creators/featured/featured`, `stats`, `categories`.
+Four public GETs stay deliberately cacheable, because their body depends only on
+the URL: `creators/featured`, `creators/featured/featured`, `stats`,
+`categories`. `creators/[handle]` and `creators/compare` used to be on this
+list; both are now wrapped in `withNoStore()`.
 
 **Purge the cache** after any deploy that changes cache headers, or a poisoned
 entry outlives your verification pass:
@@ -271,7 +272,7 @@ as.
 Write the file, show paste-ready SQL, he pastes it, he confirms. The manual
 checkpoint is deliberate and has caught real bugs.
 
-- Next number: check the folder. 0013 is taken.
+- Next number: check the folder. 0026 is taken (2026-10-05), so the next is 0027.
 - `IF NOT EXISTS` throughout — files must be safe to rerun.
 - The SQL editor runs statements in a transaction, so no
   `CREATE INDEX CONCURRENTLY`.
@@ -312,14 +313,14 @@ checkpoint is deliberate and has caught real bugs.
 
 ### The brand data model — three layers, and only two are usable
 
-- **`brand_aliases`** (~12,600) — the classification layer. `alias` **is the
+- **`brand_aliases`** (~34,700 on 2026-10-04) — the classification layer. `alias` **is the
   Instagram handle**; `canonical_name` is the display name; `entity_type`
   separates brand from creator/celebrity/media; `verified` is a human-only trust
   flag the pipeline never touches.
 - **`brand_brackets`** — built by `scripts/brand-brackets/refresh.ts` from
   `brand_aliases` + `creator_posts` + `social_profiles`. PK is
   `(canonical_name, platform)`. This is what brand cards read.
-- **`brands`** (~11,464) — **do not use.** `brand_name` is NULL for ~99% of rows,
+- **`brands`** (~32,000 on 2026-10-04) — **do not use.** `brand_name` is NULL for ~99% of rows,
   so it joins to anything at ~2%. It's a raw scrape of tagged accounts,
   pre-classification, and includes people and places.
 
@@ -334,6 +335,64 @@ a message.
 `https://ig.me/m/<handle>` opens straight into a DM thread. Verified on desktop
 and mobile web. On mobile it opens the browser, not the app; don't try to force
 the app with an `instagram://` scheme.
+
+### Brand accounts among the creators — `creator_entity` (0026, phase 1)
+
+Some scraped "creators" are brand, media or venue accounts (GLOWERY, Rel Beauty,
+Cosmopolitan UK, W Amsterdam). `brand_aliases` cannot find them:
+`lib/pipeline/prepass.ts` labels any alias equal to a `social_profiles.handle`
+as `creator`, so for every handle already in the database the join is circular.
+On 2026-10-04 an exact handle-to-alias join found 2 brand and 1 media accounts
+among 8,716 profiles, and GLOWERY and Rel have no alias row at all.
+
+- **`creator_entity`** is a side table keyed on `creator_id`, not a column on
+  `creators`. A creators column would trip `creators_archive` (built `LIKE
+  creators`), `v_creators_all`'s explicit column list and `promote_creator()`'s
+  35-column pin (all in influ-scrape's migrations).
+- **Written by** `npm run creator-entity:classify` (`scripts/creator-entity/`,
+  logic in `lib/creator-entity/`). It runs a Claude Haiku 4.5 verdict per
+  creator (`creator | brand | media | venue | other`, a confidence and a
+  one-line reason) plus deterministic heuristic flags in `signals`.
+  - `flag_count` is the number of true non-creator flags, not counting
+    `ig_business` or `creator_category`.
+  - `inputs` is the exact record the model saw, and `input_hash` is sha256
+    over it. A rerun skips the model call for creators whose `input_hash` and
+    `prompt_version` both match, so it only pays for new or changed ones.
+  - It skips the call, not the row. Every run recomputes `signals` and
+    `flag_count` for those creators and rewrites them when they differ, so a
+    heuristic can be retuned after the full run for free.
+  - `domain_matches_name` is the link flag: the link's main domain label must
+    contain, or be contained in, the normalised handle or display name (4+
+    characters). Link-in-bio tools, platforms and email providers never count
+    (`NOT_OWN_DOMAINS`), and affiliate or agency links fail the name test.
+  - Flags: `--dry-run` (works before 0026 is applied), `--heuristics-only` (no
+    model calls; still refreshes stored signals unless `--dry-run`),
+    `--limit N`, `--ids a,b`, `--model`.
+- **Effective type is `review_entity_type ?? entity_type`.** The script never
+  writes the two review columns, so a rerun cannot undo a human decision.
+- **Reviewed at `/admin/creator-review`**, which reads `creator_entity` only and
+  shows `inputs`, never `social_profiles` or `v_creator_summary`.
+  - The reason: both filter on `creators.status = 'active'`, so they will hide
+    these rows from the admin session once phase 2 runs.
+  - RLS matches `brand_aliases`: admin-only SELECT and UPDATE on
+    `is_admin_user()`, writes from the script as service_role.
+  - The Review tab holds unreviewed rows with any of:
+    - medium or low confidence, whatever the verdict
+    - `entity_type = 'other'`
+    - a creator verdict with 2+ flags
+    - a non-creator verdict with no flags and no business account
+    - a creator verdict with an `alias_match` (`@gymsharkwomen`, a brand
+      account its AI summary called a creator)
+- **Phase 1 changes no read path.** Phase 2 sets `creators.status = 'non_creator'`
+  for the excluded accounts.
+  - RLS, `v_creator_summary` and `social_profiles`' policy already filter on
+    `status = 'active'`.
+  - Service-role reads need the filter added by hand: the claim API, the
+    teaser, `brand-activity.ts` and admin targeting.
+  - One scraper hazard first: influ-scrape's `saveDiscoveredCreators`
+    discards its profile-lookup error (`lib/creatorImport.ts:141`). A failed
+    lookup mints a fresh `active` creator, and `upsert_social_profile` moves
+    the profile onto it, which would silently undo an exclusion.
 
 ---
 
@@ -768,14 +827,14 @@ inside `/creator-dashboard` after claiming. Not `funnel_events`, which stops at
   safe failure. The Googlebot user-agent gets a bare 403 from TikTok; the
   TikTok path sends a desktop Chrome UA and parses the
   `__UNIVERSAL_DATA_FOR_REHYDRATION__` blob, `lib/apify.ts`.
-- **72 handles exist on both platforms, under different creators, and the claim
+- **73 handles exist on both platforms, under different creators, and the claim
   funnel resolves by handle alone.** The teaser
   (`lib/reports/creator-brand-matches.ts`, `app/claim/[handle]/_data.ts`), the
   signup existence check (`app/auth/signup/_SignUpForm.tsx`) and the claim API
   (`app/api/creators/claim/route.ts`) all query `social_profiles.handle` with
-  `.limit(1)` and no platform filter, so for those 72 the platform that gets
-  claimed is whichever row PostgREST returns first. Measured 2026-09-22: 8,711
-  rows, 8,639 distinct handles, 0 creators with more than one row. The fix is
+  `.limit(1)` and no platform filter, so for those 73 the platform that gets
+  claimed is whichever row PostgREST returns first. Measured 2026-10-04: 8,716
+  rows, 73 handles on two rows, 0 creators with more than one row. The fix is
   carrying `platform` on the claim link (the fulfil email builds it in
   `lib/creator-requests/fulfil.ts`) through signup into the claim API's lookup.
   Not started.
