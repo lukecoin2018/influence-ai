@@ -311,7 +311,7 @@ as.
 Write the file, show paste-ready SQL, he pastes it, he confirms. The manual
 checkpoint is deliberate and has caught real bugs.
 
-- Next number: check the folder. 0029 is taken (2026-10-06), so the next is 0030.
+- Next number: check the folder. 0030 is taken (2026-10-06), so the next is 0031.
 - `IF NOT EXISTS` throughout — files must be safe to rerun.
 - The SQL editor runs statements in a transaction, so no
   `CREATE INDEX CONCURRENTLY`.
@@ -338,6 +338,22 @@ checkpoint is deliberate and has caught real bugs.
   `status = 'active'`. `service_role` bypasses it — so anywhere the admin client
   replaces the anon client, replicate the filter explicitly in code and comment
   which policy it mirrors.
+- **Function-level timeouts (0030).** API calls run in `authenticator`'s session
+  (`statement_timeout` and `lock_timeout` both 8 s), and `service_role` sets
+  neither, so every service-role RPC stops at 8 s unless the function has its own
+  `statement_timeout`. These do: `public_stats()` and `top_creators()` 30 s,
+  `apply_creator_entity()` 60 s.
+  - PostgREST hoists a called function's `statement_timeout` into the
+    transaction (`db-hoisted-tx-settings`, v12+; this project runs v14.5), so the
+    longer limit applies only when that function is the RPC. Everything else
+    keeps 8 s, and lock waits still stop at 8 s.
+  - Only the RPC'd function's settings are hoisted: `accept_creator_entity()`
+    calls `apply_creator_entity()` but keeps 8 s itself.
+  - **`CREATE OR REPLACE FUNCTION` drops a function's SET clauses.** Rerun 0030
+    after anything that recreates these three, 0027 included.
+  - Give a function its own timeout this way rather than widening a role: an
+    `alter role service_role set statement_timeout` would apply to every
+    service-role call in every route, cron and script.
 - Person + profiles model: `creators` is the person, `social_profiles` one row per
   platform. `handle` lives on `social_profiles`.
 - **Creators are single-platform by scrape source** — scraped from either
@@ -509,7 +525,9 @@ among 8,716 profiles, and GLOWERY and Rel have no alias row at all.
     type and platform and the 50 highest-follower accounts it would hide.
     `--write` applies; `--ids a,b` narrows.
   - It calls the function in chunks of 1,000 ids, because a write call's
-    result cannot be paged without running it again.
+    result cannot be paged without running it again. A chunk gets 60 s
+    (`apply_creator_entity`'s own timeout, 0030). Before that it got the 8 s
+    API limit, and chunk 1 failed twice on 2026-10-06 with nothing to change.
   - `npm run creator-entity:classify -- --apply` runs apply (write) over the
     ids that run wrote, verdicts and refreshed signals alike, for runs after a
     scrape.
