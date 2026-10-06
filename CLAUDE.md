@@ -311,7 +311,7 @@ as.
 Write the file, show paste-ready SQL, he pastes it, he confirms. The manual
 checkpoint is deliberate and has caught real bugs.
 
-- Next number: check the folder. 0028 is taken (2026-10-06), so the next is 0029.
+- Next number: check the folder. 0029 is taken (2026-10-06), so the next is 0030.
 - `IF NOT EXISTS` throughout — files must be safe to rerun.
 - The SQL editor runs statements in a transaction, so no
   `CREATE INDEX CONCURRENTLY`.
@@ -403,12 +403,24 @@ among 8,716 profiles, and GLOWERY and Rel have no alias row at all.
   one-line reason) plus deterministic heuristic flags in `signals`.
   - `flag_count` is the number of true non-creator flags, not counting
     `ig_business` or `creator_category`.
-  - `inputs` is the exact record the model saw, and `input_hash` is sha256
-    over it. A rerun skips the model call for creators whose `input_hash` and
-    `prompt_version` both match, so it only pays for new or changed ones.
+  - `inputs` is the record the model saw. `input_hash` is sha256 over every
+    input **except `follower_count`** (since 2026-10-06), so a re-scrape that
+    only moves follower numbers costs no model call. A rerun skips the model
+    call for creators whose `input_hash` and `prompt_version` both match, so
+    it only pays for new or changed ones.
   - It skips the call, not the row. Every run recomputes `signals` and
     `flag_count` for those creators and rewrites them when they differ, so a
-    heuristic can be retuned after the full run for free.
+    heuristic can be retuned after the full run for free. It also rewrites
+    `inputs.follower_count` when it moved, so the review page and the apply
+    report show today's count; that one field can be newer than the verdict.
+  - **Changing what `hashInputs()` covers changes every stored hash.** Run
+    `npm run creator-entity:rehash` (dry run) then `-- --write` before the
+    next classify run. It rewrites `input_hash` without a model call on rows
+    whose stored inputs and today's inputs hash the same under the new scheme,
+    and leaves the rest for the next classify run. A classify run before the
+    rehash would see every hash as stale and re-classify every creator.
+    Measured before the 2026-10-06 change: 8,716 rows, all 8,716 to rewrite,
+    0 changed.
   - `domain_matches_name` is the link flag: the link's main domain label must
     contain, or be contained in, the normalised handle or display name (4+
     characters). Link-in-bio tools, platforms and email providers never count

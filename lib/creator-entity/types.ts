@@ -44,10 +44,11 @@ export type CreatorEntitySignals = Record<SignalFlag, boolean> & {
 };
 
 /**
- * creator_entity.inputs: the exact record sent to the model, and what
- * input_hash is computed over. follower_count is a JSON number so the review
- * page's jsonb sort is numeric. The 11 creators with no social profile have
- * nulls everywhere except display_name.
+ * creator_entity.inputs: the record sent to the model. input_hash is computed
+ * over every field except follower_count, which a classify run refreshes on
+ * rows whose verdict stands, so that one field can be newer than the verdict.
+ * follower_count is a JSON number so the review page's jsonb sort is numeric.
+ * Creators with no social profile have nulls everywhere except display_name.
  */
 export type CreatorEntityInputs = {
   platform: string | null;

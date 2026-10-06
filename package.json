@@ -14,6 +14,7 @@
     "refresh:brand-brackets": "NODE_OPTIONS=--experimental-websocket tsx scripts/brand-brackets/refresh.ts",
     "creator-entity:classify": "NODE_OPTIONS=--experimental-websocket tsx scripts/creator-entity/classify.ts",
     "creator-entity:apply": "NODE_OPTIONS=--experimental-websocket tsx scripts/creator-entity/apply.ts",
+    "creator-entity:rehash": "NODE_OPTIONS=--experimental-websocket tsx scripts/creator-entity/rehash.ts",
     "check-creator-matches": "tsx scripts/creator-brand-matches/check.ts"
   },
   "dependencies": {
