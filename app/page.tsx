@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './home.css';
 import { getPublicStats, getTopCreators, getFeaturedCreatorPool, getRenderTimestamp } from './_queries';
 import { withTimeout } from '@/lib/withTimeout';
+import { buildOnlyFallback } from '@/lib/buildOnlyFallback';
 import type { PublicStats } from './_data';
 import { Ticker } from './_components/Ticker';
 import { Nav } from './_components/Nav';
@@ -15,53 +16,33 @@ import { Footer } from './_components/Footer';
 
 export const revalidate = 3600;
 
-// 30 s, up from 10 s (2026-09-16). public_stats() measured 7.8 s on a cold
-// call with the service-role client and 0.25 s warm; during `next build` the
-// database is also serving top_creators, the featured pool and the discover
-// pages, so the cold call crossed 10 s and both log lines below fired on
-// every build, leaving the prerendered page on FALLBACK_STATS for its first
-// hour. The function body lives only in Supabase and has not been read yet,
-// so a cheaper query or an index is not yet possible; this keeps the page
-// static and only lengthens a build in the worst case.
+// 30 s, up from 10 s (2026-09-16). It is a JS ceiling only: Postgres cancels
+// each public_stats() call at 8 s first (authenticator's statement_timeout,
+// which service-role API calls inherit), and getPublicStats() retries that up
+// to three times (~25 s worst case), which this has to leave room for. The
+// function body is in supabase/migrations/0027_creator_exclusion.sql; on a
+// cold database it runs past 8 s (measured 2026-10-06: 8.2 s cancelled twice,
+// then 4.1 s, then 0.56 s).
 const STATS_TIMEOUT_MS = 30_000;
 
-// Same rationale and same last-known-good snapshot as app/opengraph-image.tsx's
-// FALLBACK_STATS: this route is statically prerendered at build time too, and a
-// slow/timed-out public_stats() RPC must never be able to fail `next build`.
-// Values mirrored from opengraph-image.tsx for consistency — stale (dated
-// Jul 3, 2026), refresh both together when a real snapshot is next available.
+// Used only when a call fails during `next build` (see buildOnlyFallback):
+// this route is prerendered at build time, and a slow public_stats() must
+// never fail a deploy. After that, a failed revalidation keeps the last good
+// page instead. Same values as app/opengraph-image.tsx's FALLBACK_STATS —
+// public_stats() as of 2026-10-06, after phase 2 hid 993 non-creator
+// accounts. They go stale as the index grows; update both together.
 const FALLBACK_STATS: PublicStats = {
-  creators: 5112,
-  postsAnalyzed: 69451,
-  brandDeals: 3798,
-  igMedian: 0.6,
-  tiktokMedian: 0.4,
-  lastIndex: 'Jul 3, 2026',
+  creators: 7649,
+  postsAnalyzed: 217797,
+  brandDeals: 18453,
+  igMedian: 1.3,
+  tiktokMedian: 1.3,
+  lastIndex: 'Sep 22, 2026',
 };
-
-/**
- * Every data call here degrades to a fallback so a slow database can't fail
- * `next build`. That was silent: a genuine query error and a timeout produced
- * the same empty section with no trace anywhere, which is how an intermittent
- * anon-role statement_timeout went undiagnosed while ISR cached each bad roll
- * for an hour. Log which call failed and why, then fall back exactly as before.
- *
- * `err.name` is the part worth reading — `TimeoutError` means withTimeout's
- * timer fired, anything else means the query itself came back with an error.
- */
-function logAndFallback<T>(label: string, fallback: T) {
-  return (err: unknown): T => {
-    console.error(
-      `[home] ${label} failed, using fallback — ` +
-        (err instanceof Error ? `${err.name}: ${err.message}` : String(err))
-    );
-    return fallback;
-  };
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   const stats = await withTimeout(getPublicStats(), STATS_TIMEOUT_MS).catch(
-    logAndFallback('getPublicStats (metadata)', FALLBACK_STATS)
+    buildOnlyFallback('getPublicStats (metadata)', FALLBACK_STATS)
   );
   const title = `InfluenceIT — ${stats.creators.toLocaleString()}+ creators. Zero guesswork.`;
   const description = `InfluenceIT indexes real engagement, content mix, and detected brand deals across Instagram and TikTok — browse ${stats.creators.toLocaleString()} creators ranked by real data, not follower counts.`;
@@ -86,20 +67,24 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
+// Every data call falls back only during `next build`; during a revalidation a
+// failure rethrows, so Next keeps serving the last good page and retries on the
+// next request rather than caching an empty leaderboard or fallback figures for
+// an hour (lib/buildOnlyFallback.ts).
 export default async function HomePage() {
   const stats = await withTimeout(getPublicStats(), STATS_TIMEOUT_MS).catch(
-    logAndFallback('getPublicStats', FALLBACK_STATS)
+    buildOnlyFallback('getPublicStats', FALLBACK_STATS)
   );
   const [instagram, tiktok] = await Promise.all([
     withTimeout(getTopCreators('instagram', 10), STATS_TIMEOUT_MS).catch(
-      logAndFallback('getTopCreators(instagram)', [])
+      buildOnlyFallback('getTopCreators(instagram)', [])
     ),
     withTimeout(getTopCreators('tiktok', 10), STATS_TIMEOUT_MS).catch(
-      logAndFallback('getTopCreators(tiktok)', [])
+      buildOnlyFallback('getTopCreators(tiktok)', [])
     ),
   ]);
   const pool = await withTimeout(getFeaturedCreatorPool(instagram, stats), STATS_TIMEOUT_MS).catch(
-    logAndFallback('getFeaturedCreatorPool', [])
+    buildOnlyFallback('getFeaturedCreatorPool', [])
   );
   // Captured once here and passed down as a prop — the pool index must be derived
   // from this single value, not a fresh Date.now() independently on server/client.

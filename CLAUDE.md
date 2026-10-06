@@ -334,6 +334,14 @@ checkpoint is deliberate and has caught real bugs.
   editor) none. **A query that looks instant in the editor can be killed in the
   app.** This caused an intermittent empty homepage for weeks. The homepage's
   build-time calls now use the service-role client.
+- **The service role has a limit too.** `service_role` sets no
+  `statement_timeout`, but API calls run in `authenticator`'s session, which
+  sets `statement_timeout = 8s` and `lock_timeout = 8s` (role settings checked
+  2026-10-06). So every service-role call through supabase-js, route or
+  script, is cancelled at 8 s (Postgres error `57014`). `public_stats()` runs
+  past that on a cold database since 0027 (8.2 s cancelled twice, then 4.1 s,
+  then 0.56 s); `getPublicStats()` retries it via
+  `lib/retryOnStatementTimeout.ts`.
 - `creators`, `social_profiles` and `creator_posts` have RLS filtering to
   `status = 'active'`. `service_role` bypasses it — so anywhere the admin client
   replaces the anon client, replicate the filter explicitly in code and comment
@@ -884,6 +892,18 @@ lands on, and the pitch is "evidence, not follower counts".
 | `/claim/[handle]`, `/es/claim/[handle]` | `force-dynamic` |
 | `/auth/signup` | `force-dynamic` — deliberate, needed for funnel capture |
 
+**`/` never caches a degraded render after a deploy.** Each homepage data call
+goes through `buildOnlyFallback()` (`lib/buildOnlyFallback.ts`): during
+`next build` a failed call falls back (`FALLBACK_STATS`, empty leaderboard), so a
+slow database can't fail a deploy; during an ISR revalidation it rethrows, and
+Next keeps serving the last good page and retries on the next request (Next
+16.1.6 ISR guide, "Handling uncaught exceptions"). Before this, a cold
+`public_stats()` at revalidation cached the fallback figures for an hour, nginx
+held that for another hour, and the next revalidation usually hit a cold
+database again: the VPS showed 5,112 creators for hours on 2026-10-06. Only a
+failed **build** render still shows fallback figures, until the first good
+revalidation.
+
 `cookies()` and `headers()` de-opt a route to dynamic. If a shared helper reads
 them internally, importing it into a static route breaks that route **silently**.
 Have the caller read them and pass them as arguments.
@@ -1041,7 +1061,11 @@ inside `/creator-dashboard` after claiming. Not `funnel_events`, which stops at
   `verify-bio` still points lockouts at a support channel the UI doesn't offer.
 - **No graceful chunk-load-error recovery** for creators with a page open during a
   deploy.
-- **`FALLBACK_STATS` is stale** and the tagline above it claims live data.
+- **`FALLBACK_STATS` goes stale** (`app/page.tsx` and `app/opengraph-image.tsx`,
+  kept identical). Refreshed 2026-10-06 to the post-phase-2 figures (7,649
+  creators, Sep 22). Since then it only shows when the build-time call fails,
+  but it still drifts as the index grows, under a tagline that claims live
+  data. The stored stats snapshot proposed after 2026-10-06 would retire it.
 - **Brand cards have no path into the tools.** The Rate Calculator has no brand
   field; the Negotiation tool's `brandName` is never filled. The teaser's
   "pre-filled with {brand}'s context" copy is not kept.

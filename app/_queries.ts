@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { formatDate } from '@/lib/formatters';
+import { retryOnStatementTimeout } from '@/lib/retryOnStatementTimeout';
 import { bucketContentMix, initialsFrom } from './_data';
 import type { PublicStats, LeaderboardRow, FeaturedCreator } from './_data';
 
@@ -18,8 +19,16 @@ import type { PublicStats, LeaderboardRow, FeaturedCreator } from './_data';
  * withTimeout's 10s JS timer never fired, and page.tsx's .catch() swallowed
  * the error, so a losing roll rendered an empty leaderboard, empty ticker and
  * no hero card while the stats band still showed real numbers. Then ISR cached
- * that for an hour. service_role has no statement_timeout, so the race is gone
- * rather than merely widened.
+ * that for an hour.
+ *
+ * The service role widened that race; it did not remove it. service_role
+ * itself sets no statement_timeout, but API calls run in authenticator's
+ * session and inherit its statement_timeout of 8 s (role settings checked
+ * 2026-10-06). top_creators() fits easily (~0.5 s, 1 s cold). public_stats()
+ * does not on a cold database — since 0027 it joins all of creator_posts to
+ * active profiles — and was measured cancelled at 8.2 s twice in a row, so
+ * getPublicStats() retries on that error, and page.tsx no longer caches a
+ * fallback render at runtime.
  *
  * These calls run server-side during prerender and ISR regeneration only; the
  * key never reaches a browser, and lib/supabase-admin.ts's `server-only`
@@ -40,7 +49,12 @@ export function getRenderTimestamp(): number {
 }
 
 export const getPublicStats = cache(async (): Promise<PublicStats> => {
-  const { data, error } = await db.rpc('public_stats');
+  // Up to three calls: the cancelled ones warm the cache (see
+  // lib/retryOnStatementTimeout.ts). Worst case ~25 s, inside page.tsx's 30 s.
+  const { data, error } = await retryOnStatementTimeout(() => db.rpc('public_stats'), {
+    attempts: 3,
+    onRetry: (n, err) => console.warn(`[home] public_stats() hit the statement timeout (attempt ${n}/3), retrying — ${err.message}`),
+  });
   if (error || !data) {
     throw new Error(`public_stats() failed: ${error?.message ?? 'no data'}`);
   }
@@ -122,9 +136,10 @@ async function resolveFeaturedCreator(core: FeaturedCore, stats: PublicStats): P
       .eq('social_profile_id', sp.id);
     // Content mix is best-effort, so a failure omits the block rather than
     // failing the card — but it was previously omitted silently, which is the
-    // same blind spot that hid the anon statement_timeout. Same log prefix and
-    // shape as page.tsx's logAndFallback; a direct check rather than that
-    // helper because supabase-js returns errors instead of rejecting.
+    // same blind spot that hid the anon statement_timeout. Same log prefix as
+    // lib/buildOnlyFallback.ts; a direct check rather than that helper because
+    // supabase-js returns errors instead of rejecting, and an omitted block is
+    // an acceptable render at any time, not only at build.
     if (error) {
       console.error(
         `[home] creator_posts lookup failed for social_profile ${sp.id}, omitting content mix — ${error.message}`

@@ -18,21 +18,25 @@ export const alt = 'InfluenceIT — creator intelligence database';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-const STATS_TIMEOUT_MS = 5_000;
+// 30 s, matching app/page.tsx: getPublicStats() retries public_stats() when
+// Postgres cancels it at 8 s on a cold database (~25 s worst case), and a 5 s
+// ceiling cut every retry off, so a cold build always drew the fallback.
+const STATS_TIMEOUT_MS = 30_000;
 
 // This route is statically prerendered at build time — a slow or failing
 // public_stats() RPC (it's hit a statement timeout at least once) must never
 // be able to fail `next build`. Last-known-good snapshot, used only on
 // timeout/error: this is a social-preview image, not live user-facing data,
 // so briefly-stale numbers here are the right trade for "the build always
-// succeeds." Update this if it's ever actually shown for a long stretch.
+// succeeds." Same values as app/page.tsx's FALLBACK_STATS — public_stats() as
+// of 2026-10-06; update both together.
 const FALLBACK_STATS: PublicStats = {
-  creators: 5112,
-  postsAnalyzed: 69451,
-  brandDeals: 3798,
-  igMedian: 0.6,
-  tiktokMedian: 0.4,
-  lastIndex: 'Jul 3, 2026',
+  creators: 7649,
+  postsAnalyzed: 217797,
+  brandDeals: 18453,
+  igMedian: 1.3,
+  tiktokMedian: 1.3,
+  lastIndex: 'Sep 22, 2026',
 };
 
 export default async function OpengraphImage() {
