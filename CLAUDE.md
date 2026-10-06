@@ -196,12 +196,34 @@ proxy headers, because a `location` block does not inherit `proxy_pass`.
 - `add_header` inside a `location` replaces every server-level `add_header`
   for that location. Before installing, check what `webuzoVH.conf` sets at
   server level and repeat anything beyond `X-Cache-Status` inside the block.
-- After changing it: `nginx -t`, `nginx -s reload`, purge the cache (below),
-  then curl `/creator-dashboard` and `/api/creator/brand-matches`. Both must
-  answer `X-Cache-Status: BYPASS`. `/` must still go `MISS` then `HIT`.
-- `nginx -t` on this box reports `/etc/nginx/nginx.conf`, not the
-  `/usr/local/apps/nginx/etc` path. That is fine: the custom domains include
-  is picked up either way. Verified 2026-09-13 when the block went live.
+- After changing it: test, reload, purge the cache (below), then curl
+  `/creator-dashboard` and `/api/creator/brand-matches`. Both must answer
+  `X-Cache-Status: BYPASS`. `/` must still go `MISS` then `HIT`.
+
+  ```
+  /usr/local/apps/nginx/sbin/nginx -t -c /usr/local/apps/nginx/etc/nginx.conf
+  nginx -s reload
+  ```
+
+- **Test with that full path, never the bare `nginx -t`.** Measured
+  2026-10-06 as root: two nginx masters run, and neither reads the config the
+  bare command checks.
+  - `/usr/local/apps/nginx/sbin/nginx -c /usr/local/apps/nginx/etc/nginx.conf`
+    serves the sites, influenceit.app included. Its config is the one that
+    loads `webuzoVH.conf` and this include.
+  - `/usr/local/emps/sbin/nginx -c /usr/local/emps/etc/nginx/nginx.conf` is
+    the other master, probably Webuzo's own panel (unconfirmed).
+  - The bare `nginx` on PATH reads `/etc/nginx/nginx.conf`, which no running
+    master uses and which has no `proxy_cache_path`. Its "syntax is ok" says
+    nothing about the site's config, so a broken edit to this block would pass
+    it. The note this replaces said the include "is picked up either way";
+    that was wrong about the test.
+- **The bare `nginx -s reload` does reach the sites' nginx.** It signals the pid
+  in `/run/nginx.pid`, and on 2026-10-06 that restarted the workers of the
+  `/usr/local/apps/nginx` master and nothing else — which is why the 2026-09-13
+  procedure appeared to work. A reload is fire-and-forget: with a broken config
+  the master logs an error and keeps the old one, and the command still prints
+  nothing. That is what the full-path test is for.
 
 ### nginx caches everything, and this caused a cross-user data leak
 
@@ -241,11 +263,28 @@ the URL: `creators/featured`, `creators/featured/featured`, `stats`,
 list; both are now wrapped in `withNoStore()`.
 
 **Purge the cache** after any deploy that changes cache headers, or a poisoned
-entry outlives your verification pass:
+entry outlives your verification pass. The zone is defined in
+`webuzoVH.conf:66`:
+
+```
+proxy_cache_path /var/webuzo-data/nginx_proxy_cache/lukelmg levels=1:2 keys_zone=lukelmg:10m inactive=60m;
+```
+
+so, as root:
 
 ```
 rm -rf /var/webuzo-data/nginx_proxy_cache/lukelmg/*
 ```
+
+- Empty the directory; never remove it. It is `nobody:lukelmg` 770, which is
+  how the cache workers can write into it; a recreated one would not be.
+- **No reload.** A deleted entry is just a miss. Verified 2026-10-06: `/` went
+  `MISS` then `HIT` straight after the purge.
+- The zone is named for the Webuzo user, not the site, so `lmg.media` and
+  `creators.lmg.media` probably share it and start cold too (unverified).
+  Harmless either way.
+- It does not refresh Next's own copy of `/` (`revalidate = 3600`). The homepage
+  can show old figures for up to an hour after a purge.
 
 **Post-deploy check**, run twice:
 
