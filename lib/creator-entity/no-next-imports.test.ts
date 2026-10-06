@@ -28,12 +28,13 @@ const modules = fs
   .map((name) => path.join(DIR, name));
 
 describe('lib/creator-entity stays runtime-neutral', () => {
-  it('scans the six modules', () => {
+  it('scans the seven modules', () => {
     expect(modules.map((m) => path.relative(LIB_DIR, m)).sort()).toEqual([
       'creator-entity/apply.ts',
       'creator-entity/classify.ts',
       'creator-entity/heuristics.ts',
       'creator-entity/load.ts',
+      'creator-entity/rehash.ts',
       'creator-entity/review.ts',
       'creator-entity/types.ts',
     ]);

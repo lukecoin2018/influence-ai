@@ -8,13 +8,17 @@
 //                      Works before 0026 is applied (a missing table reads as
 //                      empty). Prints every verdict.
 //   --heuristics-only  no model calls: compute the flags, print the summary,
-//                      and refresh signals/flag_count on stored rows whose
-//                      inputs are unchanged (never inserts). Add --dry-run to
-//                      write nothing. Combine with --ids to see one creator's
-//                      flags.
+//                      and refresh signals/flag_count and the stored follower
+//                      count on rows whose inputs are unchanged (never
+//                      inserts). Add --dry-run to write nothing. Combine with
+//                      --ids to see one creator's flags.
 //
-// Every run, not just --heuristics-only, refreshes the stored signals of
-// creators whose model call it skips, so tuning a heuristic costs nothing.
+// Every run, not just --heuristics-only, refreshes the stored signals and
+// follower count of creators whose model call it skips, so tuning a heuristic
+// costs nothing and a re-scrape that only moves follower numbers costs no
+// model call. Follower counts are not part of input_hash; after that changed
+// (2026-10-06), `npm run creator-entity:rehash -- --write` has to run before
+// the next classify run. See lib/creator-entity/rehash.ts.
 //   --limit N          classify at most N creators (after unchanged ones are
 //                      skipped).
 //   --ids a,b,c        only these creator ids; also re-classifies them even
@@ -110,8 +114,9 @@ runCli(async () => {
 
   printSummary(result.heuristics);
   console.log(
-    `\nStored rows: ${fmt(result.unchanged)} with a current verdict; signals ${result.dryRun ? 'stale (not refreshed, dry run)' : 'refreshed'} on ${fmt(result.signalsRefreshed)}` +
-      (result.signalsRefreshFailed > 0 ? `, ${fmt(result.signalsRefreshFailed)} refresh(es) failed` : '') +
+    `\nStored rows: ${fmt(result.unchanged)} with a current verdict; ${result.dryRun ? 'stale (not refreshed, dry run)' : 'refreshed'}: ` +
+      `signals on ${fmt(result.signalsRefreshed)}, follower count on ${fmt(result.followersRefreshed)}` +
+      (result.refreshFailed > 0 ? `, ${fmt(result.refreshFailed)} refresh(es) failed` : '') +
       (result.tableMissing ? ' (creator_entity not found)' : '') +
       '.',
   );

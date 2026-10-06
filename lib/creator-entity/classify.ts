@@ -31,10 +31,13 @@ import {
  *  - Resume is by input_hash, not classified_at: a creator whose stored
  *    input_hash and prompt_version both match skips the MODEL CALL, so a
  *    rerun only pays for new or changed creators (or a new PROMPT_VERSION).
- *    It does not skip the row: its signals and flag_count are recomputed on
- *    every run and written back when they differ, so the heuristics can be
- *    tuned after the full run without paying for the model again. `ids`
- *    bypasses the skip, to re-run a chosen sample on purpose.
+ *    The hash leaves out follower_count (see hashInputs), so a re-scrape that
+ *    only moves follower numbers costs nothing. It does not skip the row: its
+ *    signals and flag_count are recomputed on every run and written back when
+ *    they differ, so the heuristics can be tuned after the full run without
+ *    paying for the model again, and its stored inputs.follower_count is
+ *    brought up to date for display (refreshPatch). `ids` bypasses the skip,
+ *    to re-run a chosen sample on purpose.
  *  - Writes are one upsert per batch on creator_id, so a run that dies keeps
  *    everything before the failed batch. The upsert never sends
  *    review_entity_type or reviewed_at, so a human override survives any
@@ -105,15 +108,18 @@ export type ClassifyCreatorsResult = {
   unchanged: number;
   /** Unchanged rows whose stored signals or flag_count differed and were rewritten (dry run: would be). */
   signalsRefreshed: number;
-  /** Signal refreshes that failed to write; they are retried on the next run. */
-  signalsRefreshFailed: number;
+  /** Unchanged rows whose stored inputs.follower_count differed and was rewritten (dry run: would be). */
+  followersRefreshed: number;
+  /** Refreshes (signals and/or follower count) that failed to write; they are retried on the next run. */
+  refreshFailed: number;
   /** Sent to the model this run (after unchanged and limit). */
   sent: number;
   classified: number;
   written: number;
   /**
    * Creator ids whose row this run wrote: upserted verdicts plus refreshed
-   * signals (a flag_count change can change what the exclusion rule decides).
+   * rows (a flag_count change can change what the exclusion rule decides; a
+   * follower-count refresh cannot, and re-applying the rule to it is harmless).
    * `creator-entity:classify --apply` runs apply_creator_entity() over exactly
    * these. Empty on a dry run.
    */
@@ -129,7 +135,14 @@ export type ClassifyCreatorsResult = {
   tableMissing: boolean;
 };
 
-type StoredState = { input_hash: string | null; prompt_version: string | null; signals: unknown; flag_count: number | null };
+type StoredState = {
+  input_hash: string | null;
+  prompt_version: string | null;
+  signals: unknown;
+  flag_count: number | null;
+  /** inputs->follower_count, read on its own so a run never loads every stored inputs object. */
+  follower_count: unknown;
+};
 type StoredRow = StoredState & { creator_id: string };
 
 type WorkItem = {
@@ -185,8 +198,21 @@ export function buildInputs(record: CreatorRecord, computed: ComputedSignals): C
   };
 }
 
+/**
+ * sha256 over every input EXCEPT follower_count, keys sorted (the replacer
+ * array is also the allowlist). Follower counts move on every re-scrape and
+ * say nothing about what kind of account it is, so they must not cost a model
+ * call. follower_count is still sent to the model and stored in inputs, and a
+ * skipped row gets its stored count refreshed (refreshPatch).
+ *
+ * Changing what this covers changes every stored hash: before the next
+ * classify run, `npm run creator-entity:rehash -- --write`
+ * (lib/creator-entity/rehash.ts) rewrites them without calling the model.
+ * follower_count left the hash on 2026-10-06.
+ */
 export function hashInputs(inputs: CreatorEntityInputs): string {
-  const stable = JSON.stringify(inputs, Object.keys(inputs).sort());
+  const keys = Object.keys(inputs).filter((key) => key !== 'follower_count').sort();
+  const stable = JSON.stringify(inputs, keys);
   return createHash('sha256').update(stable).digest('hex');
 }
 
@@ -416,7 +442,7 @@ async function loadStoredState(
   ids: readonly string[] | null,
 ): Promise<{ state: Map<string, StoredState>; missing: boolean }> {
   const state = new Map<string, StoredState>();
-  const select = 'creator_id, input_hash, prompt_version, signals, flag_count';
+  const select = 'creator_id, input_hash, prompt_version, signals, flag_count, follower_count:inputs->follower_count';
   try {
     if (ids) {
       for (let i = 0; i < ids.length; i += 200) {
@@ -467,26 +493,53 @@ export function signalsDiffer(stored: Pick<StoredState, 'signals' | 'flag_count'
 /** Parallel single-row updates are enough for a few thousand rows; this keeps them polite. */
 const REFRESH_CONCURRENCY = 10;
 
-type Refresh = { creatorId: string; computed: ComputedSignals };
+/** What a refresh rewrites on a row whose verdict stands. */
+export type RefreshPatch = {
+  signals?: CreatorEntitySignals;
+  flag_count?: number;
+  /** The freshly built inputs: equal to the stored ones except follower_count, since the hashes matched. */
+  inputs?: CreatorEntityInputs;
+};
 
 /**
- * Rewrites signals and flag_count on rows whose verdict stands (inputs
- * unchanged). An UPDATE of those two columns only, never an upsert, so it can
- * neither create a row nor touch the verdict or a human review.
+ * What a row whose model call was skipped needs rewritten, or null: signals and
+ * flag_count when the heuristics moved, and inputs when only the follower count
+ * moved. The hash leaves follower_count out, so the verdict stands, but the
+ * review page and the apply report show inputs.follower_count and should show
+ * today's count. `inputs` is the record just built for this run; with the
+ * hashes equal it differs from the stored one only in follower_count.
  */
-async function refreshSignals(client: PipelineClient, refreshes: readonly Refresh[]): Promise<{ written: string[]; failed: number }> {
-  const written: string[] = [];
+export function refreshPatch(
+  stored: Pick<StoredState, 'signals' | 'flag_count' | 'follower_count'>,
+  computed: ComputedSignals,
+  inputs: CreatorEntityInputs,
+): RefreshPatch | null {
+  const patch: RefreshPatch = {};
+  if (signalsDiffer(stored, computed)) {
+    patch.signals = computed.signals;
+    patch.flag_count = computed.flagCount;
+  }
+  if ((stored.follower_count ?? null) !== inputs.follower_count) patch.inputs = inputs;
+  return Object.keys(patch).length > 0 ? patch : null;
+}
+
+type Refresh = { creatorId: string; patch: RefreshPatch };
+
+/**
+ * Rewrites signals, flag_count and/or inputs on rows whose verdict stands. An
+ * UPDATE of those columns only, never an upsert, so it can neither create a
+ * row nor touch the verdict, input_hash or a human review.
+ */
+async function refreshStored(client: PipelineClient, refreshes: readonly Refresh[]): Promise<{ written: Refresh[]; failed: number }> {
+  const written: Refresh[] = [];
   let failed = 0;
   let next = 0;
   async function worker() {
     while (next < refreshes.length) {
-      const { creatorId, computed } = refreshes[next++];
-      const { error } = await client
-        .from('creator_entity')
-        .update({ signals: computed.signals, flag_count: computed.flagCount })
-        .eq('creator_id', creatorId);
+      const refresh = refreshes[next++];
+      const { error } = await client.from('creator_entity').update(refresh.patch).eq('creator_id', refresh.creatorId);
       if (error) failed++;
-      else written.push(creatorId);
+      else written.push(refresh);
     }
   }
   await Promise.all(Array.from({ length: Math.min(REFRESH_CONCURRENCY, refreshes.length) }, worker));
@@ -531,7 +584,8 @@ export async function runCreatorEntityClassify(
     computed,
     unchanged: 0,
     signalsRefreshed: 0,
-    signalsRefreshFailed: 0,
+    followersRefreshed: 0,
+    refreshFailed: 0,
     sent: 0,
     classified: 0,
     written: 0,
@@ -552,9 +606,9 @@ export async function runCreatorEntityClassify(
     result.tableMissing = true;
   }
 
-  // A hash match skips the model call, not the row: its signals are compared
-  // and refreshed below. `ids` re-classifies on purpose, except in a
-  // heuristics-only run, which never calls the model.
+  // A hash match skips the model call, not the row: its signals and follower
+  // count are compared and refreshed below. `ids` re-classifies on purpose,
+  // except in a heuristics-only run, which never calls the model.
   const reclassifyIds = ids != null && !heuristicsOnly;
   const pending: Omit<WorkItem, 'shortId'>[] = [];
   const refreshes: Refresh[] = [];
@@ -564,22 +618,35 @@ export async function runCreatorEntityClassify(
     const stored = state.get(record.creatorId);
     if (!reclassifyIds && stored && stored.input_hash === inputHash && stored.prompt_version === PROMPT_VERSION) {
       result.unchanged++;
-      if (signalsDiffer(stored, signals)) refreshes.push({ creatorId: record.creatorId, computed: signals });
+      const patch = refreshPatch(stored, signals, inputs);
+      if (patch) refreshes.push({ creatorId: record.creatorId, patch });
       continue;
     }
     pending.push({ record, computed: signals, inputs, inputHash });
   }
 
   if (refreshes.length > 0) {
+    const count = (list: readonly Refresh[]) => ({
+      signals: list.filter((r) => r.patch.signals).length,
+      followers: list.filter((r) => r.patch.inputs).length,
+    });
     if (dryRun) {
-      result.signalsRefreshed = refreshes.length;
-      onProgress(`${refreshes.length} unchanged row(s) have stale signals — dry run, not refreshed.`);
+      const would = count(refreshes);
+      result.signalsRefreshed = would.signals;
+      result.followersRefreshed = would.followers;
+      onProgress(`${refreshes.length} unchanged row(s) are stale (signals ${would.signals}, follower count ${would.followers}) — dry run, not refreshed.`);
     } else {
-      const { written, failed } = await refreshSignals(client, refreshes);
-      result.signalsRefreshed = written.length;
-      result.signalsRefreshFailed = failed;
-      result.writtenIds.push(...written);
-      onProgress(`Refreshed signals on ${written.length} unchanged row(s)` + (failed > 0 ? `, ${failed} failed (retried next run)` : '') + '.');
+      const { written, failed } = await refreshStored(client, refreshes);
+      const done = count(written);
+      result.signalsRefreshed = done.signals;
+      result.followersRefreshed = done.followers;
+      result.refreshFailed = failed;
+      result.writtenIds.push(...written.map((r) => r.creatorId));
+      onProgress(
+        `Refreshed ${written.length} unchanged row(s) (signals ${done.signals}, follower count ${done.followers})` +
+          (failed > 0 ? `, ${failed} failed (retried next run)` : '') +
+          '.',
+      );
     }
   }
 
@@ -705,7 +772,7 @@ export async function runCreatorEntityClassify(
   onProgress(
     `\nDone. ${result.classified}/${result.sent} classified${dryRun ? ' (dry run, nothing written)' : `, ${result.written} written`}, ` +
       `${result.failedBatches} failed batch(es), ${result.leftForNextRun} left for the next run, ` +
-      `signals ${dryRun ? 'stale on' : 'refreshed on'} ${result.signalsRefreshed} unchanged row(s). ` +
+      `${dryRun ? 'stale' : 'refreshed'}: signals on ${result.signalsRefreshed}, follower count on ${result.followersRefreshed} unchanged row(s). ` +
       `Tokens in ${result.usage.inputTokens.toLocaleString('en-US')} / out ${result.usage.outputTokens.toLocaleString('en-US')}.`,
   );
   return result;

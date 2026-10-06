@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildInputs, hashInputs, parseJsonArray, signalsDiffer, validateVerdicts } from './classify';
+import { buildInputs, hashInputs, parseJsonArray, refreshPatch, signalsDiffer, validateVerdicts } from './classify';
 import { computeSignals } from './heuristics';
 import type { CreatorRecord } from './load';
 
@@ -45,11 +45,60 @@ describe('buildInputs', () => {
 });
 
 describe('hashInputs', () => {
-  it('is stable across key order and changes when any input changes', () => {
-    const inputs = buildInputs(record, computeSignals(record));
+  const inputs = buildInputs(record, computeSignals(record));
+
+  it('is stable across key order', () => {
     const reordered = Object.fromEntries(Object.entries(inputs).reverse()) as typeof inputs;
     expect(hashInputs(reordered)).toBe(hashInputs(inputs));
-    expect(hashInputs({ ...inputs, follower_count: 59254 })).not.toBe(hashInputs(inputs));
+  });
+
+  it('ignores follower_count, so a re-scrape that only moves followers costs no model call', () => {
+    expect(hashInputs({ ...inputs, follower_count: 59254 })).toBe(hashInputs(inputs));
+    expect(hashInputs({ ...inputs, follower_count: null })).toBe(hashInputs(inputs));
+  });
+
+  it('changes when any other input changes', () => {
+    const changed: Record<string, unknown> = {
+      platform: 'tiktok',
+      handle: 'relbeauty2',
+      display_name: 'Rel',
+      bio: 'clean beauty, now vegan',
+      category: 'Beauty',
+      is_business_account: false,
+      link_domain: 'rel.com',
+      summary: 'y',
+    };
+    for (const [key, value] of Object.entries(changed)) {
+      expect(hashInputs({ ...inputs, [key]: value }), key).not.toBe(hashInputs(inputs));
+    }
+    // Every input field is covered by this test except the one the hash leaves out.
+    expect(Object.keys(inputs).filter((key) => key !== 'follower_count').sort()).toEqual(Object.keys(changed).sort());
+  });
+});
+
+describe('refreshPatch', () => {
+  const computed = computeSignals(record);
+  const inputs = buildInputs(record, computed);
+
+  it('returns null when signals and the stored follower count are current', () => {
+    expect(refreshPatch({ signals: computed.signals, flag_count: computed.flagCount, follower_count: 59253 }, computed, inputs)).toBeNull();
+  });
+
+  it('rewrites inputs, and only inputs, when only the follower count moved', () => {
+    expect(refreshPatch({ signals: computed.signals, flag_count: computed.flagCount, follower_count: 51000 }, computed, inputs)).toEqual({ inputs });
+  });
+
+  it('treats a missing stored count as null', () => {
+    const noFollowers = { ...inputs, follower_count: null };
+    expect(refreshPatch({ signals: computed.signals, flag_count: computed.flagCount, follower_count: undefined }, computed, noFollowers)).toBeNull();
+  });
+
+  it('rewrites signals and flag_count when the heuristics moved, alongside a follower change', () => {
+    expect(refreshPatch({ signals: {}, flag_count: computed.flagCount + 1, follower_count: 51000 }, computed, inputs)).toEqual({
+      signals: computed.signals,
+      flag_count: computed.flagCount,
+      inputs,
+    });
   });
 });
 
