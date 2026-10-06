@@ -10,6 +10,10 @@
 -- returns non_creator 995. Nothing written yet: creators.status changes only
 -- with `npm run creator-entity:apply -- --write`.
 --
+-- WRITTEN 2026-10-06: the --write hid 993, not 995, because @unbuenmarketing
+-- and @purienne were set to creator in /admin/creator-review between the dry
+-- run and the write (04:28 UTC).
+--
 -- Phase 2 of creator_entity (0026): hide brand, media and venue accounts that
 -- were scraped as if they were creators, by setting creators.status =
 -- 'non_creator'. Everything that already filters on status = 'active' hides

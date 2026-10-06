@@ -311,7 +311,7 @@ as.
 Write the file, show paste-ready SQL, he pastes it, he confirms. The manual
 checkpoint is deliberate and has caught real bugs.
 
-- Next number: check the folder. 0027 is taken (2026-10-06), so the next is 0028.
+- Next number: check the folder. 0028 is taken (2026-10-06), so the next is 0029.
 - `IF NOT EXISTS` throughout — files must be safe to rerun.
 - The SQL editor runs statements in a transaction, so no
   `CREATE INDEX CONCURRENTLY`.
@@ -357,6 +357,14 @@ checkpoint is deliberate and has caught real bugs.
   Instagram handle**; `canonical_name` is the display name; `entity_type`
   separates brand from creator/celebrity/media; `verified` is a human-only trust
   flag the pipeline never touches.
+  - It is seeded from `creator_posts.detected_brands`, which **only sponsored
+    posts carry**: 19,670 sponsored posts have it, no non-sponsored post does
+    (2026-10-06). It equals the post's tagged accounts. Ordinary tags
+    (`tagged_accounts` on 68,744 non-sponsored posts) and caption @mentions
+    never reach brand data, by design: a brand here is a detected deal.
+  - The seed writes `creators_count` only for aliases it finds, and never lowers
+    the count of one it no longer finds (6,422 such rows on 2026-10-06), so
+    that count can be stale for an alias nobody tags any more.
 - **`brand_brackets`** — built by `scripts/brand-brackets/refresh.ts` from
   `brand_aliases` + `creator_posts` + `social_profiles`. PK is
   `(canonical_name, platform)`. This is what brand cards read.
@@ -459,8 +467,10 @@ among 8,716 profiles, and GLOWERY and Rel have no alias row at all.
   those two values and never touches another status. `signals.ig_business`
   does not count as support: on 2026-10-05 it was the only support for 60
   high-confidence verdicts, one of them a person (Vogue Australia's editor).
-  Measured 2026-10-06: **995 hidden** — brand 712, media 134, venue 149;
-  Instagram 790, TikTok 205.
+  The dry run on 2026-10-06 said 995. The write hid **993** — brand 710, media
+  134, venue 149; Instagram 788, TikTok 205 — because @unbuenmarketing and
+  @purienne were set to creator in `/admin/creator-review` in between (04:28
+  UTC).
 - **`'non_creator'` is ours alone.** `creators.status` is varchar with no CHECK;
   the scraper uses active / archived / flagged / rejected. Typed as
   `CreatorStatus` in `lib/types.ts`.
@@ -534,9 +544,26 @@ among 8,716 profiles, and GLOWERY and Rel have no alias row at all.
   unclassified for the AI pass, rather than labelled `creator`, so a
   brand/venue row gets the canonical name, category and scores
   `lib/pipeline/classify.ts` requires. The prepass never revisits classified
-  rows, so the 385 aliases already labelled `creator` for hidden handles
-  (2026-10-05, 379 of them prepass-written) stay as they are. Re-classifying
-  them is a follow-up branch.
+  rows, so the labels it wrote before 0027 stay until reset.
+- **Old `creator` labels on hidden handles: reset by 0028.** Of the 993 hidden
+  handles, 407 have an alias row: 366 `creator` (359 written by the prepass, 7
+  by the AI classifier), 38 `unknown`, 1 `media`, 2 verified `brand`. 0028
+  resets only the 359 to unclassified with `creators_count = 0`, guarded so it
+  never touches a handle an active creator also uses. The 7 AI-labelled rows
+  and the 38 `unknown` are for a human in `/admin/brand-index`.
+  - **After applying 0028, in order:** `npm run brand-aliases:seed` (restores
+    the real count for the 107 that active creators tag in sponsored posts),
+    `npm run brand-aliases:prepass` (leaves all 359 alone), then
+    `npm run brand-aliases:classify -- --min-count 2` (47 aliases) and
+    `-- --min-count 1` (60). The other 252 are tagged only by their own
+    account and stay unclassified at count 0.
+  - Then verify the new brand rows in brand-index and run
+    `npm run refresh:brand-brackets`. Expect casting and production agencies
+    among them (@dmcasting, @artpartner); keep them off brand cards.
+  - Hidden accounts tagged only in ordinary posts (84 with no alias row, 47
+    with one) are **not** added: an ordinary tag is not a detected deal. If one
+    is later tagged in a sponsored post, the seed creates its row and the
+    classifier picks it up. The 502 nobody tags stay out of brand data.
 - **The scraper's re-entry hazard is fixed** (inf-scraper PR #16, 2051bc4). A
   failed profile lookup no longer mints a fresh creator, and a trigger on
   `social_profiles` / `social_profiles_archive` refuses to move a profile to a
