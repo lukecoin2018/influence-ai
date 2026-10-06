@@ -21,6 +21,13 @@ import { scoreProfilesByMedianEngagement } from '@/lib/reports/engagement';
  * detected creator regardless of whether their engagement can be scored;
  * `creators` (used for card display + the median stat) is narrowed to only
  * creators with enough post history to score, per computeMedianEngagement().
+ *
+ * Only ACTIVE creators count, in every one of those figures. The public report
+ * runs on the service-role client, which bypasses the status = 'active' RLS
+ * policy on social_profiles, so the profile reads below filter on it by hand,
+ * and posts are counted only through a profile that survived that filter. A
+ * brand account hidden as 'non_creator' (migration 0027) — often the brand's
+ * own account tagging itself — contributes nothing.
  */
 
 export type CreatorStat = {
@@ -119,8 +126,14 @@ export async function getBrandActivity(
   const profileIds = [...new Set(posts.map((p) => p.social_profile_id))];
   const { data: profiles } = await supabase
     .from('social_profiles')
-    .select('id, creator_id, platform, handle, follower_count, creators!inner(display_name)')
-    .in('id', profileIds);
+    .select('id, creator_id, platform, handle, follower_count, creators!inner(display_name, status)')
+    .in('id', profileIds)
+    .eq('creators.status', 'active');
+
+  // Posts by hidden accounts drop out here, so they count nowhere below.
+  const activeProfileIds = new Set((profiles ?? []).map((p) => p.id));
+  const activePosts = posts.filter((p) => activeProfileIds.has(p.social_profile_id));
+  if (activePosts.length === 0) return null;
 
   const allCreatorIds = [...new Set((profiles ?? []).map((p) => p.creator_id))];
 
@@ -151,7 +164,7 @@ export async function getBrandActivity(
   }
 
   const creators = [...byCreator.values()].sort((a, b) => b.engagementRate - a.engagementRate);
-  const mostRecentPost = posts.reduce<string | null>(
+  const mostRecentPost = activePosts.reduce<string | null>(
     (max, p) => (!max || (p.posted_at && p.posted_at > max) ? p.posted_at : max),
     null,
   );
@@ -159,7 +172,7 @@ export async function getBrandActivity(
   return {
     canonicalName,
     category,
-    sponsoredPosts: posts.length,
+    sponsoredPosts: activePosts.length,
     distinctCreators: allCreatorIds.length,
     medianEngagement: median(creators.map((c) => c.engagementRate)),
     mostRecentPost,
@@ -216,7 +229,13 @@ async function rankCandidatesByCreatorCount(
   }
 
   const allProfileIds = [...new Set(posts.map((p) => p.social_profile_id))];
-  const { data: profiles } = await supabase.from('social_profiles').select('id, creator_id').in('id', allProfileIds);
+  // Active creators only, as in getBrandActivity: a hidden account's profile
+  // is absent from this map, so its posts drop out at .filter(Boolean) below.
+  const { data: profiles } = await supabase
+    .from('social_profiles')
+    .select('id, creator_id, creators!inner(status)')
+    .in('id', allProfileIds)
+    .eq('creators.status', 'active');
   const creatorIdByProfile = new Map((profiles ?? []).map((p) => [p.id, p.creator_id]));
 
   return [...profileIdsByCanonical.entries()].map(([canonicalName, profileIds]) => ({

@@ -4,7 +4,7 @@ import path from 'node:path';
 
 /**
  * lib/creator-entity/* runs from the CLI under scripts/ (plain tsx, no Next
- * runtime), and types.ts is also imported by a 'use client' page. Same guard
+ * runtime), and types.ts and review.ts are also imported by a 'use client' page. Same guard
  * as lib/pipeline/no-next-imports.test.ts: no `next/*`, no `server-only`, no
  * cookie-bound or admin Supabase factory (the client is passed in), no
  * `.env.local` reads, no `import.meta.url`, no `process.exit`.
@@ -28,11 +28,13 @@ const modules = fs
   .map((name) => path.join(DIR, name));
 
 describe('lib/creator-entity stays runtime-neutral', () => {
-  it('scans the four modules', () => {
+  it('scans the six modules', () => {
     expect(modules.map((m) => path.relative(LIB_DIR, m)).sort()).toEqual([
+      'creator-entity/apply.ts',
       'creator-entity/classify.ts',
       'creator-entity/heuristics.ts',
       'creator-entity/load.ts',
+      'creator-entity/review.ts',
       'creator-entity/types.ts',
     ]);
   });
@@ -44,8 +46,10 @@ describe('lib/creator-entity stays runtime-neutral', () => {
     });
   }
 
-  it('keeps types.ts free of node and SDK imports, because a client page imports it', () => {
-    const code = fs.readFileSync(path.join(DIR, 'types.ts'), 'utf8');
-    expect(code).not.toMatch(/from\s+['"](node:|@anthropic-ai|@supabase)/);
-  });
+  for (const name of ['types.ts', 'review.ts']) {
+    it(`keeps ${name} free of node and SDK imports, because a client page imports it`, () => {
+      const code = fs.readFileSync(path.join(DIR, name), 'utf8');
+      expect(code).not.toMatch(/from\s+['"](node:|@anthropic-ai|@supabase|\.\.\/pipeline)/);
+    });
+  }
 });

@@ -103,12 +103,19 @@ type FilterParams = { country: string | null; niche: string | null; followerMin:
 // Shared query-building path for the data window, the total-matched count,
 // and the Spanish-segment count — every one of these is a bounded
 // server-side query built from the same filters, never a client-side slice.
+//
+// Active creators only, in all three: the creators!inner embed + status
+// filter replicate social_profiles' RLS policy, which the service-role client
+// bypasses. The count selects carry the embed too — without it the filter on
+// creators.status has nothing to apply to — so a brand account hidden as
+// 'non_creator' (migration 0027) is neither a DM target nor counted as one.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function buildFilteredQuery(admin: any, params: FilterParams, opts: { count?: 'exact'; select?: string } = {}) {
-  const select = opts.select ?? (opts.count ? '*' : 'id, creator_id, handle, platform, follower_count, detected_country, detected_niche, creators!inner(display_name)');
+  const select = opts.select ?? (opts.count ? 'id, creators!inner(status)' : 'id, creator_id, handle, platform, follower_count, detected_country, detected_niche, creators!inner(display_name, status)');
   let query = admin
     .from('social_profiles')
     .select(select, opts.count ? { count: opts.count, head: true } : undefined)
+    .eq('creators.status', 'active')
     .not('follower_count', 'is', null);
 
   if (params.country) query = query.ilike('detected_country', `%${params.country}%`);

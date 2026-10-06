@@ -12,7 +12,7 @@ const DB_TIMEOUT_MS = 10_000;
 
 export default async function AdminCreatorPreviewPage({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
-  const { admin, creatorId, normalized, creatorProfile } = await requireAdminPreviewAccess(handle);
+  const { admin, creatorId, normalized, creatorProfile, creatorStatus } = await requireAdminPreviewAccess(handle);
 
   const [creatorSummaryRes, socialProfilesRes, inquiriesRes, brandMatches] = await Promise.all([
     withTimeout(Promise.resolve(admin.from('v_creator_summary').select('*').eq('creator_id', creatorId).maybeSingle()), DB_TIMEOUT_MS),
@@ -31,7 +31,7 @@ export default async function AdminCreatorPreviewPage({ params }: { params: Prom
   ]);
 
   return (
-    <AdminPreviewShell handle={normalized} creatorId={creatorId}>
+    <AdminPreviewShell handle={normalized} creatorId={creatorId} creatorStatus={creatorStatus}>
       <DashboardOverview
         creatorProfile={creatorProfile}
         creatorData={creatorSummaryRes.data}

@@ -152,6 +152,15 @@ export default function AdminCreatorsPage() {
           );
           return;
         }
+        // In the database but hidden as a non-creator (migration 0027): a
+        // claim link would open a /claim page that 404s, so nothing changed.
+        if (body?.reason === 'hidden') {
+          setActionNotice(
+            'This handle is in the database but hidden as a brand, media or venue account — nothing changed. ' +
+            'If it is a real creator, set it to Creator in Creator Review; the daily job then closes the request and emails them.',
+          );
+          return;
+        }
         // Unrecognised platform, not a failure: the row is untouched and
         // still open. Instagram and TikTok both fulfil, so reaching this means
         // the row carries some other platform value — it was written by hand.

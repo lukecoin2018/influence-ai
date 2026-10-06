@@ -5,9 +5,24 @@ import type {
   CreatorEntityType,
 } from './creator-entity/types';
 
+/**
+ * creators.status — varchar with no CHECK. The scraper sets active, archived,
+ * flagged or rejected. 'non_creator' is ours alone: only
+ * apply_creator_entity() (migration 0027) writes it, for brand, media and
+ * venue accounts that were scraped as creators, and it only ever moves a
+ * creator between 'active' and 'non_creator'.
+ *
+ * RLS on creators, social_profiles and creator_posts, v_creator_summary and
+ * match_creators all show 'active' only, so a session read never sees another
+ * value. A service-role read of any of those three tables bypasses RLS and
+ * must filter on status = 'active' itself.
+ */
+export type CreatorStatus = 'active' | 'archived' | 'flagged' | 'rejected' | 'non_creator';
+
 export interface Creator {
   creator_id: string;
   name: string;
+  /** See CreatorStatus. Always 'active' when read through v_creator_summary. */
   status: string;
   is_featured: boolean;
   total_followers: number;
@@ -197,7 +212,8 @@ export interface CreatorFilters {
  * One creator_entity row (migration 0026): what kind of account a scraped
  * creator is. Written by scripts/creator-entity/classify.ts, reviewed in
  * /admin/creator-review. The effective type is
- * `review_entity_type ?? entity_type`.
+ * `review_entity_type ?? entity_type`; whether it hides the creator is
+ * decided by apply_creator_entity() (0027) and recorded in `excluded`.
  */
 export interface CreatorEntityRow {
   creator_id: string;
@@ -214,6 +230,12 @@ export interface CreatorEntityRow {
   classified_at: string | null;
   review_entity_type: CreatorEntityType | null;
   reviewed_at: string | null;
+  /**
+   * True when apply_creator_entity() last set this creator to 'non_creator'
+   * (migration 0027). Written only by that function. Absent before 0027 is
+   * applied.
+   */
+  excluded?: boolean;
 }
 
 export interface EnrichmentData {

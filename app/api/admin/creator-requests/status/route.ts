@@ -35,6 +35,12 @@ import { OPEN_REQUEST_SELECT, fulfilRequest, type OpenRequest } from '@/lib/crea
  * Refusing until the handle is actually in the database makes that
  * impossible, and once it IS in, this button is simply "do it now instead of
  * at 09:00 UTC".
+ *
+ * `hidden` is the third refusal: the handle is in the database, but its
+ * account is hidden as a non-creator (migration 0027). Closing the request
+ * would email a claim link to a /claim page that 404s. Same 409, its own
+ * reason, because the fix is a review in /admin/creator-review, not the
+ * scraper.
  */
 
 const ALLOWED = ['added', 'declined'] as const;
@@ -95,6 +101,15 @@ async function handlePOST(req: NextRequest) {
         {
           error: 'Handle is not in the database yet',
           reason: 'not_in_database',
+        },
+        { status: 409 },
+      );
+    }
+    if (result.outcome === 'hidden') {
+      return NextResponse.json(
+        {
+          error: 'Handle belongs to an account hidden as a non-creator; nothing changed',
+          reason: 'hidden',
         },
         { status: 409 },
       );

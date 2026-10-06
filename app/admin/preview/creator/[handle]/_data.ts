@@ -20,6 +20,12 @@ interface AdminPreviewContext {
   // does for the public directory.
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   creatorProfile: any | null;
+  /**
+   * creators.status. Anything but 'active' — today, 'non_creator' (migration
+   * 0027) — means the account is hidden from the product; the preview still
+   * renders it and AdminPreviewShell says so.
+   */
+  creatorStatus: string | null;
 }
 
 /**
@@ -28,7 +34,12 @@ interface AdminPreviewContext {
  * handle to a creator_id via the service-role client. 404s only when the
  * handle doesn't exist in social_profiles/creators at all — claimed and
  * unclaimed creators both resolve fine, since the most important creators to
- * preview (rich DM targets) are unclaimed by definition. Mirrors
+ * preview (rich DM targets) are unclaimed by definition. So do HIDDEN ones:
+ * unlike every other service-role handle lookup, this one deliberately does
+ * not filter on creators.status, so an admin can still open an account the
+ * exclusion rule hid ('non_creator', migration 0027); the status comes back
+ * with it for the banner. Expect blank stat cards there — they read
+ * v_creator_summary, which shows active creators only. Mirrors
  * requireAdmin() in app/api/admin/targeting/route.ts. Each route still
  * fetches its own page-specific data (brand matches, inquiries, etc.) after
  * this.
@@ -45,16 +56,18 @@ export async function requireAdminPreviewAccess(handle: string): Promise<AdminPr
   const normalized = normalizeHandle(handle);
 
   const { data: socialMatch } = await withTimeout(
-    Promise.resolve(admin.from('social_profiles').select('creator_id').eq('handle', normalized).limit(1).maybeSingle()),
+    Promise.resolve(admin.from('social_profiles').select('creator_id, creators!inner(status)').eq('handle', normalized).limit(1).maybeSingle()),
     DB_TIMEOUT_MS,
   );
   const creatorId = socialMatch?.creator_id;
   if (!creatorId) notFound();
+  const embedded = (socialMatch as { creators?: { status: string | null } | { status: string | null }[] | null }).creators;
+  const creatorStatus = (Array.isArray(embedded) ? embedded[0]?.status : embedded?.status) ?? null;
 
   const { data: creatorProfile } = await withTimeout(
     Promise.resolve(admin.from('creator_profiles').select('*').eq('creator_id', creatorId).maybeSingle()),
     DB_TIMEOUT_MS,
   );
 
-  return { admin, creatorId, normalized, creatorProfile: creatorProfile ?? null };
+  return { admin, creatorId, normalized, creatorProfile: creatorProfile ?? null, creatorStatus };
 }

@@ -440,12 +440,30 @@ async function fetchBrandHandles(
   return byCanonical;
 }
 
+/**
+ * A handle resolves only to an ACTIVE creator: the creators!inner embed +
+ * status filter replicate social_profiles' RLS policy, which every caller's
+ * service-role client bypasses. So a brand account hidden as 'non_creator'
+ * (migration 0027) resolves to null, and the /claim/[handle] teaser 404s as
+ * for any unlisted handle.
+ *
+ * An id is trusted as given, on purpose: the callers that pass one already
+ * decided which creator they mean — a claimed creator's own dashboard
+ * (api/creator/brand-matches), the admin preview, which must keep showing a
+ * hidden account, and admin targeting, which filters its own candidate list.
+ */
 async function resolveCreatorId(supabase: SupabaseClient, handleOrId: string): Promise<string | null> {
   if (isUuid(handleOrId)) return handleOrId;
 
   const { data } = await withTimeout(
     Promise.resolve(
-      supabase.from('social_profiles').select('creator_id').eq('handle', normalizeHandle(handleOrId)).limit(1).maybeSingle(),
+      supabase
+        .from('social_profiles')
+        .select('creator_id, creators!inner(status)')
+        .eq('handle', normalizeHandle(handleOrId))
+        .eq('creators.status', 'active')
+        .limit(1)
+        .maybeSingle(),
     ),
     DB_TIMEOUT_MS,
   );

@@ -60,3 +60,10 @@ export type CreatorEntityInputs = {
   link_domain: string | null;
   summary: string | null;
 };
+
+/**
+ * One row returned by apply_creator_entity() and accept_creator_entity()
+ * (migration 0027): a creator whose status would change (dry run) or did.
+ * Only ever 'active' <-> 'non_creator'.
+ */
+export type CreatorEntityStatusChange = { creator_id: string; from_status: string; to_status: string };

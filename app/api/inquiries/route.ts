@@ -49,6 +49,24 @@ async function handlePOST(req: NextRequest) {
       return NextResponse.json({ error: 'Message is required.', reason: 'message_required' }, { status: 400 });
     }
 
+    // ── Only an active creator can be sent an inquiry ────────────────────────
+    // A brand account hidden as 'non_creator' (migration 0027) is gone from
+    // every page a brand browses, so this can only come from a page opened
+    // before it was hidden — or a hand-made request. Refused before the
+    // insert, the token grant and both emails. The service-role client
+    // bypasses creators' RLS policy (status = 'active'), hence the filter.
+    const { data: activeCreator, error: creatorError } = await supabaseAdmin
+      .from('creators')
+      .select('id')
+      .eq('id', creatorId)
+      .eq('status', 'active')
+      .maybeSingle();
+
+    if (creatorError) throw creatorError;
+    if (!activeCreator) {
+      return NextResponse.json({ error: 'This creator is no longer listed.', reason: 'creator_not_found' }, { status: 404 });
+    }
+
     // Save inquiry to database
     const { error } = await supabaseAdmin.from('inquiries').insert({
       brand_id: gate.brandId,

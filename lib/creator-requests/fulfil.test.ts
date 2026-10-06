@@ -80,7 +80,7 @@ beforeEach(() => {
 describe('fulfilRequest — TikTok', () => {
   it('fulfils a TikTok request when a social_profiles row with platform tiktok exists', async () => {
     const tables: Record<string, TableScript> = {
-      social_profiles: { result: { data: { creator_id: 'creator-9' }, error: null }, filters: [] },
+      social_profiles: { result: { data: { creator_id: 'creator-9', creators: { status: 'active' } }, error: null }, filters: [] },
       creator_requests: { result: { data: [{ id: 'req-1' }], error: null }, filters: [] },
       activity_log: { result: { data: null, error: null }, filters: [] },
     };
@@ -131,6 +131,42 @@ describe('fulfilRequest — TikTok', () => {
 
     expect(result.outcome).toBe('not_in_database');
     expect(tables.creator_requests.update).toBeUndefined();
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('leaves the request open when the handle belongs to a hidden account (non_creator)', async () => {
+    // In the database, but hidden by migration 0027's rule: a claim link would
+    // open a /claim page that 404s. Nothing flipped, nothing sent, and the
+    // lookup itself is NOT status-filtered — that is how hidden is told apart
+    // from not_in_database.
+    const tables: Record<string, TableScript> = {
+      social_profiles: { result: { data: { creator_id: 'creator-9', creators: { status: 'non_creator' } }, error: null }, filters: [] },
+      creator_requests: { result: { data: [{ id: 'req-1' }], error: null }, filters: [] },
+      activity_log: { result: { data: null, error: null }, filters: [] },
+    };
+
+    const result = await fulfilRequest(makeAdmin(tables) as never, tiktokRow, null);
+
+    expect(result).toMatchObject({ outcome: 'hidden', creatorId: 'creator-9', handle: 'lmg.media' });
+    expect(tables.social_profiles.filters).toEqual([
+      { column: 'handle', value: 'lmg.media' },
+      { column: 'platform', value: 'tiktok' },
+    ]);
+    expect(tables.creator_requests.update).toBeUndefined();
+    expect(tables.activity_log.update).toBeUndefined();
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('treats any status other than active as hidden, including one the scraper set', async () => {
+    const tables: Record<string, TableScript> = {
+      social_profiles: { result: { data: { creator_id: 'creator-9', creators: [{ status: 'archived' }] }, error: null }, filters: [] },
+      creator_requests: { result: { data: [{ id: 'req-1' }], error: null }, filters: [] },
+      activity_log: { result: { data: null, error: null }, filters: [] },
+    };
+
+    const result = await fulfilRequest(makeAdmin(tables) as never, tiktokRow, null);
+
+    expect(result.outcome).toBe('hidden');
     expect(sendEmail).not.toHaveBeenCalled();
   });
 
