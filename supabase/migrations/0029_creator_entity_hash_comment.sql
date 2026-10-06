@@ -1,6 +1,10 @@
 -- 0029_creator_entity_hash_comment.sql
 --
--- STATUS: NOT YET APPLIED.
+-- STATUS: APPLIED 2026-10-06, by hand in the Supabase SQL editor, one
+-- statement at a time. Verified there the same day:
+-- `select attname, col_description('creator_entity'::regclass, attnum) from
+-- pg_attribute where attrelid = 'creator_entity'::regclass and attname in
+-- ('inputs', 'input_hash');` returns both comments below, word for word.
 --
 -- Comments only: no schema or data change. Brings the column comments on
 -- creator_entity in line with what the classifier does since 2026-10-06
