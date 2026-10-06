@@ -1,6 +1,12 @@
 -- 0028_reset_hidden_creator_aliases.sql
 --
--- STATUS: NOT YET APPLIED.
+-- STATUS: APPLIED 2026-10-06, by hand in the Supabase SQL editor, one
+-- statement at a time. Verified: the count returned 359 before the update;
+-- afterwards exactly those 359 rows (the set measured on 2026-10-06) were the
+-- only classified_at IS NULL rows in brand_aliases, all entity_type
+-- 'unknown' with canonical_name null and creators_count 0, and the 7
+-- AI-labelled 'creator' rows were unchanged. The pipeline runs below had not
+-- been started yet.
 --
 -- Returns the brand_aliases rows that the prepass labelled 'creator' for
 -- accounts 0027 has since hidden (creators.status = 'non_creator') to the
