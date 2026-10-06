@@ -167,16 +167,22 @@ async function handlePOST(req: NextRequest) {
   // already listed should be sent to their claim page, not counted against a
   // quota or added to a queue that has nothing to do.
   //
-  // RLS is bypassed by the service-role client, and social_profiles' policy
-  // filters to status = 'active' (CLAUDE.md, "Database"). Not replicated here
-  // on purpose: a creator whose scraped record is inactive IS in the database,
-  // and telling them "we don't have you" would invite a duplicate scrape. The
-  // claim page they are sent to does its own resolution.
+  // Active creators only: the creators!inner embed + status filter replicate
+  // social_profiles' RLS policy, which the service-role client bypasses. The
+  // claim link below only works for an active creator — /claim/[handle]
+  // resolves the same way — so a hidden account (status 'non_creator',
+  // migration 0027) must not be told "you're already listed": that sent it to
+  // a claim page that 404s, whose not-found page links back here. It is
+  // treated as not listed instead, and the request goes in the admin queue.
+  // A duplicate scrape is no longer a hazard: the scraper can no longer mint
+  // a second creator for a handle it already has, or move its profile.
+  // fulfilRequest() answers `hidden` for it until a human reviews the account.
   const { data: existing } = await admin
     .from('social_profiles')
-    .select('creator_id')
+    .select('creator_id, creators!inner(status)')
     .eq('handle', handle)
     .eq('platform', platform)
+    .eq('creators.status', 'active')
     .limit(1)
     .maybeSingle();
 

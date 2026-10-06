@@ -26,14 +26,20 @@ export type CreatorProfileInfo = {
  * which is deliberately scoped to brand-match data only. One round trip
  * against social_profiles (detected_niche lives there directly; display_name
  * is a joined creators column) rather than two.
+ *
+ * The status filter replicates social_profiles' RLS policy, which the
+ * teaser's service-role client bypasses. getCreatorBrandMatches() has already
+ * 404'd a hidden handle before this runs; the filter keeps a handle that
+ * exists on both platforms from picking up the hidden twin's name and niche.
  */
 export async function resolveCreatorProfileInfo(supabase: SupabaseClient, handle: string): Promise<CreatorProfileInfo> {
   const { data } = await withTimeout(
     Promise.resolve(
       supabase
         .from('social_profiles')
-        .select('detected_niche, creators!inner(display_name)')
+        .select('detected_niche, creators!inner(display_name, status)')
         .eq('handle', normalizeHandle(handle))
+        .eq('creators.status', 'active')
         .limit(1)
         .maybeSingle(),
     ),

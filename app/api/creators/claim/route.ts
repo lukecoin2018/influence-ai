@@ -85,10 +85,17 @@ export async function POST(req: NextRequest) {
     // ── Resolve the creator from the database, not from the caller ──────────
     // One row: creators are single-platform by scrape source, and no creator
     // has more than one social_profiles row (measured 2026-07-31, zero).
+    //
+    // The creators!inner embed + status filter replicate social_profiles' RLS
+    // policy (status = 'active'), which the service-role client bypasses. A
+    // brand account hidden as 'non_creator' (migration 0027) answers
+    // handle_not_found, exactly like a handle we never scraped — the signup
+    // form's own lookup runs under RLS and already says the same.
     const { data: socialProfile } = await supabaseAdmin
       .from('social_profiles')
-      .select('creator_id, platform')
+      .select('creator_id, platform, creators!inner(status)')
       .eq('handle', normalizedHandle)
+      .eq('creators.status', 'active')
       .limit(1)
       .maybeSingle();
 

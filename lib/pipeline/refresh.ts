@@ -116,10 +116,17 @@ async function fetchBrandAliases(client: PipelineClient): Promise<BrandAliasRow[
 
 type SocialProfile = { creatorId: string; platform: Platform; followerCount: number | null };
 
+/**
+ * Active creators only: the creators!inner embed + status filter replicate
+ * social_profiles' RLS policy, which the service-role client bypasses. A
+ * sponsored post whose profile is not in this map is skipped in
+ * computeBrackets(), so a brand account hidden as 'non_creator' (migration
+ * 0027) shapes no bracket — not its follower range, creator count or regions.
+ */
 async function fetchSocialProfilesById(client: PipelineClient): Promise<Map<string, SocialProfile>> {
   const byId = new Map<string, SocialProfile>();
   await paginate<RawSocialProfileRow>(
-    () => client.from('social_profiles').select('id, creator_id, platform, follower_count'),
+    () => client.from('social_profiles').select('id, creator_id, platform, follower_count, creators!inner(status)').eq('creators.status', 'active'),
     { key: 'id', pageSize: PAGE_SIZE },
     (page) => {
       for (const r of page) byId.set(r.id, { creatorId: r.creator_id, platform: r.platform, followerCount: r.follower_count });

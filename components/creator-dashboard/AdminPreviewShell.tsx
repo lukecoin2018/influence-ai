@@ -21,7 +21,30 @@ interface AdminPreviewShellProps {
   handle: string;
   /** creators.id of the previewed creator — the mobile Profile sheet's identity row reads it. */
   creatorId: string;
+  /**
+   * creators.status. Anything but 'active' (today: 'non_creator', migration
+   * 0027) is hidden from the product, and both banners say so — the preview
+   * renders a hidden account so an admin can still review it.
+   */
+  creatorStatus?: string | null;
   children: React.ReactNode;
+}
+
+/** The marker both banners show for a hidden account, or null for an active one. */
+function hiddenLabel(status: string | null | undefined): string | null {
+  if (status == null || status === 'active') return null;
+  return status === 'non_creator' ? 'Hidden · non-creator' : `Hidden · ${status}`;
+}
+
+function HiddenMarker({ label }: { label: string }) {
+  return (
+    <span style={{
+      flexShrink: 0, padding: '2px 8px', borderRadius: '999px', backgroundColor: '#FEF3C7', color: '#92400E',
+      fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em',
+    }}>
+      {label}
+    </span>
+  );
 }
 
 /**
@@ -30,7 +53,7 @@ interface AdminPreviewShellProps {
  * says read-only, so the parenthetical is dropped; the handle truncates and
  * never wraps. The Exit control is drawn at 26px inside a 44px-tall hit area.
  */
-function CompactPreviewBanner({ handle }: { handle: string }) {
+function CompactPreviewBanner({ handle, hidden }: { handle: string; hidden: string | null }) {
   return (
     <div style={{
       height: '36px', padding: '0 8px 0 14px', boxSizing: 'border-box',
@@ -40,6 +63,7 @@ function CompactPreviewBanner({ handle }: { handle: string }) {
       <span style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, fontSize: '13px', fontWeight: 600 }}>
         <Search size={14} strokeWidth={2} aria-hidden="true" />
         <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Preview · @{handle}</span>
+        {hidden && <HiddenMarker label={hidden} />}
       </span>
       <Link href="/admin/creators" style={{
         display: 'inline-flex', alignItems: 'center', height: '44px', padding: '0 4px', flexShrink: 0,
@@ -57,7 +81,8 @@ function CompactPreviewBanner({ handle }: { handle: string }) {
   );
 }
 
-export function AdminPreviewShell({ handle, creatorId, children }: AdminPreviewShellProps) {
+export function AdminPreviewShell({ handle, creatorId, creatorStatus, children }: AdminPreviewShellProps) {
+  const hidden = hiddenLabel(creatorStatus);
   // `null` = viewport decides, see components/creator-dashboard/sidebar.css.
   // Unlike the creator layout this shell is rendered per page, so an admin's
   // choice does not survive moving between the two preview routes — the same
@@ -86,7 +111,7 @@ export function AdminPreviewShell({ handle, creatorId, children }: AdminPreviewS
           tokenBalance={tokens.tokenBalance}
           subscriptionTier={tokens.subscriptionTier}
           previewHandle={handle}
-          banner={<CompactPreviewBanner handle={handle} />}
+          banner={<CompactPreviewBanner handle={handle} hidden={hidden} />}
         />
 
         {/* Desktop banner — unchanged; sidebar.css switches it off below 1024px. */}
@@ -96,7 +121,10 @@ export function AdminPreviewShell({ handle, creatorId, children }: AdminPreviewS
           padding: '10px 24px', position: 'sticky', top: 0, zIndex: 10,
           fontSize: '13px', fontWeight: 600,
         }}>
-          <span>🔍 Admin Preview — viewing @{handle}&apos;s dashboard (read-only)</span>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span>🔍 Admin Preview — viewing @{handle}&apos;s dashboard (read-only)</span>
+            {hidden && <HiddenMarker label={hidden} />}
+          </span>
           <Link href="/admin/creators" style={{
             fontSize: '12px', fontWeight: 500, color: '#D1D5DB', textDecoration: 'none',
             padding: '5px 12px', borderRadius: '8px', border: '1px solid #6B7280',

@@ -70,7 +70,9 @@ import { FULFIL_ENABLED_PLATFORMS, OPEN_REQUEST_SELECT, fulfilRequest, type Fulf
  * platform: has the handle appeared in the database since it was requested? If
  * so the request is closed and the creator gets their claim link.
  * `not_in_database` is the normal answer for most rows on most days and is
- * counted, not logged.
+ * counted, not logged. `hidden` — the handle is in the database but its
+ * account is hidden as a non-creator (migration 0027) — is counted AND listed,
+ * because it is rare and waits on a human in /admin/creator-review.
  *
  * The work itself is lib/creator-requests/fulfil.ts, shared with the admin
  * "Mark added" button so the two cannot send the same creator two emails.
@@ -119,7 +121,7 @@ async function handleGET(req: NextRequest) {
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(`[request-fulfil] job threw: ${message}`);
-    requests = { checked: 0, eligible: 0, beyondCap: 0, sent: 0, failed: 0, skipped: 0, notInDatabase: 0, heldByPlatform: 0, ids: [], error: message };
+    requests = { checked: 0, eligible: 0, beyondCap: 0, sent: 0, failed: 0, skipped: 0, notInDatabase: 0, hidden: 0, heldByPlatform: 0, ids: [], error: message };
   }
 
   // The nudge half stays at the TOP LEVEL of the response, unchanged, because
@@ -329,6 +331,13 @@ type RequestsSummary = {
   /** Still waiting for the scrape. The normal outcome, and not a problem. */
   notInDatabase: number;
   /**
+   * In the database, but the account is hidden as a non-creator (migration
+   * 0027), so no claim link was sent and the request stays open. Also listed
+   * in `ids`: each one needs a human to look at the account in
+   * /admin/creator-review.
+   */
+  hidden: number;
+  /**
    * Open requests whose platform is not in FULFIL_ENABLED_PLATFORMS. Both
    * Instagram and TikTok are, so this should read 0; anything else means a row
    * was written by hand with a platform value nothing understands. NOT
@@ -369,7 +378,7 @@ async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>)
     // PostgREST error, not a throw. Reported rather than raised: the nudge
     // half of this run already succeeded and must still be returned.
     console.error(`[request-fulfil] open-request query failed: ${selectError.message}`);
-    return { checked: 0, eligible: 0, beyondCap: 0, sent: 0, failed: 0, skipped: 0, notInDatabase: 0, heldByPlatform: 0, ids: [], error: selectError.message };
+    return { checked: 0, eligible: 0, beyondCap: 0, sent: 0, failed: 0, skipped: 0, notInDatabase: 0, hidden: 0, heldByPlatform: 0, ids: [], error: selectError.message };
   }
 
   const eligible = count ?? rows?.length ?? 0;
@@ -391,6 +400,7 @@ async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>)
   let failed = 0;
   let skipped = 0;
   let notInDatabase = 0;
+  let hidden = 0;
   const ids: FulfilResult[] = [];
 
   for (const row of (rows ?? []) as OpenRequest[]) {
@@ -401,6 +411,13 @@ async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>)
       // something did.
       if (result.outcome === 'not_in_database') {
         notInDatabase += 1;
+        continue;
+      }
+      // Listed, unlike not_in_database: rare, and each one waits on a human.
+      // Nothing was written or sent, so it is not sent/failed/skipped either.
+      if (result.outcome === 'hidden') {
+        hidden += 1;
+        ids.push(result);
         continue;
       }
       // Unreachable from here — the query filtered these out — but handled
@@ -422,8 +439,8 @@ async function runFulfilJob(admin: ReturnType<typeof createSupabaseAdminClient>)
   }
 
   console.log(
-    `[request-fulfil] checked=${checked} eligible=${eligible} beyondCap=${beyondCap} sent=${sent} failed=${failed} skipped=${skipped} notInDatabase=${notInDatabase} heldByPlatform=${heldByPlatform}`,
+    `[request-fulfil] checked=${checked} eligible=${eligible} beyondCap=${beyondCap} sent=${sent} failed=${failed} skipped=${skipped} notInDatabase=${notInDatabase} hidden=${hidden} heldByPlatform=${heldByPlatform}`,
   );
 
-  return { checked, eligible, beyondCap, sent, failed, skipped, notInDatabase, heldByPlatform, ids };
+  return { checked, eligible, beyondCap, sent, failed, skipped, notInDatabase, hidden, heldByPlatform, ids };
 }

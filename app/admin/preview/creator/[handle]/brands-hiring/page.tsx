@@ -12,7 +12,7 @@ const DB_TIMEOUT_MS = 10_000;
 
 export default async function AdminBrandsHiringPreviewPage({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
-  const { admin, creatorId, normalized } = await requireAdminPreviewAccess(handle);
+  const { admin, creatorId, normalized, creatorStatus } = await requireAdminPreviewAccess(handle);
 
   const [brandMatches, socialRow] = await Promise.all([
     withTimeout(getCreatorBrandMatches(admin, creatorId), DB_TIMEOUT_MS),
@@ -23,7 +23,7 @@ export default async function AdminBrandsHiringPreviewPage({ params }: { params:
   ]);
 
   return (
-    <AdminPreviewShell handle={normalized} creatorId={creatorId}>
+    <AdminPreviewShell handle={normalized} creatorId={creatorId} creatorStatus={creatorStatus}>
       <BrandsHiring
         matches={brandMatches?.matches ?? []}
         creatorFollowers={brandMatches?.creatorFollowers ?? null}

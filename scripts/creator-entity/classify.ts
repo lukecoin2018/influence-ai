@@ -20,9 +20,16 @@
 //   --ids a,b,c        only these creator ids; also re-classifies them even
 //                      when their inputs are unchanged.
 //   --model ID         override the model (default claude-haiku-4-5-20251001).
+//   --apply            after writing, run the exclusion rule
+//                      (apply_creator_entity, migration 0027) over the creators
+//                      this run wrote — verdicts and refreshed signals — and
+//                      write the result to creators.status. For runs after a
+//                      scrape. Ignored with --dry-run. Same report as
+//                      `npm run creator-entity:apply` for those ids.
 import { supabase, env } from './_supabase';
 import { printProgress, runCli } from '../_shared/cli';
 import { DEFAULT_MODEL, runCreatorEntityClassify, type VerdictReport } from '../../lib/creator-entity/classify';
+import { countByTypeAndPlatform, runCreatorEntityApply } from '../../lib/creator-entity/apply';
 import type { HeuristicsSummary } from '../../lib/creator-entity/heuristics';
 import { SIGNAL_FLAGS, type CreatorEntitySignals } from '../../lib/creator-entity/types';
 
@@ -37,6 +44,7 @@ function flagValue(name: string): string | null {
 
 const dryRun = process.argv.includes('--dry-run');
 const heuristicsOnly = process.argv.includes('--heuristics-only');
+const apply = process.argv.includes('--apply');
 const limitRaw = flagValue('--limit');
 const limit = limitRaw != null ? Number(limitRaw) : null;
 if (limit != null && (!Number.isInteger(limit) || limit < 0)) throw new Error(`--limit must be a non-negative integer, got ${limitRaw}`);
@@ -129,5 +137,22 @@ runCli(async () => {
       `  tokens: in ${fmt(result.usage.inputTokens)} / out ${fmt(result.usage.outputTokens)} over ${fmt(result.sent)} creators ` +
         `(per creator: in ${perRecordIn.toFixed(1)} / out ${perRecordOut.toFixed(1)})`,
     );
+  }
+
+  if (apply) {
+    if (result.dryRun) {
+      console.log('\n--apply ignored: this was a dry run, so nothing was written to apply.');
+      return;
+    }
+    console.log(`\n── Exclusion rule over the ${fmt(result.writtenIds.length)} creator(s) this run wrote ──`);
+    if (result.writtenIds.length === 0) return;
+    const applied = await runCreatorEntityApply(supabase, { write: true, ids: result.writtenIds, onProgress: printProgress });
+    for (const [title, to] of [['Hidden', 'non_creator'], ['Unhidden', 'active']] as const) {
+      const counts = countByTypeAndPlatform(applied.changes, to);
+      const total = [...counts.values()].reduce((a, b) => a + b, 0);
+      console.log(`  ${title}: ${fmt(total)}${total > 0 ? ` (${[...counts].map(([k, n]) => `${k} ${fmt(n)}`).join(', ')})` : ''}`);
+    }
+    if (applied.failedChunks > 0) throw new Error(`apply: ${applied.failedChunks} chunk(s) failed: ${[...new Set(applied.errors)].join(' | ')}`);
+    if (applied.changes.length > 0) console.log('  Next: npm run refresh:brand-brackets, then purge the nginx cache on the VPS.');
   }
 });

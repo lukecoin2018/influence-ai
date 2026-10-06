@@ -22,11 +22,18 @@ export function normalizeAlias(raw: unknown): string | null {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-/** Returns Map<alias, { posts, creatorIds }>. Reads social_profiles and every creator_posts row. */
+/**
+ * Returns Map<alias, { posts, creatorIds }>. Reads social_profiles and every
+ * creator_posts row, and counts only posts by ACTIVE creators: the
+ * creators!inner embed + status filter replicate social_profiles' RLS policy,
+ * which the service-role client bypasses. A brand account hidden as
+ * 'non_creator' (migration 0027) — often tagging its own brand — adds nothing
+ * to an alias's creators_count.
+ */
 export async function aggregateDetectedBrands(client: PipelineClient): Promise<Map<string, AliasStats>> {
   const creatorIdByProfileId = new Map<string, string>();
   await paginate<ProfileRow>(
-    () => client.from('social_profiles').select('id, creator_id'),
+    () => client.from('social_profiles').select('id, creator_id, creators!inner(status)').eq('creators.status', 'active'),
     { key: 'id', pageSize: PROFILE_PAGE_SIZE },
     (rows) => {
       for (const row of rows) creatorIdByProfileId.set(row.id, row.creator_id);
@@ -41,7 +48,11 @@ export async function aggregateDetectedBrands(client: PipelineClient): Promise<M
       for (const row of rows) {
         const brands = Array.isArray(row.detected_brands) ? row.detected_brands : [];
         if (brands.length === 0) continue;
-        const creatorId = creatorIdByProfileId.get(row.social_profile_id) ?? row.social_profile_id;
+        // Not in the map = the post's creator is not active. Skipped: falling
+        // back to the profile id as a stand-in creator id, as this used to,
+        // would count exactly those posts under a made-up creator.
+        const creatorId = creatorIdByProfileId.get(row.social_profile_id);
+        if (!creatorId) continue;
         const seenInThisPost = new Set<string>();
         for (const raw of brands) {
           const alias = normalizeAlias(raw);

@@ -38,7 +38,9 @@ import {
  *  - Writes are one upsert per batch on creator_id, so a run that dies keeps
  *    everything before the failed batch. The upsert never sends
  *    review_entity_type or reviewed_at, so a human override survives any
- *    rerun.
+ *    rerun, and never sends excluded (0027), which only
+ *    apply_creator_entity() writes. A new row gets excluded = false and
+ *    status is untouched until apply runs (`--apply` in the CLI).
  *  - dryRun writes nothing and works before 0026 is applied: a missing table
  *    reads as empty.
  */
@@ -109,6 +111,13 @@ export type ClassifyCreatorsResult = {
   sent: number;
   classified: number;
   written: number;
+  /**
+   * Creator ids whose row this run wrote: upserted verdicts plus refreshed
+   * signals (a flag_count change can change what the exclusion rule decides).
+   * `creator-entity:classify --apply` runs apply_creator_entity() over exactly
+   * these. Empty on a dry run.
+   */
+  writtenIds: string[];
   batches: number;
   failedBatches: number;
   /** Creators left without a verdict this run (failed batches plus ids the model left out). */
@@ -133,7 +142,7 @@ type WorkItem = {
 
 type Verdict = { entityType: CreatorEntityType; confidence: CreatorEntityConfidence; reason: string };
 
-/** One upserted creator_entity row. review_entity_type and reviewed_at are deliberately absent. */
+/** One upserted creator_entity row. review_entity_type, reviewed_at and excluded are deliberately absent. */
 type CreatorEntityWrite = {
   creator_id: string;
   entity_type: CreatorEntityType;
@@ -465,8 +474,8 @@ type Refresh = { creatorId: string; computed: ComputedSignals };
  * unchanged). An UPDATE of those two columns only, never an upsert, so it can
  * neither create a row nor touch the verdict or a human review.
  */
-async function refreshSignals(client: PipelineClient, refreshes: readonly Refresh[]): Promise<{ written: number; failed: number }> {
-  let written = 0;
+async function refreshSignals(client: PipelineClient, refreshes: readonly Refresh[]): Promise<{ written: string[]; failed: number }> {
+  const written: string[] = [];
   let failed = 0;
   let next = 0;
   async function worker() {
@@ -477,7 +486,7 @@ async function refreshSignals(client: PipelineClient, refreshes: readonly Refres
         .update({ signals: computed.signals, flag_count: computed.flagCount })
         .eq('creator_id', creatorId);
       if (error) failed++;
-      else written++;
+      else written.push(creatorId);
     }
   }
   await Promise.all(Array.from({ length: Math.min(REFRESH_CONCURRENCY, refreshes.length) }, worker));
@@ -526,6 +535,7 @@ export async function runCreatorEntityClassify(
     sent: 0,
     classified: 0,
     written: 0,
+    writtenIds: [],
     batches: 0,
     failedBatches: 0,
     leftForNextRun: 0,
@@ -566,9 +576,10 @@ export async function runCreatorEntityClassify(
       onProgress(`${refreshes.length} unchanged row(s) have stale signals — dry run, not refreshed.`);
     } else {
       const { written, failed } = await refreshSignals(client, refreshes);
-      result.signalsRefreshed = written;
+      result.signalsRefreshed = written.length;
       result.signalsRefreshFailed = failed;
-      onProgress(`Refreshed signals on ${written} unchanged row(s)` + (failed > 0 ? `, ${failed} failed (retried next run)` : '') + '.');
+      result.writtenIds.push(...written);
+      onProgress(`Refreshed signals on ${written.length} unchanged row(s)` + (failed > 0 ? `, ${failed} failed (retried next run)` : '') + '.');
     }
   }
 
@@ -672,6 +683,7 @@ export async function runCreatorEntityClassify(
         continue;
       }
       result.written += rows.length;
+      result.writtenIds.push(...rows.map((row) => row.creator_id));
     }
     result.classified += rows.length;
     for (const row of rows) {

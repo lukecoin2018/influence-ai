@@ -45,6 +45,17 @@ import { FULFIL_ENABLED_PLATFORMS, isFulfilEnabled } from '@/lib/creator-request
  * lookup and well before the status flip. It no longer holds a platform back;
  * it rejects a platform value this codebase does not understand, which the
  * schema permits because creator_requests.platform has no CHECK.
+ *
+ * ── A HIDDEN ACCOUNT IS NOT FULFILLED ──────────────────────────────────────
+ *
+ * The handle lookup reads social_profiles on the service role and does NOT
+ * filter on creators.status, deliberately, so that "in the database but
+ * hidden" (status 'non_creator', migration 0027 — a brand, media or venue
+ * account) is told apart from "not scraped yet". Sending a claim link for a
+ * hidden account would send the creator to a /claim page that 404s. So it
+ * answers `hidden`, changes nothing, and the request stays open: if a human
+ * sets the account to creator in /admin/creator-review, it becomes active and
+ * the next run (or "Mark added") fulfils it normally.
  */
 
 export type FulfilOutcome =
@@ -57,6 +68,12 @@ export type FulfilOutcome =
   | 'platform_disabled'
   /** The handle is not in `creators` yet. The request stays open. Not an error — it is the normal state of most open requests. */
   | 'not_in_database'
+  /**
+   * The handle IS in the database, but its creator is not 'active' — today
+   * that means hidden as a non-creator (migration 0027). Nothing written,
+   * nothing sent; the request stays open until a human reviews the account.
+   */
+  | 'hidden'
   /** Flipped to 'added' and the creator was emailed. */
   | 'sent'
   /** Flipped to 'added', but the email did not go. Logged and recorded; the request is still closed. */
@@ -115,9 +132,12 @@ export async function fulfilRequest(
   // is stored normalized, which is the same shape creator_requests.handle is
   // stored in (lib/creator-requests/shared.ts). Platform is matched too, so a
   // TikTok row can never close an Instagram request.
+  //
+  // creators.status comes back with it and is checked below rather than
+  // filtered on here — see "A HIDDEN ACCOUNT IS NOT FULFILLED" above.
   const { data: social, error: lookupError } = await admin
     .from('social_profiles')
-    .select('creator_id')
+    .select('creator_id, creators!inner(status)')
     .eq('handle', row.handle)
     .eq('platform', row.platform)
     .limit(1)
@@ -133,6 +153,12 @@ export async function fulfilRequest(
   }
 
   const creatorId: string = social.creator_id;
+
+  const embedded = (social as { creators?: { status: string | null } | { status: string | null }[] | null }).creators;
+  const status = Array.isArray(embedded) ? embedded[0]?.status : embedded?.status;
+  if (status !== 'active') {
+    return { id: row.id, outcome: 'hidden', handle: row.handle, creatorId };
+  }
 
   // ── Claim the row first ─────────────────────────────────────────────────
   // Selected back so "matched nothing" is distinguishable from "matched but

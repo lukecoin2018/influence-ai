@@ -24,15 +24,26 @@ function shuffled<T>(items: T[], seed: number): T[] {
   return copy;
 }
 
-/** A PostgREST-shaped builder over an in-memory table whose physical order changes every call. */
+/** Reads `a.b` off a row the way PostgREST resolves a filter on an embedded resource. */
+function pathValue(row: Row, path: string): unknown {
+  return path.split('.').reduce<unknown>((value, key) => (value as Record<string, unknown> | null | undefined)?.[key], row);
+}
+
+/**
+ * A PostgREST-shaped builder over an in-memory table whose physical order
+ * changes every call. `eq` filters rows, including on an embedded column
+ * (`creators.status`) as an `!inner` embed does.
+ */
 function fakeTable(rows: Row[]) {
   let call = 0;
   const calls: { gt: string | number | null; order: string | null; limit: number | null }[] = [];
-  function builder(): KeysetQuery<Row> {
+  function builder(): KeysetQuery<Row> & { eq: (column: string, value: unknown) => KeysetQuery<Row> } {
     const state = { gt: null as string | number | null, order: null as string | null, limit: null as number | null };
+    const filters: { column: string; value: unknown }[] = [];
     calls.push(state);
     const physical = shuffled(rows, ++call);
-    const q: KeysetQuery<Row> = {
+    const q: KeysetQuery<Row> & { eq: (column: string, value: unknown) => KeysetQuery<Row> } = {
+      eq(column, value) { filters.push({ column, value }); return q; },
       gt(_column, value) { state.gt = value; return q; },
       order(column) {
         state.order = column;
@@ -41,6 +52,7 @@ function fakeTable(rows: Row[]) {
             state.limit = count;
             const key = column as keyof Row;
             const data = physical
+              .filter((r) => filters.every((f) => pathValue(r, f.column) === f.value))
               .filter((r) => state.gt === null || String(r[key]) > String(state.gt))
               .sort((a, b) => String(a[key]).localeCompare(String(b[key])))
               .slice(0, count);
@@ -104,7 +116,7 @@ describe('aggregateDetectedBrands is deterministic', () => {
   }
 
   it('returns identical alias stats across two runs over a table whose physical order changes', async () => {
-    const profiles: Row[] = ids(30).map((id, i) => ({ id, creator_id: `creator-${i % 7}` }));
+    const profiles: Row[] = ids(30).map((id, i) => ({ id, creator_id: `creator-${i % 7}`, creators: { status: 'active' } }));
     const brands = ['nike', 'Adidas ', 'zara', 'gymshark', 'shein', 'puma', 'lululemon'];
     const posts: Row[] = Array.from({ length: 2345 }, (_, i) => ({
       id: `post-${String(i).padStart(5, '0')}`,
@@ -123,5 +135,20 @@ describe('aggregateDetectedBrands is deterministic', () => {
     expect(first.find(([alias]) => alias === 'adidas')).toBeDefined(); // normalised: trimmed, lowercased
     const totalPosts = first.reduce((sum, [, posts]) => sum + (posts as number), 0);
     expect(totalPosts).toBeGreaterThan(0);
+  });
+
+  it('counts only active creators\' posts — a hidden account adds nothing, not even under a stand-in id', async () => {
+    const profiles: Row[] = [
+      { id: 'p-active', creator_id: 'creator-a', creators: { status: 'active' } },
+      { id: 'p-hidden', creator_id: 'creator-h', creators: { status: 'non_creator' } },
+    ];
+    const posts: Row[] = [
+      { id: 'post-1', social_profile_id: 'p-active', detected_brands: ['glowery'] },
+      { id: 'post-2', social_profile_id: 'p-hidden', detected_brands: ['glowery'] },
+      { id: 'post-3', social_profile_id: 'p-hidden', detected_brands: ['glowery', 'sephora'] },
+    ];
+    const stats = await aggregateDetectedBrands(fakeClient(profiles, posts));
+    expect(stats.get('glowery')).toEqual({ posts: 1, creatorIds: new Set(['creator-a']) });
+    expect(stats.has('sephora')).toBe(false);
   });
 });

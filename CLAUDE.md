@@ -272,7 +272,7 @@ as.
 Write the file, show paste-ready SQL, he pastes it, he confirms. The manual
 checkpoint is deliberate and has caught real bugs.
 
-- Next number: check the folder. 0026 is taken (2026-10-05), so the next is 0027.
+- Next number: check the folder. 0027 is taken (2026-10-06), so the next is 0028.
 - `IF NOT EXISTS` throughout — files must be safe to rerun.
 - The SQL editor runs statements in a transaction, so no
   `CREATE INDEX CONCURRENTLY`.
@@ -288,8 +288,9 @@ checkpoint is deliberate and has caught real bugs.
 
 ### Facts about this schema
 
-- `public_stats()` and `top_creators()` are defined **in Supabase directly**, not
-  in the repo. Both are SECURITY DEFINER.
+- `public_stats()` and `top_creators()` are SECURITY DEFINER. They were defined
+  **in Supabase directly**; 0027 (applied 2026-10-06) restates both in the repo
+  with a `status = 'active'` filter added, so that file is now the source.
 - `anon` has `statement_timeout = 3s`; `authenticated` 8s; `postgres` (the SQL
   editor) none. **A query that looks instant in the editor can be killed in the
   app.** This caused an intermittent empty homepage for weeks. The homepage's
@@ -336,7 +337,7 @@ a message.
 and mobile web. On mobile it opens the browser, not the app; don't try to force
 the app with an `instagram://` scheme.
 
-### Brand accounts among the creators — `creator_entity` (0026, phase 1)
+### Brand accounts among the creators — `creator_entity` (0026, 0027)
 
 Some scraped "creators" are brand, media or venue accounts (GLOWERY, Rel Beauty,
 Cosmopolitan UK, W Amsterdam). `brand_aliases` cannot find them:
@@ -367,32 +368,142 @@ among 8,716 profiles, and GLOWERY and Rel have no alias row at all.
     (`NOT_OWN_DOMAINS`), and affiliate or agency links fail the name test.
   - Flags: `--dry-run` (works before 0026 is applied), `--heuristics-only` (no
     model calls; still refreshes stored signals unless `--dry-run`),
-    `--limit N`, `--ids a,b`, `--model`.
+    `--limit N`, `--ids a,b`, `--model`, and `--apply` (run the exclusion rule
+    over what it wrote; see Phase 2 below).
 - **Effective type is `review_entity_type ?? entity_type`.** The script never
   writes the two review columns, so a rerun cannot undo a human decision.
 - **Reviewed at `/admin/creator-review`**, which reads `creator_entity` only and
   shows `inputs`, never `social_profiles` or `v_creator_summary`.
-  - The reason: both filter on `creators.status = 'active'`, so they will hide
-    these rows from the admin session once phase 2 runs.
+  - The reason: both filter on `creators.status = 'active'`, so they hide
+    exactly the rows this page exists to review.
   - RLS matches `brand_aliases`: admin-only SELECT and UPDATE on
     `is_admin_user()`, writes from the script as service_role.
-  - The Review tab holds unreviewed rows with any of:
-    - medium or low confidence, whatever the verdict
-    - `entity_type = 'other'`
-    - a creator verdict with 2+ flags
-    - a non-creator verdict with no flags and no business account
-    - a creator verdict with an `alias_match` (`@gymsharkwomen`, a brand
+  - Tab and filter logic is in `lib/creator-entity/review.ts` (unit-tested).
+    Tabs: Review, Non-creators, Hidden (`excluded = true`), All. A platform
+    filter (All / Instagram / TikTok) applies to every tab and every count.
+  - **The Review tab is the complement of the rule below**: every unreviewed
+    non-creator verdict the rule does not hide is on it. Unreviewed rows with
+    any of:
+    - R1 medium or low confidence, whatever the verdict
+    - R2 `entity_type = 'other'`
+    - R3 a creator verdict with 2+ flags
+    - R4 a non-creator verdict with `flag_count = 0` — an IG business account
+      alone is not support
+    - R5 a creator verdict with an `alias_match` (`@gymsharkwomen`, a brand
       account its AI summary called a creator)
-- **Phase 1 changes no read path.** Phase 2 sets `creators.status = 'non_creator'`
-  for the excluded accounts.
-  - RLS, `v_creator_summary` and `social_profiles`' policy already filter on
-    `status = 'active'`.
-  - Service-role reads need the filter added by hand: the claim API, the
-    teaser, `brand-activity.ts` and admin targeting.
-  - One scraper hazard first: influ-scrape's `saveDiscoveredCreators`
-    discards its profile-lookup error (`lib/creatorImport.ts:141`). A failed
-    lookup mints a fresh `active` creator, and `upsert_social_profile` moves
-    the profile onto it, which would silently undo an exclusion.
+    - R6 a claimed account with a non-creator verdict. Claimed ids come from
+      `creator_profiles`, read under the admin session.
+  - Measured 2026-10-06, nothing reviewed yet: Review 1,237; held non-creator
+    verdicts 618 (R4 359, R2 175, R1 81, R6 3); overlap with the hidden set 0,
+    non-creator verdicts in neither 0.
+  - An override or a clear runs `apply_creator_entity` for that row at once.
+    **An override that would hide a claimed account asks first**, saying the
+    creator's dashboard goes blank: its stats, profile details and outreach
+    tool all read the hidden profile.
+  - **"Accept all on this page"** confirms with the count and how many it
+    hides, then calls `accept_creator_entity` for the unreviewed, unclaimed
+    rows shown. A claimed row gets a Claimed badge and is reviewed one at a
+    time. Hidden rows get a Hidden badge.
+
+### Phase 2 — hiding them: `creators.status = 'non_creator'` (0027)
+
+- **The rule lives in one place**, `apply_creator_entity()` in
+  `supabase/migrations/0027_creator_exclusion.sql`. A creator is
+  `'non_creator'` when its `creator_entity` row is either:
+  - reviewed (`reviewed_at` not null) with `review_entity_type <> 'creator'` —
+    a human choosing `other` hides; or
+  - unreviewed with **all** of: `entity_type` in brand / media / venue,
+    `confidence = 'high'`, `flag_count > 0`, and no `creator_profiles` row.
+
+  Every other creator is `'active'`, including one with no `creator_entity` row
+  and a reviewed row with a NULL type. The rule only moves creators between
+  those two values and never touches another status. `signals.ig_business`
+  does not count as support: on 2026-10-05 it was the only support for 60
+  high-confidence verdicts, one of them a person (Vogue Australia's editor).
+  Measured 2026-10-06: **995 hidden** — brand 712, media 134, venue 149;
+  Instagram 790, TikTok 205.
+- **`'non_creator'` is ours alone.** `creators.status` is varchar with no CHECK;
+  the scraper uses active / archived / flagged / rejected. Typed as
+  `CreatorStatus` in `lib/types.ts`.
+- **`apply_creator_entity(p_ids uuid[] default null, p_dry_run boolean default
+  true)`** applies the rule to those creators (all of them when null), updates
+  `creators.status` and `creator_entity.excluded` in one statement, and returns
+  one `(creator_id, from_status, to_status)` row per change. **Dry run by
+  default.**
+- **`accept_creator_entity(p_ids uuid[])`** sets `review_entity_type =
+  entity_type` and `reviewed_at = now()` on the given unreviewed, **unclaimed**
+  rows, then applies the rule to all of `p_ids`. Null or empty does nothing,
+  never "all".
+- **Both are SECURITY DEFINER** with `search_path = public`, and EXECUTE is
+  revoked from public and anon. The body refuses a JWT caller who is neither
+  an admin (`is_admin_user()`) nor `service_role`. A call with no JWT claims at
+  all is a direct connection (the SQL editor) and is allowed, so a dry run
+  reads there: `select to_status, count(*) from apply_creator_entity() group by 1;`
+- **`creator_entity.excluded`** is written only by `apply_creator_entity`. The
+  page's Hidden tab and badge read it, so the rule has no second copy, and the
+  page never has to read `creators` (whose RLS hides these rows). The classify
+  upsert never writes it.
+- **Scripts.**
+  - `npm run creator-entity:apply` is a dry run by default. It prints counts by
+    type and platform and the 50 highest-follower accounts it would hide.
+    `--write` applies; `--ids a,b` narrows.
+  - It calls the function in chunks of 1,000 ids, because a write call's
+    result cannot be paged without running it again.
+  - `npm run creator-entity:classify -- --apply` runs apply (write) over the
+    ids that run wrote, verdicts and refreshed signals alike, for runs after a
+    scrape.
+- **Rollout order:** apply 0027, deploy, dry run, `--write`, then
+  `npm run refresh:brand-brackets` (brackets change only when recomputed), then
+  purge the nginx cache. Repeat the last two after any later write that hides
+  or unhides something.
+- **What hides them** without app code: RLS on `creators`, `social_profiles` and
+  `creator_posts`, `v_creator_summary`, `match_creators`, and since 0027
+  `public_stats()` (creators, posts, brand deals, both medians) and
+  `top_creators()`.
+- **Any service-role read of `creators`, `social_profiles` or `creator_posts`
+  must filter on `status = 'active'`** — `creators!inner(status)` plus
+  `.eq('creators.status', 'active')`, commented as replicating the RLS policy.
+  A count query needs the embed in its select too, or the filter has nothing to
+  apply to. Filtered since 0027: the claim API, the teaser's two handle
+  lookups, `brand-activity.ts` (posts count only through a surviving profile),
+  admin targeting (window and both counts), the inquiry guard,
+  `/api/creators/request`, `aggregate.ts`, `refresh.ts` and `prepass.ts`.
+  **Deliberately unfiltered**, each commented in place:
+  - `lib/creator-entity/load.ts`: the classifier has to see hidden accounts.
+  - `getCreatorBrandMatches()` by **id**: a claimed creator's own dashboard,
+    the admin preview, and targeting (which filters its own list). By
+    **handle** it is filtered.
+  - The admin preview's handle lookup. It shows a hidden account with a
+    "Hidden · non-creator" marker; the stat cards go blank (they read the view).
+  - `fulfilRequest()`, which reads the status to answer `hidden` rather than
+    `not_in_database`.
+  - Claimed-account flows: `verify-bio`, the nudge, `send-creator-approved`,
+    `admin/creators/status`, `api/creator/brand-matches`. A claimed account is
+    hidden only by a human, and that person still has an account.
+- **Claimed accounts are never hidden unreviewed.** Three had non-creator
+  verdicts on 2026-10-05: `lmgmedia1`, `lmg.media`, `influenceit_demo`, all on
+  the Review tab as R6. Hiding one blanks most of their dashboard and shows
+  `@unknown` in `/admin/creators`.
+- **Inquiries to a hidden account are refused** before the insert, the token
+  grant and both emails: 404 `creator_not_found`.
+- **A hidden account that asks to be listed** is treated as not listed by
+  `/api/creators/request`: the request is queued and both emails go. Before
+  0027 it was told "you're already listed" and sent to a claim page that 404s.
+  `fulfilRequest()` then answers `hidden` (nothing written, nothing sent) until
+  a human sets it to creator in Creator Review.
+- **Prepass:** an alias equal to a hidden account's handle is left
+  unclassified for the AI pass, rather than labelled `creator`, so a
+  brand/venue row gets the canonical name, category and scores
+  `lib/pipeline/classify.ts` requires. The prepass never revisits classified
+  rows, so the 385 aliases already labelled `creator` for hidden handles
+  (2026-10-05, 379 of them prepass-written) stay as they are. Re-classifying
+  them is a follow-up branch.
+- **The scraper's re-entry hazard is fixed** (inf-scraper PR #16, 2051bc4). A
+  failed profile lookup no longer mints a fresh creator, and a trigger on
+  `social_profiles` / `social_profiles_archive` refuses to move a profile to a
+  different creator, so a re-scraped hidden account stays hidden. The
+  scraper's own pipelines key on `import_status`, not `status`, so it may keep
+  enriching hidden accounts.
 
 ---
 
@@ -477,7 +588,7 @@ back to `/creator-dashboard/verify`, which mints a fresh code on load.
 
   Response is `{ checked, eligible, beyondCap, sent, failed, skipped, ids,
   requests: { checked, eligible, beyondCap, sent, failed, skipped,
-  notInDatabase, heldByPlatform, ids } }` with masked emails only — the
+  notInDatabase, hidden, heldByPlatform, ids } }` with masked emails only — the
   nudge's counts at the top level, job 2's in `requests`. Safe to repeat: the
   second call sends nothing.
 - **Webuzo panel variables override `.env.local` on the VPS** (learned
@@ -504,6 +615,10 @@ flipped to `added` with `resolved_at` and `creator_id`, and the creator gets
   counted in `requests.notInDatabase` and deliberately **not** listed in
   `requests.ids` — 50 "nothing happened" entries bury the ones where something
   did.
+- `hidden` means the handle is in the database but its account is hidden as a
+  non-creator (0027). Nothing is written or sent and the request stays open.
+  Counted in `requests.hidden` **and** listed in `requests.ids`, because it is
+  rare and each one waits on a human in `/admin/creator-review`.
 - **A failed send still closes the request.** Same trade as the nudge: a missed
   fulfilment email is acceptable, a duplicate is not.
 - **Audit:** one `activity_log` row per attempt, `creator_request_fulfilled`,
@@ -561,8 +676,9 @@ creator hit a dead end and two strings that lied to them.
   passes them down as props, so the form needs no `useSearchParams()` and
   therefore no Suspense boundary. Copy lives in `app/get-listed/_strings.ts`.
 - **`POST /api/creators/request`** is public, no session. Honeypot field
-  (`website`) answered 200 with no write. Handle already in `social_profiles` →
-  **200 with `exists: true` and a `claimUrl`, no insert** — a legitimate 200
+  (`website`) answered 200 with no write. Handle already in `social_profiles`
+  for an **active** creator → **200 with `exists: true` and a `claimUrl`, no
+  insert** — a legitimate 200
   that the client must not read as failure. New handle → 201 plus two emails.
   Duplicate open request → 200 `already_requested`, **no email** (the one branch
   that could otherwise be driven to mail an address repeatedly).
@@ -584,7 +700,8 @@ creator hit a dead end and two strings that lied to them.
   not applied the whole section simply does not render.
 - **"Mark added" can refuse, and that is the point.** It runs the same
   `fulfilRequest()` the cron does, so if the handle is not in the database yet it
-  answers 409 `not_in_database` and changes nothing. A plain status write there
+  answers 409 `not_in_database` and changes nothing; if it belongs to an account
+  hidden as a non-creator, 409 `hidden`. A plain status write there
   would take the row out of `'new'` — the only state the fulfil pass looks at —
   and the creator would never get the claim link this whole feature exists to
   send. Once the handle IS in, the button is just "do it now instead of 09:00
@@ -844,8 +961,6 @@ inside `/creator-dashboard` after claiming. Not `funnel_events`, which stops at
   field name.
 - **`verification_attempts` has no reset path** other than the 1-hour window.
   `verify-bio` still points lockouts at a support channel the UI doesn't offer.
-- **`top_creators()` may not filter `status = 'active'`** — unverified. If it
-  doesn't, the leaderboard and ticker already show inactive creators.
 - **No graceful chunk-load-error recovery** for creators with a page open during a
   deploy.
 - **`FALLBACK_STATS` is stale** and the tagline above it claims live data.

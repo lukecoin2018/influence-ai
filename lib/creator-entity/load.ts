@@ -11,6 +11,11 @@ import { paginate } from '../pipeline/paginate';
  * (measured 2026-10-04), and reading the table directly keeps an opaque view
  * out of the path. Creators with no profile (11 on 2026-10-04) are kept, with
  * `profile: null`, so they still get a verdict.
+ *
+ * Reads every creator whatever its status, on purpose — the one service-role
+ * read of creators and social_profiles that must NOT filter on status =
+ * 'active'. The classifier has to keep seeing accounts already hidden as
+ * 'non_creator' (migration 0027), or a rerun could never bring one back.
  */
 const PAGE_SIZE = 1000;
 /** PostgREST `in.()` lists go in the URL; same chunk size the recon used. */
