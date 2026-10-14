@@ -26,8 +26,11 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
   // depended on <Navigation />: AuthProvider wraps this shell, not the other
   // way round, and there is no portal target. The Footer goes with it.
   const isCreatorDashboard = pathname === '/creator-dashboard' || pathname.startsWith('/creator-dashboard/');
+  // /for-creators is the creator landing page and ships its own dark header
+  // and footer, like the homepage. Exact match, same reasoning as isHome.
+  const isForCreators = pathname === '/for-creators';
 
-  if (isAdmin || isHome || isReport || isClaim || isCreatorDashboard) {
+  if (isAdmin || isHome || isReport || isClaim || isCreatorDashboard || isForCreators) {
     return <>{children}</>;
   }
 

@@ -108,6 +108,7 @@ describe('normalizeSource', () => {
     expect(normalizeSource('brand_signup')).toBe('brand_signup');
     expect(normalizeSource('pricing_creators')).toBe('pricing_creators');
     expect(normalizeSource('home_strip')).toBe('home_strip');
+    expect(normalizeSource('for_creators')).toBe('for_creators');
   });
 
   it('falls back to direct for anything else', () => {
