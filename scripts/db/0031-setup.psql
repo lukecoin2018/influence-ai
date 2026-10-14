@@ -36,6 +36,7 @@ select public.request_homepage_refresh('first-run') as first_refresh_request_id;
 \echo
 \echo '── Role settings (statement_timeout etc.) ───────────────────────────'
 select rolname, rolconfig from pg_roles where rolname in ('postgres', 'service_role') order by rolname;
+select name, setting from pg_settings where name in ('cron.use_background_workers', 'cron.database_name', 'server_version') order by name;
 
 \echo
 \echo '── In this transaction ─────────────────────────────────────────────'

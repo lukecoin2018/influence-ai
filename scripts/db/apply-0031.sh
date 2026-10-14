@@ -26,7 +26,7 @@
 #                      the value set on Vercel and the VPS.
 #   SUPABASE_DB_URL    the "Session pooler" connection string (Dashboard ->
 #                      Connect -> Session pooler, port 5432), from the
-#                      environment or a prompt. Paste it as shown, with the
+#                      environment or a hidden prompt. Paste it as shown, with the
 #                      [YOUR-PASSWORD] placeholder or no password: the
 #                      password is then asked for separately, hidden, and
 #                      passed in PGPASSWORD, so a password with @ or / in it
@@ -68,8 +68,9 @@ export REVALIDATE_SECRET
 
 # ── the connection ──────────────────────────────────────────────────────────
 if [ -z "${SUPABASE_DB_URL:-}" ]; then
-  printf 'Session pooler connection string: ' >&2
-  read -r SUPABASE_DB_URL
+  printf 'Session pooler connection string (hidden, press Enter after pasting): ' >&2
+  read -rs SUPABASE_DB_URL
+  printf '\n' >&2
 fi
 [ -n "$SUPABASE_DB_URL" ] || die "no connection string"
 SUPABASE_DB_URL="${SUPABASE_DB_URL//:\[YOUR-PASSWORD\]@/@}"
