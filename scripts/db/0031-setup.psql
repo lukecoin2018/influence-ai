@@ -1,0 +1,50 @@
+-- scripts/db/0031-setup.psql — the one-off part of applying 0031, run by
+-- scripts/db/apply-0031.sh in the SAME transaction as the migration itself.
+-- psql only (\getenv needs psql 15+); not for the SQL editor.
+--
+--   1. Store the app's REVALIDATE_SECRET in Vault as 'revalidate_secret', the
+--      bearer token ping_homepage_revalidate() sends. Updated if it already
+--      exists, so a rerun after rotating the secret just works.
+--   2. Queue the first refresh. The 5-minute cron job runs it inside the
+--      database, with no time limit, once this transaction commits.
+--   3. Show the role timeouts (the cron path must not inherit a short
+--      statement_timeout; the cron commands set their own 15 min anyway) and
+--      what the transaction contains, before the script commits it or, with
+--      --dry-run, goes on to scripts/db/0031-dry-run-check.psql and rolls
+--      back.
+--
+-- The secret is read from the environment, never from this file. Terse error
+-- output while it is in play, so a failure cannot echo the statement text.
+
+\getenv revalidate_secret REVALIDATE_SECRET
+\set VERBOSITY terse
+\set SHOW_CONTEXT never
+
+select count(*) as vault_secrets_updated
+from (select vault.update_secret(id, :'revalidate_secret') from vault.secrets where name = 'revalidate_secret') s;
+
+select count(*) as vault_secrets_created
+from (select vault.create_secret(:'revalidate_secret', 'revalidate_secret', 'Bearer token for POST /api/revalidate-home (REVALIDATE_SECRET)')
+      where not exists (select 1 from vault.secrets where name = 'revalidate_secret')) s;
+
+\unset revalidate_secret
+\set VERBOSITY default
+\set SHOW_CONTEXT errors
+
+select public.request_homepage_refresh('first-run') as first_refresh_request_id;
+
+\echo
+\echo '── Role settings (statement_timeout etc.) ───────────────────────────'
+select rolname, rolconfig from pg_roles where rolname in ('postgres', 'service_role') order by rolname;
+
+\echo
+\echo '── In this transaction ─────────────────────────────────────────────'
+select jobname, schedule, command from cron.job
+ where jobname like 'homepage-snapshot-%' or jobname = 'cron-job-run-details-cleanup'
+ order by jobname;
+select count(*) as vault_secret_present from vault.decrypted_secrets where name = 'revalidate_secret' and decrypted_secret <> '';
+select proname from pg_proc
+ where pronamespace = 'public'::regnamespace
+   and proname in ('compute_homepage_snapshot', 'homepage_snapshot_refusal', 'refresh_homepage_snapshot',
+                   'request_homepage_refresh', 'ping_homepage_revalidate', 'run_homepage_snapshot_job')
+ order by proname;

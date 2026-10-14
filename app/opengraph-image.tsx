@@ -1,7 +1,5 @@
 import { ImageResponse } from 'next/og';
 import { getPublicStats } from './_queries';
-import { withTimeout } from '@/lib/withTimeout';
-import type { PublicStats } from './_data';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
@@ -18,25 +16,17 @@ export const alt = 'InfluenceIT — creator intelligence database';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
-const STATS_TIMEOUT_MS = 5_000;
-
-// This route is statically prerendered at build time — a slow or failing
-// public_stats() RPC (it's hit a statement timeout at least once) must never
-// be able to fail `next build`. Last-known-good snapshot, used only on
-// timeout/error: this is a social-preview image, not live user-facing data,
-// so briefly-stale numbers here are the right trade for "the build always
-// succeeds." Update this if it's ever actually shown for a long stretch.
-const FALLBACK_STATS: PublicStats = {
-  creators: 5112,
-  postsAnalyzed: 69451,
-  brandDeals: 3798,
-  igMedian: 0.6,
-  tiktokMedian: 0.4,
-  lastIndex: 'Jul 3, 2026',
-};
+// Same figures and same rule as the homepage (app/page.tsx): read from the
+// snapshot row (migration 0031), no fallback. A failed read throws — at
+// runtime the last good image keeps being served, at build time the build
+// fails. Before the snapshot, a timeout here baked hardcoded July figures
+// (5,112 creators) into the share image until the next deploy; the revalidate
+// below also means the image now follows the snapshot instead of being frozen
+// at build time.
+export const revalidate = 300;
 
 export default async function OpengraphImage() {
-  const stats = await withTimeout(getPublicStats(), STATS_TIMEOUT_MS).catch(() => FALLBACK_STATS);
+  const stats = await getPublicStats();
 
   return new ImageResponse(
     (

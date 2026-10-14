@@ -1,0 +1,58 @@
+-- scripts/db/0031-dry-run-check.psql — run by `scripts/db/apply-0031.sh
+-- --dry-run` after 0031 and its setup, inside the same transaction, just
+-- before the ROLLBACK.
+--
+-- Computes the payload once, against the real data, and shows its stats and
+-- what homepage_snapshot_refusal() says about it, then prints read-only table
+-- diagnostics (below). A NULL refusal means the
+-- first refresh would save. The board and pool counts show the leaderboards
+-- and the hero card would not be empty. \timing shows how long the one pass
+-- over creator_posts took, which is what the cron job will spend.
+--
+-- 15 minutes for this statement, whatever the role's default (the same limit
+-- the cron commands set), so the dry run measures rather than times out.
+
+set local statement_timeout = '15min';
+
+\echo
+\echo '── Dry run: compute_homepage_snapshot() against the real data ───────────'
+\timing on
+select p -> 'stats'                                       as stats,
+       public.homepage_snapshot_refusal(p)                as refusal,
+       jsonb_array_length(p #> '{leaderboards,instagram}') as instagram_rows,
+       jsonb_array_length(p #> '{leaderboards,tiktok}')    as tiktok_rows,
+       jsonb_array_length(p -> 'featured_pool')            as featured_pool_entries
+from (select public.compute_homepage_snapshot() as p) s;
+\timing off
+
+-- Read-only diagnostics for the "bloat or disk throttling?" question, so the
+-- dry run answers it too. Dead rows and heap size against live rows show
+-- bloat; `read=` against `hit=` in the plan shows how much of a full pass over
+-- creator_posts came from disk. `owner` must be postgres for the ANALYZE
+-- inside refresh_homepage_snapshot() to work (it skips other owners with a
+-- warning).
+\echo
+\echo '── Diagnostics: table health ─────────────────────────────────────────'
+select c.relname,
+       s.n_live_tup,
+       s.n_dead_tup,
+       round(100.0 * s.n_dead_tup / nullif(s.n_live_tup + s.n_dead_tup, 0), 1) as dead_pct,
+       pg_size_pretty(pg_relation_size(c.oid))                             as heap,
+       pg_size_pretty(pg_total_relation_size(c.oid))                       as total,
+       round(pg_relation_size(c.oid)::numeric / nullif(s.n_live_tup, 0))   as heap_bytes_per_live_row,
+       s.n_mod_since_analyze,
+       s.last_vacuum, s.last_autovacuum, s.last_analyze, s.last_autoanalyze,
+       pg_get_userbyid(c.relowner) as owner
+from pg_class c
+join pg_stat_user_tables s on s.relid = c.oid
+where c.relname in ('creator_posts', 'social_profiles', 'creators')
+order by c.relname;
+
+\echo
+\echo '── Diagnostics: one full pass over creator_posts, from disk or memory ──'
+explain (analyze, buffers)
+select count(*), count(*) filter (where cp.is_sponsored)
+from creator_posts cp
+join social_profiles sp on sp.id = cp.social_profile_id
+join creators c on c.id = sp.creator_id
+where c.status = 'active';

@@ -528,7 +528,7 @@ export async function ClaimTeaser({ handle, locale }: { handle: string; locale: 
   const greetingName = resolveGreetingName(profileInfo.displayName, handle);
 
   if (result.totalMatchCount === 0 || !result.strongestMatch) {
-    const proof = await resolveAggregateProof(supabase).catch(() => null);
+    const proof = await resolveAggregateProof().catch(() => null);
     return <ZeroMatchState handle={handle} greetingName={greetingName} creatorFollowers={result.creatorFollowers} proof={proof} locale={locale} />;
   }
 

@@ -1,5 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { withTimeout } from '@/lib/withTimeout';
+import { getPublicStats } from '@/app/_queries';
 import type { RecencyBucket } from '@/lib/reports/recency-bucket';
 import { getClaimStrings, type Locale } from './_strings';
 
@@ -187,12 +188,15 @@ export type AggregateProof = {
 /**
  * Platform-wide reassurance numbers for the zero-match state — "we haven't
  * detected a match for YOU yet, but here's proof the platform has real
- * activity." Reuses the same public_stats() RPC the homepage already reads
- * (app/_queries.ts's getPublicStats), called directly here since that
- * module's helper is tied to the anon browser client via React's cache().
+ * activity." Read from the homepage snapshot (migration 0031) through the
+ * homepage's own getPublicStats(), so the teaser and the homepage can never
+ * disagree. It used to call public_stats() directly, which read all of
+ * creator_posts on every zero-match view of this force-dynamic page.
+ *
+ * Throws when the snapshot cannot be read; the teaser catches that and omits
+ * the block rather than showing a number it does not have.
  */
-export async function resolveAggregateProof(supabase: SupabaseClient): Promise<AggregateProof | null> {
-  const { data, error } = await withTimeout(Promise.resolve(supabase.rpc('public_stats')), DB_TIMEOUT_MS);
-  if (error || !data) return null;
-  return { creators: data.creators, brandDeals: data.brand_deals };
+export async function resolveAggregateProof(): Promise<AggregateProof> {
+  const stats = await getPublicStats();
+  return { creators: stats.creators, brandDeals: stats.brandDeals };
 }
