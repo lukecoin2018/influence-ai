@@ -55,6 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: 'https://influenceit.app', lastModified: new Date(), changeFrequency: 'daily', priority: 1.0 },
     { url: 'https://influenceit.app/creators', lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
     { url: 'https://influenceit.app/match', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
+    { url: 'https://influenceit.app/for-creators', lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: 'https://influenceit.app/discover', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.9 },
     { url: 'https://influenceit.app/blog', lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
     {

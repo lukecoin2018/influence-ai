@@ -98,6 +98,8 @@ export const REQUEST_SOURCES = [
   'brand_signup',
   'pricing_creators',
   'home_strip',
+  // The /for-creators hero form, for a handle it did not find.
+  'for_creators',
   'direct',
 ] as const;
 export type RequestSource = (typeof REQUEST_SOURCES)[number];
