@@ -12,11 +12,11 @@ import { Badge, BrandMatchCard } from '@/components/brand-matches/BrandMatchCard
 import {
   badgeFor,
   recencyLineCompact,
-  resolveAggregateProof,
   resolveCreatorProfileInfo,
   resolveGreetingName,
   type AggregateProof,
 } from './_data';
+import { resolveAggregateProof } from './_aggregate-proof';
 import { getClaimStrings, type Locale } from './_strings';
 import { HtmlLangSync } from './_HtmlLangSync';
 import { GetListedLink } from './_GetListedLink';
