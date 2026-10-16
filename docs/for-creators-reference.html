@@ -1,0 +1,361 @@
+<!doctype html>
+<!--
+  DESIGN REFERENCE for app/for-creators/page.tsx (InfluenceIT creator landing page).
+  Static export of the approved design. Match its layout, copy and colors.
+
+  - The copy is final: it was checked against what the product actually does. Don't add claims.
+  - The logo here is a drawn stand-in. Use the real one: public/brand/lockup-dark-bg-small.svg.
+  - Index numbers are rounded on purpose ("10,000+") so they stay true as the data grows.
+  - The example creator (120K followers, 964 brands; L'Oreal Paris, Shein, MAC Cosmetics,
+    Make Up For Ever) is fixed demo content taken from the influenceit_demo Brands Hiring list.
+  - FAQ answers are all shown open here. Build them as an accordion with the first item open.
+  - The hero input and buttons are static here. Behaviour is described in the build prompt.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>See which brands hire creators your size | InfluenceIT</title>
+<style>body{margin:0}</style>
+</head>
+<body>
+<div id="top" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; color: #111111; background: #0A0A0A; -webkit-font-smoothing: antialiased">
+
+<header style="background: #0A0A0A; border-bottom: 1px solid #262626">
+<div style="max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 14px clamp(20px, 5vw, 28px); display: flex; align-items: center; justify-content: space-between; gap: 16px">
+<a href="#top" aria-label="InfluenceIT" style="display: flex; align-items: center; gap: 9px; text-decoration: none; color: #F2F0EA">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#FFD700"></rect><rect x="4.5" y="7" width="15" height="10" rx="5" fill="#0A0A0A"></rect><circle cx="10" cy="12" r="2.6" fill="#FFD700"></circle></svg>
+<span style="font-size: 17px; font-weight: 700; letter-spacing: -0.02em">Influence<span style="color: #FF4D94; font-style: italic; font-weight: 800">IT</span></span>
+</a>
+<a href="#find" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 10px; background: #FFD700; color: #0A0A0A; font-size: 14px; font-weight: 600; text-decoration: none">See who's hiring</a>
+</div>
+</header>
+
+<section style="background: #0A0A0A; color: #F2F0EA">
+<div style="max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: clamp(48px, 8vw, 96px) clamp(20px, 5vw, 28px) clamp(64px, 9vw, 112px); display: flex; flex-wrap: wrap; align-items: center; gap: clamp(48px, 6vw, 72px)">
+
+<div style="flex: 1.15 1 440px; min-width: 0; display: flex; flex-direction: column; gap: 24px">
+<span style="display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: #FFD700"><span style="width: 6px; height: 6px; border-radius: 99px; background: #FFD700"></span>For creators</span>
+<h1 style="margin: 0; font-size: clamp(2.4rem, 4.6vw, 4.6rem); line-height: 1; letter-spacing: -0.03em; font-weight: 900">
+<span style="display: block">Stop pitching blind.</span>
+<span style="display: block; color: #FFD700">See who's hiring.</span>
+</h1>
+<p style="margin: 0; max-width: 46ch; font-size: clamp(16px, 1.5vw, 18px); line-height: 1.55; color: #9B9890">InfluenceIT tracks sponsored posts to learn which brands hire creators, and at what size. Enter your handle to see the brands whose typical hire is close to your follower count.</p>
+
+<div id="find" style="display: flex; flex-direction: column; gap: 10px; max-width: 500px; padding-top: 8px">
+<label for="handle" style="font-size: 14px; font-weight: 600; color: #F2F0EA">Your Instagram handle</label>
+<div style="display: flex; flex-wrap: wrap; gap: 8px">
+<div style="flex: 999 1 220px; min-width: 0; display: flex; align-items: center; gap: 4px; height: 52px; box-sizing: border-box; padding: 0 16px; background: #FFFFFF; border-radius: 10px">
+<span aria-hidden="true" style="font-size: 16px; font-weight: 500; color: #6E6A5C">@</span>
+<input id="handle" type="text" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="yourhandle" style="flex: 1 1 auto; min-width: 0; height: 100%; border: 0; background: transparent; font: inherit; font-size: 16px; color: #111111">
+</div>
+<button type="button" style="flex: 1 0 auto; height: 52px; padding: 0 24px; border: 0; border-radius: 10px; background: #FFD700; color: #0A0A0A; font: inherit; font-size: 15px; font-weight: 600; cursor: pointer">See who's hiring</button>
+</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.5; color: #9B9890">Free to claim — takes less than 2 minutes.</p>
+</div>
+</div>
+
+<div style="flex: 1 1 420px; min-width: 0; display: flex; justify-content: flex-end">
+<div style="position: relative; width: 100%; max-width: 500px; box-sizing: border-box; padding: 16px 14px 0 0">
+<div aria-hidden="true" style="position: absolute; top: 0; right: 0; bottom: 32px; left: 32px; background: #141414; border: 1px solid #262626; border-radius: 20px"></div>
+<figure style="position: relative; margin: 0; background: #FFFFFF; color: #111111; border-radius: 18px; padding: clamp(18px, 4vw, 24px); display: flex; flex-direction: column; gap: 16px; box-shadow: 0 30px 60px -24px rgba(0,0,0,0.7)">
+
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 12px; padding-bottom: 14px; border-bottom: 1px solid #EEECE6">
+<span style="font-size: 13px; font-weight: 600; color: #4F4C42">964 brands hiring creators your size</span>
+<span style="display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 99px; background: color-mix(in oklab, #FFD700 30%, #FFFFFF)"><span style="width: 6px; height: 6px; border-radius: 99px; background: #3BA55D"></span>Example: a creator with 120K followers</span>
+</div>
+
+<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 12px">
+<div style="display: flex; gap: 12px; align-items: center; min-width: 0">
+<span aria-hidden="true" style="flex: none; width: 46px; height: 46px; border-radius: 14px; background: #FFD700; display: flex; align-items: center; justify-content: center; font-size: 17px; font-weight: 800; color: #0A0A0A">L</span>
+<div style="min-width: 0; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 18px; font-weight: 700; letter-spacing: -0.01em">L'Oréal Paris</span>
+<span style="font-size: 13px; color: #6E6A5C">Beauty</span>
+</div>
+</div>
+<span style="flex: none; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 99px; border: 1px solid #D9D6CC">Program</span>
+</div>
+
+<div style="border: 1px solid #EEECE6; background: #FBFAF7; border-radius: 14px; padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 12px; font-size: 13px"><span style="font-weight: 600">Hires creators your size</span><span style="color: #6E6A5C">60K – 275K followers</span></div>
+<div aria-hidden="true" style="position: relative; height: 40px">
+<span style="position: absolute; left: 28%; top: 0; transform: translateX(-50%); font-size: 11.5px; font-weight: 700; white-space: nowrap; padding: 2px 8px; border-radius: 99px; background: #FFFFFF; border: 1px solid #E4E0D4">You · 120K</span>
+<span style="position: absolute; left: 0; right: 0; top: 28px; height: 6px; border-radius: 99px; background: #FFD700"></span>
+<span style="position: absolute; left: 28%; top: 24px; width: 14px; height: 14px; margin-left: -7px; box-sizing: border-box; border-radius: 99px; background: #111111; border: 2px solid #FFFFFF"></span>
+</div>
+</div>
+
+<div style="display: flex; align-items: center; gap: 12px"><span style="font-size: 28px; font-weight: 800; letter-spacing: -0.03em; line-height: 1">128</span><span style="font-size: 13px; line-height: 1.35; color: #6E6A5C">creators hired<br>by this brand</span></div>
+<div style="display: flex; align-items: baseline; gap: 8px; font-size: 13.5px; font-weight: 600; line-height: 1.4"><span aria-hidden="true" style="flex: none; width: 7px; height: 7px; border-radius: 99px; background: #FFD700; transform: translateY(-1px)"></span><span>Hiring right now — last detected 1 week ago</span></div>
+<div style="display: flex; align-items: center; gap: 8px; padding: 11px 14px; border-radius: 10px; background: #E6F4FD; color: #0B5A87; font-size: 13.5px; font-weight: 600"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>Hiring in your region — United States</div>
+
+<div style="display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px solid #EEECE6">
+<span style="font-size: 13px; line-height: 1.45; color: #6E6A5C">We'll draft your first message to L'Oréal Paris, using your detected numbers:</span>
+<span style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; border-radius: 99px; background: #111111; color: #FFFFFF; font-size: 14px; font-weight: 600"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>Contact L'Oréal Paris</span>
+</div>
+
+</figure>
+</div>
+</div>
+
+</div>
+</section>
+
+<section style="background: #F1F2F4">
+<div style="max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: clamp(72px, 10vw, 120px) clamp(20px, 5vw, 28px); display: flex; flex-direction: column; gap: clamp(32px, 4vw, 48px)">
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 16px 48px">
+<h2 style="flex: 1 1 560px; min-width: 0; margin: 0; font-size: clamp(1.9rem, 3.8vw, 2.9rem); line-height: 1.06; letter-spacing: -0.03em; font-weight: 800">
+<span style="display: block">Who to pitch, when,</span>
+<span style="box-shadow: inset 0 -0.2em 0 #FFD700; -webkit-box-decoration-break: clone; box-decoration-break: clone">and how to close it.</span>
+</h2>
+<p style="flex: 0 1 380px; margin: 0; font-size: 16px; line-height: 1.55; color: #6E6A5C">Claiming your profile is free. So are the brand list, category filters, your media kit and Instagram DM drafts. The rate, negotiation and contract tools use tokens.</p>
+</div>
+
+<div style="display: flex; flex-direction: column; border-bottom: 1px solid #D9D6CC">
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: clamp(28px, 5vw, 64px); padding: clamp(36px, 5vw, 56px) 0; border-top: 1px solid #D9D6CC">
+<div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h3 style="margin: 0; font-size: clamp(24px, 2.6vw, 30px); line-height: 1.12; letter-spacing: -0.03em; font-weight: 800">Brands that hire your size</h3>
+<span style="font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 99px; background: #E3F2E8; color: #17603A">Free</span>
+</div>
+<p style="margin: 0; max-width: 46ch; font-size: 16px; line-height: 1.6; color: #4F4C42">Not brands that only book mega-influencers. These are brands whose typical hire is close to your follower count, on your platform. Sort them, filter by category and see who's hiring in your region.</p>
+</div>
+<div style="flex: 1.25 1 420px; min-width: 0; background: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(17,17,17,0.04), 0 20px 40px -28px rgba(17,17,17,0.3)">
+<div style="display: flex; flex-wrap: wrap; gap: 6px; padding: 16px clamp(14px, 3vw, 20px); border-bottom: 1px solid #EEECE6">
+<span style="font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 99px; background: #111111; color: #FFFFFF">All 964</span><span style="font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 99px; border: 1px solid #E4E0D4">Beauty 403</span><span style="font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 99px; border: 1px solid #E4E0D4">Fashion 317</span><span style="font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 99px; border: 1px solid #E4E0D4">Fitness &amp; Wellness 58</span><span style="font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 99px; border: 1px solid #E4E0D4">Retail 46</span><span style="font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 99px; border: 1px solid #E4E0D4">Food 30</span><span style="font-size: 12px; font-weight: 600; padding: 6px 11px; border-radius: 99px; border: 1px solid #E4E0D4">Tech &amp; Electronics 29</span><span style="font-size: 12px; font-weight: 500; padding: 6px 11px; color: #6E6A5C">+ 8 more</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px clamp(14px, 3vw, 20px); border-bottom: 1px solid #EEECE6">
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="flex: none; width: 36px; height: 36px; border-radius: 10px; background: #FFD700; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #0A0A0A">S</span>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">Shein</span><span style="font-size: 12px; color: #6E6A5C">Fashion · 166 creators hired</span></div>
+<span style="flex: none; display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 99px; background: #FFD700; color: #0A0A0A"><span style="width: 5px; height: 5px; border-radius: 99px; background: #0A0A0A"></span>Repeat hirer</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px">
+<div aria-hidden="true" style="position: relative; flex: 1 1 auto; min-width: 0; height: 12px"><span style="position: absolute; left: 0; right: 0; top: 3px; height: 6px; border-radius: 99px; background: #FFD700"></span><span style="position: absolute; left: 34%; top: 0; width: 12px; height: 12px; margin-left: -6px; box-sizing: border-box; border-radius: 99px; background: #111111; border: 2px solid #FFFFFF"></span></div>
+<span style="flex: none; font-size: 12px; color: #6E6A5C; font-variant-numeric: tabular-nums">65K – 229K</span>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px clamp(14px, 3vw, 20px); border-bottom: 1px solid #EEECE6">
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="flex: none; width: 36px; height: 36px; border-radius: 10px; background: #FFD700; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #0A0A0A">M</span>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">MAC Cosmetics</span><span style="font-size: 12px; color: #6E6A5C">Beauty · 129 creators hired</span></div>
+<span style="flex: none; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 99px; border: 1px solid #D9D6CC">Program</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px">
+<div aria-hidden="true" style="position: relative; flex: 1 1 auto; min-width: 0; height: 12px"><span style="position: absolute; left: 0; right: 0; top: 3px; height: 6px; border-radius: 99px; background: #FFD700"></span><span style="position: absolute; left: 39%; top: 0; width: 12px; height: 12px; margin-left: -6px; box-sizing: border-box; border-radius: 99px; background: #111111; border: 2px solid #FFFFFF"></span></div>
+<span style="flex: none; font-size: 12px; color: #6E6A5C; font-variant-numeric: tabular-nums">61K – 211K</span>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 10px; padding: 16px clamp(14px, 3vw, 20px); border-bottom: 1px solid #EEECE6">
+<div style="display: flex; align-items: center; gap: 12px">
+<span aria-hidden="true" style="flex: none; width: 36px; height: 36px; border-radius: 10px; background: #FFD700; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #0A0A0A">M</span>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">Make Up For Ever</span><span style="font-size: 12px; color: #6E6A5C">Beauty · 50 creators hired</span></div>
+<span style="flex: none; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 99px; border: 1px solid #D9D6CC">Program</span>
+</div>
+<div style="display: flex; align-items: center; gap: 12px">
+<div aria-hidden="true" style="position: relative; flex: 1 1 auto; min-width: 0; height: 12px"><span style="position: absolute; left: 0; right: 0; top: 3px; height: 6px; border-radius: 99px; background: #FFD700"></span><span style="position: absolute; left: 36%; top: 0; width: 12px; height: 12px; margin-left: -6px; box-sizing: border-box; border-radius: 99px; background: #111111; border: 2px solid #FFFFFF"></span></div>
+<span style="flex: none; font-size: 12px; color: #6E6A5C; font-variant-numeric: tabular-nums">60K – 227K</span>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px 12px; padding: 14px clamp(14px, 3vw, 20px); background: #F7F5F0; font-size: 13px; color: #6E6A5C">
+<span>+ 960 more brands hiring creators your size</span>
+<span style="font-weight: 700; color: #111111">Claim to see all 964</span>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: clamp(28px, 5vw, 64px); padding: clamp(36px, 5vw, 56px) 0; border-top: 1px solid #D9D6CC">
+<div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h3 style="margin: 0; font-size: clamp(24px, 2.6vw, 30px); line-height: 1.12; letter-spacing: -0.03em; font-weight: 800">Know when to reach out</h3>
+<span style="font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 99px; background: #E3F2E8; color: #17603A">Free</span>
+</div>
+<p style="margin: 0; max-width: 46ch; font-size: 16px; line-height: 1.6; color: #4F4C42">Each brand shows when we last saw it hire, how many creators it works with and how often it comes back to the same ones. Pitch the ones hiring right now.</p>
+</div>
+<div style="flex: 1.25 1 420px; min-width: 0; box-sizing: border-box; background: #FFFFFF; border-radius: 16px; padding: clamp(18px, 3vw, 24px); display: flex; flex-direction: column; gap: 16px; box-shadow: 0 1px 2px rgba(17,17,17,0.04), 0 20px 40px -28px rgba(17,17,17,0.3)">
+<div style="display: flex; align-items: flex-start; gap: 14px">
+<span style="flex: none; width: 108px; display: inline-flex; justify-content: center; font-size: 11px; font-weight: 600; padding: 4px 10px; box-sizing: border-box; border-radius: 99px; border: 1px solid #D9D6CC">Program</span>
+<span style="font-size: 14px; line-height: 1.5; color: #4F4C42">Hires multiple creators your size, ongoing.</span>
+</div>
+<div style="display: flex; align-items: flex-start; gap: 14px">
+<span style="flex: none; width: 108px; display: inline-flex; justify-content: center; align-items: center; gap: 5px; font-size: 11px; font-weight: 600; padding: 5px 10px; box-sizing: border-box; border-radius: 99px; background: #FFD700; color: #0A0A0A"><span style="width: 5px; height: 5px; border-radius: 99px; background: #0A0A0A"></span>Repeat hirer</span>
+<span style="font-size: 14px; line-height: 1.5; color: #4F4C42">Works with creators repeatedly, often ambassador-style.</span>
+</div>
+<div style="display: flex; align-items: flex-start; gap: 14px">
+<span style="flex: none; width: 108px; display: inline-flex; justify-content: center; font-size: 11px; font-weight: 600; padding: 5px 10px; box-sizing: border-box; border-radius: 99px; background: #F1F2F4; color: #4F4C42">Sighting</span>
+<span style="font-size: 14px; line-height: 1.5; color: #4F4C42">Spotted hiring your size at least once.</span>
+</div>
+<div style="display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-radius: 12px; background: #E3F2E8; color: #17603A; font-size: 13.5px; font-weight: 600; line-height: 1.4">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>
+<span>Hiring right now — last detected 1 week ago</span>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: clamp(28px, 5vw, 64px); padding: clamp(36px, 5vw, 56px) 0; border-top: 1px solid #D9D6CC">
+<div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<h3 style="margin: 0; font-size: clamp(24px, 2.6vw, 30px); line-height: 1.12; letter-spacing: -0.03em; font-weight: 800">Pitch it, price it, sign it</h3>
+<p style="margin: 0; max-width: 46ch; font-size: 16px; line-height: 1.6; color: #4F4C42">Hit Contact on any brand and we’ll draft your first message using your detected numbers, plus two follow-ups spread over about two weeks — in English or Spanish, ready to send in Instagram. When a brand replies, the rate calculator, negotiation scripts and contract builder help you agree on a price and put it in writing.</p>
+</div>
+<div style="flex: 1.25 1 420px; min-width: 0; background: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(17,17,17,0.04), 0 20px 40px -28px rgba(17,17,17,0.3)">
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px clamp(14px, 3vw, 20px); border-bottom: 1px solid #EEECE6">
+<span aria-hidden="true" style="flex: none; width: 38px; height: 38px; border-radius: 10px; background: #111111; color: #FFFFFF; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"></path><path d="M22 2 15 22l-4-9-9-4Z"></path></svg></span>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">Outreach</span><span style="font-size: 12.5px; color: #6E6A5C">First DM plus two follow-ups, from your numbers</span></div>
+<span style="flex: none; font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 99px; background: #E3F2E8; color: #17603A">Free</span>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px clamp(14px, 3vw, 20px); border-bottom: 1px solid #EEECE6">
+<span aria-hidden="true" style="flex: none; width: 38px; height: 38px; border-radius: 10px; background: #F1F2F4; color: #111111; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"></rect><path d="M8 6h8M8 11h.01M12 11h.01M16 11h.01M8 15h.01M12 15h.01M16 15h.01M8 18h8"></path></svg></span>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">Rate calculator</span><span style="font-size: 12.5px; color: #6E6A5C">Work out what to charge</span></div>
+<span style="flex: none; font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 99px; background: #F1F2F4; color: #4F4C42">Tokens</span>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px clamp(14px, 3vw, 20px); border-bottom: 1px solid #EEECE6">
+<span aria-hidden="true" style="flex: none; width: 38px; height: 38px; border-radius: 10px; background: #F1F2F4; color: #111111; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"></path></svg></span>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">Negotiation scripts</span><span style="font-size: 12.5px; color: #6E6A5C">Replies for when a brand gets in touch</span></div>
+<span style="flex: none; font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 99px; background: #F1F2F4; color: #4F4C42">Tokens</span>
+</div>
+<div style="display: flex; align-items: center; gap: 14px; padding: 16px clamp(14px, 3vw, 20px)">
+<span aria-hidden="true" style="flex: none; width: 38px; height: 38px; border-radius: 10px; background: #F1F2F4; color: #111111; display: flex; align-items: center; justify-content: center"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"></path><path d="M14 2v6h6M9 13h6M9 17h4"></path></svg></span>
+<div style="flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 14px; font-weight: 700">Contract builder</span><span style="font-size: 12.5px; color: #6E6A5C">A draft agreement, downloaded as a PDF</span></div>
+<span style="flex: none; font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 99px; background: #F1F2F4; color: #4F4C42">Tokens</span>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: clamp(28px, 5vw, 64px); padding: clamp(36px, 5vw, 56px) 0; border-top: 1px solid #D9D6CC">
+<div style="flex: 1 1 340px; min-width: 0; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px">
+<h3 style="margin: 0; font-size: clamp(24px, 2.6vw, 30px); line-height: 1.12; letter-spacing: -0.03em; font-weight: 800">Look ready when brands check you out</h3>
+<span style="font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 99px; background: #E3F2E8; color: #17603A">Free</span>
+</div>
+<p style="margin: 0; max-width: 46ch; font-size: 16px; line-height: 1.6; color: #4F4C42">A claimed profile gets a Claimed badge. Set your availability — Open, Limited, Booked or Closed — and upload your media kit so brands can download it straight from your profile.</p>
+</div>
+<div style="flex: 1.25 1 420px; min-width: 0; box-sizing: border-box; background: #FFFFFF; border-radius: 18px; padding: clamp(18px, 3vw, 24px); display: flex; flex-direction: column; gap: 18px; box-shadow: 0 1px 2px rgba(17,17,17,0.04), 0 20px 40px -28px rgba(17,17,17,0.3)">
+<div style="display: flex; gap: 14px; align-items: center">
+<span aria-hidden="true" style="flex: none; width: 52px; height: 52px; border-radius: 14px; background: #FFD700; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: #0A0A0A">C</span>
+<div style="min-width: 0; display: flex; flex-direction: column; gap: 4px">
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px">
+<span style="font-size: 18px; font-weight: 700">Chloe</span>
+<span style="display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: #FFF0F5; color: #B0185E; border: 1px solid #FFB3D1"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>Claimed</span>
+</div>
+<span style="font-size: 13px; color: #6E6A5C">@influenceit_demo · Instagram · 120K followers</span>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 12px; background: #F7F5F0">
+<span style="font-size: 13px; color: #6E6A5C">Availability</span>
+<span style="display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 700; padding: 6px 12px; border-radius: 99px; background: #E3F2E8; color: #17603A"><span style="width: 7px; height: 7px; border-radius: 99px; background: #3BA55D"></span>Open</span>
+</div>
+<span style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 18px; box-sizing: border-box; border-radius: 10px; border: 1px solid #E4E0D4; font-size: 14px; font-weight: 600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>Download media kit</span>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+
+<section style="background: #0A0A0A; color: #F2F0EA">
+<div style="max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: clamp(72px, 10vw, 120px) clamp(20px, 5vw, 28px); display: flex; flex-wrap: wrap; align-items: center; gap: clamp(40px, 6vw, 96px)">
+<div style="flex: 1.1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<h2 style="margin: 0; font-size: clamp(1.9rem, 3.8vw, 2.9rem); line-height: 1.06; letter-spacing: -0.03em; font-weight: 800">
+<span style="display: block">We don't guess who's hiring.</span>
+<span style="display: block; color: #FFD700">We watch.</span>
+</h2>
+<p style="margin: 0; max-width: 48ch; font-size: 17px; line-height: 1.6; color: #9B9890">We detect sponsored posts — #ad and #collaboration tags — on public Instagram and TikTok accounts, and record which brand is behind each one and how big the creator was. That's how we know which brands hire your size.</p>
+</div>
+<dl style="flex: 1 1 340px; min-width: 0; margin: 0; display: flex; flex-direction: column; border-bottom: 1px solid #262626">
+<div style="display: flex; flex-direction: column-reverse; gap: 4px; padding: 20px 0; border-top: 1px solid #262626">
+<dt style="font-size: 14px; color: #9B9890">sponsored posts detected</dt>
+<dd style="margin: 0; font-size: clamp(36px, 4vw, 48px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums">25,000+</dd>
+</div>
+<div style="display: flex; flex-direction: column-reverse; gap: 4px; padding: 20px 0; border-top: 1px solid #262626">
+<dt style="font-size: 14px; color: #9B9890">posts analyzed</dt>
+<dd style="margin: 0; font-size: clamp(36px, 4vw, 48px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums">275,000+</dd>
+</div>
+<div style="display: flex; flex-direction: column-reverse; gap: 4px; padding: 20px 0; border-top: 1px solid #262626">
+<dt style="font-size: 14px; color: #9B9890">creators indexed</dt>
+<dd style="margin: 0; font-size: clamp(36px, 4vw, 48px); font-weight: 800; letter-spacing: -0.03em; line-height: 1; font-variant-numeric: tabular-nums">10,000+</dd>
+</div>
+</dl>
+</div>
+</section>
+
+<section id="faq" style="background: #F1F2F4">
+<div style="max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: clamp(72px, 10vw, 120px) clamp(20px, 5vw, 28px); display: flex; flex-wrap: wrap; gap: clamp(32px, 6vw, 72px); align-items: flex-start">
+<div style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+<h2 style="margin: 0; font-size: clamp(1.9rem, 3.8vw, 2.9rem); line-height: 1.06; letter-spacing: -0.03em; font-weight: 800">Fair questions.</h2>
+<p style="margin: 0; font-size: 15px; line-height: 1.55; color: #6E6A5C">Something we didn't cover? Email <a href="mailto:hello@influenceit.app" style="color: #111111; font-weight: 600; text-underline-offset: 3px">hello@influenceit.app</a></p>
+</div>
+<div style="flex: 1.7 1 480px; min-width: 0; border-top: 1px solid #D9D6CC">
+
+<div style="border-bottom: 1px solid #D9D6CC">
+<h3 style="margin: 0"><button type="button" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 20px; min-height: 64px; padding: 18px 0; background: transparent; border: 0; font: inherit; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.35; color: #111111; text-align: left; cursor: pointer"><span>Is it free?</span><span aria-hidden="true" style="flex: none; width: 30px; height: 30px; border-radius: 99px; border: 1px solid #C9C5B8; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; transform: rotate(0deg)"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#111111" stroke-width="1.6" stroke-linecap="round"><path d="M6 1v10M1 6h10"></path></svg></span></button></h3>
+<p style="margin: 0; padding: 0 clamp(0px, 4vw, 50px) 22px 0; max-width: 62ch; font-size: 15px; line-height: 1.6; color: #4F4C42">Claiming your profile is free, and so are the brand list, category filters, your media kit and Instagram DM drafts. The rate calculator, negotiation scripts and contract builder use tokens.</p>
+</div>
+
+<div style="border-bottom: 1px solid #D9D6CC">
+<h3 style="margin: 0"><button type="button" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 20px; min-height: 64px; padding: 18px 0; background: transparent; border: 0; font: inherit; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.35; color: #111111; text-align: left; cursor: pointer"><span>How do you know a brand is hiring?</span><span aria-hidden="true" style="flex: none; width: 30px; height: 30px; border-radius: 99px; border: 1px solid #C9C5B8; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; transform: rotate(0deg)"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#111111" stroke-width="1.6" stroke-linecap="round"><path d="M6 1v10M1 6h10"></path></svg></span></button></h3>
+<p style="margin: 0; padding: 0 clamp(0px, 4vw, 50px) 22px 0; max-width: 62ch; font-size: 15px; line-height: 1.6; color: #4F4C42">We detect sponsored posts — #ad and #collaboration tags — on public Instagram and TikTok accounts, and record which brand is behind each one. A brand shows up on your list once we've seen it hire creators around your size.</p>
+</div>
+
+<div style="border-bottom: 1px solid #D9D6CC">
+<h3 style="margin: 0"><button type="button" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 20px; min-height: 64px; padding: 18px 0; background: transparent; border: 0; font: inherit; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.35; color: #111111; text-align: left; cursor: pointer"><span>What does "creators your size" mean?</span><span aria-hidden="true" style="flex: none; width: 30px; height: 30px; border-radius: 99px; border: 1px solid #C9C5B8; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; transform: rotate(0deg)"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#111111" stroke-width="1.6" stroke-linecap="round"><path d="M6 1v10M1 6h10"></path></svg></span></button></h3>
+<p style="margin: 0; padding: 0 clamp(0px, 4vw, 50px) 22px 0; max-width: 62ch; font-size: 15px; line-height: 1.6; color: #4F4C42">Brands whose typical hire is close to your follower count, on the same platform. For a creator with 120K followers, that could be a brand whose hires mostly sit between 60K and 275K.</p>
+</div>
+
+<div style="border-bottom: 1px solid #D9D6CC">
+<h3 style="margin: 0"><button type="button" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 20px; min-height: 64px; padding: 18px 0; background: transparent; border: 0; font: inherit; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.35; color: #111111; text-align: left; cursor: pointer"><span>How do I prove the profile is mine?</span><span aria-hidden="true" style="flex: none; width: 30px; height: 30px; border-radius: 99px; border: 1px solid #C9C5B8; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; transform: rotate(0deg)"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#111111" stroke-width="1.6" stroke-linecap="round"><path d="M6 1v10M1 6h10"></path></svg></span></button></h3>
+<p style="margin: 0; padding: 0 clamp(0px, 4vw, 50px) 22px 0; max-width: 62ch; font-size: 15px; line-height: 1.6; color: #4F4C42">We give you a short code to add to your Instagram or TikTok bio. Once we've seen it there, your profile is verified and you can take the code out again.</p>
+</div>
+
+<div style="border-bottom: 1px solid #D9D6CC">
+<h3 style="margin: 0"><button type="button" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 20px; min-height: 64px; padding: 18px 0; background: transparent; border: 0; font: inherit; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.35; color: #111111; text-align: left; cursor: pointer"><span>Why can't I see every brand straight away?</span><span aria-hidden="true" style="flex: none; width: 30px; height: 30px; border-radius: 99px; border: 1px solid #C9C5B8; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; transform: rotate(0deg)"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#111111" stroke-width="1.6" stroke-linecap="round"><path d="M6 1v10M1 6h10"></path></svg></span></button></h3>
+<p style="margin: 0; padding: 0 clamp(0px, 4vw, 50px) 22px 0; max-width: 62ch; font-size: 15px; line-height: 1.6; color: #4F4C42">Your preview shows your strongest match in full. Claim your profile — it's free — to see every brand and filter the list by category.</p>
+</div>
+
+<div style="border-bottom: 1px solid #D9D6CC">
+<h3 style="margin: 0"><button type="button" style="width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 20px; min-height: 64px; padding: 18px 0; background: transparent; border: 0; font: inherit; font-size: 17px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.35; color: #111111; text-align: left; cursor: pointer"><span>Can I remove my profile?</span><span aria-hidden="true" style="flex: none; width: 30px; height: 30px; border-radius: 99px; border: 1px solid #C9C5B8; display: flex; align-items: center; justify-content: center; transition: transform 0.2s ease; transform: rotate(0deg)"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#111111" stroke-width="1.6" stroke-linecap="round"><path d="M6 1v10M1 6h10"></path></svg></span></button></h3>
+<p style="margin: 0; padding: 0 clamp(0px, 4vw, 50px) 22px 0; max-width: 62ch; font-size: 15px; line-height: 1.6; color: #4F4C42">Yes. Email <a href="mailto:hello@influenceit.app" style="color: #111111; font-weight: 600; text-underline-offset: 3px">hello@influenceit.app</a> from the address on your account and we'll remove it.</p>
+</div>
+
+</div>
+</div>
+</section>
+
+<section style="background: #FFD700; color: #0A0A0A">
+<div style="max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: clamp(72px, 10vw, 112px) clamp(20px, 5vw, 28px); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 32px 48px">
+<div style="flex: 1 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 18px">
+<h2 style="margin: 0; font-size: clamp(2.1rem, 4.4vw, 3.6rem); line-height: 1.02; letter-spacing: -0.03em; font-weight: 900">
+<span style="display: block">Brands hire creators at every size.</span>
+<span style="display: block">How many hire yours?</span>
+</h2>
+<p style="margin: 0; max-width: 44ch; font-size: 16px; line-height: 1.55; color: #2B2918">Enter your handle to find out. Free to claim.</p>
+</div>
+<a href="#find" style="display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 24px; border-radius: 10px; background: #0A0A0A; color: #F2F0EA; font-size: 15px; font-weight: 600; text-decoration: none">See who's hiring</a>
+</div>
+</section>
+
+<div style="background: #0A0A0A; border-bottom: 1px solid #262626">
+<div style="max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 22px clamp(20px, 5vw, 28px); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 24px">
+<span style="font-size: 16px; font-weight: 700; color: #F2F0EA">Here as a brand?</span>
+<a href="https://influenceit.app" style="display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; box-sizing: border-box; border-radius: 10px; border: 1px solid #3A3A3A; color: #F2F0EA; font-size: 14px; font-weight: 600; text-decoration: none">Explore the database</a>
+</div>
+</div>
+
+<footer style="background: #0A0A0A; color: #9B9890">
+<div style="max-width: 1200px; margin: 0 auto; box-sizing: border-box; padding: 20px clamp(20px, 5vw, 28px) 28px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 32px; font-size: 13px">
+<a href="#top" aria-label="InfluenceIT" style="display: flex; align-items: center; gap: 9px; text-decoration: none; color: #F2F0EA">
+<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#FFD700"></rect><rect x="4.5" y="7" width="15" height="10" rx="5" fill="#0A0A0A"></rect><circle cx="10" cy="12" r="2.6" fill="#FFD700"></circle></svg>
+<span style="font-size: 15px; font-weight: 700; letter-spacing: -0.02em">Influence<span style="color: #FF4D94; font-style: italic; font-weight: 800">IT</span></span>
+</a>
+<nav aria-label="Footer" style="display: flex; flex-wrap: wrap; gap: 0 20px">
+<a href="https://influenceit.app" style="padding: 12px 0; color: #9B9890; text-decoration: none">For brands</a>
+<a href="https://influenceit.app/privacy" style="padding: 12px 0; color: #9B9890; text-decoration: none">Privacy</a>
+<a href="https://influenceit.app/terms" style="padding: 12px 0; color: #9B9890; text-decoration: none">Terms</a>
+</nav>
+<span>© 2026 InfluenceIT · an LMG Media platform</span>
+</div>
+</footer>
+
+</div>
+</body>
+</html>
