@@ -25,6 +25,22 @@ select p -> 'stats'                                       as stats,
 from (select public.compute_homepage_snapshot() as p) s;
 \timing off
 
+-- What the cron jobs will do as postgres that this dry run does not do
+-- itself: the nightly cleanup deletes old cron.job_run_details rows, and
+-- every refresh ends with net.http_post() (ping_homepage_revalidate). 0031
+-- grants nothing in Supabase's schemas, so these must already hold. Both
+-- rows must say t. cron.schedule() and the Vault reads and writes ran above
+-- as postgres, so they need no row here.
+\echo
+\echo '── Privileges the jobs rely on (role postgres; both must be t) ─────────'
+select 'delete from cron.job_run_details' as needs,
+       coalesce(has_table_privilege('postgres', to_regclass('cron.job_run_details'), 'DELETE'), false) as ok
+union all
+select 'execute net.http_post()',
+       coalesce(bool_or(has_function_privilege('postgres', p.oid, 'EXECUTE')), false)
+from pg_proc p
+where p.pronamespace = to_regnamespace('net') and p.proname = 'http_post';
+
 -- Read-only diagnostics for the "bloat or disk throttling?" question, so the
 -- dry run answers it too. Dead rows and heap size against live rows show
 -- bloat; `read=` against `hit=` in the plan shows how much of a full pass over

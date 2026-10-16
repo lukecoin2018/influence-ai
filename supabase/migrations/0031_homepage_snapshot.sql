@@ -31,8 +31,9 @@
 --
 -- ── What is here ───────────────────────────────────────────────────────────
 --
--- Extensions (Supabase's documented forms):
---   pg_cron, in pg_catalog, with the grants Supabase's install guide gives;
+-- Extensions, each created only if it is missing (see the note above the
+-- first statement), and no grants of our own in their schemas:
+--   pg_cron, in pg_catalog;
 --   pg_net, in extensions (it creates its own `net` schema), for the HTTP
 --   call to /api/revalidate-home after each refresh.
 --
@@ -198,8 +199,9 @@
 -- this file, the command line or the process list.
 --
 -- Rerunnable: IF NOT EXISTS / OR REPLACE throughout, cron.schedule() updates
--- a job of the same name, the extension creates are no-ops once installed,
--- and the setup file updates the Vault secret if it already exists.
+-- a job of the same name, an installed extension is left alone (no CREATE
+-- EXTENSION is issued for it), and the setup file updates the Vault secret if
+-- it already exists.
 --
 -- The first refresh is queued, not run: the 5-minute cron job runs it inside
 -- the database with no time limit. Not `select refresh_homepage_snapshot()`
@@ -223,13 +225,42 @@
 -- Expected: identical except last_index (active profiles only, above) and
 -- the order of exact ties.
 
-create extension if not exists pg_cron with schema pg_catalog;
+-- pg_cron and pg_net are created only when missing. Supabase runs its own
+-- privilege script after every CREATE EXTENSION pg_cron (supabase/postgres,
+-- postgresql_extension_custom_scripts/pg_cron/after-create.sql), even an IF
+-- NOT EXISTS that skips an installed extension, and on this project that
+-- script fails: "dependent privileges exist" on its REVOKE of cron.job (dry
+-- run, 2026-10-16). So an installed extension never sees a CREATE EXTENSION.
+-- Nothing in this file grants or revokes anything in the cron, net or vault
+-- schemas; those privileges are Supabase's. The dry run prints whether
+-- postgres can do what the jobs need there.
+do $$
+declare
+  v text;
+begin
+  select extversion into v from pg_extension where extname = 'pg_cron';
+  if v is not null then
+    raise notice '0031: pg_cron % is installed; not touched', v;
+  else
+    raise notice '0031: pg_cron is not installed; creating it';
+    create extension pg_cron with schema pg_catalog;
+  end if;
+end
+$$;
 
-grant usage on schema cron to postgres;
-
-grant all privileges on all tables in schema cron to postgres;
-
-create extension if not exists pg_net with schema extensions;
+do $$
+declare
+  v text;
+begin
+  select extversion into v from pg_extension where extname = 'pg_net';
+  if v is not null then
+    raise notice '0031: pg_net % is installed; not touched', v;
+  else
+    raise notice '0031: pg_net is not installed; creating it';
+    create extension pg_net with schema extensions;
+  end if;
+end
+$$;
 
 create table if not exists public.homepage_snapshot (
   id          boolean primary key default true check (id),

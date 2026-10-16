@@ -15,8 +15,9 @@
 # --dry-run runs exactly the same statements, then
 # scripts/db/0031-dry-run-check.psql (computes the payload once against the
 # real data and selects its stats and homepage_snapshot_refusal() of it,
-# timed), then ROLLBACK. A clean dry run ends with a NULL refusal and
-# non-zero board and pool counts; anything else, do not apply.
+# timed, plus the privileges the jobs rely on), then ROLLBACK. A clean dry
+# run ends with a NULL refusal, non-zero board and pool counts and both
+# privilege rows t; anything else, do not apply.
 #
 # Needs psql 15 or newer: `brew install libpq` (keg-only; this script also
 # looks in /opt/homebrew/opt/libpq/bin).
@@ -96,7 +97,7 @@ fi
 
 if [ "$finish" = rollback ]; then
   printf '\napply-0031: dry run complete, ROLLED BACK. Nothing was changed.\n' >&2
-  printf 'apply-0031: apply for real only if the refusal above is empty and the board and pool counts are above 0.\n' >&2
+  printf 'apply-0031: apply for real only if the refusal above is empty, the board and pool counts are above 0 and both privilege rows say t.\n' >&2
 else
   printf '\napply-0031: COMMITTED. Within 5 minutes, check:\n' >&2
   printf '  select id, trigger, outcome, reason, duration_ms, analyzed, forced from homepage_snapshot_runs order by id desc limit 5;\n' >&2
