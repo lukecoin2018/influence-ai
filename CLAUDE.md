@@ -140,10 +140,26 @@ su - lukelmg -c 'cd /home/lukelmg/public_html/influenceit.app && setsid nohup np
 - pm2 manages only the old `lmgmedia` app. Its logs are not InfluenceIT's.
 - Nothing supervises the Node process. Killing it does **not** respawn it; the
   `setsid nohup` line above is what brings it back.
-- The VPS env file is `.env.local` (`next build` prints `Environments:
-  .env.local` there). Webuzo panel environment variables **override** it and
-  must be unquoted. The file must end with a newline: a missing one glued two
-  variables together on 2026-09-14.
+- **Every setting the app needs on the VPS goes in `.env.local`, ending with a
+  newline. The Webuzo panel's environment variables are ignored**, because
+  the app is started by `deploy/vps-deploy.sh` or the by-hand restart above
+  (`su - lukelmg -c '… npx next start …'`), not by Webuzo. On 2026-10-16
+  `REVALIDATE_SECRET` was only in the panel: the running app saw it unset
+  (`/api/revalidate-home` answered 500 `revalidate_secret_unset` to every
+  call) until it was added to `.env.local` and the app restarted by port.
+  - `next build` prints `Environments: .env.local` there, and the deploy
+    script copies that file into each new build. It carries no other env
+    file, so a value in `.env` or `.env.production` is left behind too.
+  - The newline matters: a missing one glued two variables together on
+    2026-09-14.
+  - Keep the panel empty, or identical to the file. Its variables did
+    override the file when Webuzo started the app (2026-09-14), and would
+    again if Webuzo's Start were ever used.
+  - Check a name without printing its value:
+    `grep -c '^NAME=' /home/lukelmg/public_html/influenceit.app/.env.local`
+    must print `1`. The app reads the file only at startup, so restart by
+    port after editing it, and redeploy for a `NEXT_PUBLIC_` name: those are
+    built into the client code.
 - Never build inside the live directory (`rm -rf .next && npm run build`
   there was the old chain); the script builds elsewhere for the reason above.
 - Hard-refresh after deploying. An incognito window is the cleanest way to tell a
@@ -153,8 +169,13 @@ su - lukelmg -c 'cd /home/lukelmg/public_html/influenceit.app && setsid nohup np
 ### Env var inventory
 
 Names only, from `process.env` reads in `app`, `lib` and `scripts`. Every name
-below must exist in all three places: Mac `.env.local`, VPS `.env.local` plus
-the Webuzo panel, and Vercel.
+below must exist in all three places: Mac `.env.local`, VPS `.env.local` (not
+the Webuzo panel; see "Deploying"), and Vercel. On the VPS, this lists the
+missing ones without printing any value:
+
+```
+f=/home/lukelmg/public_html/influenceit.app/.env.local; for n in NEXT_PUBLIC_SUPABASE_URL NEXT_PUBLIC_SUPABASE_ANON_KEY SUPABASE_SERVICE_ROLE_KEY ADMIN_USER_ID ADMIN_EMAIL RESEND_API_KEY EMAIL_FROM CRON_SECRET REVALIDATE_SECRET APIFY_API_TOKEN ANTHROPIC_API_KEY OPENAI_API_KEY STRIPE_SECRET_KEY STRIPE_WEBHOOK_SECRET NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY STRIPE_BRAND_STARTER_PRICE_ID STRIPE_BRAND_GROWTH_PRICE_ID STRIPE_BRAND_PRO_PRICE_ID STRIPE_CREATOR_STARTER_PRICE_ID STRIPE_CREATOR_ACTIVE_PRICE_ID STRIPE_CREATOR_TOPUP_100_PRICE_ID STRIPE_CREATOR_TOPUP_250_PRICE_ID NEXT_PUBLIC_SITE_URL; do grep -q "^$n=" "$f" || echo "missing: $n"; done; echo checked
+```
 
 - Supabase: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
   `SUPABASE_SERVICE_ROLE_KEY`
@@ -875,10 +896,11 @@ back to `/creator-dashboard/verify`, which mints a fresh code on load.
   notInDatabase, hidden, heldByPlatform, ids } }` with masked emails only — the
   nudge's counts at the top level, job 2's in `requests`. Safe to repeat: the
   second call sends nothing.
-- **Webuzo panel variables override `.env.local` on the VPS** (learned
-  2026-09-14, when a run-together `NEXT_PUBLIC_SITE_URL` came from the
-  panel, not the file). If a value on the VPS looks wrong, check the app's
-  environment variables in the Webuzo dashboard before the `.env.local` file.
+- **On the VPS only `.env.local` counts** (see "Deploying"). The Webuzo
+  panel's variables do not reach an app started by the deploy script. They
+  did override the file when Webuzo started the app: a run-together
+  `NEXT_PUBLIC_SITE_URL` came from the panel on 2026-09-14. If a value on
+  the VPS looks wrong, check `.env.local`.
 
 **Job 2 — the creator-request fulfil pass.** Every `creator_requests` row with
 `status = 'new'`, oldest first, capped at 50: has the handle appeared in
