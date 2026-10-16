@@ -1,8 +1,11 @@
 -- 0031_homepage_snapshot.sql
 --
--- STATUS: NOT YET APPLIED. Apply by hand in the Supabase SQL editor, one
--- statement at a time, BEFORE deploying the app code that reads it (the
--- homepage build fails on purpose while the snapshot row is missing).
+-- STATUS: NOT YET APPLIED. Apply with scripts/db/apply-0031.sh from the repo
+-- root on the Mac, `--dry-run` first (see "Applying" below), BEFORE deploying
+-- the app code that reads it (the homepage build fails on purpose while the
+-- snapshot row is missing). Not in the Supabase SQL editor: it stops every
+-- query at 1 minute, the dry run reads all of creator_posts twice, and the
+-- setup and check files use psql-only commands.
 --
 -- The homepage, its share image, the report pages and the claim teaser stop
 -- running aggregate queries while they render. They read one precomputed row
