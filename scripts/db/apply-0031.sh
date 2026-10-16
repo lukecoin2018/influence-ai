@@ -88,7 +88,10 @@ printf 'apply-0031: running %s and %s in one transaction, then %s\n' "$MIGRATION
 files=(-f "$MIGRATION" -f "$SETUP")
 [ "$finish" = rollback ] && files+=(-f "$DRY_RUN_CHECK")
 
-if ! "$PSQL" "$SUPABASE_DB_URL" -X -q -v ON_ERROR_STOP=1 \
+# pager=off: in a terminal, psql otherwise hands a long result to `less` and
+# waits for a keypress with the transaction still open (the 2026-10-16 dry
+# run paused that way).
+if ! "$PSQL" "$SUPABASE_DB_URL" -X -q -P pager=off -v ON_ERROR_STOP=1 \
   -c 'begin' \
   "${files[@]}" \
   -c "$finish"; then
@@ -99,6 +102,7 @@ if [ "$finish" = rollback ]; then
   printf '\napply-0031: dry run complete, ROLLED BACK. Nothing was changed.\n' >&2
   printf 'apply-0031: apply for real only if the refusal above is empty, the board and pool counts are above 0 and both privilege rows say t.\n' >&2
 else
-  printf '\napply-0031: COMMITTED. Within 5 minutes, check:\n' >&2
+  printf '\napply-0031: COMMITTED. The 5-minute job picks up the first refresh at its next tick, and on Nano the\n' >&2
+  printf 'apply-0031: refresh itself took about 4 minutes in the dry run. In about 10 minutes, check:\n' >&2
   printf '  select id, trigger, outcome, reason, duration_ms, analyzed, forced from homepage_snapshot_runs order by id desc limit 5;\n' >&2
 fi
