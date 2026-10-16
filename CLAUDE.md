@@ -713,7 +713,8 @@ growing with the table.
   `cron.use_background_workers = off`, Postgres 17.6). In that dry run
   `compute_homepage_snapshot()` took **244 s** on Nano with the disk at its
   baseline IOPS, so 15 minutes is about 3.7× that and still stops a hung
-  refresh. `homepage_snapshot_runs.duration_ms` is the figure to watch; past
+  refresh. The first real refresh after the apply, ANALYZE included, took
+  76 s: the time depends on how throttled the disk is at that moment. `homepage_snapshot_runs.duration_ms` is the figure to watch; past
   10 minutes, act before the limit does.
 - pg_cron `cron-job-run-details-cleanup`, `41 3 * * *`: deletes
   `cron.job_run_details` rows older than 7 days, for every job (the 5-minute
