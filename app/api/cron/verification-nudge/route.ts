@@ -11,9 +11,10 @@ import {
   VERIFICATION_NUDGE_SUBJECT,
 } from '@/lib/email/templates/VerificationNudge';
 import { FULFIL_ENABLED_PLATFORMS, OPEN_REQUEST_SELECT, fulfilRequest, type FulfilResult, type OpenRequest } from '@/lib/creator-requests/fulfil';
+import { checkHomepageSnapshotHealth, type HealthSummary } from '@/lib/homepage-snapshot/health';
 
 /**
- * TWO daily jobs behind one route and one schedule.
+ * THREE daily jobs behind one route and one schedule.
  *
  * The route path and the Vercel Cron entry are unchanged (vercel.json, 09:00
  * UTC); what runs is now the verification nudge AND the creator-request fulfil
@@ -77,6 +78,14 @@ import { FULFIL_ENABLED_PLATFORMS, OPEN_REQUEST_SELECT, fulfilRequest, type Fulf
  * The work itself is lib/creator-requests/fulfil.ts, shared with the admin
  * "Mark added" button so the two cannot send the same creator two emails.
  * Its claim-then-send rule is the nudge's, for the same reason.
+ *
+ * ── JOB 3: THE HOMEPAGE SNAPSHOT CHECK ─────────────────────────────────────
+ *
+ * lib/homepage-snapshot/health.ts: email ADMIN_EMAIL about refused or failed
+ * snapshot refreshes and a snapshot more than 12 hours old. The database runs
+ * the same check after every refresh through /api/revalidate-home; this daily
+ * run is the backstop for when pg_cron itself has stopped, which nothing
+ * inside the database can report. Its result is the `snapshot` key.
  */
 
 const PER_RUN_CAP = 50;
@@ -124,11 +133,22 @@ async function handleGET(req: NextRequest) {
     requests = { checked: 0, eligible: 0, beyondCap: 0, sent: 0, failed: 0, skipped: 0, notInDatabase: 0, hidden: 0, heldByPlatform: 0, ids: [], error: message };
   }
 
+  // Job 3, wrapped for the same reason. checkHomepageSnapshotHealth() never
+  // throws by contract; the try/catch is for a contract that breaks.
+  let snapshot: HealthSummary | { error: string };
+  try {
+    snapshot = await checkHomepageSnapshotHealth(admin);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error(`[snapshot-health] job threw: ${message}`);
+    snapshot = { error: message };
+  }
+
   // The nudge half stays at the TOP LEVEL of the response, unchanged, because
-  // CLAUDE.md documents that shape and a hand-run reads it. The new job gets
-  // its own nested object rather than merging counts that mean different
+  // CLAUDE.md documents that shape and a hand-run reads it. The other jobs get
+  // their own nested objects rather than merging counts that mean different
   // things.
-  return NextResponse.json({ ...nudge.summary, requests });
+  return NextResponse.json({ ...nudge.summary, requests, snapshot });
 }
 
 // ── JOB 1 ──────────────────────────────────────────────────────────────────

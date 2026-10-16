@@ -183,16 +183,3 @@ export type AggregateProof = {
   creators: number;
   brandDeals: number;
 };
-
-/**
- * Platform-wide reassurance numbers for the zero-match state — "we haven't
- * detected a match for YOU yet, but here's proof the platform has real
- * activity." Reuses the same public_stats() RPC the homepage already reads
- * (app/_queries.ts's getPublicStats), called directly here since that
- * module's helper is tied to the anon browser client via React's cache().
- */
-export async function resolveAggregateProof(supabase: SupabaseClient): Promise<AggregateProof | null> {
-  const { data, error } = await withTimeout(Promise.resolve(supabase.rpc('public_stats')), DB_TIMEOUT_MS);
-  if (error || !data) return null;
-  return { creators: data.creators, brandDeals: data.brand_deals };
-}

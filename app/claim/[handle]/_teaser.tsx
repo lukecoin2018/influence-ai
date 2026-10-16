@@ -12,11 +12,11 @@ import { Badge, BrandMatchCard } from '@/components/brand-matches/BrandMatchCard
 import {
   badgeFor,
   recencyLineCompact,
-  resolveAggregateProof,
   resolveCreatorProfileInfo,
   resolveGreetingName,
   type AggregateProof,
 } from './_data';
+import { resolveAggregateProof } from './_aggregate-proof';
 import { getClaimStrings, type Locale } from './_strings';
 import { HtmlLangSync } from './_HtmlLangSync';
 import { GetListedLink } from './_GetListedLink';
@@ -528,7 +528,7 @@ export async function ClaimTeaser({ handle, locale }: { handle: string; locale: 
   const greetingName = resolveGreetingName(profileInfo.displayName, handle);
 
   if (result.totalMatchCount === 0 || !result.strongestMatch) {
-    const proof = await resolveAggregateProof(supabase).catch(() => null);
+    const proof = await resolveAggregateProof().catch(() => null);
     return <ZeroMatchState handle={handle} greetingName={greetingName} creatorFollowers={result.creatorFollowers} proof={proof} locale={locale} />;
   }
 

@@ -10,8 +10,13 @@ type Platform = 'instagram' | 'tiktok';
 
 // Column sorting is intentionally unimplemented — the mockup itself has no click
 // handlers, just a static "sorted" indicator. Real sort state comes with a later pass.
-// Row order is never recomputed here — top_creators() already returns rows sorted
-// correctly per platform (engagement for IG, med_views for TikTok).
+// Row order is never recomputed here — the homepage snapshot already stores rows
+// sorted correctly per platform (engagement for IG, med_views for TikTok).
+//
+// An empty platform gets no tab, so the heading can never read "Top 0". The
+// snapshot refuses to save an empty board (migration 0031), so this is the
+// second line of defence; app/page.tsx drops the whole section when both are
+// empty.
 export function Leaderboard({
   instagram,
   tiktok,
@@ -21,7 +26,13 @@ export function Leaderboard({
   tiktok: LeaderboardRow[];
   totalCreators: number;
 }) {
-  const [platform, setPlatform] = useState<Platform>('instagram');
+  const [selected, setSelected] = useState<Platform>('instagram');
+  const available: Platform[] = [
+    ...(instagram.length > 0 ? (['instagram'] as const) : []),
+    ...(tiktok.length > 0 ? (['tiktok'] as const) : []),
+  ];
+  if (available.length === 0) return null;
+  const platform: Platform = available.includes(selected) ? selected : available[0];
   const rows = platform === 'instagram' ? instagram : tiktok;
   const maxEngagement = Math.max(1, ...instagram.map((r) => r.engagement));
   const maxViews = Math.max(1, ...tiktok.map((r) => r.medViews));
@@ -38,24 +49,28 @@ export function Leaderboard({
         </div>
 
         <div className="board-tabs" role="tablist" aria-label="Platform">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={platform === 'instagram'}
-            className={`tab-btn${platform === 'instagram' ? ' active' : ''}`}
-            onClick={() => setPlatform('instagram')}
-          >
-            Instagram
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={platform === 'tiktok'}
-            className={`tab-btn${platform === 'tiktok' ? ' active' : ''}`}
-            onClick={() => setPlatform('tiktok')}
-          >
-            TikTok
-          </button>
+          {available.includes('instagram') && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={platform === 'instagram'}
+              className={`tab-btn${platform === 'instagram' ? ' active' : ''}`}
+              onClick={() => setSelected('instagram')}
+            >
+              Instagram
+            </button>
+          )}
+          {available.includes('tiktok') && (
+            <button
+              type="button"
+              role="tab"
+              aria-selected={platform === 'tiktok'}
+              className={`tab-btn${platform === 'tiktok' ? ' active' : ''}`}
+              onClick={() => setSelected('tiktok')}
+            >
+              TikTok
+            </button>
+          )}
         </div>
 
         <div className="tablecard">

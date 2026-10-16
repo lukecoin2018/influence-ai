@@ -1,0 +1,438 @@
+inf-scraper patch for influence-ai's homepage snapshot (influence-ai branch
+fix/homepage-snapshot, supabase/migrations/0031). NOT applied to inf-scraper.
+
+Base: inf-scraper origin/main 3a001e1 (2026-10-14). Apply from the inf-scraper
+root on a fresh branch:
+
+  git checkout -b feat/homepage-refresh-request origin/main
+  git apply --check /Users/lukaslanger/influence-ai/docs/inf-scraper/2026-10-14-homepage-refresh.patch
+  git apply /Users/lukaslanger/influence-ai/docs/inf-scraper/2026-10-14-homepage-refresh.patch
+
+Order: influence-ai 0031 first (it defines request_homepage_refresh), then
+docs/migrations/2026-10-14-upsert-creator-posts.sql from this patch, then
+deploy the scraper.
+
+Checked against a copy of 3a001e1: tsc --noEmit clean, eslint clean on the
+new and changed routes and libs, node --test lib/**/*.test.ts 334/334.
+
+diff --git a/app/api/discover/finish/route.ts b/app/api/discover/finish/route.ts
+index f120d4f..6e41912 100644
+--- a/app/api/discover/finish/route.ts
++++ b/app/api/discover/finish/route.ts
+@@ -1,6 +1,7 @@
+ import { NextRequest, NextResponse } from 'next/server';
+ import { supabase } from '@/lib/supabase';
+ import { totalsFromCandidates } from '@/lib/discoveryRunTotals';
++import { requestHomepageRefresh } from '@/lib/homepageRefresh';
+ 
+ /**
+  * Closes a Discovery run.
+@@ -79,6 +80,12 @@ export async function POST(request: NextRequest) {
+ 
+     if (error) throw new Error(`Failed to close discovery run: ${error.message}`);
+ 
++    // Creators added or updated change influence-ai's homepage figures; a
++    // cancelled run may have imported some before it stopped.
++    if (totals.new_creators_added > 0 || totals.existing_creators_updated > 0) {
++      await requestHomepageRefresh(`discover:${status}`);
++    }
++
+     return NextResponse.json({ runId, status, ...totals });
+   } catch (error: unknown) {
+     const message = error instanceof Error ? error.message : 'Failed to finish discovery run';
+diff --git a/app/api/enrich/process/route.ts b/app/api/enrich/process/route.ts
+index 92d6be4..9443183 100644
+--- a/app/api/enrich/process/route.ts
++++ b/app/api/enrich/process/route.ts
+@@ -5,6 +5,7 @@ import { recalculateCumulativeBrandFields, type StoredPostForBrandAgg } from '@/
+ import { extractMentionsFromCaption, handlesFromActorList } from '@/lib/handles';
+ import { extractPostPlace, derivePlaceFromPosts } from '@/lib/postLocation';
+ import { extractPostLanguage, deriveLanguageFromPosts } from '@/lib/postLanguage';
++import { savePostsBatched } from '@/lib/creatorPostsWrite';
+ 
+ const RECENT_POSTS_WINDOW = 15;
+ 
+@@ -550,13 +551,15 @@ export async function POST(request: NextRequest) {
+       )
+       .filter((p: any) => p.post_id);
+ 
+-    // 4. Save posts (upsert)
+-    for (const post of mappedPosts) {
+-      const { error } = await supabase
+-        .from('creator_posts')
+-        .upsert(post, { onConflict: 'social_profile_id,post_id' });
+-      if (error) console.error(`Failed to save post ${post.post_id}:`, error.message);
+-    }
++    // 4. Save posts: one upsert_creator_posts() call per batch, and a post
++    // whose stored row already matches is not rewritten. The per-post upsert
++    // this replaces wrote a new row version for every re-scraped post, even
++    // unchanged ones (docs/migrations/2026-10-14-upsert-creator-posts.sql).
++    const postsWrite = await savePostsBatched(mappedPosts);
++    console.log(
++      `Posts for ${handle}: ${postsWrite.inserted} new, ${postsWrite.updated} changed, ` +
++        `${postsWrite.unchanged} unchanged${postsWrite.failed ? `, ${postsWrite.failed} FAILED` : ''}`
++    );
+ 
+     // 4.5 Save detected brands to brands table
+     // Collects all unique brand handles from sponsored posts and upserts them
+@@ -694,7 +697,8 @@ export async function POST(request: NextRequest) {
+       handle,
+       platform,
+       postsFound: rawPosts.length,
+-      postsSaved: mappedPosts.length,
++      postsSaved: mappedPosts.length - postsWrite.failed,
++      postsWrite,
+       brandsFound: allBrandHandles.length,
+       enrichmentData,
+       place: derivedPlace,
+diff --git a/app/api/import/profiles/route.ts b/app/api/import/profiles/route.ts
+index 9af5c2b..b3e6026 100644
+--- a/app/api/import/profiles/route.ts
++++ b/app/api/import/profiles/route.ts
+@@ -1,6 +1,7 @@
+ import { NextRequest, NextResponse } from 'next/server';
+ import { getDatasetItems } from '@/lib/apify';
+ import { supabase } from '@/lib/supabase';
++import { requestHomepageRefresh } from '@/lib/homepageRefresh';
+ 
+ interface ImportRequest {
+   datasetIds: string[];
+@@ -82,6 +83,10 @@ export async function POST(request: NextRequest) {
+       updatedCount += saveResult.updated || 0;
+     }
+ 
++    if (newCount + updatedCount > 0) {
++      await requestHomepageRefresh('import-profiles');
++    }
++
+     return NextResponse.json({
+       totalFetched: allProfiles.length,
+       uniqueProfiles: uniqueProfiles.length,
+diff --git a/app/api/post-import/route.ts b/app/api/post-import/route.ts
+new file mode 100644
+index 0000000..87865b6
+--- /dev/null
++++ b/app/api/post-import/route.ts
+@@ -0,0 +1,17 @@
++import { NextRequest, NextResponse } from 'next/server';
++import { requestHomepageRefresh } from '@/lib/homepageRefresh';
++
++/**
++ * POST /api/post-import { source } — called by the enrich page once a run's
++ * client-side loop has finished, because no single /api/enrich/process call
++ * knows it was the last. Discovery and Import call requestHomepageRefresh()
++ * directly from their own finishing routes.
++ *
++ * Behind the same session middleware as every other route here.
++ */
++export async function POST(request: NextRequest) {
++  const body = await request.json().catch(() => ({}));
++  const source = typeof body.source === 'string' && body.source ? body.source.slice(0, 64) : 'post-import';
++  await requestHomepageRefresh(source);
++  return NextResponse.json({ requested: true, source });
++}
+diff --git a/app/enrich/page.tsx b/app/enrich/page.tsx
+index e29eb75..f4315e5 100644
+--- a/app/enrich/page.tsx
++++ b/app/enrich/page.tsx
+@@ -134,6 +134,17 @@ export default function EnrichPage() {
+       setProgressMessage(`Complete! ${enriched} enriched, ${failed} failed.`);
+       fetchStatus();
+ 
++      // New posts change influence-ai's homepage figures: queue a refresh of
++      // its snapshot (lib/homepageRefresh.ts). Fire-and-forget; a failure is
++      // logged server-side and the 6-hourly refresh catches up anyway.
++      if (enriched > 0) {
++        fetch('/api/post-import', {
++          method: 'POST',
++          headers: { 'Content-Type': 'application/json' },
++          body: JSON.stringify({ source: `enrich:${platform}` }),
++        }).catch(() => {});
++      }
++
+     } catch (error: any) {
+       setProgressMessage(`Error: ${error.message}`);
+     } finally {
+diff --git a/docs/migrations/2026-10-14-upsert-creator-posts.sql b/docs/migrations/2026-10-14-upsert-creator-posts.sql
+new file mode 100644
+index 0000000..f730ebd
+--- /dev/null
++++ b/docs/migrations/2026-10-14-upsert-creator-posts.sql
+@@ -0,0 +1,139 @@
++-- ============================================================================
++-- upsert_creator_posts(): one batched write per creator, unchanged rows skipped
++--
++-- STATUS: NOT YET APPLIED. Apply by hand in the Supabase SQL editor, one
++-- statement at a time, BEFORE deploying the enrich change that calls it
++-- (app/api/enrich/process/route.ts -> lib/creatorPostsWrite.ts).
++--
++-- WHAT
++--
++-- Takes a jsonb array of mapped posts (mapInstagramPost / mapTikTokPost output)
++-- and, in one call:
++--   1. UPDATEs each post that already exists on (social_profile_id, post_id),
++--      but only when the merged row IS DISTINCT FROM the stored one;
++--   2. INSERTs the posts that do not exist yet (ON CONFLICT DO NOTHING, so a
++--      concurrent insert of the same post is counted as unchanged, not an
++--      error).
++-- Returns one row: inserted, updated, unchanged.
++--
++-- Merging is jsonb_populate_record(stored_row, element): a column whose key is
++-- ABSENT from the element keeps its stored value. That is what the per-post
++-- PostgREST upsert this replaces did (it only SET the columns in the payload),
++-- and it matters because the two mappers send different key sets: an
++-- Instagram post carries no actor_is_* / place_* / post_language keys, and
++-- must not have those columns nulled.
++--
++-- On INSERT an absent key is NULL. None of the columns a mapper can omit has a
++-- default (checked 2026-10-14 against the API schema: actor_is_sponsored,
++-- actor_is_ad, place_*, post_language), and id / created_at are left to their
++-- defaults.
++--
++-- WHY
++--
++-- enrich wrote posts one PostgREST upsert at a time, and an upsert rewrites the
++-- row even when nothing changed. Every re-enrich of a creator therefore made a
++-- new version of every post it re-scraped: dead tuples in creator_posts and
++-- write I/O during imports, the same table influence-ai's homepage statistics
++-- read in full (influence-ai migration 0031, measured 2026-10-14: a plain
++-- count(*) over creator_posts did not finish inside 8 s during an enrich run).
++--
++-- KEEP IN MIND
++--
++-- The UPDATE and INSERT column lists are explicit. A new creator_posts column
++-- that a mapper writes has to be added to both, or it is silently not written.
++--
++-- SECURITY INVOKER: the scraper calls it with the service-role key. EXECUTE is
++-- revoked from anon and authenticated, who have no business writing posts.
++
++create or replace function public.upsert_creator_posts(p_posts jsonb)
++ returns table (inserted integer, updated integer, unchanged integer)
++ language plpgsql
++ set search_path = public
++as $function$
++declare
++  v_total    integer := coalesce(jsonb_array_length(p_posts), 0);
++  v_updated  integer := 0;
++  v_inserted integer := 0;
++begin
++  with input as (
++    select e as elem,
++           (e ->> 'social_profile_id')::uuid as spid,
++           e ->> 'post_id' as post_id
++    from jsonb_array_elements(coalesce(p_posts, '[]'::jsonb)) e
++  ),
++  merged as (
++    select cp.id, cp as old_row, jsonb_populate_record(cp, i.elem) as new_row
++    from input i
++    join creator_posts cp on cp.social_profile_id = i.spid and cp.post_id = i.post_id
++  ),
++  changed as (
++    update creator_posts t
++       set platform           = (m.new_row).platform,
++           post_url           = (m.new_row).post_url,
++           post_type          = (m.new_row).post_type,
++           caption            = (m.new_row).caption,
++           hashtags           = (m.new_row).hashtags,
++           tagged_accounts    = (m.new_row).tagged_accounts,
++           likes_count        = (m.new_row).likes_count,
++           comments_count     = (m.new_row).comments_count,
++           views_count        = (m.new_row).views_count,
++           shares_count       = (m.new_row).shares_count,
++           saves_count        = (m.new_row).saves_count,
++           posted_at          = (m.new_row).posted_at,
++           is_sponsored       = (m.new_row).is_sponsored,
++           sponsor_signals    = (m.new_row).sponsor_signals,
++           detected_brands    = (m.new_row).detected_brands,
++           actor_is_sponsored = (m.new_row).actor_is_sponsored,
++           actor_is_ad        = (m.new_row).actor_is_ad,
++           place_city_code    = (m.new_row).place_city_code,
++           place_country_code = (m.new_row).place_country_code,
++           place_name         = (m.new_row).place_name,
++           place_address      = (m.new_row).place_address,
++           place_city         = (m.new_row).place_city,
++           post_language      = (m.new_row).post_language
++      from merged m
++     where t.id = m.id
++       and m.new_row is distinct from m.old_row
++    returning 1
++  )
++  select count(*) into v_updated from changed;
++
++  with input as (
++    select e as elem,
++           (e ->> 'social_profile_id')::uuid as spid,
++           e ->> 'post_id' as post_id
++    from jsonb_array_elements(coalesce(p_posts, '[]'::jsonb)) e
++  ),
++  added as (
++    insert into creator_posts (
++      social_profile_id, platform, post_id, post_url, post_type, caption,
++      hashtags, tagged_accounts, likes_count, comments_count, views_count,
++      shares_count, saves_count, posted_at, is_sponsored, sponsor_signals,
++      detected_brands, actor_is_sponsored, actor_is_ad, place_city_code,
++      place_country_code, place_name, place_address, place_city, post_language
++    )
++    select r.social_profile_id, r.platform, r.post_id, r.post_url, r.post_type, r.caption,
++           r.hashtags, r.tagged_accounts, r.likes_count, r.comments_count, r.views_count,
++           r.shares_count, r.saves_count, r.posted_at, r.is_sponsored, r.sponsor_signals,
++           r.detected_brands, r.actor_is_sponsored, r.actor_is_ad, r.place_city_code,
++           r.place_country_code, r.place_name, r.place_address, r.place_city, r.post_language
++    from input i
++    cross join lateral jsonb_populate_record(null::creator_posts, i.elem) r
++    where not exists (
++      select 1 from creator_posts cp
++      where cp.social_profile_id = i.spid and cp.post_id = i.post_id
++    )
++    on conflict (social_profile_id, post_id) do nothing
++    returning 1
++  )
++  select count(*) into v_inserted from added;
++
++  return query select v_inserted, v_updated, v_total - v_inserted - v_updated;
++end;
++$function$;
++
++revoke execute on function public.upsert_creator_posts(jsonb) from public, anon, authenticated;
++
++grant execute on function public.upsert_creator_posts(jsonb) to service_role;
++
++notify pgrst, 'reload schema';
+diff --git a/lib/creatorPostsWrite.ts b/lib/creatorPostsWrite.ts
+new file mode 100644
+index 0000000..fe4e984
+--- /dev/null
++++ b/lib/creatorPostsWrite.ts
+@@ -0,0 +1,37 @@
++import { supabase } from '@/lib/supabase';
++import { POSTS_PER_BATCH, chunk, dedupePosts, type PostKey } from './creatorPostsWriteCore';
++
++export type SavePostsResult = {
++  inserted: number;
++  updated: number;
++  unchanged: number;
++  /** Posts in batches whose call failed; nothing in them was written. */
++  failed: number;
++};
++
++/**
++ * Writes a creator's mapped posts through upsert_creator_posts()
++ * (docs/migrations/2026-10-14-upsert-creator-posts.sql): one call per batch of
++ * up to POSTS_PER_BATCH instead of one PostgREST upsert per post, and a post
++ * whose stored row already matches is not rewritten at all.
++ *
++ * Never throws. A failed batch is logged and counted in `failed`; the other
++ * batches still run, as the per-post loop it replaces let one bad post fail
++ * without aborting the rest.
++ */
++export async function savePostsBatched<T extends PostKey>(posts: T[]): Promise<SavePostsResult> {
++  const result: SavePostsResult = { inserted: 0, updated: 0, unchanged: 0, failed: 0 };
++  for (const batch of chunk(dedupePosts(posts), POSTS_PER_BATCH)) {
++    const { data, error } = await supabase.rpc('upsert_creator_posts', { p_posts: batch });
++    const row = Array.isArray(data) ? data[0] : data;
++    if (error || !row) {
++      console.error(`Failed to save ${batch.length} posts:`, error?.message ?? 'no result row');
++      result.failed += batch.length;
++      continue;
++    }
++    result.inserted += row.inserted ?? 0;
++    result.updated += row.updated ?? 0;
++    result.unchanged += row.unchanged ?? 0;
++  }
++  return result;
++}
+diff --git a/lib/creatorPostsWriteCore.test.ts b/lib/creatorPostsWriteCore.test.ts
+new file mode 100644
+index 0000000..ff66110
+--- /dev/null
++++ b/lib/creatorPostsWriteCore.test.ts
+@@ -0,0 +1,23 @@
++import { test } from 'node:test';
++import assert from 'node:assert/strict';
++import { chunk, dedupePosts } from './creatorPostsWriteCore.ts';
++
++test('dedupePosts keeps one entry per post, the last one winning, in first-seen order', () => {
++  const posts = [
++    { social_profile_id: 'p1', post_id: 'a', likes_count: 1 },
++    { social_profile_id: 'p1', post_id: 'b', likes_count: 2 },
++    { social_profile_id: 'p1', post_id: 'a', likes_count: 3 },
++    { social_profile_id: 'p2', post_id: 'a', likes_count: 4 },
++  ];
++  assert.deepEqual(dedupePosts(posts), [
++    { social_profile_id: 'p1', post_id: 'a', likes_count: 3 },
++    { social_profile_id: 'p1', post_id: 'b', likes_count: 2 },
++    { social_profile_id: 'p2', post_id: 'a', likes_count: 4 },
++  ]);
++});
++
++test('chunk splits into fixed-size batches and keeps the remainder', () => {
++  assert.deepEqual(chunk([1, 2, 3, 4, 5], 2), [[1, 2], [3, 4], [5]]);
++  assert.deepEqual(chunk([], 100), []);
++  assert.throws(() => chunk([1], 0));
++});
+diff --git a/lib/creatorPostsWriteCore.ts b/lib/creatorPostsWriteCore.ts
+new file mode 100644
+index 0000000..c13d3ae
+--- /dev/null
++++ b/lib/creatorPostsWriteCore.ts
+@@ -0,0 +1,28 @@
++/**
++ * Pure helpers for lib/creatorPostsWrite.ts. No I/O, so `node --test` can
++ * load them without a database.
++ */
++
++/** Posts per upsert_creator_posts() call. A creator's scrape is well under this; the cap only bounds the payload. */
++export const POSTS_PER_BATCH = 100;
++
++export type PostKey = { social_profile_id: string; post_id: string };
++
++/**
++ * One entry per (social_profile_id, post_id), the LAST occurrence winning,
++ * in first-seen order. Two copies of one post in a single call would make the
++ * UPDATE pick one arbitrarily and the INSERT skip the second, so the caller
++ * settles it here, the same way the old per-post loop did (its last write won).
++ */
++export function dedupePosts<T extends PostKey>(posts: T[]): T[] {
++  const byKey = new Map<string, T>();
++  for (const p of posts) byKey.set(`${p.social_profile_id}\u0000${p.post_id}`, p);
++  return [...byKey.values()];
++}
++
++export function chunk<T>(items: T[], size: number): T[][] {
++  if (size <= 0) throw new Error('chunk size must be positive');
++  const out: T[][] = [];
++  for (let i = 0; i < items.length; i += size) out.push(items.slice(i, i + size));
++  return out;
++}
+diff --git a/lib/homepageRefresh.ts b/lib/homepageRefresh.ts
+new file mode 100644
+index 0000000..fe5edff
+--- /dev/null
++++ b/lib/homepageRefresh.ts
+@@ -0,0 +1,26 @@
++import { supabase } from '@/lib/supabase';
++
++/**
++ * Tells influence-ai that an import finished, so its homepage figures catch up.
++ *
++ * influence-ai's homepage, share image, report pages and claim teaser read one
++ * precomputed row (homepage_snapshot, influence-ai migration 0031). This
++ * queues a refresh of it: within 5 minutes a pg_cron job in the shared
++ * database runs ANALYZE on creators, social_profiles and creator_posts, then
++ * refresh_homepage_snapshot(), then calls influenceit.app/api/revalidate-home.
++ * Several requests before the job runs collapse into one refresh.
++ *
++ * Queued rather than run here on purpose: the refresh reads all of
++ * creator_posts, which took 23-31 s per query during an enrich run on
++ * 2026-10-14, and a Supabase API call is cut off at 60 s. Inside the database
++ * the job has no such limit.
++ *
++ * Never throws. A failed request is logged; the 6-hourly scheduled refresh
++ * still picks the import up.
++ */
++export async function requestHomepageRefresh(source: string): Promise<void> {
++  const { error } = await supabase.rpc('request_homepage_refresh', { p_source: source, p_analyze: true });
++  if (error) {
++    console.error(`[homepage-refresh] request from ${source} failed: ${error.message}`);
++  }
++}

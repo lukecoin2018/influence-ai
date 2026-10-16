@@ -109,12 +109,20 @@ const BUCKET_ORDER: { bucket: PostTypeBucket; label: string; color: ContentMixCo
   { bucket: 'other', label: 'Other', color: 'gray' },
 ];
 
-/** Buckets creator_posts.post_type rows into a content-mix distribution. Empty input -> empty output (caller omits the block). */
-export function bucketContentMix(posts: { post_type: string | null }[]): ContentMixSlice[] {
-  if (posts.length === 0) return [];
+/**
+ * Buckets per-post_type counts (the snapshot's `post_types`, one entry per
+ * distinct creator_posts.post_type) into a content-mix distribution. Empty or
+ * all-zero input -> empty output (caller omits the block).
+ */
+export function bucketContentMix(postTypes: { postType: string | null; n: number }[]): ContentMixSlice[] {
   const counts: Record<PostTypeBucket, number> = { video: 0, carousel: 0, photo: 0, other: 0 };
-  for (const p of posts) counts[classifyPostType(p.post_type)]++;
-  const total = posts.length;
+  let total = 0;
+  for (const t of postTypes) {
+    if (t.n <= 0) continue;
+    counts[classifyPostType(t.postType)] += t.n;
+    total += t.n;
+  }
+  if (total === 0) return [];
   return BUCKET_ORDER.filter((o) => counts[o.bucket] > 0).map((o) => ({
     label: o.label,
     pct: Math.round((counts[o.bucket] / total) * 100),

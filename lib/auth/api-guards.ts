@@ -241,6 +241,39 @@ export function requireCronSecret(req: Request): { error: NextResponse } | { ok:
 }
 
 /**
+ * Gate for POST /api/revalidate-home, which the database calls (pg_net, after
+ * every scheduled or requested homepage snapshot refresh — migration 0031)
+ * with `Authorization: Bearer <REVALIDATE_SECRET>`. Same rules as
+ * requireCronSecret() above: unset denies everyone with a 500, a wrong or
+ * missing header is a 401.
+ *
+ * Its own secret rather than CRON_SECRET: the database keeps this value in
+ * Supabase Vault, and a leak there should not also let a caller run the daily
+ * nudge and fulfil jobs.
+ */
+export function requireRevalidateSecret(req: Request): { error: NextResponse } | { ok: true } {
+  const secret = process.env.REVALIDATE_SECRET?.trim();
+
+  if (!secret) {
+    console.error('[revalidate-gate] REVALIDATE_SECRET is unset or empty — denying every revalidate call. Set it and redeploy.');
+    return {
+      error: NextResponse.json({ error: 'REVALIDATE_SECRET is not configured', reason: 'revalidate_secret_unset' }, { status: 500 }),
+    };
+  }
+
+  const header = req.headers.get('authorization') ?? '';
+  const presented = header.startsWith('Bearer ') ? header.slice('Bearer '.length).trim() : '';
+
+  if (!presented || !constantTimeEqual(presented, secret)) {
+    return {
+      error: NextResponse.json({ error: 'Unauthorized', reason: 'revalidate_secret_invalid' }, { status: 401 }),
+    };
+  }
+
+  return { ok: true };
+}
+
+/**
  * Length-independent string compare. A plain `===` short-circuits on the
  * first differing byte, which leaks the prefix length under timing; for a
  * 64-hex secret that is theoretical, but the cost of doing it right is nil.

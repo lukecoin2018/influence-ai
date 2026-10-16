@@ -87,24 +87,43 @@ Vercel has been clean throughout. Every environment-specific bug has been the VP
 
 ### Deploying
 
+As root, one command:
+
 ```
-cd /home/lukelmg/public_html/influenceit.app \
-  && git checkout -- package-lock.json \
-  && git pull origin main \
-  && npm ci \
-  && rm -rf .next \
-  && npm run build
+bash /home/lukelmg/public_html/influenceit.app/deploy/vps-deploy.sh
 ```
 
-`npm ci`, not `npm install`: install rewrote `package-lock.json` on the VPS
-and the dirty file blocked the next `git pull` (2026-09-14). The
-`git checkout -- package-lock.json` before the pull is belt and braces for a
-box that already has a rewritten lockfile. Node on the VPS is 24.x; the
-lockfile is v3 and `npm ci` was verified against it locally on 2026-09-16.
+`deploy/vps-deploy.sh` (2026-10-14) builds a fresh clone of `origin/main` in
+`/home/lukelmg/releases/influenceit.app/build-<stamp>` with `.env.local`
+copied in, and only if `npm ci && npm run build` succeeds swaps it into
+`/home/lukelmg/public_html/influenceit.app` (the old directory becomes
+`prev-<stamp>`; the newest two are kept). Then it restarts **by port**, waits
+for the port, and runs the chunk-file check below against the new `.next`.
+Every run prints its rollback command.
 
-Then restart the process **by port**. Webuzo's Stop/Start for this app
-currently errors (support ticket open), and a `pgrep` for `next start` misses
-the `next-server` child, so never restart by process name:
+**A failed build no longer touches the live site.** The old chain ran
+`rm -rf .next && npm run build` inside the live directory, so a failed build
+left the running process without its chunks. Since 0031 the homepage build
+fails on purpose when its snapshot row is missing, so this matters.
+
+- Measured 2026-10-14 on a Mac: a failed stub build left the live directory
+  untouched; a successful one swapped in with `.env.local` carried over and a
+  stray file kept in `prev-*`; a `.env.local` with no final newline stopped
+  the run. A Next 16.1.6 build renamed to another directory served its page
+  and chunks with 200. Only `required-server-files.json` keeps the old path,
+  and plain `next start` does not use it.
+- `npm ci`, not `npm install`: install rewrote `package-lock.json` on the VPS
+  and the dirty file blocked the next `git pull` (2026-09-14). A fresh clone
+  cannot have a dirty lockfile. Node on the VPS is 24.x; the lockfile is v3.
+- Anything in the live directory that git does not track (other than
+  `node_modules`, `.next`, `.env.local`) is listed at the start of a run and
+  left behind in `prev-<stamp>`. The app writes no runtime files of its own.
+- `RELEASES_DIR` must be on the same filesystem as `public_html`, or the swap
+  would copy; the script checks and stops.
+
+Restart by hand, if ever needed — **by port**. Webuzo's Stop/Start for this
+app currently errors (support ticket open), and a `pgrep` for `next start`
+misses the `next-server` child, so never restart by process name:
 
 ```
 fuser -k 30001/tcp; sleep 3
@@ -125,7 +144,8 @@ su - lukelmg -c 'cd /home/lukelmg/public_html/influenceit.app && setsid nohup np
   .env.local` there). Webuzo panel environment variables **override** it and
   must be unquoted. The file must end with a newline: a missing one glued two
   variables together on 2026-09-14.
-- `rm -rf .next` before building is required.
+- Never build inside the live directory (`rm -rf .next && npm run build`
+  there was the old chain); the script builds elsewhere for the reason above.
 - Hard-refresh after deploying. An incognito window is the cleanest way to tell a
   cache problem from a real one.
 - Vercel green before VPS.
@@ -141,6 +161,9 @@ the Webuzo panel, and Vercel.
 - Admin: `ADMIN_USER_ID`, `ADMIN_EMAIL`
 - Email: `RESEND_API_KEY`, `EMAIL_FROM`
 - Cron: `CRON_SECRET`
+- Homepage snapshot: `REVALIDATE_SECRET` (bearer token for
+  `POST /api/revalidate-home`). Also stored in Supabase Vault as
+  `revalidate_secret`, because the database sends it; the two must match.
 - Scraper and AI: `APIFY_API_TOKEN`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`
 - Stripe: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`,
   `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_BRAND_STARTER_PRICE_ID`,
@@ -283,8 +306,9 @@ rm -rf /var/webuzo-data/nginx_proxy_cache/lukelmg/*
 - The zone is named for the Webuzo user, not the site, so `lmg.media` and
   `creators.lmg.media` probably share it and start cold too (unverified).
   Harmless either way.
-- It does not refresh Next's own copy of `/` (`revalidate = 3600`). The homepage
-  can show old figures for up to an hour after a purge.
+- It does not refresh Next's own copy of `/` (`revalidate = 300` since
+  2026-10-14). The homepage can show old figures for up to 5 minutes after a
+  purge.
 
 **Post-deploy check**, run twice:
 
@@ -311,8 +335,28 @@ as.
 Write the file, show paste-ready SQL, he pastes it, he confirms. The manual
 checkpoint is deliberate and has caught real bugs.
 
-- Next number: check the folder. 0030 is taken (2026-10-06), so the next is 0031.
+- Next number: check the folder. 0031 is taken (2026-10-14), so the next is 0032.
+- **Applying migrations with psql (since 0031).** psql is installed on the Mac
+  (`brew install libpq`, keg-only: `/opt/homebrew/opt/libpq/bin/psql`, 18.x).
+  `scripts/db/apply-0031.sh` is the pattern: the migration plus a setup file,
+  `-v ON_ERROR_STOP=1`, between one `begin` and one `commit`, so an error
+  anywhere rolls everything back. **Dry run first, always** (`--dry-run` ends
+  with `rollback` instead, after checking the result). Lukas runs it; the
+  connection string is the Session pooler one (Dashboard → Connect), and the
+  password is asked for hidden, never pasted into chat or a file. Tested
+  2026-10-14 against PGlite through psql: dry run left nothing behind, an
+  error at line 554 rolled back tables created at line 259, a rerun updated
+  the Vault secret in place.
 - `IF NOT EXISTS` throughout — files must be safe to rerun.
+- **Never `CREATE EXTENSION` an extension that is already installed, not even
+  with `IF NOT EXISTS`.** Supabase runs its own privilege script after every
+  `CREATE EXTENSION pg_cron` (supabase/postgres,
+  `postgresql_extension_custom_scripts/`; Vault and others have one too), even
+  when the statement skips, and on this project that script fails: "dependent
+  privileges exist" on its REVOKE of `cron.job` (0031 dry run, 2026-10-16).
+  Check `pg_extension` in a `DO` block and create only when missing (0031 is
+  the pattern). Never grant or revoke in the `cron`, `net` or `vault`
+  schemas, and never `CASCADE` there: those privileges are Supabase's.
 - The SQL editor runs statements in a transaction, so no
   `CREATE INDEX CONCURRENTLY`.
 - **Strip leading comment blocks from anything Lukas pastes**, and give one
@@ -330,10 +374,12 @@ checkpoint is deliberate and has caught real bugs.
 - `public_stats()` and `top_creators()` are SECURITY DEFINER. They were defined
   **in Supabase directly**; 0027 (applied 2026-10-06) restates both in the repo
   with a `status = 'active'` filter added, so that file is now the source.
+  Since 0031 **no page calls either**: the homepage figures come from
+  `homepage_snapshot` (see "Homepage numbers" below). Both stay for comparison
+  in the SQL editor.
 - `anon` has `statement_timeout = 3s`; `authenticated` 8s; `postgres` (the SQL
   editor) none. **A query that looks instant in the editor can be killed in the
-  app.** This caused an intermittent empty homepage for weeks. The homepage's
-  build-time calls now use the service-role client.
+  app.** This caused an intermittent empty homepage for weeks.
 - `creators`, `social_profiles` and `creator_posts` have RLS filtering to
   `status = 'active'`. `service_role` bypasses it — so anywhere the admin client
   replaces the anon client, replicate the filter explicitly in code and comment
@@ -534,7 +580,12 @@ among 8,716 profiles, and GLOWERY and Rel have no alias row at all.
 - **Rollout order:** apply 0027, deploy, dry run, `--write`, then
   `npm run refresh:brand-brackets` (brackets change only when recomputed), then
   purge the nginx cache. Repeat the last two after any later write that hides
-  or unhides something.
+  or unhides something, and queue a homepage refresh
+  (`select request_homepage_refresh('manual');`, since 0031), because the
+  homepage counts only active creators. A hide that removes more than 20% of
+  creators, posts or brand deals is refused by the drop guard and emailed;
+  if it was deliberate, queue it forced:
+  `select request_homepage_refresh('cleanup', p_force => true);`.
 - **What hides them** without app code: RLS on `creators`, `social_profiles` and
   `creator_posts`, `v_creator_summary`, `match_creators`, and since 0027
   `public_stats()` (creators, posts, brand deals, both medians) and
@@ -603,6 +654,138 @@ among 8,716 profiles, and GLOWERY and Rel have no alias row at all.
 
 ---
 
+## Homepage numbers — one snapshot row, never render-time aggregates
+
+Every figure on `/`, `/opengraph-image`, `/report/[slug]` and the claim
+teaser's zero-match proof comes from **one row**: `homepage_snapshot` (0031,
+2026-10-14). No page aggregates anything while it renders.
+
+**Why.** Until 0031 the homepage ran `public_stats()` and two `top_creators()`
+calls at render time, each reading all of `creator_posts`. Measured 2026-10-14
+during an enrich run: 23–31 s each, the page's whole sequence 61.3 s (Next's
+build limit is 60 s), and a plain `count(*)` over `creator_posts` did not
+finish inside the 8 s API limit. Planner estimates matched exact counts within
+1%, so it was not stale statistics. Each failure was caught and replaced with
+hardcoded July figures ("5,112 creators · Jul 3, 2026") or an empty "Top 0"
+leaderboard, and ISR cached that for an hour. Four earlier fixes (9bc1da1,
+a3e444f, 08d9520, 1e0aaaa) and 0030 each raised a timeout; the queries kept
+growing with the table.
+
+### How the row is produced
+
+- `compute_homepage_snapshot()` builds the payload in **one pass over
+  `creator_posts`**: per-profile post count, sponsored count, median
+  likes+comments and median views feed the totals and both top-10s. Same
+  filters as 0027's `public_stats()` / `top_creators()`.
+- `refresh_homepage_snapshot(trigger, analyze, force)` computes, checks and
+  saves, and logs **every attempt** in `homepage_snapshot_runs`: `ok`,
+  `skipped` (another refresh held the lock), `refused` (the old row is kept)
+  or `failed` (any error, with SQLSTATE and message, a cancelled statement
+  included). It never raises, so a failure is a row, not silence.
+- **Refused** when creators or posts are 0, a median or last_index is null, a
+  leaderboard is empty — or, **the drop guard**, when creators, posts or brand
+  deals are more than 20% below the last good snapshot. A deliberate cleanup
+  (a mass hide) is pushed through with a forced refresh, which skips only the
+  drop guard and is recorded in `homepage_snapshot_runs.forced`:
+  `select request_homepage_refresh('cleanup', p_force => true);`
+- Payload (jsonb, version 1): `stats` {creators, posts_analyzed, brand_deals,
+  ig_median, tiktok_median, last_index}, `leaderboards` {instagram, tiktok},
+  `featured_pool` (at most 8: featured creators, else the top 8 on Instagram). jsonb so `/for-creators` can add its figures to the same
+  row. `lib/homepage-snapshot/parse.ts` ignores keys it does not know.
+- **"Index updated" shows `stats.last_index`**: max `last_updated_at` over
+  active creators' profiles, the last time the public index actually changed.
+  `computed_at` is when the snapshot ran; monitoring only, never displayed.
+- Read by `app/_queries.ts` (`getHomepageSnapshot`, `getPublicStats`,
+  `getTopCreators`, `getFeaturedCreatorPool`). Use those from any new page.
+  `lib/homepage-snapshot/parse.ts` also cleans the hero card's inputs: the
+  creator's own handle is not one of their brands, and `avg_views = 0` means
+  "not measured" (basicData scrapes store 0 views), so it reads as missing.
+
+### When it refreshes
+
+- pg_cron `homepage-snapshot-refresh`, `17 */6 * * *`.
+- pg_cron `homepage-snapshot-requests`, every 5 minutes: if any
+  `request_homepage_refresh()` rows are pending, ANALYZE `creators`,
+  `social_profiles` and `creator_posts`, then refresh. Idle ticks write nothing.
+- Both commands start with `set statement_timeout = '15min'`, so the cron path
+  never depends on the `postgres` role's default (none: `rolconfig` in the
+  2026-10-16 dry run; pg_cron runs jobs over connections,
+  `cron.use_background_workers = off`, Postgres 17.6). In that dry run
+  `compute_homepage_snapshot()` took **244 s** on Nano with the disk at its
+  baseline IOPS, so 15 minutes is about 3.7× that and still stops a hung
+  refresh. The first real refresh after the apply, ANALYZE included, took
+  76 s: the time depends on how throttled the disk is at that moment. `homepage_snapshot_runs.duration_ms` is the figure to watch; past
+  10 minutes, act before the limit does.
+- pg_cron `cron-job-run-details-cleanup`, `41 3 * * *`: deletes
+  `cron.job_run_details` rows older than 7 days, for every job (the 5-minute
+  job alone adds ~288 a day).
+- After either job's attempt, `ping_homepage_revalidate()` POSTs (pg_net) to
+  `https://influenceit.app/api/revalidate-home` with the Vault secret
+  `revalidate_secret`: `revalidatePath('/')` plus the alert check.
+- `/` and `/opengraph-image` also revalidate every 300 s on their own, and
+  nginx keeps `/` for the same 300 s.
+- By hand: `select request_homepage_refresh('manual');` and the 5-minute job
+  runs it inside the database, under the jobs' 15-minute limit. Calling
+  `refresh_homepage_snapshot()` directly is subject to Supabase's 60 s cap on
+  API and dashboard queries; over the API the function stops itself at 55 s
+  and logs `failed`. At the 244 s measured, a direct call always fails, and
+  nothing makes one (2026-10-16): the scraper **queues** instead.
+
+### After every import
+
+The scraper does it (patch: `docs/inf-scraper/2026-10-14-homepage-refresh.patch`):
+discovery finish, profile import and the end of an enrich run each call
+`request_homepage_refresh()`, which the 5-minute job picks up. For anything
+else that changes the figures — an import run another way, or
+`creator-entity:apply -- --write` hiding or unhiding accounts — queue one by
+hand:
+
+```sql
+select request_homepage_refresh('manual');
+```
+
+Then check:
+
+```sql
+select id, trigger, outcome, reason, duration_ms, analyzed from homepage_snapshot_runs order by id desc limit 5;
+select computed_at, payload -> 'stats' from homepage_snapshot;
+```
+
+### Alerts
+
+`lib/homepage-snapshot/health.ts` emails `ADMIN_EMAIL` once for every
+`refused` or `failed` run (claim, send, and release the claim if the send
+fails, so a missed email is retried), and when `computed_at` is more than
+12 hours old or the row is missing (repeated at most every 24 hours). It runs
+from `/api/revalidate-home` after every scheduled or requested attempt, and as
+job 3 of the daily Vercel cron, which still runs if pg_cron does not.
+`skipped` runs are not emailed on their own; if they keep the row from
+updating, the 12-hour rule reports it.
+
+### Rules
+
+- **Never put an aggregate over `creator_posts` (or a median of anything) on
+  a render path.** Add the figure to `compute_homepage_snapshot()` in a new
+  migration and read it from the payload.
+- **Never add hardcoded fallback numbers.** If the snapshot cannot be read,
+  throw: at runtime ISR keeps serving the last good page, and at build time the
+  build fails, which `deploy/vps-deploy.sh` survives.
+- Never render an empty leaderboard. The refresh refuses one, the
+  `Leaderboard` hides an empty platform tab, and the page drops the section
+  and ticker when both are empty.
+- Changing the payload shape: add keys freely. To rename or remove one, ship
+  a reader that accepts both shapes first, then the migration.
+- `CREATE OR REPLACE` on these functions keeps their SET clauses only because
+  each definition states them; keep `statement_timeout = '55s'` on
+  `refresh_homepage_snapshot()`.
+- **First rollout order:** `scripts/db/apply-0031.sh --dry-run`, then (only if
+  clean) `scripts/db/apply-0031.sh`, wait for an `ok` row, set
+  `REVALIDATE_SECRET` on Vercel and the VPS, deploy Vercel, then the VPS. The
+  build fails until the row exists. See "Applying migrations with psql" under
+  Database.
+
+---
+
 ## Email
 
 Provider is **Resend over its HTTP API** (`resend` npm package). The domain
@@ -640,14 +823,19 @@ caps around 500 a day and lands in spam for anyone who is not us.
   notice `Approved · email sent`; click again and expect
   `Already verified · no email sent` with exactly one send in Resend Logs.
 
-### Cron — one route, two daily jobs
+### Cron — one route, three daily jobs
 
 `GET /api/cron/verification-nudge`, run by Vercel Cron at 09:00 UTC daily
-(`vercel.json`). The path is historical: it now runs **two** jobs, in separate
-functions with separate try/catch and separate `[nudge]` / `[request-fulfil]`
-log lines. A throw in one cannot cost the other its run, and the nudge's half
-of the response stays at the top level of the body so a hand-run reads as it
-always did.
+(`vercel.json`). The path is historical: it now runs **three** jobs, in
+separate functions with separate try/catch and separate `[nudge]` /
+`[request-fulfil]` / `[snapshot-health]` log lines. A throw in one cannot cost
+the other its run, and the nudge's half of the response stays at the top level
+of the body so a hand-run reads as it always did.
+
+**Job 3 — the homepage snapshot check** (since 2026-10-14), result under
+`snapshot`. The same alert check `/api/revalidate-home` runs after every
+database refresh (see "Homepage numbers"); this daily run is the backstop for
+a pg_cron that has stopped, which nothing inside the database can report.
 
 **Job 1 — the expired-code nudge.** It emails a creator who claimed a profile,
 was issued a bio-verification code, and let it expire unused, inviting them
@@ -833,12 +1021,14 @@ creator hit a dead end and two strings that lied to them.
 2. The mean of #1 across a creator's profiles — the Rate Calculator.
 3. Raw `social_profiles.engagement_rate` — **untrustworthy**, observed at 174.6%
    and 99.5%. `lib/reports/engagement.ts` exists to keep it off report surfaces,
-   but the public profile page and homepage leaderboard still show it.
+   but the public profile page still shows it, and the homepage's "median
+   engagement" figures (`ig_median`, `tiktok_median`) are medians of it.
 4. Capped median-post — `computeMedianEngagement()`, ≥8 posts, capped 20% IG /
    40% TikTok. Brand-report surfaces only. The cap exists because of TikTok
    outliers above 100%.
 5. `creators.instagram_engagement` / `tiktok_engagement` — the stats API.
-6. `top_creators()`'s engagement — replicates #4.
+6. `top_creators()`'s engagement — replicates #4. The homepage leaderboard's
+   engagement is the same figure, now computed by `compute_homepage_snapshot()`.
 
 **Open:** consolidate on #1 everywhere. A creator's public profile currently shows
 0.4% (raw) in one card and 2.4% (calculated) in another. That's the page a brand
@@ -896,7 +1086,7 @@ lands on, and the pitch is "evidence, not follower counts".
 
 | Route | Mode |
 |---|---|
-| `/` | `revalidate = 3600` |
+| `/`, `/opengraph-image` | `revalidate = 300` — one snapshot row per render (0031) |
 | `/discover`, `/es/discover`, `/es-es/discover` | `revalidate = 86400` |
 | `/report/[slug]` | `revalidate = 60` |
 | `/claim/[handle]`, `/es/claim/[handle]` | `force-dynamic` |
@@ -1059,7 +1249,15 @@ inside `/creator-dashboard` after claiming. Not `funnel_events`, which stops at
   `verify-bio` still points lockouts at a support channel the UI doesn't offer.
 - **No graceful chunk-load-error recovery** for creators with a page open during a
   deploy.
-- **`FALLBACK_STATS` is stale** and the tagline above it claims live data.
+- **The homepage's "median engagement" is a median of the raw
+  `social_profiles.engagement_rate`** (#3 under "Engagement" — the
+  untrustworthy one), carried unchanged from `public_stats()` into
+  `compute_homepage_snapshot()` (`ig_median`, `tiktok_median`). It feeds the
+  stats band, the share image and each hero card's "platform median"
+  comparison, while the hero card's own rate is the leaderboard figure (#6)
+  when no creator is featured (none is, 2026-10-14) and
+  `creators.engagement_rate` when one is. Logged 2026-10-14 for a separate
+  branch.
 - **Brand cards have no path into the tools.** The Rate Calculator has no brand
   field; the Negotiation tool's `brandName` is never filled. The teaser's
   "pre-filled with {brand}'s context" copy is not kept.
