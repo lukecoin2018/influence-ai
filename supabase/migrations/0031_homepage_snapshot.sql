@@ -147,14 +147,17 @@
 -- first, in the same command. When pg_cron runs a job over a connection it
 -- sends the command as one simple query, and since PostgreSQL 13 the timeout
 -- is armed per statement, so the SET governs the select that follows; a role
--- default can therefore never cut a refresh short of 15 minutes. 15 minutes
--- is far above the 23-31 s measured per query and still stops a refresh that
--- hangs (it then logs 'failed'). Check after applying: cron.job.command shows
--- the SET, and the apply script prints rolconfig for postgres.
+-- default can therefore never cut a refresh short of 15 minutes. The dry run
+-- on 2026-10-16 confirmed the setup (postgres has no statement_timeout,
+-- cron.use_background_workers = off, Postgres 17.6) and timed
+-- compute_homepage_snapshot() at 244 s on Nano with the disk at its baseline
+-- IOPS. 15 minutes is about 3.7 times that and still stops a refresh that
+-- hangs (it then logs 'failed'). At 244 s the 55 s API path above always
+-- fails; nothing calls it that way.
 --
 -- That gap is why the scraper QUEUES a refresh instead of running one over
--- the API: the measured queries took 23-31 s each during an import, exactly
--- when the post-import refresh runs.
+-- the API: the queries took 23-31 s each during an import on 2026-10-14, and
+-- the whole compute 244 s in the 2026-10-16 dry run.
 --
 -- ── ANALYZE ────────────────────────────────────────────────────────────────
 --
@@ -204,9 +207,9 @@
 -- it already exists.
 --
 -- The first refresh is queued, not run: the 5-minute cron job runs it inside
--- the database with no time limit. Not `select refresh_homepage_snapshot()`
--- from the SQL editor: Supabase documents a 60 s cap on dashboard queries too,
--- and the measured queries took 23-31 s each during an import.
+-- the database, under its own 15-minute limit. Not
+-- `select refresh_homepage_snapshot()` from the SQL editor: the editor stops
+-- every query at 1 minute, and the compute took 244 s in the dry run.
 --
 -- ── After applying ─────────────────────────────────────────────────────────
 --

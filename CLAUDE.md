@@ -348,6 +348,15 @@ checkpoint is deliberate and has caught real bugs.
   error at line 554 rolled back tables created at line 259, a rerun updated
   the Vault secret in place.
 - `IF NOT EXISTS` throughout — files must be safe to rerun.
+- **Never `CREATE EXTENSION` an extension that is already installed, not even
+  with `IF NOT EXISTS`.** Supabase runs its own privilege script after every
+  `CREATE EXTENSION pg_cron` (supabase/postgres,
+  `postgresql_extension_custom_scripts/`; Vault and others have one too), even
+  when the statement skips, and on this project that script fails: "dependent
+  privileges exist" on its REVOKE of `cron.job` (0031 dry run, 2026-10-16).
+  Check `pg_extension` in a `DO` block and create only when missing (0031 is
+  the pattern). Never grant or revoke in the `cron`, `net` or `vault`
+  schemas, and never `CASCADE` there: those privileges are Supabase's.
 - The SQL editor runs statements in a transaction, so no
   `CREATE INDEX CONCURRENTLY`.
 - **Strip leading comment blocks from anything Lukas pastes**, and give one
@@ -699,9 +708,13 @@ growing with the table.
   `request_homepage_refresh()` rows are pending, ANALYZE `creators`,
   `social_profiles` and `creator_posts`, then refresh. Idle ticks write nothing.
 - Both commands start with `set statement_timeout = '15min'`, so the cron path
-  never depends on the `postgres` role's default (expected to be none; the
-  apply script prints `rolconfig` to confirm). 15 minutes is far above the
-  23–31 s measured per query and still stops a hung refresh.
+  never depends on the `postgres` role's default (none: `rolconfig` in the
+  2026-10-16 dry run; pg_cron runs jobs over connections,
+  `cron.use_background_workers = off`, Postgres 17.6). In that dry run
+  `compute_homepage_snapshot()` took **244 s** on Nano with the disk at its
+  baseline IOPS, so 15 minutes is about 3.7× that and still stops a hung
+  refresh. `homepage_snapshot_runs.duration_ms` is the figure to watch; past
+  10 minutes, act before the limit does.
 - pg_cron `cron-job-run-details-cleanup`, `41 3 * * *`: deletes
   `cron.job_run_details` rows older than 7 days, for every job (the 5-minute
   job alone adds ~288 a day).
@@ -711,10 +724,11 @@ growing with the table.
 - `/` and `/opengraph-image` also revalidate every 300 s on their own, and
   nginx keeps `/` for the same 300 s.
 - By hand: `select request_homepage_refresh('manual');` and the 5-minute job
-  runs it inside the database, with no time limit. Calling
+  runs it inside the database, under the jobs' 15-minute limit. Calling
   `refresh_homepage_snapshot()` directly is subject to Supabase's 60 s cap on
   API and dashboard queries; over the API the function stops itself at 55 s
-  and logs `failed`. That cap is why the scraper **queues** instead.
+  and logs `failed`. At the 244 s measured, a direct call always fails, and
+  nothing makes one (2026-10-16): the scraper **queues** instead.
 
 ### After every import
 

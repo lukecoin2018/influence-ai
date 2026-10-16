@@ -6,7 +6,7 @@
 --      bearer token ping_homepage_revalidate() sends. Updated if it already
 --      exists, so a rerun after rotating the secret just works.
 --   2. Queue the first refresh. The 5-minute cron job runs it inside the
---      database, with no time limit, once this transaction commits.
+--      database, under its 15-minute limit, once this transaction commits.
 --   3. Show the role timeouts (the cron path must not inherit a short
 --      statement_timeout; the cron commands set their own 15 min anyway) and
 --      what the transaction contains, before the script commits it or, with
