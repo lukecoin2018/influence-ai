@@ -22,8 +22,12 @@ const { checkHomepageSnapshotHealth } = await import('./health');
 type Row = Record<string, unknown>;
 type Filter = (r: Row) => boolean;
 
-/** Just enough of the supabase-js builder for health.ts's chains. */
-function fakeDb(tables: Record<string, Row[]>) {
+/**
+ * Just enough of the supabase-js builder for health.ts's chains. With
+ * readOnly, every update fails and changes nothing, as in a database that
+ * Supabase has switched to read-only mode.
+ */
+function fakeDb(tables: Record<string, Row[]>, { readOnly = false } = {}) {
   function builder(table: string) {
     const filters: Filter[] = [];
     let patch: Row | null = null;
@@ -44,7 +48,10 @@ function fakeDb(tables: Record<string, Row[]>) {
       order() { return b; },
       limit(n: number) { limit = n; return b; },
       maybeSingle() { const rows = run(); return Promise.resolve({ data: rows[0] ?? null, error: null }); },
-      then(resolve: (v: { data: Row[] | null; error: null }) => unknown) {
+      then(resolve: (v: { data: Row[] | null; error: { message: string } | null }) => unknown) {
+        if (patch && readOnly) {
+          return Promise.resolve({ data: null, error: { message: 'cannot execute UPDATE in a read-only transaction' } }).then(resolve);
+        }
         const rows = run();
         return Promise.resolve({ data: wantsRows || !patch ? rows : null, error: null }).then(resolve);
       },
@@ -147,6 +154,23 @@ describe('checkHomepageSnapshotHealth', () => {
     const s = await checkHomepageSnapshotHealth(fakeDb(t), NOW);
     expect(s.snapshot.stale).toBe(true);
     expect(sendEmail.mock.calls[0][0].subject).toBe('Homepage snapshot: no snapshot');
+  });
+
+  it('still emails a stale snapshot when the claim cannot be written (read-only database)', async () => {
+    const t = freshTables();
+    t.homepage_snapshot[0].computed_at = hoursAgo(13);
+    sendEmail.mockResolvedValue({ ok: true, id: 'e5' });
+
+    const first = await checkHomepageSnapshotHealth(fakeDb(t, { readOnly: true }), NOW);
+    expect(first.email).toBe('sent');
+    expect(first.staleAlerted).toBe(true);
+    expect(first.errors).toEqual(['stale alert claim failed: cannot execute UPDATE in a read-only transaction']);
+    expect(sendEmail.mock.calls[0][0].subject).toBe('Homepage snapshot: snapshot 13 h old');
+    expect(t.homepage_snapshot_alerts[0].last_sent_at).toBeNull();
+
+    // Nothing records the send, so the next check sends again: loud beats deduplicated.
+    await checkHomepageSnapshotHealth(fakeDb(t, { readOnly: true }), new Date(NOW.getTime() + 6 * 3_600_000));
+    expect(sendEmail).toHaveBeenCalledTimes(2);
   });
 
   it('restores the previous stale timestamp when that send fails', async () => {

@@ -35,8 +35,9 @@ import {
  * `alerted_at IS NULL`, so two overlapping checks cannot both list a run), and
  * if the send fails the claim is released so the next check tries again.
  *
- * If the alert tables cannot be read (0031 not applied), the staleness email
- * is still sent, unclaimed: loud beats deduplicated.
+ * If the alert tables cannot be read (0031 not applied), or the staleness
+ * claim cannot be written (a read-only database), the staleness email is still
+ * sent, unclaimed: loud beats deduplicated.
  *
  * Never throws; every problem is in the returned summary and one
  * `[snapshot-health]` log line.
@@ -127,8 +128,15 @@ export async function checkHomepageSnapshotHealth(db: SupabaseClient, now: Date 
         let claimQuery = db.from('homepage_snapshot_alerts').update({ last_sent_at: nowIso }).eq('kind', 'stale');
         claimQuery = stalePrevSentAt === null ? claimQuery.is('last_sent_at', null) : claimQuery.eq('last_sent_at', stalePrevSentAt);
         const claim = await claimQuery.select('kind');
-        if (claim.error) errors.push(`stale alert claim failed: ${claim.error.message}`);
-        else staleClaimed = (claim.data ?? []).length > 0;
+        if (claim.error) {
+          // The claim could not be written (a read-only database refuses every
+          // write, the refresh's included): send anyway, unclaimed, as when
+          // the row cannot be read. Each check then sends again.
+          errors.push(`stale alert claim failed: ${claim.error.message}`);
+          staleUnclaimed = true;
+        } else {
+          staleClaimed = (claim.data ?? []).length > 0;
+        }
       }
     }
   }
