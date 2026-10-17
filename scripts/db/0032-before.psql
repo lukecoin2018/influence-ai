@@ -1,0 +1,190 @@
+-- scripts/db/0032-before.psql — run by scripts/db/apply-0032.sh BEFORE the
+-- migration, inside its transaction. Never run on its own.
+--
+-- Picks the accounts to act as and counts the rows each can see in every table
+-- 0032 touches, so 0032-after.psql can compare. "Acting as" an account means
+-- what PostgREST does for a signed-in request: SET LOCAL ROLE authenticated
+-- plus that account's id in request.jwt.claims, which is all auth.uid() reads.
+-- Nothing here writes to a real table.
+--
+-- Accounts:
+--   you       the owner: the one user_roles admin row with no admin_users row
+--   creator   the oldest creator account that has a creator_profiles row
+--   brand     the oldest brand account (brand_profiles row)
+--   stranger  a made-up id: signed in, no role, no profile
+-- Only id prefixes are printed, never emails.
+
+\echo
+\echo '0032: picking the accounts to act as'
+
+-- A pooled connection can hand back a session that ran this before.
+drop table if exists pg_temp.dry_run_personas, pg_temp.dry_run_counts, pg_temp.dry_run_checks;
+
+create temp table dry_run_personas (
+  persona text primary key,
+  user_id uuid not null,
+  note    text
+) on commit drop;
+
+create temp table dry_run_counts (
+  persona text not null,
+  phase   text not null,
+  rel     text not null,
+  n       text,
+  ms      numeric,
+  primary key (persona, phase, rel)
+) on commit drop;
+
+create temp table dry_run_checks (
+  seq      serial,
+  section  text not null,
+  label    text not null,
+  result   text,
+  expected text,
+  ok       boolean
+) on commit drop;
+
+-- Runs one statement as a persona and returns what happened: the row count
+-- ('rows'), the single value ('value'), or 'refused (SQLSTATE)'. The inner
+-- block is a subtransaction, so on an error the role and claims it set are
+-- undone with it.
+create or replace function pg_temp.dry_run_exec_as(p_persona text, p_sql text, p_kind text default 'rows')
+returns text
+language plpgsql
+as $f$
+declare
+  v_uid uuid;
+  v_n   bigint;
+  v_val text;
+  v_out text;
+begin
+  select user_id into strict v_uid from pg_temp.dry_run_personas where persona = p_persona;
+  begin
+    perform set_config('request.jwt.claims',
+                       json_build_object('sub', v_uid, 'role', 'authenticated')::text, true);
+    set local role authenticated;
+    if p_kind = 'rows' then
+      execute p_sql;
+      get diagnostics v_n = row_count;
+      v_out := v_n::text;
+    else
+      execute p_sql into v_val;
+      v_out := coalesce(v_val, 'null');
+    end if;
+    reset role;
+  exception when others then
+    v_out := 'refused (' || sqlstate || ')';
+  end;
+  perform set_config('request.jwt.claims', '', true);
+  return v_out;
+end
+$f$;
+
+-- Every table whose access 0032 changes, directly or through is_admin_user().
+create or replace function pg_temp.dry_run_rels() returns text[]
+language sql immutable
+as $f$
+  select array[
+    'activity_log', 'brand_aliases', 'brand_profiles', 'brand_reports',
+    'contact_submissions', 'creator_dashboard_events', 'creator_entity',
+    'creator_outreach', 'creator_profiles', 'creator_requests', 'creators',
+    'inquiries', 'shortlists', 'user_roles', 'v_creator_engagement'
+  ]
+$f$;
+
+create or replace function pg_temp.dry_run_count_as(p_persona text, p_phase text)
+returns void
+language plpgsql
+as $f$
+declare
+  v_rel text;
+  v_out text;
+  v_t   timestamptz;
+  v_ms  numeric;
+begin
+  foreach v_rel in array pg_temp.dry_run_rels() loop
+    if to_regclass('public.' || quote_ident(v_rel)) is null then
+      v_out := 'missing';
+      v_ms := null;
+    else
+      v_t := clock_timestamp();
+      v_out := pg_temp.dry_run_exec_as(p_persona, format('select count(*)::text from public.%I', v_rel), 'value');
+      v_ms := round((extract(epoch from clock_timestamp() - v_t) * 1000)::numeric, 1);
+    end if;
+    insert into pg_temp.dry_run_counts (persona, phase, rel, n, ms)
+      values (p_persona, p_phase, v_rel, v_out, v_ms)
+      on conflict (persona, phase, rel) do update set n = excluded.n, ms = excluded.ms;
+  end loop;
+end
+$f$;
+
+-- Where 0 rows are expected, a refusal (no privilege at all) is at least as
+-- good, so it passes too.
+create or replace function pg_temp.dry_run_check(p_section text, p_label text, p_result text, p_expected text)
+returns void
+language sql
+as $f$
+  insert into pg_temp.dry_run_checks (section, label, result, expected, ok)
+  values (p_section, p_label, p_result, p_expected,
+          p_result is not distinct from p_expected
+          or (p_expected = '0' and p_result = 'refused (42501)'))
+$f$;
+
+do $$
+declare
+  v_owners int;
+begin
+  -- The owner is the admin row that is not an additional admin. Before 0032
+  -- there is no admin_users table, so that is every admin row.
+  if to_regclass('public.admin_users') is null then
+    select count(*) into v_owners from public.user_roles where role = 'admin';
+    insert into pg_temp.dry_run_personas (persona, user_id, note)
+      select 'you', user_id, 'the user_roles admin row' from public.user_roles where role = 'admin';
+  else
+    execute 'select count(*) from public.user_roles r where r.role = ''admin''
+               and not exists (select 1 from public.admin_users a where a.user_id = r.user_id)'
+      into v_owners;
+    execute 'insert into pg_temp.dry_run_personas (persona, user_id, note)
+             select ''you'', r.user_id, ''the user_roles admin row with no admin_users row''
+               from public.user_roles r where r.role = ''admin''
+                and not exists (select 1 from public.admin_users a where a.user_id = r.user_id)';
+  end if;
+  if v_owners <> 1 then
+    raise exception '0032 check: expected exactly one owner admin row, found %. Nothing was changed.', v_owners;
+  end if;
+
+  insert into pg_temp.dry_run_personas (persona, user_id, note)
+    select 'creator', r.user_id, 'oldest creator account with a profile'
+      from public.user_roles r
+      join public.creator_profiles cp on cp.id = r.user_id
+     where r.role = 'creator'
+     order by r.created_at, r.user_id
+     limit 1;
+
+  insert into pg_temp.dry_run_personas (persona, user_id, note)
+    select 'brand', bp.id, 'oldest brand account'
+      from public.brand_profiles bp
+      join auth.users u on u.id = bp.id
+     order by u.created_at, bp.id
+     limit 1;
+
+  insert into pg_temp.dry_run_personas (persona, user_id, note)
+    values ('stranger', '00000000-0000-4000-8000-000000000000', 'made-up id: signed in, no role, no profile');
+end
+$$;
+
+select persona as "acting as", left(user_id::text, 8) || '…' as id, note
+  from pg_temp.dry_run_personas
+ order by array_position(array['you', 'creator', 'brand', 'stranger'], persona);
+
+\echo '0032: counting what each account can see before the migration'
+
+do $$
+declare
+  v_persona text;
+begin
+  for v_persona in select persona from pg_temp.dry_run_personas loop
+    perform pg_temp.dry_run_count_as(v_persona, 'before');
+  end loop;
+end
+$$;

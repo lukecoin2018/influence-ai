@@ -1,0 +1,87 @@
+-- scripts/db/0032-after.psql — run by scripts/db/apply-0032.sh AFTER the
+-- migration, inside its transaction, in the dry run and the real apply alike.
+-- Never run on its own.
+--
+-- Counts again as the same accounts and prints before against after. Then the
+-- guard: if any count differs, or you are no longer an admin, or acting as an
+-- account did not actually work, it raises an error, psql stops, and the
+-- whole transaction (migration included) is rolled back.
+
+\echo '0032: counting what each account can see after the migration'
+
+do $$
+declare
+  v_persona text;
+begin
+  for v_persona in select persona from pg_temp.dry_run_personas loop
+    perform pg_temp.dry_run_count_as(v_persona, 'after');
+  end loop;
+end
+$$;
+
+\echo
+\echo 'Rows each account can see, before and after 0032. Every line must say ok = t.'
+\echo '(ms: how long your count took, before and after.)'
+
+with per_persona as (
+  select rel, persona,
+         max(n) filter (where phase = 'before') as b,
+         max(n) filter (where phase = 'after')  as a
+    from pg_temp.dry_run_counts
+   where persona in ('you', 'creator', 'brand', 'stranger')
+   group by rel, persona
+)
+select c.rel as "table",
+       max(p.b) filter (where p.persona = 'you')      as "you before",
+       max(p.a) filter (where p.persona = 'you')      as "you after",
+       max(p.b) filter (where p.persona = 'creator')  as "creator before",
+       max(p.a) filter (where p.persona = 'creator')  as "creator after",
+       max(p.b) filter (where p.persona = 'brand')    as "brand before",
+       max(p.a) filter (where p.persona = 'brand')    as "brand after",
+       max(p.b) filter (where p.persona = 'stranger') as "stranger before",
+       max(p.a) filter (where p.persona = 'stranger') as "stranger after",
+       max(c.ms) filter (where c.persona = 'you' and c.phase = 'before') as "you ms before",
+       max(c.ms) filter (where c.persona = 'you' and c.phase = 'after')  as "you ms after",
+       bool_and(p.b is not distinct from p.a) as ok
+  from pg_temp.dry_run_counts c
+  join per_persona p on p.rel = c.rel and p.persona = c.persona
+ group by c.rel
+ order by c.rel;
+
+do $$
+declare
+  v_bad   text;
+  v_admin text;
+  v_you   text;
+  v_none  text;
+begin
+  select string_agg(persona || ' / ' || rel, ', ' order by persona, rel) into v_bad
+    from (
+      select rel, persona,
+             max(n) filter (where phase = 'before') as b,
+             max(n) filter (where phase = 'after')  as a
+        from pg_temp.dry_run_counts
+       where persona in ('you', 'creator', 'brand', 'stranger')
+       group by rel, persona
+    ) x
+   where b is distinct from a;
+  if v_bad is not null then
+    raise exception '0032 check failed: rows visible before and after differ for: %. Nothing was changed.', v_bad;
+  end if;
+
+  -- Equal counts prove nothing if acting as an account silently did not
+  -- work. You must see brand_aliases rows that a stranger cannot.
+  select n into v_you  from pg_temp.dry_run_counts where persona = 'you'      and phase = 'after' and rel = 'brand_aliases';
+  select n into v_none from pg_temp.dry_run_counts where persona = 'stranger' and phase = 'after' and rel = 'brand_aliases';
+  if v_you is null or v_you !~ '^[0-9]+$' or v_you::bigint = 0 or v_none is distinct from '0' then
+    raise exception '0032 check failed: acting as an account did not work (you see % brand_aliases rows, a stranger %). Nothing was changed.', v_you, v_none;
+  end if;
+
+  v_admin := pg_temp.dry_run_exec_as('you', 'select is_admin_user()::text', 'value');
+  if v_admin is distinct from 'true' then
+    raise exception '0032 check failed: is_admin_user() is % for you after the migration. Nothing was changed.', v_admin;
+  end if;
+end
+$$;
+
+\echo '0032: before and after match, and you are still an admin.'
