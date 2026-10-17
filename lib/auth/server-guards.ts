@@ -1,6 +1,7 @@
 import 'server-only';
 import { redirect } from 'next/navigation';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { getAdminAccess } from '@/lib/auth/admin-access';
 
 /**
  * Server-side route gates for /admin/*, /dashboard/* and /creator-dashboard/*.
@@ -29,65 +30,6 @@ import { createSupabaseServerClient } from '@/lib/supabase-server';
  * surface, so the token gets validated. Same reasoning as
  * hasValidatedSession() in lib/supabase-server.ts.
  */
-
-/**
- * The single owner account permitted into /admin/*.
- *
- * Admin here is exactly one account and no role system is planned, so the
- * identity lives in a server-only env var rather than in a table. Deliberately
- * NOT read from `user_roles`: that table is written from the browser with the
- * anon key (app/auth/signup/_SignUpForm.tsx:142), and until 2026-08-12 its
- * INSERT policy did not pin `role`, so a signup could in principle have written
- * itself `admin`. The policy is patched, but "admin is a value in a table the
- * client can insert into" is the wrong shape for a single-owner surface.
- *
- * `user_roles` is untouched by this file and still matters: Postgres depends on
- * it. is_admin_user() backs the RLS policies on brand_aliases (0001:53-62) and
- * brand_reports (0004), and 0015's trigger exempts admins through a user_roles
- * subquery. This changes what the *application* trusts, not what the database
- * trusts.
- *
- * Must never be NEXT_PUBLIC_ — that would inline the owner's user id into the
- * client bundle for anyone to read. Verified it does not leak today: a build
- * carrying a known test value had zero occurrences of it under .next/static.
- *
- * ── IT MUST BE SET AT BUILD TIME, NOT ONLY AT RUNTIME ──────────────────────
- *
- * Measured on this Next version, both directions, on isolated ports:
- *
- *   built WITHOUT the var, started WITH it   -> undefined
- *                                               ('ADMIN_USER_ID' is not even a
- *                                               key in process.env)
- *   built WITH the var, started WITHOUT it   -> resolves fine
- *
- * So the value is captured when `next build` runs. Setting it afterwards in a
- * runtime-only environment does nothing to a build that already exists. This
- * cost a real debugging round trip: an admin logged in successfully and landed
- * back on the front page, because the deployment under test had been built
- * before the variable existed.
- *
- *   Vercel — set it for the environment that BUILDS the deployment, and
- *            redeploy. A branch push builds a Preview deployment, which has its
- *            own environment; setting it on Production only will not reach it.
- *   VPS    — put it in .env.local, which Next reads at build and at start. The
- *            deploy chain runs `npm run build` after `git pull`, so a value in
- *            that file is in scope. Setting it only in the Webuzo panel as a
- *            runtime variable is NOT.
- *
- * The fragility is deliberate in its direction: a build missing the variable
- * denies everyone, attacker included. It costs availability, not security, and
- * fail-closed is the right way for an auth gate to break.
- */
-const ADMIN_USER_ID_ENV = 'ADMIN_USER_ID';
-
-/**
- * First 8 characters, for logs. Enough to compare two ids at a glance without
- * writing full user ids into a log file that is less protected than the
- * database they came from.
- */
-function idHint(id: string): string {
-  return `${id.slice(0, 8)}…`;
-}
 
 /**
  * Requires any authenticated user, with no role or approval check.
@@ -181,54 +123,53 @@ export async function getBrandAccessState(): Promise<{ userId: string; state: Br
 }
 
 /**
- * Requires the owner account. Redirects to /login when there is no session at
- * all, and to / when someone is signed in but is not the owner — the same
- * split requireAdminPreviewAccess() uses
- * (app/admin/preview/creator/[handle]/_data.ts:37-42), so a logged-in
- * non-owner is sent home rather than bounced to a login form they have already
- * satisfied.
+ * Requires an admin: the owner or an active additional admin, decided by
+ * getAdminAccess() in lib/auth/admin-access.ts. For server pages that fetch
+ * data themselves (the creator preview pages).
+ *
+ *   signed out          -> /login
+ *   not an admin        -> /  (sent home, not to a login form they have
+ *                              already satisfied)
+ *   paused, unverified  -> /admin, where the layout explains which
+ *
+ * The /admin layout gates too, but a page must not rely on it: Next does not
+ * re-run a layout on client-side navigation, and a layout that swaps its
+ * children for another screen does not stop the page underneath from running.
+ */
+export async function requireAdmin(): Promise<{ userId: string; isOwner: boolean }> {
+  const access = await getAdminAccess();
+  switch (access.kind) {
+    case 'owner':
+      return { userId: access.userId, isOwner: true };
+    case 'admin':
+      return { userId: access.userId, isOwner: false };
+    case 'anonymous':
+      return redirect('/login');
+    case 'none':
+      return redirect('/');
+    default:
+      return redirect('/admin');
+  }
+}
+
+/**
+ * Requires the owner account (ADMIN_USER_ID). For /admin/admins, the one page
+ * an additional admin may not open. Decided without any database lookup.
+ *
+ *   signed out                          -> /login
+ *   an additional admin, active or not  -> /admin
+ *   anyone else                         -> /
  */
 export async function requireOwner(): Promise<{ userId: string }> {
-  // Read through the literal `process.env.ADMIN_USER_ID`, not a computed key.
-  // Both resolve identically here (measured), but the literal is the form Next
-  // documents and statically analyses, so it stays correct if this file is ever
-  // bundled for a runtime that does not expose a live process.env.
-  const ownerId = process.env.ADMIN_USER_ID?.trim();
-
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) redirect('/login');
-
-  // Unconfigured denies everyone, including the owner. "Env var missing" must
-  // never widen access: if this fell through to allow-all, forgetting to set
-  // ADMIN_USER_ID on a new host would silently reopen the exact hole this file
-  // closes. Deny is the recoverable direction.
-  //
-  // Checked after getUser() rather than before so that a misconfigured host
-  // sends an anonymous visitor to /login and a signed-in one to /, instead of
-  // revealing "this deploy has no admin configured" to logged-out traffic.
-  if (!ownerId) {
-    console.error(
-      `[admin-gate] ${ADMIN_USER_ID_ENV} is unset or empty — denying all access ` +
-      'to /admin, including the owner. It is captured at BUILD time: set it and ' +
-      'rebuild (Vercel: redeploy; VPS: add it to .env.local before npm run build).',
-    );
-    redirect('/');
+  const access = await getAdminAccess();
+  switch (access.kind) {
+    case 'owner':
+      return { userId: access.userId };
+    case 'anonymous':
+      return redirect('/login');
+    case 'none':
+      return redirect('/');
+    default:
+      return redirect('/admin');
   }
-
-  // Case-insensitive: these are hex UUIDs, so an uppercase paste is the same
-  // id. Comparing raw would reject a correct value on nothing but letter case
-  // and land the owner on the front page with no clue why.
-  if (user.id.toLowerCase() !== ownerId.toLowerCase()) {
-    // Logged so this is distinguishable from the unset case above. Both
-    // redirect to / — without this line the two look identical from the
-    // outside, which is exactly how the first lockout went undiagnosed.
-    console.error(
-      `[admin-gate] signed-in user ${idHint(user.id)} does not match ` +
-      `${ADMIN_USER_ID_ENV} ${idHint(ownerId)} — denying /admin.`,
-    );
-    redirect('/');
-  }
-
-  return { userId: user.id };
 }

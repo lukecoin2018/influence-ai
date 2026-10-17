@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
-import { requireOwnerApi } from '@/lib/auth/api-guards';
+import { requireAdminApi } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
 import { recordFunnelEvent } from '@/lib/funnel/events';
 import { sendCreatorApproved } from '@/lib/email/send-creator-approved';
 
 /**
- * Sets a creator claim's status by hand. Owner only.
+ * Sets a creator claim's status by hand. Admins only (requireAdminApi).
  *
  * ── WHY THIS ROUTE EXISTS ──────────────────────────────────────────────────
  *
@@ -21,7 +21,7 @@ import { sendCreatorApproved } from '@/lib/email/send-creator-approved';
  * creator therefore had claimed_at NULL and a live verification code sitting
  * in the row, and never appeared in funnel_events as `verified`.
  *
- * Same shape as app/api/admin/brands/status/route.ts: owner gate, service-role
+ * Same shape as app/api/admin/brands/status/route.ts: admin gate, service-role
  * write, no-store, best-effort audit row. The service-role client is also what
  * makes the write pass migration 0015's column-protection trigger regardless
  * of how the admin's user_roles row is set up.
@@ -54,7 +54,7 @@ type Status = (typeof ALLOWED)[number];
 export const POST = withNoStore(handlePOST);
 
 async function handlePOST(req: NextRequest) {
-  const auth = await requireOwnerApi();
+  const auth = await requireAdminApi();
   if ('error' in auth) return auth.error;
 
   const { creatorProfileId, status } = await req.json().catch(() => ({}) as Record<string, unknown>);

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
-import { requireOwnerApi } from '@/lib/auth/api-guards';
+import { requireAdminApi } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
 import {
   anthropicApiKey,
@@ -16,7 +16,7 @@ import {
 } from '@/lib/admin/pipeline-runs';
 
 /**
- * Everything the admin Pipeline page shows, in one owner-only GET: the
+ * Everything the admin Pipeline page shows, in one admin-only GET: the
  * running row (and whether it is stale), the latest finished run per step,
  * the last 20 runs, and live table counts. The page polls this every 3 seconds
  * while a run is live, so it is cheap by construction: the run queries are
@@ -40,7 +40,7 @@ export type PipelineCounts = {
 };
 
 async function handleGET(req: NextRequest) {
-  const auth = await requireOwnerApi();
+  const auth = await requireAdminApi();
   if ('error' in auth) return auth.error;
 
   if (!pipelineEnabled()) return pipelineDisabledResponse();

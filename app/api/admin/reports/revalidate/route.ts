@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { revalidatePath } from 'next/cache';
-import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { requireAdminApi } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
 
 // /report/[slug] is ISR-cached (revalidate = 60s, see that page) so a
@@ -12,18 +12,14 @@ import { withNoStore } from '@/lib/http/no-store';
 export const POST = withNoStore(handlePOST);
 
 async function handlePOST(req: NextRequest) {
+  const auth = await requireAdminApi();
+  if ('error' in auth) return auth.error;
+
   try {
     const { slug } = await req.json();
     if (!slug || typeof slug !== 'string') {
       return NextResponse.json({ error: 'Missing slug' }, { status: 400 });
     }
-
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single();
-    if (roleData?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
 
     revalidatePath(`/report/${slug}`);
     return NextResponse.json({ revalidated: true });

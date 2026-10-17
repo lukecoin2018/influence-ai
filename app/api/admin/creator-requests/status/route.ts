@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
-import { requireOwnerApi } from '@/lib/auth/api-guards';
+import { requireAdminApi } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
 import { OPEN_REQUEST_SELECT, fulfilRequest, type OpenRequest } from '@/lib/creator-requests/fulfil';
 
 /**
- * Resolves one creator_requests row by hand. Owner only.
+ * Resolves one creator_requests row by hand. Admins only (requireAdminApi).
  *
  * Same shape as app/api/admin/creators/status/route.ts and
- * app/api/admin/brands/status/route.ts: owner gate, service-role write,
+ * app/api/admin/brands/status/route.ts: admin gate, service-role write,
  * no-store, best-effort audit row.
  *
  * ── THE TWO ACTIONS ARE NOT SYMMETRICAL ────────────────────────────────────
@@ -49,7 +49,7 @@ type Status = (typeof ALLOWED)[number];
 export const POST = withNoStore(handlePOST);
 
 async function handlePOST(req: NextRequest) {
-  const auth = await requireOwnerApi();
+  const auth = await requireAdminApi();
   if ('error' in auth) return auth.error;
 
   const { requestId, status } = await req.json().catch(() => ({}) as Record<string, unknown>);

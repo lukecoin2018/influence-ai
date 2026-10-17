@@ -2,13 +2,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
 /**
- * POST /api/admin/pipeline/run end to end at the module boundary: the owner
+ * POST /api/admin/pipeline/run end to end at the module boundary: the admin
  * gate, the PIPELINE_ENABLED gate, request validation, classify's API-key
  * gate, the lock's 409, and that a successful start hands the work to after()
  * and answers 202 at once.
  */
 
-const requireOwnerApi = vi.fn();
+const requireAdminApi = vi.fn();
 const after = vi.fn();
 const executeRun = vi.fn();
 
@@ -34,7 +34,7 @@ vi.mock('next/server', async (importOriginal) => {
   const actual = await importOriginal<typeof import('next/server')>();
   return { ...actual, after: (...a: unknown[]) => after(...a) };
 });
-vi.mock('@/lib/auth/api-guards', () => ({ requireOwnerApi: () => requireOwnerApi() }));
+vi.mock('@/lib/auth/api-guards', () => ({ requireAdminApi: () => requireAdminApi() }));
 vi.mock('@/lib/supabase-admin', () => ({ createSupabaseAdminClient: () => ({ from }) }));
 vi.mock('@/lib/admin/pipeline-runs', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/lib/admin/pipeline-runs')>();
@@ -63,7 +63,7 @@ describe('POST /api/admin/pipeline/run', () => {
   beforeEach(() => {
     vi.stubEnv('PIPELINE_ENABLED', 'true');
     vi.stubEnv('ANTHROPIC_API_KEY', 'sk-test');
-    requireOwnerApi.mockResolvedValue({ userId: 'owner' });
+    requireAdminApi.mockResolvedValue({ userId: 'owner' });
     insertAnswer = { data: RUNNING_ROW, error: null };
     runningAnswer = { data: null, error: null };
     inserted.length = 0;
@@ -81,9 +81,9 @@ describe('POST /api/admin/pipeline/run', () => {
     expect(res.headers.get('cache-control')).toContain('no-store');
   });
 
-  it('lets the owner gate answer first', async () => {
+  it('lets the admin gate answer first', async () => {
     const { NextResponse } = await import('next/server');
-    requireOwnerApi.mockResolvedValue({ error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) });
+    requireAdminApi.mockResolvedValue({ error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) });
     const res = await post({ step: 'seed' });
     expect(res.status).toBe(403);
     expect(inserted).toEqual([]);

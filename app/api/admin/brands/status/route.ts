@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
-import { requireOwnerApi } from '@/lib/auth/api-guards';
+import { requireAdminApi } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
 import { notifyBrandApproved } from '@/lib/notifications/brand-approval';
 
 /**
- * Sets a brand's approval_status. Owner only.
+ * Sets a brand's approval_status. Admins only (requireAdminApi).
  *
  * ── WHY THIS ROUTE EXISTS ──────────────────────────────────────────────────
  *
@@ -31,7 +31,7 @@ type Status = (typeof ALLOWED)[number];
 export const POST = withNoStore(handlePOST);
 
 async function handlePOST(req: NextRequest) {
-  const auth = await requireOwnerApi();
+  const auth = await requireAdminApi();
   if ('error' in auth) return auth.error;
 
   const { brandId, status } = await req.json().catch(() => ({}) as Record<string, unknown>);
@@ -44,7 +44,7 @@ async function handlePOST(req: NextRequest) {
     return NextResponse.json({ error: 'Invalid status', reason: 'invalid_status' }, { status: 400 });
   }
 
-  // Service-role: this is an owner-gated administrative write, and the gate
+  // Service-role: this is an admin-gated administrative write, and the gate
   // above is the authorization. Using the caller's client instead would put us
   // back to depending on an RLS policy for the decision.
   const admin = createSupabaseAdminClient();

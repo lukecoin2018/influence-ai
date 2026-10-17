@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { requireAdminApi } from '@/lib/auth/api-guards';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { withTimeout } from '@/lib/withTimeout';
 import { getCreatorBrandMatches, type CreatorBrandMatches, type Platform } from '@/lib/reports/creator-brand-matches';
@@ -82,17 +82,6 @@ export type RankedCreator = {
   strength: TeaserStrengthInput;
 };
 
-async function requireAdmin(): Promise<{ error: NextResponse } | { userId: string }> {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) };
-
-  const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single();
-  if (roleData?.role !== 'admin') return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }) };
-
-  return { userId: user.id };
-}
-
 function displayNameOf(row: SocialProfileCandidateRow): string | null {
   const c = row.creators;
   return (Array.isArray(c) ? c[0]?.display_name : c?.display_name) ?? null;
@@ -164,7 +153,7 @@ function buildRankedCreator(
 export const GET = withNoStore(handleGET);
 
 async function handleGET(req: NextRequest) {
-  const auth = await requireAdmin();
+  const auth = await requireAdminApi();
   if ('error' in auth) return auth.error;
 
   try {
