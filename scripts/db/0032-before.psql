@@ -2,7 +2,8 @@
 -- migration, inside its transaction. Never run on its own.
 --
 -- Picks the accounts to act as and counts the rows each can see in every table
--- 0032 touches, so 0032-after.psql can compare. "Acting as" an account means
+-- 0032 touches, times Brand Index's five counts as you, and copies every
+-- public policy, so 0032-after.psql can compare all three. "Acting as" an account means
 -- what PostgREST does for a signed-in request: SET LOCAL ROLE authenticated
 -- plus that account's id in request.jwt.claims, which is all auth.uid() reads.
 -- Nothing here writes to a real table.
@@ -118,6 +119,61 @@ begin
 end
 $f$;
 
+-- Brand Index load time as you: the five counts app/admin/brand-index/
+-- page.tsx:127-131 runs on every load, one warm-up pass untimed (so a cold
+-- cache cannot flatter the "after"), then the best of three timed passes.
+-- The counts are kept too: before and after must match.
+drop table if exists pg_temp.dry_run_timing;
+create temp table dry_run_timing (
+  phase   text primary key,
+  best_ms numeric,
+  counts  text
+) on commit drop;
+
+create or replace function pg_temp.dry_run_time_brand_index(p_phase text)
+returns void
+language plpgsql
+as $f$
+declare
+  v_sqls   text[] := array[
+    'select count(*)::text from public.brand_aliases',
+    'select count(*)::text from public.brand_aliases where entity_type = ''unknown'' and classified_at is not null',
+    'select count(*)::text from public.brand_aliases where classified_at is null',
+    'select count(*)::text from public.brand_aliases where entity_type = ''brand'' and verified = false',
+    'select count(*)::text from public.brand_aliases where classification_preview is not null'
+  ];
+  v_sql    text;
+  v_counts text;
+  v_t      timestamptz;
+  v_ms     numeric;
+  v_best   numeric;
+  i        int;
+begin
+  foreach v_sql in array v_sqls loop
+    perform pg_temp.dry_run_exec_as('you', v_sql, 'value');
+  end loop;
+  for i in 1..3 loop
+    v_counts := null;
+    v_t := clock_timestamp();
+    foreach v_sql in array v_sqls loop
+      v_counts := concat_ws(' / ', v_counts, pg_temp.dry_run_exec_as('you', v_sql, 'value'));
+    end loop;
+    v_ms := round((extract(epoch from clock_timestamp() - v_t) * 1000)::numeric, 1);
+    v_best := least(coalesce(v_best, v_ms), v_ms);
+  end loop;
+  insert into pg_temp.dry_run_timing (phase, best_ms, counts) values (p_phase, v_best, v_counts);
+end
+$f$;
+
+-- Every public policy as it stands, so 0032-after.psql can prove which ones
+-- 0032 changed and that nothing else moved.
+drop table if exists pg_temp.dry_run_policies;
+create temp table dry_run_policies on commit drop as
+  select 'before'::text as phase, tablename::text, policyname::text, cmd, roles::text as roles,
+         permissive, qual, with_check
+    from pg_policies
+   where schemaname = 'public';
+
 -- Where 0 rows are expected, a refusal (no privilege at all) is at least as
 -- good, so it passes too.
 create or replace function pg_temp.dry_run_check(p_section text, p_label text, p_result text, p_expected text)
@@ -188,3 +244,7 @@ begin
   end loop;
 end
 $$;
+
+\echo '0032: timing Brand Index before the migration'
+
+do $$ begin perform pg_temp.dry_run_time_brand_index('before'); end $$;

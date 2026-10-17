@@ -1,111 +1,27 @@
 -- scripts/db/0032-dry-run-check.psql — run by `scripts/db/apply-0032.sh
 -- --dry-run` only, after 0032-after.psql, inside the transaction the script
 -- then ROLLS BACK. Never run on its own, and never before a commit: it writes
--- test rows (a blocked admin_users row for you, and a second admin added,
--- blocked, unblocked and removed) that exist only inside that transaction.
+-- test rows that exist only inside that transaction.
 --
--- Three things, each printed as a table with ok per line:
---   1. A blocked admin: what they can read and write. Your own id with a
---      temporary blocked admin_users row, because that is exactly the state a
---      block puts an account in (an admin row plus a blocked admin_users
---      row), and your id is the one admin account that always exists.
---   2. The four admin functions, refusals first, then the whole life of a
---      second admin on a real account that has no role or profile (if one
---      exists): add, act as them, block, unblock, remove.
---   3. Your access cannot be touched: as a second admin, every way to change
---      user_roles, admin_users or the audit log from a browser.
+-- Everything here acts on ONE real account that has no role and no profile
+-- (an old signup that never finished), promoted to second admin only inside
+-- this transaction: added, checked while active, blocked, checked while
+-- blocked, unblocked, removed. Your account never gets an admin_users row,
+-- not even here: every function call aimed at you is one that only updates
+-- or deletes an existing row (you have none), and the write tests aim at a
+-- made-up id.
+--
+-- If no such account exists, the run fails on purpose: create a throwaway
+-- user in Supabase (Authentication -> Add user) and run it again.
+--
+-- Printed, each with ok per line:
+--   1. acting as a blocked admin: reads and writes
+--   2. the admin functions and the second admin's life, and what a second
+--      admin can do to your access
+--   3. the end state inside the transaction
 
 \echo
-\echo '0032 dry run: acting as a blocked admin'
-
-do $$
-declare
-  v_you uuid;
-  v_rel text;
-  v_n   text;
-  v_ref text;
-  v_exp text;
-  v_upd text;
-  v_col text;
-begin
-  select user_id into strict v_you from pg_temp.dry_run_personas where persona = 'you';
-
-  insert into public.admin_users (user_id, status) values (v_you, 'blocked');
-  insert into pg_temp.dry_run_personas (persona, user_id, note)
-    values ('you, blocked', v_you, 'your id with a temporary blocked admin_users row');
-
-  perform pg_temp.dry_run_check('blocked: reads', 'is_admin_user()',
-    pg_temp.dry_run_exec_as('you, blocked', 'select is_admin_user()::text', 'value'), 'false');
-
-  -- Reads. Admin-only tables must be empty. Tables others can read too must
-  -- show exactly what a stranger sees, plus the blocked account's own
-  -- user_roles row.
-  perform pg_temp.dry_run_count_as('you, blocked', 'after');
-  foreach v_rel in array pg_temp.dry_run_rels() loop
-    select n into v_n   from pg_temp.dry_run_counts where persona = 'you, blocked' and phase = 'after' and rel = v_rel;
-    select n into v_ref from pg_temp.dry_run_counts where persona = 'stranger'     and phase = 'after' and rel = v_rel;
-    v_exp := case
-      when v_n = 'missing'                                  then 'missing'
-      when v_rel = 'user_roles'                             then '1'
-      when v_rel in ('creators', 'creator_profiles', 'brand_reports') then v_ref
-      else '0'
-    end;
-    perform pg_temp.dry_run_check('blocked: reads',
-      'select count(*) from ' || v_rel
-        || case when v_rel in ('creators', 'creator_profiles', 'brand_reports') then '  (what a stranger sees)'
-                when v_rel = 'user_roles' then '  (own row)' else '' end,
-      v_n, v_exp);
-  end loop;
-
-  -- Writes. Every admin-only UPDATE and DELETE must touch 0 rows; INSERTs
-  -- and function calls must be refused. The UPDATEs set a column to itself,
-  -- and run inside a transaction that is rolled back anyway.
-  foreach v_rel in array array['brand_profiles', 'contact_submissions', 'creator_profiles', 'inquiries',
-                               'brand_aliases', 'brand_reports', 'creator_entity'] loop
-    if to_regclass('public.' || quote_ident(v_rel)) is not null then
-      select a.attname into v_col
-        from pg_attribute a
-       where a.attrelid = ('public.' || quote_ident(v_rel))::regclass
-         and a.attnum > 0 and not a.attisdropped
-         and a.attgenerated = '' and a.attidentity <> 'a'
-       order by a.attnum
-       limit 1;
-      v_upd := format('update public.%I set %I = %I', v_rel, v_col, v_col);
-      perform pg_temp.dry_run_check('blocked: writes', v_upd,
-        pg_temp.dry_run_exec_as('you, blocked', v_upd, 'rows'), '0');
-    end if;
-  end loop;
-
-  perform pg_temp.dry_run_check('blocked: writes', 'delete from brand_reports',
-    pg_temp.dry_run_exec_as('you, blocked', 'delete from public.brand_reports', 'rows'), '0');
-  perform pg_temp.dry_run_check('blocked: writes', 'insert into brand_reports',
-    pg_temp.dry_run_exec_as('you, blocked', 'insert into public.brand_reports default values', 'rows'), 'refused (42501)');
-  perform pg_temp.dry_run_check('blocked: writes', 'insert into activity_log',
-    pg_temp.dry_run_exec_as('you, blocked', 'insert into public.activity_log default values', 'rows'), 'refused (42501)');
-  perform pg_temp.dry_run_check('blocked: writes', 'apply_creator_entity()  (Creator Review)',
-    pg_temp.dry_run_exec_as('you, blocked', 'select count(*)::text from public.apply_creator_entity(array[]::uuid[], true)', 'value'), 'refused (42501)');
-  perform pg_temp.dry_run_check('blocked: writes', 'accept_creator_entity()  (Creator Review)',
-    pg_temp.dry_run_exec_as('you, blocked', 'select count(*)::text from public.accept_creator_entity(array[]::uuid[])', 'value'), 'refused (42501)');
-  perform pg_temp.dry_run_check('blocked: writes', 'select from admin_users',
-    pg_temp.dry_run_exec_as('you, blocked', 'select count(*)::text from public.admin_users', 'value'), 'refused (42501)');
-  perform pg_temp.dry_run_check('blocked: writes', 'admin_user_set_status() on themselves',
-    pg_temp.dry_run_exec_as('you, blocked', format('select public.admin_user_set_status(%L, ''active'', %L)', v_you, v_you), 'value'), 'refused (42501)');
-
-  delete from public.admin_users where user_id = v_you;
-
-  perform pg_temp.dry_run_check('blocked: writes', 'temporary block removed: is_admin_user() for you',
-    pg_temp.dry_run_exec_as('you', 'select is_admin_user()::text', 'value'), 'true');
-end
-$$;
-
-select label as "as a blocked admin", result, expected, ok
-  from pg_temp.dry_run_checks
- where section in ('blocked: reads', 'blocked: writes')
- order by seq;
-
-
-\echo
-\echo '0032 dry run: the admin functions, and a second admin from add to remove'
+\echo '0032 dry run: a second admin, from add to remove'
 
 do $$
 declare
@@ -118,6 +34,9 @@ declare
   v_rel          text;
   v_n            text;
   v_exp          text;
+  v_col          text;
+  v_upd          text;
+  v_nobody       uuid := '00000000-0000-4000-8000-000000000000';
 begin
   select user_id into strict v_you from pg_temp.dry_run_personas where persona = 'you';
   select email into v_you_email from auth.users where id = v_you;
@@ -126,11 +45,13 @@ begin
   select u.email into v_brand_mail from auth.users u
     join pg_temp.dry_run_personas p on p.user_id = u.id and p.persona = 'brand';
 
-  -- Refusals. Called the way the API calls them, with no signed-in user.
+  -- Refusals, called the way the API calls them, with no signed-in user.
+  -- None of these writes anything: each answers before its insert, or is an
+  -- update or delete of an admin_users row you do not have.
   perform pg_temp.dry_run_check('functions', 'add your own email, as you',
     public.admin_user_add(v_you_email, v_you), 'is_self');
   perform pg_temp.dry_run_check('functions', 'add your email, as someone else',
-    public.admin_user_add(v_you_email, '00000000-0000-4000-8000-000000000000'), 'already_admin');
+    public.admin_user_add(v_you_email, v_nobody), 'already_admin');
   if v_creator_mail is not null then
     perform pg_temp.dry_run_check('functions', 'add a creator account',
       public.admin_user_add(v_creator_mail, v_you), 'has_creator_profile');
@@ -145,8 +66,10 @@ begin
     public.admin_user_set_status(v_you, 'blocked', v_you), 'not_found');
   perform pg_temp.dry_run_check('functions', 'remove you',
     public.admin_user_remove(v_you, v_you), 'not_found');
+  perform pg_temp.dry_run_check('functions', 'you still have no admin_users row',
+    (select count(*)::text from public.admin_users where user_id = v_you), '0');
 
-  -- A real account with no role and no profile, to promote and take back.
+  -- The account to promote: no role, no profile.
   select u.id, u.email into v_spare, v_spare_email
     from auth.users u
    where u.email is not null
@@ -157,13 +80,16 @@ begin
    limit 1;
 
   if v_spare is null then
-    perform pg_temp.dry_run_check('functions', 'second admin: skipped, no account without a role or profile', 'skipped', 'skipped');
+    perform pg_temp.dry_run_check('functions',
+      'second admin: no account without a role or profile. Create a throwaway user in Supabase and run again',
+      'none found', 'an account to test with');
     return;
   end if;
 
   insert into pg_temp.dry_run_personas (persona, user_id, note)
     values ('second admin', v_spare, 'an account with no role or profile, promoted only inside this dry run');
 
+  -- ── Add ───────────────────────────────────────────────────────────────────
   perform pg_temp.dry_run_check('functions', 'add a second admin (id ' || left(v_spare::text, 8) || '…)',
     public.admin_user_add(v_spare_email, v_you), 'added');
   perform pg_temp.dry_run_check('functions', 'add them again',
@@ -175,8 +101,7 @@ begin
   perform pg_temp.dry_run_check('functions', 'is_admin_user() as them',
     pg_temp.dry_run_exec_as('second admin', 'select is_admin_user()::text', 'value'), 'true');
 
-  -- Active: they see exactly what you see, both counted now (adding them
-  -- wrote an audit row since your after count).
+  -- ── Active: they see exactly what you see, both counted now ──────────────
   perform pg_temp.dry_run_count_as('you', 'second admin added');
   perform pg_temp.dry_run_count_as('second admin', 'active');
   foreach v_rel in array pg_temp.dry_run_rels() loop
@@ -185,17 +110,17 @@ begin
     perform pg_temp.dry_run_check('second admin: active', 'select count(*) from ' || v_rel || '  (same as you)', v_n, v_exp);
   end loop;
 
-  -- Your access cannot be touched from their browser.
+  -- ── Your access cannot be touched from their browser ─────────────────────
   perform pg_temp.dry_run_check('your access', 'delete every user_roles admin row',
     pg_temp.dry_run_exec_as('second admin', 'delete from public.user_roles where role = ''admin''', 'rows'), '0');
   perform pg_temp.dry_run_check('your access', 'change any user_roles row',
     pg_temp.dry_run_exec_as('second admin', 'update public.user_roles set role = role', 'rows'), '0');
   perform pg_temp.dry_run_check('your access', 'insert an admin user_roles row',
-    pg_temp.dry_run_exec_as('second admin', format('insert into public.user_roles (user_id, role) values (%L, ''admin'')', '00000000-0000-4000-8000-000000000000'), 'rows'), 'refused (42501)');
+    pg_temp.dry_run_exec_as('second admin', format('insert into public.user_roles (user_id, role) values (%L, ''admin'')', v_nobody), 'rows'), 'refused (42501)');
   perform pg_temp.dry_run_check('your access', 'read admin_users',
     pg_temp.dry_run_exec_as('second admin', 'select count(*)::text from public.admin_users', 'value'), 'refused (42501)');
   perform pg_temp.dry_run_check('your access', 'write admin_users',
-    pg_temp.dry_run_exec_as('second admin', format('insert into public.admin_users (user_id, status) values (%L, ''blocked'')', v_you), 'rows'), 'refused (42501)');
+    pg_temp.dry_run_exec_as('second admin', format('insert into public.admin_users (user_id, status) values (%L, ''blocked'')', v_nobody), 'rows'), 'refused (42501)');
   perform pg_temp.dry_run_check('your access', 'admin_user_set_status() on you',
     pg_temp.dry_run_exec_as('second admin', format('select public.admin_user_set_status(%L, ''blocked'', %L)', v_you, v_spare), 'value'), 'refused (42501)');
   perform pg_temp.dry_run_check('your access', 'admin_user_remove() on you',
@@ -207,26 +132,66 @@ begin
   perform pg_temp.dry_run_check('your access', 'change activity_log',
     pg_temp.dry_run_exec_as('second admin', 'update public.activity_log set event_type = event_type', 'rows'), '0');
 
-  -- Blocked: admin-only tables go empty on the next query.
+  -- ── Block ─────────────────────────────────────────────────────────────────
   perform pg_temp.dry_run_check('functions', 'block them',
     public.admin_user_set_status(v_spare, 'blocked', v_you), 'blocked');
   perform pg_temp.dry_run_check('functions', 'block them again',
     public.admin_user_set_status(v_spare, 'blocked', v_you), 'unchanged');
-  perform pg_temp.dry_run_check('functions', 'is_admin_user() as them, blocked',
+
+  -- Reads while blocked. Admin-only tables must be empty. Tables others can
+  -- read too must show exactly what a stranger sees, plus their own
+  -- user_roles row.
+  perform pg_temp.dry_run_check('blocked', 'is_admin_user()',
     pg_temp.dry_run_exec_as('second admin', 'select is_admin_user()::text', 'value'), 'false');
   perform pg_temp.dry_run_count_as('second admin', 'blocked');
   foreach v_rel in array pg_temp.dry_run_rels() loop
-    select n into v_n from pg_temp.dry_run_counts where persona = 'second admin' and phase = 'blocked' and rel = v_rel;
-    select n into v_exp from pg_temp.dry_run_counts where persona = 'stranger' and phase = 'after' and rel = v_rel;
+    select n into v_n   from pg_temp.dry_run_counts where persona = 'second admin' and phase = 'blocked' and rel = v_rel;
+    select n into v_exp from pg_temp.dry_run_counts where persona = 'stranger'     and phase = 'after'   and rel = v_rel;
     v_exp := case
-      when v_n = 'missing'                                  then 'missing'
-      when v_rel = 'user_roles'                             then '1'
-      when v_rel in ('creators', 'creator_profiles', 'brand_reports') then v_exp
+      when v_n = 'missing'                                              then 'missing'
+      when v_rel = 'user_roles'                                         then '1'
+      when v_rel in ('creators', 'creator_profiles', 'brand_reports')   then v_exp
       else '0'
     end;
-    perform pg_temp.dry_run_check('second admin: blocked', 'select count(*) from ' || v_rel, v_n, v_exp);
+    perform pg_temp.dry_run_check('blocked',
+      'read: select count(*) from ' || v_rel
+        || case when v_rel in ('creators', 'creator_profiles', 'brand_reports') then '  (what a stranger sees)'
+                when v_rel = 'user_roles' then '  (own row)' else '' end,
+      v_n, v_exp);
   end loop;
 
+  -- Writes while blocked. Every admin-only UPDATE and DELETE must touch 0
+  -- rows; INSERTs and function calls must be refused. The UPDATEs set a
+  -- column to itself.
+  foreach v_rel in array array['brand_profiles', 'contact_submissions', 'creator_profiles', 'inquiries',
+                               'brand_aliases', 'brand_reports', 'creator_entity'] loop
+    if to_regclass('public.' || quote_ident(v_rel)) is not null then
+      select a.attname into v_col
+        from pg_attribute a
+       where a.attrelid = ('public.' || quote_ident(v_rel))::regclass
+         and a.attnum > 0 and not a.attisdropped
+         and a.attgenerated = '' and a.attidentity <> 'a'
+       order by a.attnum
+       limit 1;
+      v_upd := format('update public.%I set %I = %I', v_rel, v_col, v_col);
+      perform pg_temp.dry_run_check('blocked', 'write: ' || v_upd,
+        pg_temp.dry_run_exec_as('second admin', v_upd, 'rows'), '0');
+    end if;
+  end loop;
+  perform pg_temp.dry_run_check('blocked', 'write: delete from brand_reports',
+    pg_temp.dry_run_exec_as('second admin', 'delete from public.brand_reports', 'rows'), '0');
+  perform pg_temp.dry_run_check('blocked', 'write: insert into brand_reports',
+    pg_temp.dry_run_exec_as('second admin', 'insert into public.brand_reports default values', 'rows'), 'refused (42501)');
+  perform pg_temp.dry_run_check('blocked', 'write: insert into activity_log',
+    pg_temp.dry_run_exec_as('second admin', 'insert into public.activity_log default values', 'rows'), 'refused (42501)');
+  perform pg_temp.dry_run_check('blocked', 'write: apply_creator_entity()  (Creator Review)',
+    pg_temp.dry_run_exec_as('second admin', 'select count(*)::text from public.apply_creator_entity(array[]::uuid[], true)', 'value'), 'refused (42501)');
+  perform pg_temp.dry_run_check('blocked', 'write: accept_creator_entity()  (Creator Review)',
+    pg_temp.dry_run_exec_as('second admin', 'select count(*)::text from public.accept_creator_entity(array[]::uuid[])', 'value'), 'refused (42501)');
+  perform pg_temp.dry_run_check('blocked', 'write: admin_user_set_status() on themselves',
+    pg_temp.dry_run_exec_as('second admin', format('select public.admin_user_set_status(%L, ''active'', %L)', v_spare, v_spare), 'value'), 'refused (42501)');
+
+  -- ── Unblock ───────────────────────────────────────────────────────────────
   perform pg_temp.dry_run_check('functions', 'unblock them',
     public.admin_user_set_status(v_spare, 'active', v_you), 'unblocked');
   perform pg_temp.dry_run_check('functions', 'is_admin_user() as them, unblocked',
@@ -235,6 +200,7 @@ begin
     pg_temp.dry_run_exec_as('second admin', 'select count(*)::text from public.brand_aliases', 'value'),
     (select n from pg_temp.dry_run_counts where persona = 'you' and phase = 'after' and rel = 'brand_aliases'));
 
+  -- ── Remove ────────────────────────────────────────────────────────────────
   perform pg_temp.dry_run_check('functions', 'remove them',
     public.admin_user_remove(v_spare, v_you), 'removed');
   perform pg_temp.dry_run_check('functions', 'remove them again',
@@ -253,9 +219,20 @@ begin
 end
 $$;
 
+\echo
+\echo 'Acting as a blocked admin (the second admin, blocked). Every line must say ok = t.'
+
+select label as "as a blocked admin", result, expected, ok
+  from pg_temp.dry_run_checks
+ where section = 'blocked'
+ order by seq;
+
+\echo
+\echo 'The admin functions, the second admin while active, and your access. Every line must say ok = t.'
+
 select section, label as "check", result, expected, ok
   from pg_temp.dry_run_checks
- where section in ('functions', 'second admin: active', 'your access', 'second admin: blocked')
+ where section in ('functions', 'second admin: active', 'your access')
  order by seq;
 
 
