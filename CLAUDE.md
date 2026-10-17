@@ -356,7 +356,7 @@ as.
 Write the file, show paste-ready SQL, he pastes it, he confirms. The manual
 checkpoint is deliberate and has caught real bugs.
 
-- Next number: check the folder. 0031 is taken (2026-10-14), so the next is 0032.
+- Next number: check the folder. 0032 is taken (2026-10-17), so the next is 0033.
 - **Applying migrations with psql (since 0031).** psql is installed on the Mac
   (`brew install libpq`, keg-only: `/opt/homebrew/opt/libpq/bin/psql`, 18.x).
   `scripts/db/apply-0031.sh` is the pattern: the migration plus a setup file,
@@ -433,6 +433,12 @@ checkpoint is deliberate and has caught real bugs.
   profile pages.
 - `creator_profiles.claimed_at` means "when the claim became **verified**". Use
   `created_at` for claim time.
+- `user_roles` (defined in Supabase directly; measured 2026-10-17): PRIMARY KEY
+  `(user_id)`, so one role per account; `role` CHECK brand / creator / admin;
+  `user_id` references `auth.users` ON DELETE CASCADE. Policies: read own row,
+  insert own row with role brand or creator only; no UPDATE or DELETE policy.
+  Rows: 1 admin (the owner), 7 creator, 0 brand (brand signup through
+  `/api/auth/signup` writes none).
 
 ### The brand data model — three layers, and only two are usable
 
@@ -672,6 +678,58 @@ among 8,716 profiles, and GLOWERY and Rel have no alias row at all.
   different creator, so a re-scraped hidden account stays hidden. The
   scraper's own pipelines key on `import_status`, not `status`, so it may keep
   enriching hidden accounts.
+
+---
+
+## Admin access — the owner and additional admins (0032)
+
+**Status: 0032 NOT YET APPLIED** (2026-10-17). Apply with
+`scripts/db/apply-0032.sh --dry-run`, then without the flag; see the
+migration's header.
+
+- **Two kinds of admin.** The **owner** is `ADMIN_USER_ID` (server-only,
+  captured at build; `lib/auth/admin-access.ts` explains), decided before any
+  database lookup, so the owner gets in whatever state `admin_users` is in.
+  **Additional admins** are `admin_users` rows with status `active`, added by
+  the owner at `/admin/admins`. Same powers as the owner everywhere except that
+  page, which is owner only (page and API both check).
+- **One app-side check:** `getAdminAccess()` in `lib/auth/admin-access.ts`.
+  Pages use `requireAdmin()` / `requireOwner()` (`server-guards.ts`), routes
+  `requireAdminApi()` / `requireOwnerApi()` (`api-guards.ts`). Nothing else
+  compares to `ADMIN_USER_ID` or reads `user_roles` to decide admin. A failed
+  or slow `admin_users` lookup denies (fail closed); only the owner's path
+  avoids it.
+- **One database check: `is_admin_user()`** = a `user_roles` admin row and no
+  `admin_users` row whose status is not `active`. **Database admin checks call
+  `is_admin_user()`, never `user_roles`.** A policy or trigger that reads
+  `user_roles` itself lets a blocked admin through. 0032 replaced the 19
+  policies and 2 triggers that did. In a policy write
+  `using ((select is_admin_user()))`, which runs once per query; the bare form
+  runs once per row. The 9 older policies (0001–0026) still use the bare form:
+  a full Brand Index scan cost about 1.7× after 0032 in a PGlite measurement.
+- **A block applies on the next request, with no logout.** Every query and API
+  call checks it. In a tab already open, the data stops at once but the admin
+  chrome stays until a reload, which shows "Your admin access is paused": Next
+  does not re-run a layout on client-side navigation. So a server page under
+  /admin that fetches data must check for itself (the preview pages and
+  /admin/admins do), and the layout gate alone is never enough.
+- **Managing them only through 0032's four functions** (`admin_user_add`,
+  `admin_user_set_status`, `admin_user_remove`, `admin_users_list`;
+  service_role only). Each writes its `activity_log` row (`admin_added`,
+  `admin_blocked`, `admin_unblocked`, `admin_removed`; `user_id` = the owner,
+  `target_id` = the admin, `details.email`) in the same transaction as the
+  change. None can reach the owner: Add refuses any account that already has a
+  `user_roles` row, and the other three act only on `admin_users` rows.
+- **Add** promotes an existing Supabase account (create it first: Authentication
+  → Add user) that has no `user_roles` row and no creator or brand profile.
+  **Remove** leaves the auth account; delete it in Supabase afterwards if
+  wanted (`creator_outreach.dmed_by` is ON DELETE SET NULL since 0032).
+- **Who is an admin right now.** Exactly one row may have an empty status, and
+  it must be the owner's:
+
+  ```sql
+  select r.user_id, u.email, a.status from user_roles r join auth.users u on u.id = r.user_id left join admin_users a on a.user_id = r.user_id where r.role = 'admin';
+  ```
 
 ---
 
