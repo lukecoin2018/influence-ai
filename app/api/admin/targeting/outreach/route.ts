@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { requireAdminApi } from '@/lib/auth/api-guards';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { withNoStore } from '@/lib/http/no-store';
 
@@ -10,12 +10,8 @@ import { withNoStore } from '@/lib/http/no-store';
 export const POST = withNoStore(handlePOST);
 
 async function handlePOST(req: NextRequest) {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-  const { data: roleData } = await supabase.from('user_roles').select('role').eq('user_id', user.id).single();
-  if (roleData?.role !== 'admin') return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+  const auth = await requireAdminApi();
+  if ('error' in auth) return auth.error;
 
   try {
     const body = await req.json();
@@ -41,7 +37,7 @@ async function handlePOST(req: NextRequest) {
       creator_id: creatorId,
       status,
       dmed_at: status === 'dmed' ? new Date().toISOString() : null,
-      dmed_by: status === 'dmed' ? user.id : null,
+      dmed_by: status === 'dmed' ? auth.userId : null,
       updated_at: new Date().toISOString(),
     };
     // Omit notes entirely when not provided, so toggling status alone never

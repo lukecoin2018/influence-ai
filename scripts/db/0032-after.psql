@@ -1,0 +1,200 @@
+-- scripts/db/0032-after.psql — run by scripts/db/apply-0032.sh AFTER the
+-- migration, inside its transaction, in the dry run and the real apply alike.
+-- Never run on its own.
+--
+-- Counts again as the same accounts and prints before against after, times
+-- Brand Index again, and lists what changed in the policies. Then the guard:
+-- if any count differs, any policy changed outside the three intended groups,
+-- you are no longer an admin, or acting as an account did not actually work,
+-- it raises an error, psql stops, and the whole transaction (migration
+-- included) is rolled back. Timing is shown, never enforced.
+
+\echo '0032: counting what each account can see after the migration'
+
+do $$
+declare
+  v_persona text;
+begin
+  for v_persona in select persona from pg_temp.dry_run_personas loop
+    perform pg_temp.dry_run_count_as(v_persona, 'after');
+  end loop;
+end
+$$;
+
+\echo
+\echo 'Rows each account can see, before and after 0032. Every line must say ok = t.'
+\echo '(ms: how long your count took, before and after.)'
+
+with per_persona as (
+  select rel, persona,
+         max(n) filter (where phase = 'before') as b,
+         max(n) filter (where phase = 'after')  as a
+    from pg_temp.dry_run_counts
+   where persona in ('you', 'creator', 'brand', 'stranger')
+   group by rel, persona
+)
+select c.rel as "table",
+       max(p.b) filter (where p.persona = 'you')      as "you before",
+       max(p.a) filter (where p.persona = 'you')      as "you after",
+       max(p.b) filter (where p.persona = 'creator')  as "creator before",
+       max(p.a) filter (where p.persona = 'creator')  as "creator after",
+       max(p.b) filter (where p.persona = 'brand')    as "brand before",
+       max(p.a) filter (where p.persona = 'brand')    as "brand after",
+       max(p.b) filter (where p.persona = 'stranger') as "stranger before",
+       max(p.a) filter (where p.persona = 'stranger') as "stranger after",
+       max(c.ms) filter (where c.persona = 'you' and c.phase = 'before') as "you ms before",
+       max(c.ms) filter (where c.persona = 'you' and c.phase = 'after')  as "you ms after",
+       bool_and(p.b is not distinct from p.a) as ok
+  from pg_temp.dry_run_counts c
+  join per_persona p on p.rel = c.rel and p.persona = c.persona
+ group by c.rel
+ order by c.rel;
+
+\echo '0032: timing Brand Index after the migration'
+
+do $$ begin perform pg_temp.dry_run_time_brand_index('after'); end $$;
+
+\echo
+\echo 'Brand Index load as you: the 5 counts app/admin/brand-index/page.tsx:127-131 runs'
+\echo '(one warm-up pass, then the best of 3). faster should be t; same_counts must be t.'
+
+select b.best_ms as "before ms",
+       a.best_ms as "after ms",
+       a.best_ms < b.best_ms as faster,
+       b.counts as "counts before",
+       a.counts as "counts after",
+       a.counts is not distinct from b.counts as same_counts
+  from pg_temp.dry_run_timing b, pg_temp.dry_run_timing a
+ where b.phase = 'before' and a.phase = 'after';
+
+-- What 0032 did to the policies. Three groups are expected, nothing else:
+-- the 19 that read user_roles dropped, 11 created in their place, and the 10
+-- older is_admin_user() policies with only their condition rewritten.
+insert into pg_temp.dry_run_policies
+  select 'after', tablename::text, policyname::text, cmd, roles::text, permissive, qual, with_check
+    from pg_policies
+   where schemaname = 'public';
+
+create or replace function pg_temp.dry_run_policy_changes()
+returns table (tablename text, policyname text, change text)
+language sql
+as $f$
+  with b as (select * from pg_temp.dry_run_policies where phase = 'before'),
+       a as (select * from pg_temp.dry_run_policies where phase = 'after'),
+       -- The deparsed form of (select is_admin_user()), taken from a policy
+       -- 0032 creates, so the comparison does not depend on how this
+       -- Postgres version prints it.
+       w as (select qual from a where tablename = 'creators' and policyname = 'admins_select_creators'),
+       replaced(t, p) as (values
+         ('activity_log', 'Admins can read activity log'), ('activity_log', 'admin_read_activity'),
+         ('brand_profiles', 'Admins can read all brand profiles'), ('brand_profiles', 'admin_read_all_brands'),
+         ('brand_profiles', 'Admins can update all brand profiles'), ('brand_profiles', 'admin_update_all_brands'),
+         ('contact_submissions', 'Admins can read contact submissions'), ('contact_submissions', 'admin_read_submissions'),
+         ('contact_submissions', 'Admins can update contact submissions'), ('contact_submissions', 'admin_update_submissions'),
+         ('creator_profiles', 'Admins can read all creator profiles'), ('creator_profiles', 'admin_read_all_creators'),
+         ('creator_profiles', 'Admins can update all creator profiles'), ('creator_profiles', 'admin_update_all_creators'),
+         ('creators', 'Admins can read creators'),
+         ('inquiries', 'Admins can read all inquiries'), ('inquiries', 'admin_read_all_inquiries'),
+         ('inquiries', 'admin_update_all_inquiries'),
+         ('shortlists', 'admin_read_all_shortlists')),
+       created(t, p) as (values
+         ('activity_log', 'admins_select_activity_log'),
+         ('brand_profiles', 'admins_select_brand_profiles'), ('brand_profiles', 'admins_update_brand_profiles'),
+         ('contact_submissions', 'admins_select_contact_submissions'), ('contact_submissions', 'admins_update_contact_submissions'),
+         ('creator_profiles', 'admins_select_creator_profiles'), ('creator_profiles', 'admins_update_creator_profiles'),
+         ('creators', 'admins_select_creators'),
+         ('inquiries', 'admins_select_inquiries'), ('inquiries', 'admins_update_inquiries'),
+         ('shortlists', 'admins_select_shortlists')),
+       rewritten(t, p) as (values
+         ('activity_log', 'admins_can_log'),
+         ('brand_aliases', 'Admins can view brand_aliases'), ('brand_aliases', 'Admins can update brand_aliases'),
+         ('brand_reports', 'Admins can update brand_reports'), ('brand_reports', 'Admins can delete brand_reports'),
+         ('brand_reports', 'Admins can insert brand_reports'),
+         ('creator_dashboard_events', 'admins_can_read_dashboard_events'),
+         ('creator_requests', 'admins_can_read_creator_requests'),
+         ('creator_entity', 'Admins can view creator_entity'), ('creator_entity', 'Admins can update creator_entity'))
+  select coalesce(a.tablename, b.tablename), coalesce(a.policyname, b.policyname),
+         case
+           when a.policyname is null then
+             case when (b.tablename, b.policyname) in (select t, p from replaced)
+                  then 'replaced: dropped' else 'OTHER: dropped' end
+           when b.policyname is null then
+             case when (a.tablename, a.policyname) in (select t, p from created)
+                  then 'replaced: created' else 'OTHER: created' end
+           when (a.cmd, a.roles, a.permissive, a.qual, a.with_check)
+                is not distinct from (b.cmd, b.roles, b.permissive, b.qual, b.with_check)
+             then 'unchanged'
+           when (a.tablename, a.policyname) in (select t, p from rewritten)
+                and (a.cmd, a.roles, a.permissive) is not distinct from (b.cmd, b.roles, b.permissive)
+                and (b.qual is null or b.qual = 'is_admin_user()')
+                and (b.with_check is null or b.with_check = 'is_admin_user()')
+                and (a.qual is null) = (b.qual is null)
+                and (a.with_check is null) = (b.with_check is null)
+                and (a.qual is null or a.qual = (select qual from w))
+                and (a.with_check is null or a.with_check = (select qual from w))
+             then 'condition rewritten'
+           else 'OTHER: changed'
+         end
+    from a full join b on a.tablename = b.tablename and a.policyname = b.policyname
+$f$;
+
+\echo
+\echo 'Policies: what 0032 changed. First run: dropped 19, created 11, rewritten 10, and no OTHER line at all.'
+
+select change, count(*) as policies,
+       string_agg(distinct tablename, ', ' order by tablename) as tables
+  from pg_temp.dry_run_policy_changes()
+ group by change
+ order by change;
+
+do $$
+declare
+  v_bad   text;
+  v_admin text;
+  v_you   text;
+  v_none  text;
+begin
+  select string_agg(change || ' ' || tablename || ' / ' || policyname, ', ') into v_bad
+    from pg_temp.dry_run_policy_changes()
+   where change like 'OTHER%';
+  if v_bad is not null then
+    raise exception '0032 check failed: a policy changed that 0032 should not touch: %. Nothing was changed.', v_bad;
+  end if;
+
+  select string_agg(phase || ' ' || counts, ' | ') into v_bad
+    from pg_temp.dry_run_timing
+   where (select count(distinct counts) from pg_temp.dry_run_timing) > 1;
+  if v_bad is not null then
+    raise exception '0032 check failed: Brand Index counts differ before and after: %. Nothing was changed.', v_bad;
+  end if;
+
+  select string_agg(persona || ' / ' || rel, ', ' order by persona, rel) into v_bad
+    from (
+      select rel, persona,
+             max(n) filter (where phase = 'before') as b,
+             max(n) filter (where phase = 'after')  as a
+        from pg_temp.dry_run_counts
+       where persona in ('you', 'creator', 'brand', 'stranger')
+       group by rel, persona
+    ) x
+   where b is distinct from a;
+  if v_bad is not null then
+    raise exception '0032 check failed: rows visible before and after differ for: %. Nothing was changed.', v_bad;
+  end if;
+
+  -- Equal counts prove nothing if acting as an account silently did not
+  -- work. You must see brand_aliases rows that a stranger cannot.
+  select n into v_you  from pg_temp.dry_run_counts where persona = 'you'      and phase = 'after' and rel = 'brand_aliases';
+  select n into v_none from pg_temp.dry_run_counts where persona = 'stranger' and phase = 'after' and rel = 'brand_aliases';
+  if v_you is null or v_you !~ '^[0-9]+$' or v_you::bigint = 0 or v_none is distinct from '0' then
+    raise exception '0032 check failed: acting as an account did not work (you see % brand_aliases rows, a stranger %). Nothing was changed.', v_you, v_none;
+  end if;
+
+  v_admin := pg_temp.dry_run_exec_as('you', 'select is_admin_user()::text', 'value');
+  if v_admin is distinct from 'true' then
+    raise exception '0032 check failed: is_admin_user() is % for you after the migration. Nothing was changed.', v_admin;
+  end if;
+end
+$$;
+
+\echo '0032: before and after match, and you are still an admin.'

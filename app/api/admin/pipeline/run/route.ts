@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse, after } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
-import { requireOwnerApi } from '@/lib/auth/api-guards';
+import { requireAdminApi } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
 import {
   ANTHROPIC_KEY_MISSING_MESSAGE,
@@ -15,9 +15,9 @@ import {
 } from '@/lib/admin/pipeline-runs';
 
 /**
- * Starts one pipeline step from the admin Pipeline page. Owner only.
+ * Starts one pipeline step from the admin Pipeline page. Admins only (requireAdminApi).
  *
- * Same shape as app/api/admin/creators/status/route.ts: owner gate, service-role
+ * Same shape as app/api/admin/creators/status/route.ts: admin gate, service-role
  * client, no-store. Then two gates of its own:
  *
  *  1. PIPELINE_ENABLED must be 'true' in the server's environment, else 503.
@@ -42,7 +42,7 @@ import {
 export const POST = withNoStore(handlePOST);
 
 async function handlePOST(req: NextRequest) {
-  const auth = await requireOwnerApi();
+  const auth = await requireAdminApi();
   if ('error' in auth) return auth.error;
 
   if (!pipelineEnabled()) return pipelineDisabledResponse();

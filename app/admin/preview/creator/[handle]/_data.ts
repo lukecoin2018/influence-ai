@@ -1,6 +1,6 @@
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { requireAdmin } from '@/lib/auth/server-guards';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
 import { withTimeout } from '@/lib/withTimeout';
 
@@ -30,7 +30,9 @@ interface AdminPreviewContext {
 
 /**
  * Shared server-side gate for every /admin/preview/creator/[handle]/* route:
- * checks the caller is an admin (session + user_roles), and resolves the
+ * checks the caller is an admin (requireAdmin(): the owner or an active
+ * additional admin; the /admin layout's gate alone does not stop this page
+ * from running), and resolves the
  * handle to a creator_id via the service-role client. 404s only when the
  * handle doesn't exist in social_profiles/creators at all — claimed and
  * unclaimed creators both resolve fine, since the most important creators to
@@ -39,18 +41,12 @@ interface AdminPreviewContext {
  * not filter on creators.status, so an admin can still open an account the
  * exclusion rule hid ('non_creator', migration 0027); the status comes back
  * with it for the banner. Expect blank stat cards there — they read
- * v_creator_summary, which shows active creators only. Mirrors
- * requireAdmin() in app/api/admin/targeting/route.ts. Each route still
+ * v_creator_summary, which shows active creators only. Each route still
  * fetches its own page-specific data (brand matches, inquiries, etc.) after
  * this.
  */
 export async function requireAdminPreviewAccess(handle: string): Promise<AdminPreviewContext> {
-  const session = await createSupabaseServerClient();
-  const { data: { user } } = await session.auth.getUser();
-  if (!user) redirect('/login');
-
-  const { data: roleData } = await session.from('user_roles').select('role').eq('user_id', user.id).single();
-  if (roleData?.role !== 'admin') redirect('/');
+  await requireAdmin();
 
   const admin = createSupabaseAdminClient();
   const normalized = normalizeHandle(handle);

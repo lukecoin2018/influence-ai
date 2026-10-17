@@ -1,6 +1,7 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
 import { createSupabaseServerClient } from '@/lib/supabase-server';
+import { getAdminAccess } from '@/lib/auth/admin-access';
 
 /**
  * Authorization gate for the API routes that return creator data.
@@ -77,8 +78,8 @@ export type BrandGateResult =
 /**
  * Resolves the caller to an approved brand, or to the response to return.
  *
- * Shaped as a discriminated union rather than throwing, mirroring requireAdmin()
- * in app/api/admin/targeting/route.ts, so each call site stays a two-line early
+ * Shaped as a discriminated union rather than throwing, mirroring
+ * requireAdminApi() below, so each call site stays a two-line early
  * return and the type checker enforces that the error branch is handled.
  */
 export async function requireApprovedBrand(): Promise<BrandGateResult> {
@@ -143,64 +144,72 @@ export async function requireApprovedBrand(): Promise<BrandGateResult> {
   return { userId: user.id, brandId: brand.id };
 }
 
+/** Why an admin API call was refused. The client maps these; it never shows our prose. */
+export type AdminGateReason =
+  | 'auth_unavailable'
+  | 'auth_required'
+  | 'admin_check_unavailable'
+  | 'not_admin'
+  | 'admin_paused'
+  | 'not_owner';
+
+function adminDenied(status: number, reason: AdminGateReason, error: string): { error: NextResponse } {
+  return { error: NextResponse.json({ error, reason }, { status }) };
+}
+
 /**
- * The route-handler counterpart to requireOwner() in server-guards.ts.
+ * Gate for every /api/admin/* route: the owner or an active additional admin,
+ * decided by getAdminAccess() in lib/auth/admin-access.ts (which also explains
+ * ADMIN_USER_ID and why it is captured at BUILD time).
  *
- * Same rule — one owner account, held in the server-only ADMIN_USER_ID, which
- * is captured at BUILD time (see requireOwner's comment for what that means per
- * host) — but shaped for an API: JSON and a status code rather than a redirect.
- * A route handler must never redirect a fetch() to /login; the caller would
- * follow it and try to parse a login page as JSON.
+ * The route-handler counterpart to requireAdmin() in server-guards.ts, shaped
+ * for an API: JSON and a status code rather than a redirect. A route handler
+ * must never redirect a fetch() to /login; the caller would follow it and try
+ * to parse a login page as JSON.
  *
- * Unset or empty denies everyone, including the owner, for the same reason it
- * does there: "unconfigured" must never widen access.
+ *   503 auth_unavailable / admin_check_unavailable   could not decide, denied
+ *   401 auth_required                                signed out
+ *   403 admin_paused                                 blocked by the owner
+ *   403 not_admin                                    anyone else
+ *
+ * Checked on every call, so a block applies to the next request.
+ */
+export async function requireAdminApi(): Promise<{ error: NextResponse } | { userId: string; isOwner: boolean }> {
+  const access = await getAdminAccess();
+  switch (access.kind) {
+    case 'owner':
+      return { userId: access.userId, isOwner: true };
+    case 'admin':
+      return { userId: access.userId, isOwner: false };
+    case 'anonymous':
+      return adminDenied(401, 'auth_required', 'Unauthorized');
+    case 'unverified':
+      return adminDenied(503, access.reason, 'Admin check unavailable');
+    case 'paused':
+      return adminDenied(403, 'admin_paused', 'Admin access paused');
+    case 'none':
+      return adminDenied(403, 'not_admin', 'Forbidden');
+  }
+}
+
+/**
+ * Gate for the owner-only routes: today only /api/admin/admins, where the
+ * owner adds, blocks, unblocks and removes additional admins. Decided without
+ * any database lookup. An additional admin, active or not, is 403 not_owner.
  */
 export async function requireOwnerApi(): Promise<{ error: NextResponse } | { userId: string }> {
-  const ownerId = process.env.ADMIN_USER_ID?.trim();
-
-  let supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>;
-  let user;
-  try {
-    supabase = await createSupabaseServerClient();
-    const { data } = await supabase.auth.getUser();
-    user = data.user;
-  } catch {
-    return {
-      error: NextResponse.json(
-        { error: 'Auth check unavailable', reason: 'auth_unavailable' satisfies BrandGateReason },
-        { status: 503 },
-      ),
-    };
+  const access = await getAdminAccess();
+  switch (access.kind) {
+    case 'owner':
+      return { userId: access.userId };
+    case 'anonymous':
+      return adminDenied(401, 'auth_required', 'Unauthorized');
+    case 'unverified':
+      if (access.reason === 'auth_unavailable') return adminDenied(503, 'auth_unavailable', 'Auth check unavailable');
+      return adminDenied(403, 'not_owner', 'Forbidden');
+    default:
+      return adminDenied(403, 'not_owner', 'Forbidden');
   }
-
-  if (!user) {
-    return {
-      error: NextResponse.json(
-        { error: 'Unauthorized', reason: 'auth_required' satisfies BrandGateReason },
-        { status: 401 },
-      ),
-    };
-  }
-
-  if (!ownerId) {
-    console.error(
-      '[admin-gate] ADMIN_USER_ID is unset or empty — denying every admin API call, ' +
-      'including the owner. It is captured at BUILD time: set it and rebuild.',
-    );
-    return { error: NextResponse.json({ error: 'Forbidden', reason: 'not_owner' }, { status: 403 }) };
-  }
-
-  // Case-insensitive, as in requireOwner(): these are hex UUIDs, so an
-  // uppercase paste is the same id.
-  if (user.id.toLowerCase() !== ownerId.toLowerCase()) {
-    console.error(
-      `[admin-gate] signed-in user ${user.id.slice(0, 8)}… does not match ADMIN_USER_ID — ` +
-      'denying admin API call.',
-    );
-    return { error: NextResponse.json({ error: 'Forbidden', reason: 'not_owner' }, { status: 403 }) };
-  }
-
-  return { userId: user.id };
 }
 
 /**

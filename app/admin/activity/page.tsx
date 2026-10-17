@@ -56,6 +56,11 @@ export default function AdminActivityPage() {
       case 'creator_rejected': return `Creator claim rejected by admin`;
       case 'inquiry_sent': return `Inquiry: ${event.details?.brand_name ?? 'Brand'} → creator`;
       case 'contact_form': return `Contact form: ${event.details?.name ?? ''} (${event.details?.email ?? ''}) — ${event.details?.type ?? 'General'}`;
+      // Written by migration 0032's functions; actor (user_id) is always the owner.
+      case 'admin_added': return `Admin added: ${event.details?.email ?? 'unknown account'}`;
+      case 'admin_blocked': return `Admin blocked: ${event.details?.email ?? 'unknown account'}`;
+      case 'admin_unblocked': return `Admin unblocked: ${event.details?.email ?? 'unknown account'}`;
+      case 'admin_removed': return `Admin removed: ${event.details?.email ?? 'unknown account'}`;
       default: return event.event_type;
     }
   }

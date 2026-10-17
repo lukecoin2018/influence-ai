@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { BarChart2, Building2, Users, UserCheck, MessageSquare, Mail, Activity, ArrowLeft, LogOut, FileText, Tags, Target, Workflow } from 'lucide-react';
+import { BarChart2, Building2, Users, UserCheck, MessageSquare, Mail, Activity, ArrowLeft, LogOut, FileText, Tags, Target, Workflow, ShieldCheck } from 'lucide-react';
 
 const sidebarLinks = [
   { href: '/admin', label: 'Overview', icon: BarChart2, exact: true },
@@ -20,7 +20,13 @@ const sidebarLinks = [
   { href: '/admin/reports', label: 'Reports', icon: FileText },
 ];
 
-function AdminSidebar() {
+// Owner only. The page and its API check again on the server (requireOwner,
+// requireOwnerApi); hiding the link is courtesy, not the gate.
+const ownerLinks = [
+  { href: '/admin/admins', label: 'Admins', icon: ShieldCheck, exact: false },
+];
+
+function AdminSidebar({ isOwner }: { isOwner: boolean }) {
   const pathname = usePathname();
   const { signOut } = useAuth();
   const [signingOut, setSigningOut] = useState(false);
@@ -36,7 +42,7 @@ function AdminSidebar() {
       </div>
 
       <nav style={{ flex: 1, padding: '12px 8px', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-        {sidebarLinks.map(({ href, label, icon: Icon, exact }) => {
+        {[...sidebarLinks, ...(isOwner ? ownerLinks : [])].map(({ href, label, icon: Icon, exact }) => {
           const isActive = exact ? pathname === href : pathname.startsWith(href);
           return (
             <Link key={href} href={href} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 12px', borderRadius: '8px', textDecoration: 'none', fontSize: '13px', fontWeight: 500, backgroundColor: isActive ? '#374151' : 'transparent', color: isActive ? 'white' : '#9CA3AF' }}>
@@ -67,16 +73,17 @@ function AdminSidebar() {
 
 /**
  * The admin chrome: sidebar, nav state, and the original client-side auth
- * check. Previously app/admin/layout.tsx — unchanged apart from this comment
- * and the rename. It is now rendered *by* that layout, which is a server
- * component that runs requireOwner() before any of this reaches the browser.
+ * check. Rendered by app/admin/layout.tsx, a server component that runs
+ * getAdminAccess() before any of this reaches the browser, and passes
+ * isOwner: true for the owner only, which adds the Admins link. A boolean,
+ * never the owner's id.
  *
  * The client-side check below is kept deliberately. It is no longer the only
  * defence, and no longer the one that matters, but it still resolves the
  * in-browser signed-out case without a round trip. Defence in depth: the
  * server gate is the boundary.
  */
-export default function AdminChrome({ children }: { children: React.ReactNode }) {
+export default function AdminChrome({ children, isOwner }: { children: React.ReactNode; isOwner: boolean }) {
   const pathname = usePathname();
   const { user, userRole, loading, authError, retryAuth } = useAuth();
 
@@ -94,7 +101,7 @@ export default function AdminChrome({ children }: { children: React.ReactNode })
   if (loading) {
     return (
       <div style={{ display: 'flex', minHeight: '100vh' }}>
-        <AdminSidebar />
+        <AdminSidebar isOwner={isOwner} />
         <main style={{ flex: 1, padding: '32px', backgroundColor: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <p style={{ color: '#9CA3AF', fontSize: '14px' }}>Loading...</p>
         </main>
@@ -108,7 +115,7 @@ export default function AdminChrome({ children }: { children: React.ReactNode })
   if (authError) {
     return (
       <div style={{ display: 'flex', minHeight: '100vh' }}>
-        <AdminSidebar />
+        <AdminSidebar isOwner={isOwner} />
         <main style={{ flex: 1, padding: '32px', backgroundColor: '#F9FAFB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ textAlign: 'center' }}>
             <p style={{ color: '#DC2626', fontSize: '14px', margin: '0 0 12px 0' }}>{authError} — retry</p>
@@ -127,7 +134,7 @@ export default function AdminChrome({ children }: { children: React.ReactNode })
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <AdminSidebar />
+      <AdminSidebar isOwner={isOwner} />
       <main style={{ flex: 1, padding: '32px', backgroundColor: '#F9FAFB', overflowY: 'auto' }}>
         {children}
       </main>

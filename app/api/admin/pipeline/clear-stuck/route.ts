@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createSupabaseAdminClient } from '@/lib/supabase-admin';
-import { requireOwnerApi } from '@/lib/auth/api-guards';
+import { requireAdminApi } from '@/lib/auth/api-guards';
 import { withNoStore } from '@/lib/http/no-store';
 import {
   fetchRunningRun,
@@ -27,7 +27,7 @@ import {
 export const POST = withNoStore(handlePOST);
 
 async function handlePOST() {
-  const auth = await requireOwnerApi();
+  const auth = await requireAdminApi();
   if ('error' in auth) return auth.error;
 
   if (!pipelineEnabled()) return pipelineDisabledResponse();
