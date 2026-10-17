@@ -703,10 +703,17 @@ migration's header.
   `admin_users` row whose status is not `active`. **Database admin checks call
   `is_admin_user()`, never `user_roles`.** A policy or trigger that reads
   `user_roles` itself lets a blocked admin through. 0032 replaced the 19
-  policies and 2 triggers that did. In a policy write
-  `using ((select is_admin_user()))`, which runs once per query; the bare form
-  runs once per row. The 9 older policies (0001–0026) still use the bare form:
-  a full Brand Index scan cost about 1.7× after 0032 in a PGlite measurement.
+  policies that did with 11 (one per table and command) and rewrote the 2
+  triggers that did.
+- **In a policy write `using ((select is_admin_user()))`**, which runs once
+  per query; the bare `is_admin_user()` runs once per row. 0032 also rewrote
+  the 10 older policies (0001–0026) that used the bare form, changing only
+  their condition. The 2026-10-17 dry run measured why: with the bare form, a
+  full `brand_aliases` count (53,629 rows, about six per Brand Index load)
+  went from 832 to 1,163 ms once `is_admin_user()` gained its second lookup.
+  Rerunning 0001, 0004, 0017, 0020, 0022 or 0026 puts the bare form back, and
+  rerunning 0015 or 0017 puts a trigger back that reads `user_roles`; rerun
+  0032 after any of them.
 - **A block applies on the next request, with no logout.** Every query and API
   call checks it. In a tab already open, the data stops at once but the admin
   chrome stays until a reload, which shows "Your admin access is paused": Next

@@ -39,17 +39,20 @@
 --   2. is_admin_user() learns about blocks
 --   3. the 19 policies that read user_roles: one per table and command,
 --      calling is_admin_user(), same commands, scoped to authenticated
---   4. the two column-guard triggers call is_admin_user()
---   5. creator_outreach.dmed_by: ON DELETE SET NULL
---   6. admin_user_add / _set_status / _remove / admin_users_list,
+--   4. the 10 older policies that already called is_admin_user(): the same
+--      condition, run once per query instead of once per row
+--   5. the two column-guard triggers call is_admin_user()
+--   6. creator_outreach.dmed_by: ON DELETE SET NULL
+--   7. admin_user_add / _set_status / _remove / admin_users_list,
 --      service_role only
 --
 -- ── Locks ──────────────────────────────────────────────────────────────────
 --
--- Sections 3 and 5 take ACCESS EXCLUSIVE on activity_log, brand_profiles,
--- contact_submissions, creator_profiles, creators, inquiries, shortlists and
--- creator_outreach, and SHARE ROW EXCLUSIVE on auth.users, until the
--- transaction ends. Reads of those tables and sign-ins wait for those
+-- Sections 3, 4 and 6 take ACCESS EXCLUSIVE on activity_log, brand_aliases,
+-- brand_profiles, brand_reports, contact_submissions, creator_dashboard_events,
+-- creator_entity, creator_outreach, creator_profiles, creator_requests,
+-- creators, inquiries and shortlists, and SHARE ROW EXCLUSIVE on auth.users,
+-- until the transaction ends. Reads of those tables and sign-ins wait for those
 -- seconds. lock_timeout stops this file from queueing behind a long reader
 -- (a homepage snapshot refresh reads creators for minutes), which would
 -- otherwise hold every later reader behind it. If it times out, nothing was
@@ -64,9 +67,11 @@
 --   select 1 from user_roles where user_roles.user_id = auth.uid() and
 --   user_roles.role = 'admin'); $$;
 --
--- Rerunnable: IF NOT EXISTS, CREATE OR REPLACE, DROP ... IF EXISTS. None of
--- the functions here is one 0030 gives a statement_timeout, so rerunning 0030
--- is not needed after this file.
+-- Rerunnable: IF NOT EXISTS, CREATE OR REPLACE, DROP ... IF EXISTS, ALTER
+-- POLICY. None of the functions here is one 0030 gives a statement_timeout,
+-- so rerunning 0030 is not needed after this file. Rerunning 0001, 0004, 0017,
+-- 0020, 0022 or 0026 recreates their policies in the once-per-row form (and
+-- 0015 or 0017 their trigger reading user_roles): rerun this file after.
 
 set local lock_timeout = '5s';
 
@@ -88,7 +93,7 @@ alter table admin_users enable row level security;
 -- answer them zero rows. Revoked, they get "permission denied" instead.
 -- service_role keeps its grant and bypasses RLS: the app reads this table
 -- server-side only (lib/auth/admin-access.ts), and writes it only through the
--- functions in section 6.
+-- functions in section 7.
 revoke all on table admin_users from anon, authenticated;
 
 comment on table admin_users is
@@ -211,7 +216,56 @@ create policy admins_select_shortlists on shortlists
   for select to authenticated using ((select is_admin_user()));
 
 
--- ═══ 4. The column-guard triggers call is_admin_user() ═════════════════════
+-- ═══ 4. The 10 older policies: once per query ═══════════════════════════════
+--
+-- These already called is_admin_user(), written bare, which Postgres runs
+-- once for every row it scans. Section 2 gives that function a second lookup,
+-- so the bare form would make the admin pages slower: in the 2026-10-17 dry
+-- run a full brand_aliases count (53,629 rows, run about six times per Brand
+-- Index load) went from 832 to 1,163 ms. Wrapped as (select is_admin_user())
+-- it runs once per query.
+--
+-- ALTER POLICY changes only the condition: each policy keeps its name, its
+-- command and its roles (all TO authenticated), and the condition itself is
+-- the same function. Rerunnable.
+
+-- activity_log (0017)
+alter policy admins_can_log on activity_log
+  with check ((select is_admin_user()));
+
+-- brand_aliases (0001)
+alter policy "Admins can view brand_aliases" on brand_aliases
+  using ((select is_admin_user()));
+alter policy "Admins can update brand_aliases" on brand_aliases
+  using ((select is_admin_user()))
+  with check ((select is_admin_user()));
+
+-- brand_reports (0004, 0017)
+alter policy "Admins can update brand_reports" on brand_reports
+  using ((select is_admin_user()))
+  with check ((select is_admin_user()));
+alter policy "Admins can delete brand_reports" on brand_reports
+  using ((select is_admin_user()));
+alter policy "Admins can insert brand_reports" on brand_reports
+  with check ((select is_admin_user()));
+
+-- creator_dashboard_events (0020)
+alter policy admins_can_read_dashboard_events on creator_dashboard_events
+  using ((select is_admin_user()));
+
+-- creator_requests (0022)
+alter policy admins_can_read_creator_requests on creator_requests
+  using ((select is_admin_user()));
+
+-- creator_entity (0026)
+alter policy "Admins can view creator_entity" on creator_entity
+  using ((select is_admin_user()));
+alter policy "Admins can update creator_entity" on creator_entity
+  using ((select is_admin_user()))
+  with check ((select is_admin_user()));
+
+
+-- ═══ 5. The column-guard triggers call is_admin_user() ═════════════════════
 --
 -- Bodies as live on 2026-10-17 (pg_get_functiondef), with the user_roles
 -- subquery replaced. These run as the signed-in user (SECURITY INVOKER) and
@@ -288,7 +342,7 @@ end;
 $$;
 
 
--- ═══ 5. creator_outreach.dmed_by: ON DELETE SET NULL ═══════════════════════
+-- ═══ 6. creator_outreach.dmed_by: ON DELETE SET NULL ═══════════════════════
 --
 -- 0008 created it with no ON DELETE rule, the only reference to auth.users
 -- that does that (2026-10-17). An admin who ever marked a creator DMed in
@@ -301,7 +355,7 @@ alter table creator_outreach
   foreign key (dmed_by) references auth.users(id) on delete set null;
 
 
--- ═══ 6. Managing admins: service_role only ═════════════════════════════════
+-- ═══ 7. Managing admins: service_role only ═════════════════════════════════
 --
 -- Called by app/api/admin/admins/route.ts, which first checks the caller is
 -- the owner (ADMIN_USER_ID) and refuses the owner's own id as a target. Each
