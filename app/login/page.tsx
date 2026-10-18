@@ -98,7 +98,8 @@ function LoginForm() {
       }
       signedIn = true;
 
-      // maybeSingle(): no row is a brand (none has a user_roles row today), and
+      // maybeSingle(): no row is read as a brand. A brand has role 'brand'
+      // since 0033, but one made before it was applied has no row. Either way
       // a brand goes to /dashboard whatever redirectTo says (loginTarget). A
       // failed lookup is an error, not "no role".
       const { data: roleData, error: roleError } = await withTimeout(

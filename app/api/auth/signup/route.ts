@@ -67,6 +67,22 @@ async function handlePOST(req: NextRequest) {
 
   const userId = authData.user.id;
 
+  // ── Role first, then profile ──────────────────────────────────────────────
+  // The header shows a brand its company name only when the user_roles row
+  // says 'brand' (components/Navigation.tsx, app/_components/Nav.tsx). This
+  // route never wrote one, so no brand account had it until 0033 backfilled
+  // them.
+  //
+  // It goes in before the profile because it is deleted with the auth user
+  // (user_roles.user_id is ON DELETE CASCADE). Whichever insert fails,
+  // deleting the auth user is the whole undo, and nothing here depends on how
+  // brand_profiles, defined in Supabase directly, references auth.users.
+  const { error: roleError } = await supabaseAdmin
+    .from('user_roles')
+    .insert({ user_id: userId, role: 'brand' });
+
+  if (roleError) return abandonSignup(userId, 'role insert', roleError.message);
+
   const { error: profileError } = await supabaseAdmin.from('brand_profiles').insert({
     id: userId,
     company_name: companyName.trim(),
@@ -80,32 +96,43 @@ async function handlePOST(req: NextRequest) {
     approval_status: 'pending',
   });
 
-  if (profileError) {
-    // ── The line that stops new orphans ───────────────────────────────────
-    // The auth user exists at this point and the profile does not. Left alone
-    // that is a dead account which nonetheless owns its email address forever,
-    // so the person cannot even retry with the same address. Deleting it puts
-    // the world back as it was and lets them try again.
-    //
-    // Best-effort: if the delete itself fails there is nothing further to do
-    // from here, but it must be logged loudly, because that is the case that
-    // silently produces another orphan.
-    console.error(`[brand-signup] profile insert failed for ${userId}: ${profileError.message}`);
+  if (profileError) return abandonSignup(userId, 'profile insert', profileError.message);
 
-    const { error: cleanupError } = await supabaseAdmin.auth.admin.deleteUser(userId);
-    if (cleanupError) {
-      console.error(
-        `[brand-signup] ORPHAN CREATED — could not delete auth user ${userId} after a failed ` +
-        `profile insert: ${cleanupError.message}. This account has no brand_profiles row and ` +
-        'holds its email address.',
-      );
-    }
+  return NextResponse.json({ success: true });
+}
 
-    return NextResponse.json(
-      { error: 'Could not create account', reason: 'profile_failed' satisfies Reason },
-      { status: 500 },
+/**
+ * Undoes a signup that failed after createUser(), and answers the browser.
+ *
+ * ── The line that stops new orphans ─────────────────────────────────────────
+ * The auth user exists at this point and the profile does not. Left alone
+ * that is a dead account which nonetheless owns its email address forever, so
+ * the person cannot even retry with the same address. Deleting it puts the
+ * world back as it was and lets them try again. Its user_roles row, if the
+ * role insert got that far, is deleted with it.
+ *
+ * Best-effort: if the delete itself fails there is nothing further to do from
+ * here, but it must be logged loudly, because that is the case that silently
+ * produces another orphan.
+ *
+ * Both steps answer 'profile_failed'. To the brand they are the same failure,
+ * the account could not be set up and nothing was kept, and /signup already
+ * has the words for it. The log line says which step it was.
+ */
+async function abandonSignup(userId: string, step: 'role insert' | 'profile insert', message: string) {
+  console.error(`[brand-signup] ${step} failed for ${userId}: ${message}`);
+
+  const { error: cleanupError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+  if (cleanupError) {
+    console.error(
+      `[brand-signup] ORPHAN CREATED — could not delete auth user ${userId} after a failed ` +
+      `${step}: ${cleanupError.message}. This account has no brand_profiles row and ` +
+      'holds its email address.',
     );
   }
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json(
+    { error: 'Could not create account', reason: 'profile_failed' satisfies Reason },
+    { status: 500 },
+  );
 }

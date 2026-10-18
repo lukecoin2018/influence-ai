@@ -1,9 +1,13 @@
 -- 0032_admin_users.sql
 --
--- STATUS: NOT YET APPLIED. Apply with scripts/db/apply-0032.sh, `--dry-run`
--- first, never by pasting into the SQL editor: the script wraps this file in
--- one transaction between a row-count check before and after it, and refuses
--- to commit if any count you or a creator can see has changed.
+-- STATUS: APPLIED 2026-10-17. The additional admin it allows has been active
+-- since 17:00 UTC that day (admin_users.created_at, read 2026-10-18).
+--
+-- To rerun it (see the end of this header for when), use
+-- scripts/db/apply-0032.sh, `--dry-run` first, never by pasting into the SQL
+-- editor: the script wraps this file in one transaction between a row-count
+-- check before and after it, and refuses to commit if any count you or a
+-- creator can see has changed.
 --
 -- A second admin, with the owner as master.
 --
