@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/lib/supabase";
+import { SITE_HEADER_HEIGHT } from "@/components/Navigation";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -121,28 +122,18 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
   }
 
   return (
+    // Starts below the site header (components/Navigation.tsx), which is
+    // sticky over every /dashboard page and carries the logo. Starting at
+    // top: 0 put this sidebar's own logo block under the header's translucent
+    // blur, where it showed through as a second, blurred logo.
     <aside style={{
-      position: "fixed", top: 0, left: 0, height: "100vh",
+      position: "fixed", top: SITE_HEADER_HEIGHT, left: 0, bottom: 0,
       width: isOpen ? "240px" : "64px",
       backgroundColor: "#fff", borderRight: "1px solid #E5E7EB",
       display: "flex", flexDirection: "column",
       transition: "width 0.2s ease", overflow: "hidden",
       zIndex: 30, boxShadow: "2px 0 8px rgba(0,0,0,0.04)",
     }}>
-
-      {/* Logo */}
-      <div style={{
-        display: "flex", alignItems: "center", justifyContent: "center",
-        padding: "16px", borderBottom: "1px solid #F3F4F6",
-        minHeight: "64px", flexShrink: 0,
-      }}>
-        {/* Light-header lockup when open, symbol tile alone when collapsed. */}
-        {isOpen ? (
-          <img src="/brand/lockup-light-bg-small.svg" alt="InfluenceIT" width={158} height={28} style={{ display: "block", flexShrink: 0 }} />
-        ) : (
-          <img src="/brand/symbol-tile-yellow.svg" alt="InfluenceIT" width={32} height={32} style={{ display: "block", flexShrink: 0 }} />
-        )}
-      </div>
 
       {/* Nav */}
       <nav style={{ flex: 1, padding: "8px", overflowY: "auto", overflowX: "hidden" }}>
