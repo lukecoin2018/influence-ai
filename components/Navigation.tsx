@@ -18,6 +18,11 @@ const navLinks = [
   { href: '/about', key: 'about' as const },
 ];
 
+// Height of the header row. The brand dashboard's sidebar
+// (components/dashboard/Sidebar.tsx) starts this far down, so the header never
+// covers it. One value for both, so the two cannot drift apart.
+export const SITE_HEADER_HEIGHT = 64;
+
 export function Navigation() {
   const pathname = usePathname();
   const { user, brandProfile, userRole, signOut } = useAuth();
@@ -25,13 +30,21 @@ export function Navigation() {
   // Client component, so it resolves its own strings rather than receiving them
   // as a prop — same approach as the other localized surfaces.
   const t = getNavStrings(useLocale());
+  // On the brand dashboard the row spans the full width, so the logo sits in
+  // the top-left corner above the sidebar. Everywhere else it stays in the
+  // centred max-w-7xl column. Includes the gate screen an unapproved brand
+  // sees at /dashboard, which has no sidebar: accepted, it follows the path.
+  const isBrandDashboard = pathname === '/dashboard' || pathname.startsWith('/dashboard/');
 
   return (
     <header
       className="sticky top-0 z-50 border-b border-base"
       style={{ backgroundColor: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)' }}
     >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between" style={{ height: '64px' }}>
+      <div
+        className={`${isBrandDashboard ? '' : 'max-w-7xl mx-auto '}px-6 flex items-center justify-between`}
+        style={{ height: SITE_HEADER_HEIGHT }}
+      >
 
         {/* Logo */}
         <Link href="/" className="flex items-center no-underline" onClick={() => setMenuOpen(false)} aria-label="InfluenceIT">
