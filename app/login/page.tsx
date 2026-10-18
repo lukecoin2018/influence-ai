@@ -98,10 +98,11 @@ function LoginForm() {
       }
       signedIn = true;
 
-      // maybeSingle(): no row is read as a brand. A brand has role 'brand'
-      // since 0033, but one made before it was applied has no row. Either way
-      // a brand goes to /dashboard whatever redirectTo says (loginTarget). A
-      // failed lookup is an error, not "no role".
+      // maybeSingle(): no row is read as a brand. Every brand has role 'brand'
+      // since 0033 and new signups write it, but a brand whose role insert
+      // failed on /auth/signup would have none. Either way a brand goes to
+      // /dashboard whatever redirectTo says (loginTarget). A failed lookup is
+      // an error, not "no role".
       const { data: roleData, error: roleError } = await withTimeout(
         Promise.resolve(supabase.from('user_roles').select('role').eq('user_id', data.user.id).maybeSingle()),
         ROLE_LOOKUP_TIMEOUT_MS,

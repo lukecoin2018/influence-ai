@@ -55,11 +55,11 @@ export function safeRedirectPath(raw: string | null | undefined): string | null 
 
 /**
  * The home for a role from user_roles. No row (null) goes to /dashboard, as
- * it always has. Until 0033 that was every brand: /api/auth/signup wrote no
- * role row before fix/brand-role-rows (none of the 10 brand_profiles accounts
- * had one, 2026-10-18). It now writes 'brand', and 0033 backfills the rest.
- * A null is still possible: an auth user that never got a profile, or a
- * brand made before 0033 was applied.
+ * it always has. Every brand has a 'brand' row since 0033 (applied
+ * 2026-10-18), and /api/auth/signup writes one for each new brand. A null is
+ * left for an auth user that never got a profile, or a brand from
+ * /auth/signup's brand option, which inserts its role from the browser and
+ * does not check the result.
  */
 export function homeForRole(role: string | null | undefined): string {
   if (role === 'admin') return '/admin';
@@ -71,9 +71,9 @@ export function homeForRole(role: string | null | undefined): string {
  * Where to go after signing in.
  *
  * Brands always land on /dashboard and redirectTo is ignored. A brand is role
- * 'brand', or no user_roles row at all (null) for an account that predates
- * 0033's backfill (see homeForRole). Creators and admins go to redirectTo
- * when it is safe, otherwise their home.
+ * 'brand', or no user_roles row at all (null; homeForRole says when that can
+ * still happen). Creators and admins go to redirectTo when it is safe,
+ * otherwise their home.
  *
  * `role` is null for "no row", never undefined: a role lookup that failed is
  * the caller's error to report, not a brand.
