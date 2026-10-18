@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
 /**
@@ -41,7 +40,6 @@ const INDUSTRIES = [
 ];
 
 export default function SignupPage() {
-  const router = useRouter();
   const [companyName, setCompanyName] = useState('');
   const [contactName, setContactName] = useState('');
   const [email, setEmail] = useState('');
@@ -74,7 +72,10 @@ export default function SignupPage() {
       const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
       if (signInError) throw signInError;
   
-      router.push('/dashboard');
+      // A full page load, not router.push: the header prefetched /creators,
+      // /match and /compare while signed out, and the router kept the
+      // redirects to /login. See app/login/page.tsx.
+      window.location.replace('/dashboard');
     } catch (err: any) {
       setError(err.message || 'Signup failed. Please try again.');
     } finally {

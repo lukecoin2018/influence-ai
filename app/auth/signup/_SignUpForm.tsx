@@ -10,7 +10,6 @@
 // changed — it still reads its own params via useSearchParams().
 
 import { useState, useEffect, Suspense } from 'react';
-import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
@@ -51,7 +50,6 @@ function getListedHref(handle: string, locale: Locale): string {
 }
 
 function SignUpContent() {
-  const router = useRouter();
   const [role, setRole] = useState<Role>(null);
   const [step, setStep] = useState<Step>('role');
   const [loading, setLoading] = useState(false);
@@ -197,7 +195,10 @@ function SignUpContent() {
       return;
     }
 
-    router.push('/dashboard');
+    // A full page load, not router.push: the header prefetched /creators,
+    // /match and /compare while signed out, and the router kept the
+    // redirects to /login. See app/login/page.tsx.
+    window.location.replace('/dashboard');
   }
 
   // ── Creator signup → calls server-side claim route ────────────────────────
