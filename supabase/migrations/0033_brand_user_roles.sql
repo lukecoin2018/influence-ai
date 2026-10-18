@@ -1,6 +1,11 @@
 -- 0033_brand_user_roles.sql
 --
--- STATUS: NOT YET APPLIED.
+-- STATUS: APPLIED 2026-10-18, in the SQL editor, after the route change was
+-- deployed. Results as Lukas reported them: statement 1 returned only
+-- admin_user_add, admin_user_remove and is_admin_user; statement 2 listed the
+-- 10 brands; statement 3 returned no rows; statement 5 read 11 | 11 | 0 | 0
+-- with a test brand signed up through the new route, and 10 | 10 | 0 | 0 once
+-- that test account was deleted.
 --
 -- Gives every brand account its user_roles row, role 'brand'.
 --

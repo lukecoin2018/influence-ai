@@ -445,11 +445,14 @@ checkpoint is deliberate and has caught real bugs.
   - The brand route writes the role **before** the profile. The role row is
     deleted with the auth user, so whichever insert fails, deleting the auth
     user undoes the whole signup.
-  - Rows on 2026-10-18, before 0033: 2 admin (the owner and one additional
-    admin), 7 creator, 0 brand, for 10 `brand_profiles` accounts. After it,
-    one `brand` row per `brand_profiles` account.
-  - No row still reads as a brand (login, AuthContext): an auth user that
-    never got a profile, or a brand made before 0033 was applied.
+  - **Every brand has its `brand` row** since 0033 (applied 2026-10-18; its
+    check read 10 `brand_profiles` accounts, 10 with the role, 0 without),
+    and `/api/auth/signup` writes one for each new brand. Before 0033: 2
+    admin, 7 creator, 0 brand.
+  - No row still reads as a brand (login, AuthContext). That is now an auth
+    user that never got a profile, or a brand from `/auth/signup`'s brand
+    option, which inserts its role from the browser and does not check the
+    result (`app/auth/signup/_SignUpForm.tsx:165`).
 
 ### The brand data model — three layers, and only two are usable
 
