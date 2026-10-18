@@ -356,7 +356,7 @@ as.
 Write the file, show paste-ready SQL, he pastes it, he confirms. The manual
 checkpoint is deliberate and has caught real bugs.
 
-- Next number: check the folder. 0032 is taken (2026-10-17), so the next is 0033.
+- Next number: check the folder. 0033 is taken (2026-10-18), so the next is 0034.
 - **Applying migrations with psql (since 0031).** psql is installed on the Mac
   (`brew install libpq`, keg-only: `/opt/homebrew/opt/libpq/bin/psql`, 18.x).
   `scripts/db/apply-0031.sh` is the pattern: the migration plus a setup file,
@@ -437,8 +437,19 @@ checkpoint is deliberate and has caught real bugs.
   `(user_id)`, so one role per account; `role` CHECK brand / creator / admin;
   `user_id` references `auth.users` ON DELETE CASCADE. Policies: read own row,
   insert own row with role brand or creator only; no UPDATE or DELETE policy.
-  Rows: 1 admin (the owner), 7 creator, 0 brand (brand signup through
-  `/api/auth/signup` writes none).
+  - **Every role row is written server-side**: `creator` by the claim route,
+    `admin` by `admin_user_add()`, and `brand` by `/api/auth/signup` since
+    fix/brand-role-rows. Before that the brand route wrote none, so the
+    header's company-name link (`userRole === 'brand'`) never showed for any
+    brand. 0033 backfills the brands made before it.
+  - The brand route writes the role **before** the profile. The role row is
+    deleted with the auth user, so whichever insert fails, deleting the auth
+    user undoes the whole signup.
+  - Rows on 2026-10-18, before 0033: 2 admin (the owner and one additional
+    admin), 7 creator, 0 brand, for 10 `brand_profiles` accounts. After it,
+    one `brand` row per `brand_profiles` account.
+  - No row still reads as a brand (login, AuthContext): an auth user that
+    never got a profile, or a brand made before 0033 was applied.
 
 ### The brand data model — three layers, and only two are usable
 
@@ -683,9 +694,10 @@ among 8,716 profiles, and GLOWERY and Rel have no alias row at all.
 
 ## Admin access — the owner and additional admins (0032)
 
-**Status: 0032 NOT YET APPLIED** (2026-10-17). Apply with
-`scripts/db/apply-0032.sh --dry-run`, then without the flag; see the
-migration's header.
+**Status: 0032 APPLIED** (2026-10-17). The additional admin has been active
+since 17:00 UTC that day (`admin_users.created_at`, read 2026-10-18). To
+rerun it, use `scripts/db/apply-0032.sh --dry-run`, then without the flag;
+see the migration's header.
 
 - **Two kinds of admin.** The **owner** is `ADMIN_USER_ID` (server-only,
   captured at build; `lib/auth/admin-access.ts` explains), decided before any
