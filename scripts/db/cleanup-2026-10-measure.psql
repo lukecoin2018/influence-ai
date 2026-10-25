@@ -1,0 +1,93 @@
+-- scripts/db/cleanup-2026-10-measure.psql — dry run only, inside the
+-- transaction after the apply and before the index drops.
+--
+-- Measures, rather than estimates, what the two VACUUM FULLs will leave and
+-- how long they will hold their locks: it copies the rows that stay into a
+-- temp table and builds the same indexes on it (the ones being dropped
+-- excepted), which is the work VACUUM FULL does, then reads the copy's size
+-- and the time it took. creator_posts is stage 1; creators, after the
+-- embeddings were cleared above, is stage 2.
+--
+-- Caveats:
+--   - tested against PGlite (2026-10-25), the creators copy matched the size
+--     after the real VACUUM FULL exactly, and the creator_posts copy came out
+--     about 5% larger, so the projection errs on the pessimistic side
+--   - a temp table's index builds run single-threaded, VACUUM FULL's need
+--     not; the times are an upper bound when the disk is not throttled
+--   - the disk can be throttled differently on the day; the times vary
+-- The copies are dropped at the end of this file; the projection uses the
+-- sizes taken by the plan before anything changed.
+
+\echo
+\echo '── Dry run: measuring what VACUUM FULL will leave ─────────────────────'
+
+create temp table cleanup_measure (tbl text primary key, seconds numeric, bytes bigint, indexes int) on commit drop;
+
+do $$
+declare
+  src text;
+  copy_name text;
+  r record;
+  i int;
+  t0 timestamptz;
+begin
+  foreach src in array array['creator_posts', 'creators'] loop
+    copy_name := 'cleanup_copy_' || src;
+    t0 := clock_timestamp();
+    execute format('create temp table %I on commit drop as select * from public.%I', copy_name, src);
+    i := 0;
+    for r in
+      select pg_get_indexdef(x.indexrelid) as def
+      from pg_index x
+      join pg_class ic on ic.oid = x.indexrelid
+      where x.indrelid = ('public.' || src)::regclass
+        and ic.relname not in (select name from cleanup_drops where act and kind = 'index' and tbl = src)
+      order by ic.relname
+    loop
+      i := i + 1;
+      execute regexp_replace(r.def, '^CREATE (UNIQUE )?INDEX \S+ ON (ONLY )?\S+ ',
+                             'CREATE \1INDEX ' || copy_name || '_' || i || ' ON pg_temp.' || copy_name || ' ');
+    end loop;
+    insert into cleanup_measure
+    values (src, round(extract(epoch from clock_timestamp() - t0), 1),
+            pg_total_relation_size(('pg_temp.' || copy_name)::regclass), i);
+    raise notice 'measured %: copy and % indexes in % s', src, i, round(extract(epoch from clock_timestamp() - t0), 1);
+  end loop;
+end $$;
+
+\echo
+\echo 'Per table: today, after its VACUUM FULL (measured on the copy), and how'
+\echo 'long the copy took, which is about how long VACUUM FULL locks that table.'
+select m.tbl,
+       pg_size_pretty(case m.tbl when 'creator_posts' then :posts_before::bigint else :creators_before::bigint end) as today,
+       pg_size_pretty(m.bytes) as after_vacuum_full,
+       m.indexes as indexes_rebuilt,
+       m.seconds as lock_seconds_estimate
+from cleanup_measure m
+order by m.tbl;
+
+select tbl, name, pg_size_pretty(bytes) as freed_on_commit
+from cleanup_drops
+where act and tbl <> 'creator_posts'
+order by ord;
+
+\echo
+\echo '── Projected pg_database_size ──────────────────────────────────────────'
+\echo 'Stage 1: the post deletes, the VACUUM FULL of creator_posts and every index'
+\echo 'drop. Stage 2 adds the VACUUM FULL of creators after the embeddings go.'
+\echo 'The Supabase Usage page read about 40 MB above pg_database_size in October.'
+with s as (
+  select (:posts_before::bigint - (select bytes from cleanup_measure where tbl = 'creator_posts'))
+           + (select coalesce(sum(bytes), 0) from cleanup_drops where act and tbl <> 'creator_posts') as stage1,
+         :creators_before::bigint - (select bytes from cleanup_measure where tbl = 'creators') as stage2
+)
+select 'now' as point,
+       pg_size_pretty(:db_before::bigint) as database_size,
+       null::text as saved
+union all
+select 'after stage 1', pg_size_pretty(:db_before::bigint - stage1), pg_size_pretty(stage1) from s
+union all
+select 'after stage 2', pg_size_pretty(:db_before::bigint - stage1 - stage2), pg_size_pretty(stage1 + stage2) from s;
+
+drop table pg_temp.cleanup_copy_creator_posts;
+drop table pg_temp.cleanup_copy_creators;

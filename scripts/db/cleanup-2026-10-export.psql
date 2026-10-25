@@ -1,0 +1,45 @@
+-- scripts/db/cleanup-2026-10-export.psql — inside the transaction, before any
+-- change. Writes every row the run removes, and the hidden accounts' rows,
+-- to CSV files in psql's working directory, which the wrapper sets to the
+-- backup folder. Same snapshot as the plan and the deletes (REPEATABLE READ).
+--
+-- \copy takes the rest of its line verbatim (no psql variables), hence one
+-- long line per file and relative file names.
+--
+-- To put a file back:
+--   \copy public.creator_posts from 'deleted_posts_older_than_15.csv' with (format csv, header)
+-- An embedding from hidden_creators.csv goes back with an UPDATE through a
+-- temp table; an index from dropped_indexes.csv by running its `def`.
+
+\echo
+\echo '── Export to CSV ───────────────────────────────────────────────────────'
+
+\echo 'deleted_posts_older_than_15.csv'
+\copy (select cp.* from public.creator_posts cp join cleanup_doomed d on d.id = cp.id where d.scope = 'older_than_15' order by cp.social_profile_id, cp.posted_at desc nulls last) to 'deleted_posts_older_than_15.csv' with (format csv, header)
+
+\echo 'deleted_posts_hidden_accounts.csv'
+\copy (select cp.* from public.creator_posts cp join cleanup_doomed d on d.id = cp.id where d.scope = 'hidden_account' order by cp.social_profile_id, cp.posted_at desc nulls last) to 'deleted_posts_hidden_accounts.csv' with (format csv, header)
+
+\echo 'hidden_creators.csv (kept; includes the embeddings stage 2 clears)'
+\copy (select c.* from public.creators c join cleanup_hidden h on h.creator_id = c.id order by c.id) to 'hidden_creators.csv' with (format csv, header)
+
+\echo 'hidden_social_profiles.csv (kept)'
+\copy (select sp.* from public.social_profiles sp join cleanup_hidden h on h.creator_id = sp.creator_id order by sp.id) to 'hidden_social_profiles.csv' with (format csv, header)
+
+\echo 'hidden_creator_entity.csv (kept)'
+\copy (select e.* from public.creator_entity e join cleanup_hidden h on h.creator_id = e.creator_id order by e.creator_id) to 'hidden_creator_entity.csv' with (format csv, header)
+
+\echo 'protected_creators.csv'
+\copy (select p.creator_id, c.status, p.refs from cleanup_protected p join public.creators c on c.id = p.creator_id order by p.creator_id) to 'protected_creators.csv' with (format csv, header)
+
+\echo 'dropped_indexes.csv'
+\copy (select ord, tbl, name, kind, act as to_drop, bytes, def, note from cleanup_drops order by ord) to 'dropped_indexes.csv' with (format csv, header)
+
+-- Row counts, to compare with the files (a CSV line count is not a row count:
+-- captions carry newlines).
+select (select count(*) from cleanup_doomed where scope = 'older_than_15')  as rows_deleted_posts_older_than_15,
+       (select count(*) from cleanup_doomed where scope = 'hidden_account') as rows_deleted_posts_hidden_accounts,
+       (select count(*) from cleanup_hidden)                                 as rows_hidden_creators,
+       (select count(*) from public.social_profiles sp join cleanup_hidden h on h.creator_id = sp.creator_id) as rows_hidden_social_profiles,
+       (select count(*) from public.creator_entity e join cleanup_hidden h on h.creator_id = e.creator_id)    as rows_hidden_creator_entity,
+       (select count(*) from cleanup_protected)                              as rows_protected_creators;

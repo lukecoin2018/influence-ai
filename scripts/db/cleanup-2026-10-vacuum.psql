@@ -1,0 +1,64 @@
+-- scripts/db/cleanup-2026-10-vacuum.psql — after the cleanup transaction has
+-- committed, and again with --vacuum-only. Outside any transaction: VACUUM
+-- cannot run inside one, and each statement here commits on its own.
+--
+-- A DELETE leaves its space inside the table; pg_database_size only falls
+-- when VACUUM FULL rewrites the table without it. While it runs, VACUUM FULL
+-- holds its table's strongest lock: every read waits.
+--   creator_posts: /report/[slug] regeneration (the cached page keeps
+--     serving), the admin reports and pipeline pages, the homepage refresh.
+--   creators: nearly every creator-facing page and API (RLS on
+--     social_profiles and creator_posts reads it), and lmg.media's AI match
+--     (match_creators, v_creator_summary), which answers 503 match_unavailable.
+-- The homepage, Brands Hiring and the brand cards read neither table.
+--
+-- It waits at most 10 s for the lock (behind a long reader, the queue behind
+-- VACUUM would otherwise hold up the whole site), and the wrapper says to run
+-- --vacuum-only again if it gives up. Rerunning is harmless: VACUUM FULL of an
+-- already compact table just rewrites it.
+
+set lock_timeout = '10s';
+set statement_timeout = '30min';
+set maintenance_work_mem = '256MB';
+
+\echo
+\echo '── VACUUM FULL ─────────────────────────────────────────────────────────'
+
+select pg_size_pretty(pg_database_size(current_database())) as database_before,
+       pg_size_pretty(pg_total_relation_size('public.creator_posts')) as creator_posts_before,
+       pg_size_pretty(pg_total_relation_size('public.creators')) as creators_before;
+
+\timing on
+\echo 'VACUUM (FULL, ANALYZE) creator_posts'
+vacuum (full, analyze) public.creator_posts;
+\echo 'VACUUM (FULL, ANALYZE) creators'
+vacuum (full, analyze) public.creators;
+\timing off
+
+\echo
+\echo '── Sizes after ─────────────────────────────────────────────────────────'
+\echo 'The Supabase Usage page read about 40 MB above pg_database_size in October.'
+
+select pg_size_pretty(pg_database_size(current_database())) as database_after,
+       pg_size_pretty(pg_total_relation_size('public.creator_posts')) as creator_posts_after,
+       pg_size_pretty(pg_total_relation_size('public.creators')) as creators_after;
+
+select n.nspname || '.' || c.relname as table_name,
+       pg_size_pretty(pg_total_relation_size(c.oid)) as total,
+       pg_size_pretty(pg_relation_size(c.oid)) as heap,
+       pg_size_pretty(case when c.reltoastrelid = 0 then 0 else pg_total_relation_size(c.reltoastrelid) end) as toast,
+       pg_size_pretty(pg_indexes_size(c.oid)) as indexes
+from pg_class c
+join pg_namespace n on n.oid = c.relnamespace
+where c.relkind in ('r', 'm')
+  and n.nspname not in ('pg_catalog', 'information_schema')
+  and n.nspname not like 'pg_toast%'
+  and n.nspname not like 'pg_temp%'
+order by pg_total_relation_size(c.oid) desc
+limit 15;
+
+-- The posts count falls by about 40%, which the drop guard (0031) would
+-- refuse; forced, the next 5-minute tick saves it, ANALYZE first.
+\echo
+\echo '── Homepage snapshot: forced refresh request ───────────────────────────'
+select public.request_homepage_refresh('cleanup', p_force => true) as refresh_request_id;

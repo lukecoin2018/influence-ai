@@ -1,0 +1,206 @@
+-- scripts/db/cleanup-2026-10-plan.psql — inside the transaction, after the
+-- preflight. Works out exactly which rows go, into temp tables (ON COMMIT
+-- DROP, so they never outlive the transaction, even on a pooled connection)
+-- and prints the counts and estimated sizes. Writes nothing to the
+-- database's own tables. The export, the deletes and the index drops all
+-- read these temp tables, so what is exported is what is deleted.
+
+-- 10 s for any lock (an index drop behind a long reader gives up rather than
+-- queueing the site behind it), 30 minutes for any statement, and memory for
+-- the window sort and, in the dry run, the index rebuilds.
+set local lock_timeout = '10s';
+set local statement_timeout = '30min';
+set local work_mem = '64MB';
+set local maintenance_work_mem = '256MB';
+
+-- Sizes before anything changes, for the projection the dry run prints.
+select pg_database_size(current_database()) as db_before,
+       pg_total_relation_size('public.creator_posts') as posts_before,
+       pg_total_relation_size('public.creators') as creators_before
+\gset
+
+\echo
+\echo '── Plan: protected creators ───────────────────────────────────────────'
+\echo 'Every creator another table points at, through a foreign key to creators'
+\echo 'or to social_profiles. Their rows are left exactly as they are.'
+
+create temp table cleanup_protected (creator_id uuid primary key, refs text not null) on commit drop;
+
+-- The creator's own data (creator_entity, social_profiles under creators;
+-- creator_posts, engagement_snapshots under social_profiles) does not
+-- protect it. Everything else does, including tables added after this was
+-- written.
+do $$
+declare
+  r record;
+  own oid[] := array(select to_regclass(x)::oid from unnest(array[
+    'public.creator_entity', 'public.social_profiles', 'public.creator_posts', 'public.engagement_snapshots']) x
+    where to_regclass(x) is not null);
+begin
+  if exists (select 1 from pg_constraint c
+             where c.contype = 'f'
+               and c.confrelid in ('public.creators'::regclass, 'public.social_profiles'::regclass)
+               and array_length(c.conkey, 1) > 1) then
+    raise exception 'plan: a multi-column foreign key points at creators or social_profiles; this script does not handle that';
+  end if;
+  for r in
+    select c.conrelid::regclass::text as tbl, a.attname as col, c.confrelid = 'public.creators'::regclass as to_creators
+    from pg_constraint c
+    join pg_attribute a on a.attrelid = c.conrelid and a.attnum = c.conkey[1]
+    where c.contype = 'f'
+      and c.confrelid in ('public.creators'::regclass, 'public.social_profiles'::regclass)
+      and c.conrelid <> all (own)
+  loop
+    if r.to_creators then
+      execute format($q$insert into cleanup_protected
+                        select distinct %1$I, %2$L from %3$s where %1$I is not null
+                        on conflict (creator_id) do update set refs = cleanup_protected.refs || ', ' || excluded.refs$q$,
+                     r.col, r.tbl, r.tbl);
+    else
+      execute format($q$insert into cleanup_protected
+                        select distinct sp.creator_id, %2$L from %3$s x join public.social_profiles sp on sp.id = x.%1$I
+                        where sp.creator_id is not null
+                        on conflict (creator_id) do update set refs = cleanup_protected.refs || ', ' || excluded.refs$q$,
+                     r.col, r.tbl, r.tbl);
+    end if;
+  end loop;
+  -- 31 on 2026-10-25. Thousands would mean a table of the creator's own data
+  -- is being read as a reference, and the cleanup would quietly do little.
+  if (select count(*) from cleanup_protected) > 200 then
+    raise exception 'plan: % protected creators, expected about 31. Check which table protects them (refs) before going on.',
+      (select count(*) from cleanup_protected);
+  end if;
+end $$;
+
+select count(*) as protected_creators,
+       count(*) filter (where c.status = 'non_creator') as of_them_hidden
+from cleanup_protected p
+join public.creators c on c.id = p.creator_id;
+
+select refs as referenced_from, count(*) as creators
+from cleanup_protected group by refs order by count(*) desc;
+
+\echo
+\echo '── Plan: hidden accounts (creators.status = non_creator), unprotected ──'
+
+create temp table cleanup_hidden on commit drop as
+select c.id as creator_id, c.embedding is not null as has_embedding
+from public.creators c
+where c.status = 'non_creator'
+  and not exists (select 1 from cleanup_protected p where p.creator_id = c.id);
+alter table cleanup_hidden add primary key (creator_id);
+
+select count(*) as hidden_accounts,
+       count(*) filter (where has_embedding) as embeddings_to_clear_in_stage_2
+from cleanup_hidden;
+
+\echo
+\echo '── Plan: posts ─────────────────────────────────────────────────────────'
+\echo 'Ranked per profile by posted_at, newest first, undated last. A candidate is'
+\echo 'a post outside its profile''s 15 newest, or any post of a hidden account.'
+\echo 'It is kept if it is evidence of a brand deal (is_sponsored, actor_is_sponsored'
+\echo 'or actor_is_ad true, or detected_brands not empty) or its creator is protected.'
+\echo 'The kept_ columns overlap: a post can be kept for several reasons.'
+
+create temp table cleanup_posts on commit drop as
+select cp.id,
+       sp.creator_id,
+       row_number() over (partition by cp.social_profile_id
+                          order by cp.posted_at desc nulls last, cp.id desc) as rn,
+       cp.posted_at is null as undated,
+       coalesce(cp.is_sponsored, false) as k_sponsored,
+       coalesce(cp.actor_is_sponsored, false) as k_actor_sponsored,
+       coalesce(cp.actor_is_ad, false) as k_actor_ad,
+       coalesce(cardinality(cp.detected_brands), 0) > 0 as k_brands,
+       pg_column_size(cp.*)::bigint as bytes
+from public.creator_posts cp
+left join public.social_profiles sp on sp.id = cp.social_profile_id;
+
+create temp table cleanup_candidates on commit drop as
+select p.*,
+       case when h.creator_id is not null then 'hidden_account' else 'older_than_15' end as scope,
+       pr.creator_id is not null as protected,
+       (p.k_sponsored or p.k_actor_sponsored or p.k_actor_ad or p.k_brands) as brand_evidence
+from cleanup_posts p
+left join cleanup_hidden h on h.creator_id = p.creator_id
+left join cleanup_protected pr on pr.creator_id = p.creator_id
+where h.creator_id is not null or p.rn > 15;
+
+create temp table cleanup_doomed on commit drop as
+select id, scope, ((row_number() over (order by id) - 1) / :batch_size)::int as batch
+from cleanup_candidates
+where not protected and not brand_evidence;
+alter table cleanup_doomed add primary key (id);
+create index on cleanup_doomed (batch);
+
+select scope,
+       count(*)                                                                as candidates,
+       count(*) filter (where protected)                                       as kept_protected_creator,
+       count(*) filter (where not protected and k_sponsored)                   as kept_is_sponsored,
+       count(*) filter (where not protected and k_actor_sponsored)             as kept_actor_is_sponsored,
+       count(*) filter (where not protected and k_actor_ad)                    as kept_actor_is_ad,
+       count(*) filter (where not protected and k_brands)                      as kept_detected_brands,
+       count(*) filter (where not protected and k_brands and not k_sponsored)  as kept_brands_not_sponsored,
+       count(*) filter (where not protected and brand_evidence
+                          and not k_sponsored and not k_brands)                as kept_only_by_actor_flags,
+       count(*) filter (where not protected and brand_evidence)                as kept_brand_evidence,
+       count(*) filter (where not protected and not brand_evidence)            as to_delete,
+       count(*) filter (where not protected and not brand_evidence and undated) as to_delete_undated
+from cleanup_candidates
+group by scope
+order by scope;
+
+\echo 'Estimated size of what goes: its share of creator_posts'' row data, applied'
+\echo 'to creator_posts'' total size today. The dry run measures it further down.'
+select coalesce(d.scope, 'total') as scope,
+       count(*) as posts_to_delete,
+       pg_size_pretty(sum(p.bytes)) as row_data,
+       pg_size_pretty((:posts_before::numeric * sum(p.bytes) / (select sum(bytes) from cleanup_posts))::bigint) as est_share_of_creator_posts
+from cleanup_doomed d
+join cleanup_posts p on p.id = d.id
+group by rollup (d.scope)
+order by d.scope nulls last;
+
+select (select count(*) from cleanup_posts) as posts_now,
+       (select count(*) from cleanup_doomed) as posts_to_delete,
+       (select count(*) from cleanup_posts) - (select count(*) from cleanup_doomed) as posts_after,
+       (select max(batch) + 1 from cleanup_doomed) as batches;
+
+\echo
+\echo '── Plan: indexes and constraint to drop (last, right before COMMIT) ────'
+
+create temp table cleanup_drops (
+  ord int primary key, tbl text not null, name text not null, kind text not null,
+  act boolean not null, bytes bigint not null default 0, def text, note text
+) on commit drop;
+
+insert into cleanup_drops (ord, tbl, name, kind, act, bytes, def, note)
+select v.ord, v.tbl, v.name, 'index',
+       to_regclass('public.' || v.name) is not null,
+       coalesce(pg_relation_size(to_regclass('public.' || v.name)), 0),
+       pg_get_indexdef(to_regclass('public.' || v.name)),
+       case when to_regclass('public.' || v.name) is null then 'already gone' end
+from (values (1, 'creator_posts', 'idx_posts_posted_at'),
+             (2, 'creator_posts', 'idx_posts_social_profile'),
+             (3, 'brands',        'idx_brands_handle'),
+             (4, 'brands',        'idx_brands_last_updated')) v(ord, tbl, name);
+
+insert into cleanup_drops (ord, tbl, name, kind, act, bytes, def, note)
+select 5, 'partnerships', 'partnerships_creator_id_brand_id_post_url_key', 'constraint',
+       c.oid is not null and n.namers is null,
+       coalesce(pg_relation_size(c.conindid), 0),
+       case when c.oid is not null
+            then 'alter table public.partnerships add constraint partnerships_creator_id_brand_id_post_url_key '
+                 || pg_get_constraintdef(c.oid) end,
+       case when c.oid is null then 'already gone'
+            when n.namers is not null then 'a function names it: ' || n.namers end
+from (select 1) one
+left join pg_constraint c on c.conname = 'partnerships_creator_id_brand_id_post_url_key'
+                         and c.conrelid = 'public.partnerships'::regclass
+left join lateral (select string_agg(p.oid::regprocedure::text, ', ') as namers
+                   from pg_proc p
+                   where p.prosrc ilike '%partnerships_creator_id_brand_id_post_url_key%') n on true;
+
+select ord, tbl, name, kind, case when act then 'drop' else 'skip' end as action,
+       pg_size_pretty(bytes) as size, note
+from cleanup_drops order by ord;
