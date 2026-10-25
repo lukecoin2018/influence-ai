@@ -1,0 +1,100 @@
+-- scripts/db/cleanup-2026-10-apply.psql — inside the transaction, after the
+-- export. Deletes the planned posts in batches (progress lines; the
+-- transaction, not the batch, is what makes it all or nothing), clears the
+-- hidden accounts' embeddings (stage 2), and checks the result against the
+-- plan. Any difference raises, and the whole transaction rolls back.
+
+\echo
+\echo '── Apply ───────────────────────────────────────────────────────────────'
+
+-- Row counts of every table these changes could reach: the four tables
+-- touched or cascading, and every table with a foreign key into creators,
+-- social_profiles or creator_posts. After the changes only creator_posts may
+-- differ, by exactly the planned number.
+create temp table cleanup_counts (rel oid primary key, tbl text not null, before bigint, after bigint) on commit drop;
+
+do $$
+declare
+  r oid;
+begin
+  for r in
+    select distinct x from (
+      select unnest(array['public.creator_posts'::regclass, 'public.creators'::regclass,
+                          'public.social_profiles'::regclass, 'public.creator_entity'::regclass])::oid as x
+      union
+      select c.conrelid
+      from pg_constraint c
+      where c.contype = 'f'
+        and c.confrelid in ('public.creators'::regclass, 'public.social_profiles'::regclass, 'public.creator_posts'::regclass)
+    ) s
+  loop
+    execute format('insert into cleanup_counts (rel, tbl, before) select %s, %L, count(*) from %s',
+                   r, r::regclass::text, r::regclass::text);
+  end loop;
+end $$;
+
+do $$
+declare
+  b int;
+  nb int;
+  n bigint;
+  total bigint := 0;
+  planned bigint;
+  t0 timestamptz := clock_timestamp();
+begin
+  select count(*), coalesce(max(batch), -1) into planned, nb from cleanup_doomed;
+  for b in 0..nb loop
+    delete from public.creator_posts cp
+    using cleanup_doomed d
+    where d.batch = b and cp.id = d.id;
+    get diagnostics n = row_count;
+    total := total + n;
+    raise notice 'posts: batch % of %: % deleted, % so far (% s)',
+      b + 1, nb + 1, n, total, round(extract(epoch from clock_timestamp() - t0));
+  end loop;
+  if total <> planned then
+    raise exception 'apply: deleted % posts, planned %', total, planned;
+  end if;
+end $$;
+
+-- Stage 2. embedded_at stays as it is, so the scraper's embedding queue
+-- (embedded_at is null) does not pick these accounts up again.
+do $$
+declare
+  n bigint;
+  planned bigint;
+begin
+  select count(*) into planned from cleanup_hidden where has_embedding;
+  update public.creators c
+     set embedding = null
+    from cleanup_hidden h
+   where h.creator_id = c.id
+     and c.embedding is not null;
+  get diagnostics n = row_count;
+  if n <> planned then
+    raise exception 'apply: cleared % embeddings, planned %', n, planned;
+  end if;
+  raise notice 'stage 2: cleared % embeddings on hidden accounts', n;
+end $$;
+
+do $$
+declare
+  r record;
+  bad text;
+begin
+  for r in select rel, tbl from cleanup_counts loop
+    execute format('update cleanup_counts set after = (select count(*) from %s) where rel = %s', r.tbl, r.rel);
+  end loop;
+  select string_agg(tbl || ' ' || before || ' -> ' || after, ', ') into bad
+  from cleanup_counts
+  where (rel = 'public.creator_posts'::regclass and after <> before - (select count(*) from cleanup_doomed))
+     or (rel <> 'public.creator_posts'::regclass and after <> before);
+  if bad is not null then
+    raise exception 'apply: unexpected row counts: %', bad;
+  end if;
+  if exists (select 1 from public.creators c join cleanup_hidden h on h.creator_id = c.id where c.embedding is not null) then
+    raise exception 'apply: a hidden account still has an embedding';
+  end if;
+end $$;
+
+select tbl, before, after, after - before as change from cleanup_counts order by tbl;

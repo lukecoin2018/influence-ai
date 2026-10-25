@@ -1,0 +1,233 @@
+-- scripts/db/cleanup-2026-10-preflight.psql — read-only checks, run by
+-- scripts/db/cleanup-2026-10.sh before the pg_dump and again as the first
+-- file of the transaction. A check that fails raises, and ON_ERROR_STOP stops
+-- the run before anything is written. Notices report what the run will do.
+--
+-- :check_window (true or false) adds the schedule check, done once before the
+-- dump: no start within 40 minutes of the 6-hourly homepage refresh (0031),
+-- which reads creator_posts for up to about 5 minutes and would make the
+-- index drops and the VACUUM give up waiting for their locks.
+
+\echo
+\echo '── Preflight ───────────────────────────────────────────────────────────'
+
+-- Tables, columns, and ownership: VACUUM and DROP INDEX on a table the
+-- connecting role does not own skip with a warning or fail.
+do $$
+declare
+  missing text;
+  not_owned text;
+begin
+  select string_agg(t, ', ') into missing
+  from unnest(array['creator_posts', 'creators', 'social_profiles', 'creator_entity',
+                    'brands', 'partnerships', 'homepage_snapshot_requests']) t
+  where to_regclass('public.' || t) is null;
+  if missing is not null then
+    raise exception 'preflight: missing tables: %', missing;
+  end if;
+
+  select string_agg(v.t || '.' || v.c, ', ') into missing
+  from (values ('creator_posts', 'id'), ('creator_posts', 'social_profile_id'),
+               ('creator_posts', 'posted_at'), ('creator_posts', 'is_sponsored'),
+               ('creator_posts', 'actor_is_sponsored'), ('creator_posts', 'actor_is_ad'),
+               ('creator_posts', 'detected_brands'), ('creators', 'status'),
+               ('creators', 'embedding'), ('social_profiles', 'creator_id')) v(t, c)
+  where not exists (select 1 from information_schema.columns i
+                    where i.table_schema = 'public' and i.table_name = v.t and i.column_name = v.c);
+  if missing is not null then
+    raise exception 'preflight: missing columns: %', missing;
+  end if;
+
+  if (select data_type from information_schema.columns
+      where table_schema = 'public' and table_name = 'creator_posts' and column_name = 'detected_brands') <> 'ARRAY' then
+    raise exception 'preflight: creator_posts.detected_brands is not an array; the keep rule reads it with cardinality()';
+  end if;
+
+  select string_agg(c.relname || ' (owner ' || pg_get_userbyid(c.relowner) || ')', ', ') into not_owned
+  from pg_class c
+  where c.oid in ('public.creator_posts'::regclass, 'public.creators'::regclass,
+                  'public.brands'::regclass, 'public.partnerships'::regclass)
+    and not pg_has_role(current_user, c.relowner, 'MEMBER');
+  if not_owned is not null then
+    raise exception 'preflight: % is not owned by %, so VACUUM FULL would skip it and DROP INDEX would fail', not_owned, current_user;
+  end if;
+end $$;
+
+-- The indexes to drop, each against the definition the read-only checks of
+-- 2026-10-25 reported, and the index that stays in its place. Anything else
+-- stops the run rather than dropping an index nobody looked at. An index
+-- already gone is reported and skipped, so a rerun is safe.
+do $$
+declare
+  r record;
+  shape text;
+  keep_shape text;
+  keep_unique boolean;
+  namers text;
+begin
+  for r in
+    select * from (values
+      ('creator_posts', 'idx_posts_posted_at',      'btree (posted_at DESC)',   null,                                  null),
+      ('creator_posts', 'idx_posts_social_profile', 'btree (social_profile_id)', 'idx_creator_posts_social_profile_id', false),
+      ('brands',        'idx_brands_handle',        'btree (instagram_handle)', 'brands_instagram_handle_key',          true),
+      ('brands',        'idx_brands_last_updated',  null,                       null,                                  null)
+    ) v(tbl, idx, want, keep, keep_must_be_unique)
+  loop
+    if to_regclass('public.' || r.idx) is null then
+      raise notice 'preflight: % is already gone', r.idx;
+      continue;
+    end if;
+    select regexp_replace(pg_get_indexdef(i.indexrelid), '^.* USING ', '') into shape
+    from pg_index i
+    where i.indexrelid = to_regclass('public.' || r.idx)
+      and i.indrelid = ('public.' || r.tbl)::regclass
+      and not i.indisunique;
+    if shape is null then
+      raise exception 'preflight: % is not a plain (non-unique) index on %', r.idx, r.tbl;
+    end if;
+    if r.want is not null and shape <> r.want then
+      raise exception 'preflight: % is "%", expected "%"', r.idx, shape, r.want;
+    end if;
+    if exists (select 1 from pg_constraint c where c.conindid = to_regclass('public.' || r.idx)) then
+      raise exception 'preflight: a constraint depends on %', r.idx;
+    end if;
+    if r.keep is not null then
+      select regexp_replace(pg_get_indexdef(i.indexrelid), '^.* USING ', ''), i.indisunique
+        into keep_shape, keep_unique
+      from pg_index i
+      where i.indexrelid = to_regclass('public.' || r.keep)
+        and i.indrelid = ('public.' || r.tbl)::regclass;
+      if keep_shape is distinct from shape or (r.keep_must_be_unique and not keep_unique) then
+        raise exception 'preflight: % should stay as "%"% in place of %, but it is "%"',
+          r.keep, shape, case when r.keep_must_be_unique then ' (unique)' else '' end, r.idx, coalesce(keep_shape, 'missing');
+      end if;
+    end if;
+    raise notice 'preflight: will drop % on % (%, %)', r.idx, r.tbl, shape,
+      pg_size_pretty(pg_relation_size(to_regclass('public.' || r.idx)));
+  end loop;
+
+  -- partnerships: drop the constraint, keep the unique index the brand-feed
+  -- upsert (onConflict 'creator_id,brand_id,post_url') can use. Skipped, not
+  -- stopped, when a function names the constraint.
+  if not exists (select 1 from pg_constraint
+                 where conname = 'partnerships_creator_id_brand_id_post_url_key'
+                   and conrelid = 'public.partnerships'::regclass) then
+    raise notice 'preflight: partnerships_creator_id_brand_id_post_url_key is already gone';
+  else
+    select regexp_replace(pg_get_indexdef(c.conindid), '^.* USING ', '') into shape
+    from pg_constraint c
+    where c.conname = 'partnerships_creator_id_brand_id_post_url_key'
+      and c.conrelid = 'public.partnerships'::regclass
+      and c.contype = 'u';
+    if shape is distinct from 'btree (creator_id, brand_id, post_url)' then
+      raise exception 'preflight: partnerships_creator_id_brand_id_post_url_key is not a unique constraint on (creator_id, brand_id, post_url) (index: %)', coalesce(shape, 'none');
+    end if;
+    select regexp_replace(pg_get_indexdef(i.indexrelid), '^.* USING ', ''), i.indisunique
+      into keep_shape, keep_unique
+    from pg_index i
+    where i.indexrelid = to_regclass('public.partnerships_unique_creator_brand_post')
+      and i.indrelid = 'public.partnerships'::regclass;
+    if keep_shape is distinct from shape or not keep_unique then
+      raise exception 'preflight: partnerships_unique_creator_brand_post should stay as a unique "%", but it is "%"', shape, coalesce(keep_shape, 'missing');
+    end if;
+    if exists (select 1 from pg_constraint f
+               where f.contype = 'f'
+                 and f.conindid = (select c.conindid from pg_constraint c
+                                   where c.conname = 'partnerships_creator_id_brand_id_post_url_key'
+                                     and c.conrelid = 'public.partnerships'::regclass)) then
+      raise exception 'preflight: a foreign key depends on partnerships_creator_id_brand_id_post_url_key';
+    end if;
+    select string_agg(p.oid::regprocedure::text, ', ') into namers
+    from pg_proc p
+    where p.prosrc ilike '%partnerships_creator_id_brand_id_post_url_key%';
+    if namers is not null then
+      raise notice 'preflight: will SKIP partnerships_creator_id_brand_id_post_url_key: named by %', namers;
+    else
+      raise notice 'preflight: will drop constraint partnerships_creator_id_brand_id_post_url_key (%), no function names it', shape;
+    end if;
+  end if;
+end $$;
+
+-- What else a delete or update could set off. A foreign key into
+-- creator_posts would cascade or fail in a table this script does not know,
+-- and a DELETE trigger on it could do anything, so both stop the run.
+-- UPDATE triggers on creators (stage 2 updates embedding) are listed.
+do $$
+declare
+  found text;
+  r record;
+begin
+  select string_agg(c.conrelid::regclass::text || ' (' || c.conname || ')', ', ') into found
+  from pg_constraint c
+  where c.contype = 'f' and c.confrelid = 'public.creator_posts'::regclass;
+  if found is not null then
+    raise exception 'preflight: foreign keys reference creator_posts from %; stopping', found;
+  end if;
+
+  select string_agg(t.tgname, ', ') into found
+  from pg_trigger t
+  where t.tgrelid = 'public.creator_posts'::regclass
+    and not t.tgisinternal and t.tgenabled <> 'D'
+    and (t.tgtype & 8) <> 0;
+  if found is not null then
+    raise exception 'preflight: DELETE triggers on creator_posts: %; stopping', found;
+  end if;
+
+  for r in
+    select pg_get_triggerdef(t.oid) as def
+    from pg_trigger t
+    where t.tgrelid = 'public.creators'::regclass
+      and not t.tgisinternal and t.tgenabled <> 'D'
+      and (t.tgtype & 16) <> 0
+  loop
+    raise notice 'preflight: UPDATE trigger on creators (fires for the embedding update): %', r.def;
+  end loop;
+end $$;
+
+-- A homepage refresh running or queued holds creator_posts for minutes.
+do $$
+begin
+  if exists (select 1 from pg_stat_activity
+             where pid <> pg_backend_pid() and state = 'active'
+               and query ~* '(run_homepage_snapshot_job|refresh_homepage_snapshot|compute_homepage_snapshot)') then
+    raise exception 'preflight: a homepage snapshot refresh is running right now. Run this again in 10 minutes.';
+  end if;
+  if exists (select 1 from public.homepage_snapshot_requests where handled_at is null) then
+    raise exception 'preflight: a homepage refresh is queued; the 5-minute job starts it shortly. Run this again in 10 minutes.';
+  end if;
+end $$;
+
+\if :check_window
+do $$
+declare
+  sched text;
+  now_utc timestamp := now() at time zone 'utc';
+  next_run timestamp;
+begin
+  if to_regclass('cron.job') is null then
+    raise notice 'preflight: no pg_cron here; schedule check skipped';
+    return;
+  end if;
+  execute $q$select schedule from cron.job where jobname = 'homepage-snapshot-refresh' and active$q$ into sched;
+  if sched is null then
+    raise notice 'preflight: homepage-snapshot-refresh is not scheduled; schedule check skipped';
+    return;
+  end if;
+  if sched <> '17 */6 * * *' then
+    raise exception 'preflight: homepage-snapshot-refresh runs on "%", not "17 */6 * * *" (0031). Check by hand that no refresh is due in the next 40 minutes, then update this check.', sched;
+  end if;
+  select min(t) into next_run
+  from generate_series(date_trunc('day', now_utc) - interval '6 hours' + interval '17 minutes',
+                       date_trunc('day', now_utc) + interval '1 day 17 minutes',
+                       interval '6 hours') t
+  where t + interval '10 minutes' > now_utc;
+  if next_run - now_utc < interval '40 minutes' then
+    raise exception 'preflight: the 6-hourly homepage refresh runs at % UTC and reads creator_posts for up to ~5 minutes. Start after % UTC.',
+      to_char(next_run, 'HH24:MI'), to_char(next_run + interval '10 minutes', 'HH24:MI');
+  end if;
+  raise notice 'preflight: next scheduled homepage refresh at % UTC, % from now', to_char(next_run, 'HH24:MI'),
+    to_char(next_run - now_utc, 'HH24:MI');
+end $$;
+\endif
+
+\echo 'Preflight passed.'

@@ -1,0 +1,31 @@
+-- scripts/db/cleanup-2026-10-drop.psql — the last file of the transaction,
+-- right before COMMIT (or the dry run's ROLLBACK).
+--
+-- Last on purpose: DROP INDEX and ALTER TABLE ... DROP CONSTRAINT lock their
+-- whole table, reads included, until the transaction ends. Here that is a
+-- moment; at the start it would have been the whole run. Nothing earlier
+-- needs them gone: a DELETE does not touch indexes.
+--
+-- What is dropped, and why each is safe, is decided by the preflight and the
+-- plan (cleanup_drops); the definitions are in dropped_indexes.csv.
+
+\echo
+\echo '── Index drops ─────────────────────────────────────────────────────────'
+
+do $$
+declare
+  r record;
+begin
+  for r in select * from cleanup_drops order by ord loop
+    if not r.act then
+      raise notice 'skipped %: %', r.name, r.note;
+      continue;
+    end if;
+    if r.kind = 'index' then
+      execute format('drop index public.%I', r.name);
+    else
+      execute format('alter table public.%I drop constraint %I', r.tbl, r.name);
+    end if;
+    raise notice 'dropped % on % (%)', r.name, r.tbl, pg_size_pretty(r.bytes);
+  end loop;
+end $$;
